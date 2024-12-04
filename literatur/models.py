@@ -67,7 +67,7 @@ class UserDetail(models.Model):
 		return f"{self.nama_lengkap}"
 
 class Books(models.Model):
-	id = models.CharField(max_length=40,default=str(uuid.uuid4()),primary_key=True,blank=True)
+	id = models.UUIDField(primary_key=True,editable=False,auto_created=True)
 	judul = models.CharField(max_length=100,default="",verbose_name="Nama Buku")
 	pengarang = models.CharField(max_length=100,default="",verbose_name="Pengarang Buku")
 	price = models.PositiveIntegerField(default=0,verbose_name="Harga Buku")
@@ -90,12 +90,6 @@ class Books(models.Model):
 	
 
 	def save(self,*args,**kwargs):
-		if self.is_new:
-			#jika baru dibuat maka akan dibuat uuid baru
-			self.id=str(uuid.uuid4())
-			self.is_new=False
-			super(Books,self).save(*args,**kwargs)
-
 		if self.is_update_full:
 			self.is_update_full=False
 			super(Books,self).save(*args,**kwargs)
@@ -155,7 +149,7 @@ class BooksFullJPG(models.Model):
 	image = models.ImageField(upload_to=id_books)
 
 class BookReview(models.Model):
-	id = models.CharField(primary_key=True,max_length=36,blank=False,null=False,default=str(uuid.uuid4()))
+	id = models.UUIDField(primary_key=True,auto_created=True,editable=False)
 	id_buku = models.ForeignKey(Books,on_delete=models.RESTRICT,related_name="id_buku")
 	id_customer = models.ForeignKey(UserDetail,on_delete=models.RESTRICT)
 	review = models.TextField(max_length=200)
@@ -201,7 +195,7 @@ class UserBook(models.Model):
 		unique_together = ['id_book','id_user']
 
 class customerBookmark(models.Model):
-	id_bookmark = models.CharField(primary_key=True,max_length=36,blank=True,default=str(uuid.uuid4()))
+	id_bookmark = models.UUIDField(primary_key=True,auto_created=True,editable=False)
 	id_userbook = models.ForeignKey(UserBook,on_delete=models.RESTRICT)
 	page = models.PositiveSmallIntegerField(default=1)
 	color = models.CharField(max_length=20,choices=colornya)
