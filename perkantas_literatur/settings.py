@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-kjwr-+n9x4$vtnef_)324^nj&g6_06-oahvpwovv!$rk_$alta
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost','leopardweb.pythonanywhere.com']
 
 
 # Application definition
