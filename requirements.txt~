@@ -1,0 +1,9 @@
+sgiref
+Django
+pdf2image
+pillow
+psycopg2
+python-dotenv
+sqlparse
+tzdata
+
