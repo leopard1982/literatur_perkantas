@@ -55,6 +55,7 @@ kategori = [
 
 class UserDetail(models.Model):
 	user= models.OneToOneField(User,on_delete=models.DO_NOTHING)
+	id_customer = models.UUIDField(auto_created=True,editable=False,default=uuid.uuid4())
 	id_perkantas = models.CharField(max_length=100,null=True,blank=True,verbose_name="ID Data Perkantas")
 	alias = models.CharField(max_length=256,null=True,blank=True,verbose_name="Nama Panggilan")
 	nama_lengkap = models.CharField(max_length=200,null=True,blank=True)
@@ -207,4 +208,15 @@ class customerBookmark(models.Model):
 	
 	class Meta:
 		unique_together = ['page','id_userbook']
+
+class PageReview(models.Model):
+	id = models.UUIDField(auto_created=True,primary_key=True,editable=False,default=uuid.uuid4())
+	user = models.OneToOneField(User,on_delete=models.DO_NOTHING)
+	review = models.CharField(max_length=400,null=True,blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	is_active = models.BooleanField(default=True)
+
+	def __str__(self):
+		return f"{self.user.userdetail.nama_lengkap} - {self.review}"
 	
