@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
-from .models import PageReview,Books,FeaturedBook
+from .models import PageReview,Books,FeaturedBook, Category
 from django.db.models import Avg,Q
 import datetime
 
@@ -18,11 +18,12 @@ def mainPage(request):
     page_review = PageReview.objects.all().filter(is_active=True)
 
     featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date()))
-     
+    category = Category.objects.all() 
     
     context = {
         'page_review':page_review,
-        'feature_book':featured_book
+        'feature_book':featured_book,
+        'category':category
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)

@@ -50,6 +50,7 @@ tipe = [
 class Category(models.Model):
 	nama = models.CharField(max_length=30,default="")
 	keterangan = models.CharField(max_length=100,default="")
+	gambar = models.ImageField(upload_to='gambar_category',blank=True,null=True)
 
 	def __str__(self):
 		return f"{self.nama}"
