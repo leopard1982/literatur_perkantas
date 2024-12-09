@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <html>
@@ -466,6 +467,7 @@
 
     </header>
 
+    {% if feature_book %}
     <section id="billboard" class="position-relative d-flex align-items-center py-5 bg-light-gray"
       style="background-image: url(images/banner-image-bg.jpg); background-size: cover; background-repeat: no-repeat; background-position: center; height: 800px;">
       <div class="position-absolute end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next main-slider-button-next">
@@ -564,6 +566,7 @@
         </div>
       </div>
     </section>
+    {% endif %}
 
     <section id="best-selling-items" class="position-relative padding-large ">
       <div class="container">
@@ -583,15 +586,17 @@
         </div>
         <div class="swiper product-swiper">
           <div class="swiper-wrapper">
+          {% for book in books_best_seller %}
+            {% if book.onsalebook %}  
             <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
+              <div class="card position-relative p-4 border rounded-3 shadow">
                 <div class="position-absolute">
-                  <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">10% off</p>
+                  <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
-                <img src="{% static 'images/product-item1.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">House of Sky Breath</a></h6>
+                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
+                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
                   <div class="rating text-warning d-flex align-items-center">
                     <svg class="star star-fill">
@@ -611,7 +616,7 @@
                     </svg>
                   </div>
                 </div>
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
+                <span class="price text-primary fw-bold mb-2 fs-5"><s style="color: rgba(0,0,0,0.5);"><i>Rp.{{book.price|intcomma}}.00</i></s> Rp.{{book.onsalebook.nett_price|intcomma}} </span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
                   <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                     data-bs-title="Tooltip on top">
@@ -629,56 +634,13 @@
                 </div>
               </div>
             </div>
+            {% else %}
             <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
-                <img src="{% static 'images/product-item2.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">Heartland Stars</a></h6>
+              <div class="card position-relative p-4 border rounded-3 shadow">
+                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-
-                  <div class="rating text-warning d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
-                </div>
-
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  <a href="#" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
-                <img src="{% static 'images/product-item3.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">Heavenly Bodies</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
+                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
                   <div class="rating text-warning d-flex align-items-center">
                     <svg class="star star-fill">
@@ -699,7 +661,7 @@
                   </div>
                 </div>
 
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
+                <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
                   <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                     data-bs-title="Tooltip on top">
@@ -717,142 +679,8 @@
                 </div>
               </div>
             </div>
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
-                <div class="position-absolute">
-                  <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">10% off</p>
-                </div>
-                <img src="{% static 'images/product-item4.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">His Saving Grace</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-
-                  <div class="rating text-warning d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
-                </div>
-
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  <a href="#" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
-                <img src="{% static 'images/product-item5.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">My Dearest Darkest</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-
-                  <div class="rating text-warning d-flex align-items-center d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
-                </div>
-
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  <a href="#" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3">
-                <img src="{% static 'images/product-item6.png'%}" class="img-fluid shadow-sm" alt="product item">
-                <h6 class="mt-4 mb-0 fw-bold"><a href="single-product.html">The Story of Success</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-
-                  <div class="rating text-warning d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
-                </div>
-
-                <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  <a href="#" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-
+            {% endif %}
+          {% endfor %}
           </div>
         </div>
       </div>
@@ -902,14 +730,15 @@
         <div class="row">
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="featured border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2">
+              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 50px;">
                 <h3 class="d-flex flex-column mb-0">Buku Baru</h3>
               </div>
               <div class="items-lists">
+                {% for book in books%}
                 <div class="item d-flex">
-                  <img src="{% static 'images/product-item2.png'%}" class="img-fluid shadow-sm" alt="product item">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Echoes of the Ancients</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
                     <div class="review-content d-flex">
                       <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
 
@@ -931,81 +760,27 @@
                         </svg>
                       </div>
                     </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
+                    <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
                   </div>
                 </div>
                 <hr class="gray-400">
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item1.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">The Midnight Garden</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                  </div>
-                </div>
-                <hr>
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item3.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Shadow of the Serpent</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                  </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="latest-items border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2">
+              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 50px;">
                 <h3 class="d-flex flex-column mb-0">Best Seller</h3>
               </div>
               <div class="items-lists">
+                {% for book in books_best_seller%}
                 <div class="item d-flex">
-                  <img src="{% static 'images/product-item4.png'%}" class="img-fluid shadow-sm" alt="product item">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Whispering Winds</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
                     <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
+                      <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
                       <div class="rating text-warning d-flex align-items-center">
                         <svg class="star star-fill">
                           <use xlink:href="#star-fill"></use>
@@ -1024,81 +799,28 @@
                         </svg>
                       </div>
                     </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
+                    <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
                   </div>
                 </div>
                 <hr class="gray-400">
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item5.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">The Forgotten Realm</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                  </div>
-                </div>
-                <hr>
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item6.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Moonlit Secrets</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5">$870</span>
-                  </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
           
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="on-sale border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2">
+              <div class="section-title overflow-hidden mb-5 mt-2" style="height: 50px;">
                 <h3 class="d-flex flex-column mb-0">On sale <span style="font-size: 20px;font-style: italic;">(promo)</span></h3>
               </div>
               <div class="items-lists">
+                {% for books in books_on_sale%}
                 <div class="item d-flex">
-                  <img src="{% static 'images/product-item10.png'%}" class="img-fluid shadow-sm" alt="product item">
+                  <img src="/media/extract/pdf_full/{{books.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">The Phoenix Chronicles</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{books.book.judul}}</a></h6>
                     <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
+                      <p class="my-2 me-2 fs-6 text-black-50">{{books.book.pengarang}}</p>
                       <div class="rating text-warning d-flex align-items-center">
                         <svg class="star star-fill">
                           <use xlink:href="#star-fill"></use>
@@ -1117,68 +839,12 @@
                         </svg>
                       </div>
                     </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">$1666</s>
-                      $999</span>
+                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{books.book.price|intcomma}}</s>
+                      Rp.{{books.nett_price|intcomma}}</span>
                   </div>
                 </div>
                 <hr class="gray-400">
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item11.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Dreams of Avalon</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">$500</s>
-                      $410</span>
-                  </div>
-                </div>
-                <hr>
-                <div class="item d-flex">
-                  <img src="{% static 'images/product-item12.png'%}" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html">Legends of the Dragon Isles</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">$600</s>
-                      $500</span>
-                  </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>

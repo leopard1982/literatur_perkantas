@@ -65,6 +65,8 @@ class UserDetail(models.Model):
 	photo = models.ImageField(upload_to='profile',null=True,blank=True)
 	total_poin = models.PositiveSmallIntegerField(default=0)
 	total_book = models.PositiveSmallIntegerField(default=0)
+	updated_at = models.DateTimeField(auto_now=True)
+	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return f"{self.nama_lengkap}"
@@ -83,6 +85,9 @@ class Books(models.Model):
 	view = models.PositiveBigIntegerField(default=0)
 	is_update_pdf = models.BooleanField(default=False,verbose_name='IS UPDATE ALL DATA?')
 	is_update_info = models.BooleanField(default=False,verbose_name="IS UPDATE INFO ONLY")
+	is_best_seller = models.BooleanField(default=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	created_at = models.DateTimeField(auto_now_add=True)
 
 	def save(self,*args,**kwargs):
 		if self.is_update_pdf and self.pdf_full!=None:
@@ -138,6 +143,8 @@ class FeaturedBook(models.Model):
 	is_active = models.BooleanField(default=True, verbose_name="IS ACTIVE?")
 	header = models.CharField(default="",blank=False,null=False,max_length=50)
 	body = models.CharField(default="",null=False,blank=False,max_length=100)
+	updated_at = models.DateTimeField(auto_now=True)
+	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return f"{self.book.judul} - {self.header} - {self.body}"
@@ -150,6 +157,14 @@ class OnSaleBook(models.Model):
 	discount = models.DecimalField(decimal_places=2,max_digits=4)
 	header = models.CharField(default="",blank=False,null=False,max_length=50)
 	body = models.CharField(default="",null=False,blank=False,max_length=100)
+	nett_price = models.DecimalField(max_digits=15,decimal_places=2,default=0)
+	updated_at = models.DateTimeField(auto_now=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def save(self,*args,**kwargs):
+		self.nett_price=self.book.price-self.discount*self.book.price/100
+		super(OnSaleBook,self).save(*args,**kwargs)
+
 
 class BooksPrevJPG(models.Model):
 	id_books = models.ForeignKey(Books,on_delete=models.CASCADE)
