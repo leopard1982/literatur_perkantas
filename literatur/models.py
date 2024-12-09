@@ -39,12 +39,6 @@ tipe = [
 	('buy','buy')
 ]
 
-kategori = [
-	('PA','PA'),
-	('Pemuridan','Pemuridan')
-]
-
-
 #buku a b c --> silver --> 20rb --> semi google point ditandai
 #tanda 1 buku dibaca --> totalan 10.000.000 --> buku sering dibaca --> % keuntungan 
 #buku d e f --> gold --> 50rb 
@@ -52,6 +46,13 @@ kategori = [
 ##counting klik buku reset setiap awal bulan
 #preview...
 #buku lifetime --> buku i
+
+class Category(models.Model):
+	nama = models.CharField(max_length=30,default="")
+	keterangan = models.CharField(max_length=100,default="")
+
+	def __str__(self):
+		return f"{self.nama}"
 
 class UserDetail(models.Model):
 	user= models.OneToOneField(User,on_delete=models.DO_NOTHING)
@@ -68,7 +69,7 @@ class UserDetail(models.Model):
 		return f"{self.nama_lengkap}"
 
 class Books(models.Model):
-	id = models.UUIDField(primary_key=True,editable=False,auto_created=True)
+	id = models.UUIDField(primary_key=True,editable=False,auto_created=True,default=uuid.uuid4)
 	judul = models.CharField(max_length=100,default="",verbose_name="Nama Buku")
 	pengarang = models.CharField(max_length=100,default="",verbose_name="Pengarang Buku")
 	price = models.PositiveIntegerField(default=0,verbose_name="Harga Buku")
@@ -76,30 +77,22 @@ class Books(models.Model):
 	halaman= models.PositiveIntegerField(default=0,verbose_name="Jumlah Halaman")
 	deskripsi = models.TextField(default="",verbose_name="Deskripsi Singkat")
 	point = models.PositiveIntegerField(default=0,verbose_name="Point")
-	tipe = models.CharField(max_length=20,default="",choices=tipe)
-	pdf_full = models.FileField(upload_to="pdf_full",verbose_name="File PDF Full")
-	pdf_prev = models.FileField(upload_to="pdf_prev",verbose_name="File PDF Preview")
-	kategori = models.CharField(max_length=20,choices=kategori)
+	pdf_full = models.FileField(upload_to="pdf_full",verbose_name="File PDF Full",blank=True,null=True)
+	kategori = models.ForeignKey(Category,on_delete=models.DO_NOTHING)
 	view = models.PositiveBigIntegerField(default=0)
-	is_update_prev = models.BooleanField(default=False,blank=True,verbose_name='IS UPDATE PDF PREVIEW?')
-	is_update_full = models.BooleanField(default=False,blank=True,verbose_name='IS UPDATE PDF FULL?')
-	is_new = models.BooleanField(default=False,blank=True,verbose_name='IS CREATE NEW?')
-	is_bestseller = models.BooleanField(default=False)
-	is_discount = models.BooleanField(default=False)
-	discount = models.DecimalField(decimal_places=2,max_digits=5,default=0)
-	is_featured = models.BooleanField(default=False)
-	
+	is_update_pdf = models.BooleanField(default=False,verbose_name='IS UPDATE ALL DATA?')
+	is_update_info = models.BooleanField(default=False,verbose_name="IS UPDATE INFO ONLY")
 
 	def save(self,*args,**kwargs):
-		if self.is_update_full:
-			self.is_update_full=False
+		if self.is_update_pdf and self.pdf_full!=None:
+			self.is_update_pdf=False
 			super(Books,self).save(*args,**kwargs)
 			
 			#road to path
 			#lokasi file pdf
 			lokasi_pdf = os.path.join(settings.BASE_DIR,"media",self.pdf_full.name)
 			#lokasi path extract image
-			lokasi_images = os.path.join(settings.BASE_DIR,"media","extract","pdf_full",self.id)
+			lokasi_images = os.path.join(settings.BASE_DIR,"media","extract","pdf_full",str(self.id))
 			
 
 			#create direktori baru untuk simpan file extract jpg
@@ -131,14 +124,32 @@ class Books(models.Model):
 
 			#hapus file pdfnya
 			os.remove(lokasi_pdf)
-
-		if self.is_update_prev:
-			self.is_update_prev=True
+		elif self.is_update_info:
 			super(Books,self).save(*args,**kwargs)
 
 	def __str__(self):
 		return f"{self.judul}"
-	
+
+class FeaturedBook(models.Model):
+	book = models.OneToOneField(Books,on_delete=models.CASCADE)
+	start_date = models.DateField(auto_now_add=False, verbose_name="Tanggal Mulai")
+	end_date = models.DateField(auto_now_add=False,verbose_name="Tanggal Selesai")
+	is_active = models.BooleanField(default=True, verbose_name="IS ACTIVE?")
+	header = models.CharField(default="",blank=False,null=False,max_length=50)
+	body = models.CharField(default="",null=False,blank=False,max_length=100)
+
+	def __str__(self):
+		return f"{self.book.judul} - {self.header} - {self.body}"
+
+class OnSaleBook(models.Model):
+	book = models.OneToOneField(Books,on_delete=models.CASCADE)
+	start_date = models.DateField(auto_now_add=False, verbose_name="Tanggal Mulai")
+	end_date = models.DateField(auto_now_add=False,verbose_name="Tanggal Selesai")
+	is_active = models.BooleanField(default=True, verbose_name="IS ACTIVE?")
+	discount = models.DecimalField(decimal_places=2,max_digits=4)
+	header = models.CharField(default="",blank=False,null=False,max_length=50)
+	body = models.CharField(default="",null=False,blank=False,max_length=100)
+
 class BooksPrevJPG(models.Model):
 	id_books = models.ForeignKey(Books,on_delete=models.CASCADE)
 	halaman = models.PositiveSmallIntegerField(default=0)
