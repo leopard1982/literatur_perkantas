@@ -17,7 +17,7 @@ def mainPage(request):
     
     page_review = PageReview.objects.all().filter(is_active=True)
 
-    featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__gte=datetime.datetime.now().date()) and Q(end_date__lte=datetime.datetime.now().date()))
+    featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date()))
      
     
     context = {
