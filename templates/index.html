@@ -730,12 +730,12 @@
         <div class="row">
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="featured border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 50px;">
+              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">Buku Baru</h3>
               </div>
               <div class="items-lists">
                 {% for book in books%}
-                <div class="item d-flex">
+                <div class="item d-flex" style="height: 150px;">
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
@@ -770,12 +770,12 @@
           </div>
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="latest-items border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 50px;">
+              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">Best Seller</h3>
               </div>
               <div class="items-lists">
                 {% for book in books_best_seller%}
-                <div class="item d-flex">
+                <div class="item d-flex" style="height: 150px;">
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
@@ -810,13 +810,13 @@
           
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
             <div class="on-sale border rounded-3 p-4">
-              <div class="section-title overflow-hidden mb-5 mt-2" style="height: 50px;">
+              <div class="section-title overflow-hidden mb-5 mt-2" style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">On sale <span style="font-size: 20px;font-style: italic;">(promo)</span></h3>
               </div>
               <div class="items-lists">
                 {% for books in books_on_sale%}
-                <div class="item d-flex">
-                  <img src="/media/extract/pdf_full/{{books.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                <div class="item d-flex" style="height: 150px;">
+                  <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{books.book.judul}}</a></h6>
                     <div class="review-content d-flex">
