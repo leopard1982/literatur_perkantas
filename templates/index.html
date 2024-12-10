@@ -760,7 +760,12 @@
                         </svg>
                       </div>
                     </div>
+                    {% if book.onsalebook.is_active %}
+                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{book.price|intcomma}}</s>
+                      Rp.{{book.onsalebook.nett_price|intcomma}}</span>
+                    {% else %}
                     <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                    {% endif %}
                   </div>
                 </div>
                 <hr class="gray-400">
@@ -799,7 +804,12 @@
                         </svg>
                       </div>
                     </div>
+                    {% if book.onsalebook.is_active %}
+                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{book.price|intcomma}}</s>
+                      Rp.{{book.onsalebook.nett_price|intcomma}}</span>
+                    {% else %}
                     <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                    {% endif %}
                   </div>
                 </div>
                 <hr class="gray-400">
