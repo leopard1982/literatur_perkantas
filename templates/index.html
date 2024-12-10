@@ -732,9 +732,9 @@
       <div class="container">
         <div class="row">
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
-            <div class="featured border rounded-3 p-4 bg-white">
+            <div class="featured border rounded-3 p-4 bg-white shadow">
               <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
-                <h3 class="d-flex flex-column mb-0">Buku Baru</h3>
+                <h3 class="d-flex flex-column mb-0">Buku Baru</h3><hr>
               </div>
               <div class="items-lists">
                 {% for book in books%}
@@ -777,9 +777,9 @@
             </div>
           </div>
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4  ">
-            <div class="latest-items border rounded-3 p-4 bg-white">
+            <div class="latest-items border rounded-3 p-4 bg-white shadow">
               <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
-                <h3 class="d-flex flex-column mb-0">Best Seller</h3>
+                <h3 class="d-flex flex-column mb-0">Best Seller</h3><hr>
               </div>
               <div class="items-lists">
                 {% for book in books_best_seller%}
@@ -822,9 +822,9 @@
           </div>
           
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
-            <div class="on-sale border rounded-3 p-4  bg-white">
+            <div class="on-sale border rounded-3 p-4  bg-white shadow">
               <div class="section-title overflow-hidden mb-5 mt-2" style="height: 70px;">
-                <h3 class="d-flex flex-column mb-0">On sale <span style="font-size: 20px;font-style: italic;">(promo)</span></h3>
+                <h3 class="d-flex flex-column mb-0">On Sale </h3><hr>
               </div>
               <div class="items-lists">
                 {% for books in books_on_sale%}
@@ -872,8 +872,8 @@
         </div>
         <div class="row">
           {% for cat in category%}
-          <div class="col-md-4">
-            <div class="card mb-4 border-0 rounded-3 position-relative">
+          <div class="col-md-4 ">
+            <div class="card mb-4 border-0 rounded-3 position-relative shadow">
               <a href="shop.html">
                 <img src="{{cat.gambar.url}}" class="img-fluid rounded-3" alt="cart item">
                 <h6 class=" position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3"><a href="shop.html"
