@@ -248,4 +248,10 @@ class PageReview(models.Model):
 
 	def __str__(self):
 		return f"{self.user.userdetail.nama_lengkap} - {self.review}"
-	
+
+class Pengumuman(models.Model):
+	pengumuman = models.CharField(max_length=255,default="",blank=False,null=False)
+
+	def save(self,*args,**kwargs):
+		self.pengumuman = self.pengumuman.upper()
+		super(Pengumuman,self).save(*args,**kwargs)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import UserDetail, UserBook, customerBookmark,BookReview,Books
-from .models import PageReview, Category, FeaturedBook,OnSaleBook
+from .models import PageReview, Category, FeaturedBook,OnSaleBook, Pengumuman
 
 # class viewCustomerDb(admin.ModelAdmin):
 #     list_display= ('username','id_customer','alias','birthday')
@@ -15,3 +15,4 @@ admin.site.register(Books)
 admin.site.register(PageReview)
 admin.site.register(FeaturedBook)
 admin.site.register(OnSaleBook)
+admin.site.register(Pengumuman)
