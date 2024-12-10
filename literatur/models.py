@@ -255,3 +255,9 @@ class Pengumuman(models.Model):
 	def save(self,*args,**kwargs):
 		self.pengumuman = self.pengumuman.upper()
 		super(Pengumuman,self).save(*args,**kwargs)
+
+
+class Instagram(models.Model):
+	gambar = models.ImageField(upload_to="gambar_instagram",blank=False,null=False)
+	link = models.CharField(max_length=200,default="")
+	

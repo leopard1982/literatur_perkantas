@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
-from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman
+from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from django.db.models import Avg,Q
 import datetime
 
@@ -26,7 +26,9 @@ def mainPage(request):
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
     except:
         pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
-        
+
+    instagram = Instagram.objects.all().order_by('-id')[:6]
+
     context = {
         'page_review':page_review,
         'feature_book':featured_book,
@@ -34,7 +36,8 @@ def mainPage(request):
         'books_best_seller':books_best_seller,
         'books':books,
         'books_on_sale':books_on_sale,
-        'pengumuman':pengumuman
+        'pengumuman':pengumuman,
+        'instagram':instagram
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
