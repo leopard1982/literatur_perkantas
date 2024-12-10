@@ -731,8 +731,8 @@
     <section id="items-listing" class="padding-large" style="background-color: rgba(153, 153, 168, 0.1);">
       <div class="container">
         <div class="row">
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
-            <div class="featured border rounded-3 p-4">
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
+            <div class="featured border rounded-3 p-4 bg-white">
               <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">Buku Baru</h3>
               </div>
@@ -776,8 +776,8 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
-            <div class="latest-items border rounded-3 p-4">
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4  ">
+            <div class="latest-items border rounded-3 p-4 bg-white">
               <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">Best Seller</h3>
               </div>
@@ -821,8 +821,8 @@
             </div>
           </div>
           
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4">
-            <div class="on-sale border rounded-3 p-4">
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
+            <div class="on-sale border rounded-3 p-4  bg-white">
               <div class="section-title overflow-hidden mb-5 mt-2" style="height: 70px;">
                 <h3 class="d-flex flex-column mb-0">On sale <span style="font-size: 20px;font-style: italic;">(promo)</span></h3>
               </div>
@@ -929,7 +929,7 @@
     </section>
 
     <section id="customers-reviews" class="position-relative padding-large"
-      style="background-image: url(images/banner-image-bg.jpg); background-size: cover; background-repeat: no-repeat; background-position: center; height: 500px;margin-top:-50px;">
+      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 500px;margin-top:-50px;">
       <div class="container offset-md-3 col-md-6 ">
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -969,7 +969,7 @@
         </div>
         <div class="row justify-content-between d-flex">
           {% for inst in instagram%}
-          <div class="col-md-2">
+          <div class="col-md-2 p-2 border shadow bg-white" style="vertical-align: center;">
             <figure class="instagram-item position-relative rounded-3">
               <a href="{{inst.link}}" class="image-link position-relative" target="_blank">
                 <div class="icon-overlay position-absolute d-flex justify-content-center">
@@ -977,7 +977,7 @@
                     <use xlink:href="#instagram"></use>
                   </svg>
                 </div>
-                <img src="{{inst.gambar.url}}" alt="instagram" class="img-fluid rounded-3 insta-image shadow border" style="border: 1px solid grey;" >
+                <img src="{{inst.gambar.url}}" alt="instagram" class="img-fluid  insta-image shadow" style="border-top-left-radius: 5px;border-top-right-radius: 5px;" >
               </a>
             </figure>
           </div>
