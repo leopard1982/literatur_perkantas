@@ -91,7 +91,10 @@ class Books(models.Model):
 
 	def save(self,*args,**kwargs):
 		if self.is_update_pdf and self.pdf_full!=None:
-			OnSaleBook.objects.all().filter(book=Books.objects.get(id=self.id)).delete()
+			try:
+				OnSaleBook.objects.all().filter(book=Books.objects.get(id=self.id)).delete()
+			except:
+				pass
 			self.is_update_pdf=False
 			super(Books,self).save(*args,**kwargs)
 			

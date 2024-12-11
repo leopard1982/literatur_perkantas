@@ -19,9 +19,11 @@ def mainPage(request):
 
     featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:4]
     category = Category.objects.all()
+    OnSaleBook.objects.all().filter(end_date__lt=datetime.datetime.now()).delete()
     books_best_seller = Books.objects.all().filter(is_best_seller=True).order_by('-updated_at')[:4]
     books = Books.objects.all().order_by('-updated_at')[:4]
-    books_on_sale = OnSaleBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:4]
+    books_on_sale = OnSaleBook.objects.all().order_by('-updated_at')[:4]
+    print(books_on_sale)
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
     except:

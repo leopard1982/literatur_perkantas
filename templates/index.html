@@ -591,12 +591,14 @@
           <div class="swiper-wrapper">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3 shadow">
+            <div class="swiper-slide" >
+              <div class="card position-relative p-4 border rounded-3 shadow" style="min-height: 4300px;">
                 <div class="position-absolute">
                   <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
-                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                <div style="min-height:200px;">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm w-100 h-100" alt="product item">
+                </div>
                 <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
@@ -827,6 +829,7 @@
                 <h3 class="d-flex flex-column mb-0">On Sale </h3><hr>
               </div>
               <div class="items-lists">
+              {% if books_on_sale %}
                 {% for books in books_on_sale%}
                 <div class="item d-flex" style="height: 150px;">
                   <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
@@ -858,6 +861,12 @@
                 </div>
                 <hr class="gray-400">
                 {% endfor %}
+              {% else %}
+                <div style="display: flex;justify-content: center;">
+                  <img src="{% static 'images/wait.png'%}" class="shadow" alt="wait for promo">
+                </div>
+                <p style="text-align: center;">Nantikan Promo Menarik Bulan ini yah...</p>
+              {% endif%}
               </div>
             </div>
           </div>
@@ -929,7 +938,7 @@
     </section>
 
     <section id="customers-reviews" class="position-relative padding-large"
-      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 500px;margin-top:-50px;">
+      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 600px;margin-top:-50px;">
       <div class="container offset-md-3 col-md-6 ">
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -969,7 +978,7 @@
         </div>
         <div class="row justify-content-between d-flex">
           {% for inst in instagram%}
-          <div class="col-md-2 p-2 border shadow bg-white" style="vertical-align: center;">
+          <div class="col-md-2 p-2 border shadow bg-white" >
             <figure class="instagram-item position-relative rounded-3">
               <a href="{{inst.link}}" class="image-link position-relative" target="_blank">
                 <div class="icon-overlay position-absolute d-flex justify-content-center">
@@ -997,7 +1006,7 @@
                     <p style="font-size: 14px;">Sahabat Anda Bertumbuh</p>
                   </div> -->
                   
-                  <div class="social-links justify-content-center d-flex">
+                  <div class="social-links justify-content-center d-flex p-2 rounded bg-white shadow" style="margin-top:30px">
                     <ul class="d-flex list-unstyled" style="padding-top:10px;">
                       <li >
                         <span>Social Media: </span>
@@ -1017,7 +1026,7 @@
                 </div>
               </div>
               
-              <div class="col-lg-4 col-sm-6 pb-3">
+              <div class="col-lg-4 col-sm-6 pb-3 rounded bg-white shadow p-2">
                 <div class="footer-menu ">
                   <!-- <img src="{% static 'images/visi-logo-moto.png'%}" alt="visi-misi-moto" class="w-100"> -->
                     <p>
@@ -1042,7 +1051,7 @@
               <div class="col-lg-4 col-sm-6 pb-3">
                 <div class="footer-menu contact-item" style="font-size: 14px;">
                   <h5 class="widget-title text-capitalize  fw-bold" style="font-size: 20px;color:rgba(123,63,0,1)">Hubungi Kami:</h5>
-                  <p style="margin-top: 10px;margin-bottom: 10px;padding-left: 30px !important; padding:10px;border: 1px solid lightgrey;border-radius: 5px;width: 250px;">
+                  <p style="background-color: white;margin-top: 10px;margin-bottom: 10px;padding-left: 30px !important; padding:10px;border: 1px solid lightgrey;border-radius: 5px;width: 250px;">
                     <span style="font-size: 15px;font-weight: bold;margin-bottom: 10px;">Alamat Surat:</span>
                     <br><b>Literatur Perkantas Nasional</b>
                     <br>Jl. Kesejahteraan no.35
@@ -1058,7 +1067,7 @@
             </div>
           </div>
         </div>
-        <div class="row" style="background-color: white;margin-top:30px;text-align: center;margin-bottom: 30px;font-weight: bold;padding-top:10px;border-top:1px solid lightgrey;border-bottom: 1px solid lightgrey;margin-bottom: 20px;">
+        <div class="row" style="background-color: rgba(150,150,150,0.2);margin-top:30px;text-align: center;margin-bottom: 30px;font-weight: bold;padding-top:10px;border-top:1px solid lightgrey;border-bottom: 1px solid lightgrey;margin-bottom: 20px;border-top-left-radius: 20px;border-bottom-right-radius: 20px;">
           <p>Copyright &COPY; 2024<br>Literatur Perkantas Nasional</p>
         </div>
       </div>
