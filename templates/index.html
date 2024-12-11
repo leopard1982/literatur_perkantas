@@ -592,12 +592,12 @@
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
             <div class="swiper-slide" >
-              <div class="card position-relative p-4 border rounded-3 shadow" style="min-height: 4300px;">
+              <div class="card position-relative p-4 border rounded-3 shadow" style="height: 600px;">
                 <div class="position-absolute">
                   <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
-                <div style="min-height:200px;">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm w-100 h-100" alt="product item">
+                <div style="height: 450px;">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100 shadow-sm" alt="product item">
                 </div>
                 <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
@@ -641,8 +641,11 @@
             </div>
             {% else %}
             <div class="swiper-slide">
-              <div class="card position-relative p-4 border rounded-3 shadow">
-                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+              <div class="card position-relative p-4 border rounded-3 shadow" style="height: 600px;">
+                <div style="height: 450px;">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100 shadow-sm" alt="product item">
+                </div>
+
                 <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
