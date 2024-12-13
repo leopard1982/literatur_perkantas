@@ -44,3 +44,43 @@ def mainPage(request):
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
     return render(request,'index.html',context)
+
+def bacaBuku(request):
+    try:
+        id_buku = request.GET['id']
+        book = Books.objects.get(id=id_buku)
+    except:
+        return HttpResponseRedirect(reverse('main_page'))
+    
+    try:
+        page=int(request.GET['p'])
+        
+        if int(page)>book.halaman:
+            page=book.halaman
+        
+        if page<1:
+            page=1
+
+    except:
+        page=1
+
+    if page==1:
+        prev=1
+    else:
+        prev=page-1
+    
+    next=page+1
+
+    try:
+        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+    context = {
+        'pengumuman':pengumuman,
+        'book':book,
+        'next':next,
+        'prev':prev,
+        'page':page
+    }
+    return render(request,'landing/baca-buku.html',context)
