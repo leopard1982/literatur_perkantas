@@ -88,6 +88,7 @@ class Books(models.Model):
 	is_best_seller = models.BooleanField(default=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
+	sinopsis = models.TextField(blank=True,null=True)
 
 	def save(self,*args,**kwargs):
 		if self.is_update_pdf and self.pdf_full!=None:
