@@ -755,7 +755,7 @@
               </div>
               <div class="items-lists">
                 {% for book in books%}
-                <div class="item d-flex" style="height: 150px;">
+                <div class="item d-flex" >
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
@@ -806,7 +806,7 @@
               <div class="items-lists">
               {% if books_on_sale %}
                 {% for books in books_on_sale%}
-                <div class="item d-flex" style="height: 150px;">
+                <div class="item d-flex" >
                   <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{books.book.judul}}</a></h6>
