@@ -781,54 +781,14 @@
                       </div>
                     </div>
                     {% if book.onsalebook.is_active %}
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{book.price|intcomma}}</s>
+                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50" style="font-size: 15px;">Rp.{{book.price|intcomma}}.00</s>
                       Rp.{{book.onsalebook.nett_price|intcomma}}</span>
                     {% else %}
-                    <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
-                    {% endif %}
-                  </div>
-                </div>
-                <hr class="gray-400">
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4  ">
-            <div class="latest-items border rounded-3 p-4 bg-white shadow">
-              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
-                <h3 class="d-flex flex-column mb-0">Best Seller</h3><hr>
-              </div>
-              <div class="items-lists">
-                {% for book in books_best_seller%}
-                <div class="item d-flex" style="height: 150px;">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                        <svg class="star star-fill">
-                          <use xlink:href="#star-fill"></use>
-                        </svg>
-                      </div>
-                    </div>
-                    {% if book.onsalebook.is_active %}
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{book.price|intcomma}}</s>
-                      Rp.{{book.onsalebook.nett_price|intcomma}}</span>
-                    {% else %}
-                    <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                      {% if book.kategori.id != 3%}
+                        <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                      {% else %}
+                        <span class="price text-primary fw-bold mb-2 fs-5">FREE BOOK</span>
+                      {% endif %}
                     {% endif %}
                   </div>
                 </div>
@@ -870,7 +830,7 @@
                         </svg>
                       </div>
                     </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50">Rp.{{books.book.price|intcomma}}</s>
+                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50" style="font-size:15px">Rp.{{books.book.price|intcomma}}.00</s>
                       Rp.{{books.nett_price|intcomma}}</span>
                   </div>
                 </div>
@@ -884,6 +844,117 @@
               {% endif%}
               </div>
             </div>
+          </div>
+
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4  ">
+            <div class="latest-items border rounded-3 p-4 bg-white shadow">
+              <div class="section-title overflow-hidden mb-5 mt-2"  style="height: 70px;">
+                <h3 class="d-flex flex-column mb-0">Buku Koleksiku</h3><hr>
+              </div>
+              <div class="items-lists">
+                {% for book in books_best_seller%}
+                <div class="item d-flex" style="height: 150px;">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                  <div class="item-content ms-3">
+                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
+                    <div class="review-content d-flex">
+                      <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
+                      <div class="rating text-warning d-flex align-items-center">
+                        <svg class="star star-fill">
+                          <use xlink:href="#star-fill"></use>
+                        </svg>
+                        <svg class="star star-fill">
+                          <use xlink:href="#star-fill"></use>
+                        </svg>
+                        <svg class="star star-fill">
+                          <use xlink:href="#star-fill"></use>
+                        </svg>
+                        <svg class="star star-fill">
+                          <use xlink:href="#star-fill"></use>
+                        </svg>
+                        <svg class="star star-fill">
+                          <use xlink:href="#star-fill"></use>
+                        </svg>
+                      </div>
+                    </div>
+                    <a href="#" class="btn btn-success" style="height: 40px;padding:5px;min-width: 150px;max-width: 150px;">
+                      <div class="d-flex justify-content-center">
+                        <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;margin-right: 20px;">
+                        <span>Baca</span>
+                      </div>
+                      
+                    </a>
+                    
+                  </div>
+                </div>
+                <hr class="gray-400">
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="best-selling-items" class="position-relative padding-large " style="background-color: rgba(255,170,80,0.2);">
+      <div class="container">
+        <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+          <h3 class="d-flex align-items-center">Buku Gratis Baca</h3>
+          <a href="shop.html" class="btn">View All</a>
+        </div>
+        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
+          <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
+            <use xlink:href="#alt-arrow-right-outline"></use>
+          </svg>
+        </div>
+        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev product-slider-button-prev">
+          <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
+            <use xlink:href="#alt-arrow-left-outline"></use>
+          </svg>
+        </div>
+        <div class="swiper product-swiper">
+          <div class="swiper-wrapper">
+          {% for book in free_book %}
+            <div class="swiper-slide">
+              <div class="card position-relative p-4 border rounded-3 shadow" style="height: 550px;">
+                <div style="height: 300px;" class="justify-content-center d-flex">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="shadow-sm" style="height: 300px;width: 200px;" alt="product item">
+                </div>
+
+                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
+                <div class="review-content d-flex">
+                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
+
+                  <div class="rating text-warning d-flex align-items-center">
+                    <svg class="star star-fill">
+                      <use xlink:href="#star-fill"></use>
+                    </svg>
+                    <svg class="star star-fill">
+                      <use xlink:href="#star-fill"></use>
+                    </svg>
+                    <svg class="star star-fill">
+                      <use xlink:href="#star-fill"></use>
+                    </svg>
+                    <svg class="star star-fill">
+                      <use xlink:href="#star-fill"></use>
+                    </svg>
+                    <svg class="star star-fill">
+                      <use xlink:href="#star-fill"></use>
+                    </svg>
+                  </div>
+                </div>
+                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2" >
+                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
+                    <span>
+                      <span>
+                        <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
+                      </span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
           </div>
         </div>
       </div>
