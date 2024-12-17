@@ -131,6 +131,15 @@
       </symbol>
     </svg>
 
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert text-center my-5 w-50 alert-success alert-dismissible fade show position-absolute" style="z-index: 30;margin-top:50px;left: 0;right: 0;margin:0 auto;" role="alert">
+            <strong>Pesan:</strong> {{message|title}}.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+      {% endfor %}
+    {% endif%}
+
     <div id="preloader" class="preloader-container">
       <div class="book">
         <div class="inner">

@@ -6,6 +6,7 @@ from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from django.db.models import Avg,Q
 import datetime
+from django.contrib import messages
 
 # Create your views here.
 def mainPage(request):
@@ -34,6 +35,8 @@ def mainPage(request):
         pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
     instagram = Instagram.objects.all().order_by('-id')[:6]
+
+    # messages.add_message(request,messages.ERROR,"Test")
 
     context = {
         'page_review':page_review,
@@ -83,6 +86,9 @@ def bacaBuku(request):
         prev=1
     else:
         prev=page-1
+
+    if max_page==5 and page==5:
+        messages.add_message(request,messages.SUCCESS,"Maksimal Hanya 5 Halaman Saja, Karena Preview Sample")
     
     next=page+1
 
