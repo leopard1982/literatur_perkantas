@@ -67,6 +67,8 @@ def bacaBuku(request):
     try:
         if request.method=="POST":
             page=int(request.POST['halaman'])
+            if(page>max_page):
+                page=5
         else:
             page=int(request.GET['p'])
             
