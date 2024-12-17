@@ -4,8 +4,17 @@
 <div class="p-2" style="margin-bottom:20px;border: 1px solid grey">
     <h3 style="text-align: center;">{{book.judul}}</h3>
     <h4 style="text-align: center;">{{book.pengarang}}</h4>
+
+    {% if max_page == 5 %}
+        <h5 style="text-align: center;">[ <b>Preview Sampul</b> ]</h5>
+        <h5 style="font-size: 15px; text-align: center;font-style: italic;">
+            Untuk Bisa Membaca Seluruh Buku Silakan Berlangganan Terlebih Dahulu <br>
+            Preview Sampul Maksimal 5 Halaman Pertama
+        </h5>
+    {% else %}
+        <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
+    {% endif %}
     
-    <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
 
     <div class="justify-content-center d-flex my-3 p-2 rounded shadow">
         <a href="?id={{book.id}}&p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>

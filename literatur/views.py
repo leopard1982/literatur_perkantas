@@ -51,9 +51,13 @@ def mainPage(request):
     return render(request,'index.html',context)
 
 def bacaBuku(request):
+    max_page=5
     try:
         id_buku = request.GET['id']
         book = Books.objects.get(id=id_buku)
+        print(book.kategori.id)
+        if book.kategori.id == 3:
+            max_page = book.halaman
     except:
         return HttpResponseRedirect(reverse('main_page'))
     
@@ -63,14 +67,15 @@ def bacaBuku(request):
         else:
             page=int(request.GET['p'])
             
-            if int(page)>book.halaman:
-                page=book.halaman
+            if int(page)>max_page:
+                page=max_page
             
             if page<1:
                 page=1
 
     except:
         page=1
+
 
     
 
@@ -91,6 +96,7 @@ def bacaBuku(request):
         'book':book,
         'next':next,
         'prev':prev,
-        'page':page
+        'page':page,
+        'max_page':max_page
     }
     return render(request,'landing/baca-buku.html',context)
