@@ -4,7 +4,22 @@
 <div class="p-2" style="margin-bottom:20px;border: 1px solid grey">
     <h3 style="text-align: center;">{{book.judul}}</h3>
     <h4 style="text-align: center;">{{book.pengarang}}</h4>
-    <h5 style="text-align: center;">=== Halaman: {{page|add:'-1'}} / {{book.halaman}} ===</h5>
+    {% if page == 1 %}
+        <h5 style="text-align: center;">=== Halaman: Judul / {{book.halaman}} ===</h5>
+    {% else %}
+        <h5 style="text-align: center;">=== Halaman: {{page|add:'-2'}} / {{book.halaman}} ===</h5>
+    {% endif %}
+    <div class="justify-content-center d-flex my-3 p-2 rounded shadow">
+        <a href="?id={{book.id}}&p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>
+        <div class="justify-content-center d-flex">
+            <form action="" method="post">
+                {% csrf_token %}
+                <input style="text-align: center;" type="number" name="halaman" id="" min="1" max="{{book.halaman}}" value="{{page|add:"-2"}}" required>
+            </form>
+        </div>
+        <a href="?id={{book.id}}&p={{next}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/right.jpeg'%}" style="margin-left:50px;width: 30px;height: 30px;" alt="" srcset=""></a>
+    </div>
+    
 </div>
 
 <div class="d-flex justify-content-center p-3 border-1 border-black">

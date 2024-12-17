@@ -58,16 +58,21 @@ def bacaBuku(request):
         return HttpResponseRedirect(reverse('main_page'))
     
     try:
-        page=int(request.GET['p'])
-        
-        if int(page)>book.halaman:
-            page=book.halaman
-        
-        if page<1:
-            page=1
+        if request.method=="POST":
+            page=int(request.POST['halaman'])+1
+        else:
+            page=int(request.GET['p'])
+            
+            if int(page)>book.halaman:
+                page=book.halaman
+            
+            if page<1:
+                page=1
 
     except:
         page=1
+
+    
 
     if page==1:
         prev=1
