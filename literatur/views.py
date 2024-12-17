@@ -59,7 +59,7 @@ def bacaBuku(request):
     
     try:
         if request.method=="POST":
-            page=int(request.POST['halaman'])+1
+            page=int(request.POST['halaman'])+2
         else:
             page=int(request.GET['p'])
             
