@@ -15,6 +15,22 @@ def mainPage(request):
         userid= request.GET['u']
     except:
         userid=None
+
+    if request.method=="POST":
+        #testmail
+        subject = "Login From New Device"
+        message = f"Hello {request.POST['username_login']} you are login from new device on {datetime.datetime.now()}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        try:
+            send_mail(
+            subject,
+            message,
+            from_email,
+            [f"{request.POST['username_login']}"]
+            )
+        except Exception as ex:
+            print(ex)
+        messages.add_message(request,messages.SUCCESS,f"Hallo {request.POST['username_login']} selamat datang!")
     
     page_review = PageReview.objects.all().filter(is_active=True).order_by('-updated_at')
 
