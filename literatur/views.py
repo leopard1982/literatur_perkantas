@@ -17,21 +17,25 @@ def mainPage(request):
         userid=None
 
     if request.method=="POST":
-        #testmail
-        subject = "Login From New Device"
-        message = f"Hello {request.POST['username_login']} you are login from new device on {datetime.datetime.now()}"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        try:
-            send_mail(
-            subject,
-            message,
-            from_email,
-            [f"{request.POST['username_login']}"]
-            )
-        except Exception as ex:
-            print(ex)
-        messages.add_message(request,messages.SUCCESS,f"Hallo {request.POST['username_login']} selamat datang!")
-    
+        if 'username_register' in request.POST:
+            subject = "Konfirmasi Registrasi"
+            message = f"Hallo {request.POST['username_register']} untuk melanjutkan registrasi, silakan klik link di bawah ini\n\n\n"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            try:
+                send_mail(
+                subject,
+                message,
+                from_email,
+                [f"{request.POST['username_register']}"],
+                fail_silently=False
+                )
+                messages.add_message(request,messages.SUCCESS,f"Hallo {request.POST['username_register']} silakan cek email Anda untuk konfirmasi.")
+            except Exception as ex:
+                messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
+                print(ex)
+            
+        return HttpResponseRedirect('/')
+
     page_review = PageReview.objects.all().filter(is_active=True).order_by('-updated_at')
 
     featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:4]
