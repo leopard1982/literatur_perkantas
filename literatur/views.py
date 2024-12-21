@@ -9,6 +9,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 import uuid
+from django.contrib.auth import authenticate,login
 
 def verifyLinkRegistrasi(request,id):
     try:
@@ -16,9 +17,11 @@ def verifyLinkRegistrasi(request,id):
         if(registeremail.expired.timestamp()>datetime.datetime.now().timestamp()):
             try:
                 password = request.GET['p']
-            except:
+            except Exception as ex:
+                print(ex)
                 password = str(uuid.uuid4())
             try:
+                print(password)
                 user = User.objects.create(
                     username=registeremail.email,
                     password=password,
@@ -97,6 +100,16 @@ def mainPage(request):
             except Exception as ex:
                 messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                 print(ex)
+
+        if 'username_login' in request.POST:
+            username = request.POST['username_login']
+            password = request.POST['password_login']
+            user = authenticate(username=username,password=password)
+            if(user):
+                login(request,user)
+                messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.username}!')
+            else:
+                messages.add_message(request,messages.SUCCESS,"Username atau Password tidak sesuai, mohon ulangi login lagi yah...")
             
         return HttpResponseRedirect('/')
 
