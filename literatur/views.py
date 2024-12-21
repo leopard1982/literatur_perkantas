@@ -3,12 +3,56 @@ from django.shortcuts import render, HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
-from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
+from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram, RegisterEmail
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
+from django.contrib.auth.models import User
+import uuid
 
-# Create your views here.
+def verifyLinkRegistrasi(request,id):
+    try:
+        registeremail = RegisterEmail.objects.get(Q(id=id) & Q(is_used=False))
+        if(registeremail.expired.timestamp()>datetime.datetime.now().timestamp()):
+            password = str(uuid.uuid4())
+            try:
+                user = User.objects.create(
+                    username=registeremail.email,
+                    password=password,
+                    email=registeremail.email
+                )
+                user.set_password(password)
+                user.save()
+                registeremail.is_used=True
+                registeremail.save()
+                
+                #send email again
+                subject = "Initial Email dan Password"
+                message = f"\n Hallo Ka selamat untuk email {registeremail.email} sudah terdaftar di Litanas Perkantas Nasional!. \n \n Terlampir Username dan Password yang bisa kaka pakai: \n \n \n ****** \n Username (email): {registeremail.email} \n Password: {password} \n ****** \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                try:
+                    send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    [f"{registeremail.email}"],
+                    fail_silently=False
+                    )
+                    messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk konfirmasi.")
+                except Exception as ex:
+                    messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
+                    print(ex)
+                messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email {registeremail.email} untuk melihat username dan password kaka yah....")
+            except Exception as ex:
+                print(ex)
+                messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
+        else:
+            messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Registrasi Ulang Kembali yah...')
+    except Exception as ex:
+        print(ex)
+        messages.add_message(request,messages.SUCCESS,"Link Konfirmasi Sudah Tidak Valid, Silakan Registrasi Kembail...")
+    return HttpResponseRedirect('/')
+
 def mainPage(request):
     #get user id
     try:
@@ -18,8 +62,25 @@ def mainPage(request):
 
     if request.method=="POST":
         if 'username_register' in request.POST:
+            email = request.POST['username_register']
+            password1 = request.POST['password_register1']
+            password2 = request.POST['password_register2']
+            if(password1!=password2):
+                messages.add_message(request,messages.SUCCESS,"Password Dan Konfirmasi Harus Sama! Silakan Ulangi Registrasi Kembali...")
+                return HttpResponseRedirect('/')
+            try:
+                reg=User.objects.get(email=email)
+                messages.add_message(request,messages.SUCCESS,"Email sudah terdaftar, silakan login ya kaka...")
+                return HttpResponseRedirect('/')
+            except:
+                pass
+                
+            
+            registeremail = RegisterEmail.objects.create(email=email)
+            print(type(registeremail.email))
+            id_register = RegisterEmail.objects.all().filter(email=email).order_by('-created_at')[0]
             subject = "Konfirmasi Registrasi"
-            message = f"Hallo {request.POST['username_register']} untuk melanjutkan registrasi, silakan klik link di bawah ini\n\n\n"
+            message = f"Hallo Ka, untuk melanjutkan registrasi email: {registeremail.email}, silakan klik link ini untuk konfirmasi: https://literatur.pythonanywhere.com/reg/{id_register.id}/p={password1} yah... Tuhan Memberkati!"
             from_email = settings.DEFAULT_FROM_EMAIL
             try:
                 send_mail(
@@ -29,7 +90,7 @@ def mainPage(request):
                 [f"{request.POST['username_register']}"],
                 fail_silently=False
                 )
-                messages.add_message(request,messages.SUCCESS,f"Hallo {request.POST['username_register']} silakan cek email Anda untuk konfirmasi.")
+                messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk konfirmasi.")
             except Exception as ex:
                 messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                 print(ex)
@@ -128,3 +189,4 @@ def bacaBuku(request):
         'max_page':max_page
     }
     return render(request,'landing/baca-buku.html',context)
+
