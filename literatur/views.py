@@ -48,7 +48,7 @@ def verifyLinkRegistrasi(request,id):
                 except Exception as ex:
                     messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                     print(ex)
-                messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email {registeremail.email} untuk melihat username dan password kaka yah....")
+                messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
             except Exception as ex:
                 print(ex)
                 messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
@@ -56,8 +56,7 @@ def verifyLinkRegistrasi(request,id):
             messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Registrasi Ulang Kembali yah...')
     except Exception as ex:
         print(ex)
-        messages.add_message(request,messages.SUCCESS,ex)
-        # messages.add_message(request,messages.SUCCESS,"Link Konfirmasi Sudah Tidak Valid, Silakan Registrasi Kembail...")
+        messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
     return HttpResponseRedirect('/')
 
 def mainPage(request):
