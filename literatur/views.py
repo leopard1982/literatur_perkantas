@@ -56,7 +56,8 @@ def verifyLinkRegistrasi(request,id):
             messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Registrasi Ulang Kembali yah...')
     except Exception as ex:
         print(ex)
-        messages.add_message(request,messages.SUCCESS,"Link Konfirmasi Sudah Tidak Valid, Silakan Registrasi Kembail...")
+        messages.add_message(request,messages.SUCCESS,ex)
+        # messages.add_message(request,messages.SUCCESS,"Link Konfirmasi Sudah Tidak Valid, Silakan Registrasi Kembail...")
     return HttpResponseRedirect('/')
 
 def mainPage(request):
