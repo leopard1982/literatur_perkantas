@@ -214,7 +214,11 @@
       <div class="top-info border-bottom d-none d-md-block ">
         <div class="container-fluid text-center py-1 rounded-2">
           <marquee style="background-color: rgba(255,170,80,0.7);border-radius: 5px;" direction="">
-            <b>INFO:</b>{{pengumuman}}
+            {% if user.is_authenticated %}
+            <b>Shallom, {{user.username}}! INFO: </b>{{pengumuman}}
+            {% else %}
+            <b>INFO: </b>{{pengumuman}}
+            {% endif%}
           </marquee>
         </div>
       </div>
@@ -309,11 +313,21 @@
                       </svg>
                     </a>
                   </li>
+                  {% if user.is_authenticated %}
+                  <li class="pe-3">
+                    <a href="{% url 'logout_user'%}">
+                      <img src="{% static 'images/logout.jpg'%}" alt="logout" style="height: 30px;width: 30px;">
+                    </a>
+                  </li>
+                  {% else%}
                   <li class="pe-3">
                     <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                      <svg class="user">
-                        <use xlink:href="#user"></use>
-                      </svg>
+                      <div>
+                        <svg class="user">
+                          <use xlink:href="#user"></use>
+                        </svg>
+                      </div>
+                      
                     </a>
 
                     <!-- Modal Reset Password -->
@@ -435,6 +449,7 @@
                       </div>
                     </div>
                   </li>
+                  {% endif %}
                   <li class="wishlist-dropdown dropdown pe-3">
                     <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                       <svg class="wishlist">

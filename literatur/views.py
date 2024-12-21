@@ -9,7 +9,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 import uuid
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 
 def verifyLinkRegistrasi(request,id):
     try:
@@ -57,6 +57,10 @@ def verifyLinkRegistrasi(request,id):
     except Exception as ex:
         print(ex)
         messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
+    return HttpResponseRedirect('/')
+
+def logoutUser(request):
+    logout(request)
     return HttpResponseRedirect('/')
 
 def mainPage(request):
