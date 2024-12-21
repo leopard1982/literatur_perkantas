@@ -14,7 +14,10 @@ def verifyLinkRegistrasi(request,id):
     try:
         registeremail = RegisterEmail.objects.get(Q(id=id) & Q(is_used=False))
         if(registeremail.expired.timestamp()>datetime.datetime.now().timestamp()):
-            password = str(uuid.uuid4())
+            try:
+                password = request.GET['p']
+            except:
+                password = str(uuid.uuid4())
             try:
                 user = User.objects.create(
                     username=registeremail.email,
@@ -80,7 +83,7 @@ def mainPage(request):
             print(type(registeremail.email))
             id_register = RegisterEmail.objects.all().filter(email=email).order_by('-created_at')[0]
             subject = "Konfirmasi Registrasi"
-            message = f"Hallo Ka, untuk melanjutkan registrasi email: {registeremail.email}, silakan klik link ini untuk konfirmasi: https://literatur.pythonanywhere.com/reg/{id_register.id}/p={password1} yah... Tuhan Memberkati!"
+            message = f"Hallo Ka, untuk melanjutkan registrasi email: {registeremail.email}, silakan klik link ini untuk konfirmasi: https://literatur.pythonanywhere.com/reg/{id_register.id}/?p={password1} yah... Tuhan Memberkati!"
             from_email = settings.DEFAULT_FROM_EMAIL
             try:
                 send_mail(
