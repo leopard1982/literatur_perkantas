@@ -247,61 +247,32 @@
                 class="navbar-nav text-uppercase justify-content-start justify-content-lg-center align-items-start align-items-lg-center flex-grow-1">
                 <li class="nav-item">
                   <a class="nav-link me-4 active" href="{% url 'main_page'%}">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link me-4" href="about.html">About</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link me-4" href="shop.html">Shop</a>
-                </li>
+                </li>                
                 <li class="nav-item">
                   <a class="nav-link me-4" href="blog.html">Blogs</a>
                 </li>
+                {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
                   <a class="nav-link me-4 dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                    aria-expanded="false">Pages</a>
+                    aria-expanded="false">Info Saya</a>
                   <ul class="dropdown-menu animate slide border">
                     <li>
-                      <a href="about.html" class="dropdown-item fw-light">About <span
-                          class="badge bg-primary">Pro</span></a>
+                      <a href="about.html" class="dropdown-item fw-light">Detail Info Saya</a>
                     </li>
                     <li>
-                      <a href="shop.html" class="dropdown-item fw-light">Shop <span
-                          class="badge bg-primary">Pro</span></a>
+                      <a href="shop.html" class="dropdown-item fw-light">Pembelian Buku Saya </a>
                     </li>
                     <li>
-                      <a href="single-product.html" class="dropdown-item fw-light">Single Product <span
-                          class="badge bg-primary">Pro</span></a>
-                    </li>
-                    <li>
-                      <a href="cart.html" class="dropdown-item fw-light">Cart <span
-                          class="badge bg-primary">Pro</span></a>
-                    </li>
-                    <li>
-                      <a href="checkout.html" class="dropdown-item fw-light">Checkout <span
-                          class="badge bg-primary">Pro</span></a>
-                    </li>
-                    <li>
-                      <a href="blog.html" class="dropdown-item fw-light">Blog <span
-                          class="badge bg-primary">Pro</span></a>
-                    </li>
-                    <li>
-                      <a href="single-post.html" class="dropdown-item fw-light">Single Post <span
-                          class="badge bg-primary">Pro</span></a>
-                    </li>
-                    <li>
-                      <a href="contact.html" class="dropdown-item fw-light">Contact <span
-                          class="badge bg-primary">Pro</span></a>
+                      <a href="cart.html" class="dropdown-item fw-light">Wishlist Saya </a>
                     </li>
                   </ul>
                 </li>
+                {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link me-4" href="contact.html">Contact</a>
+                  <a class="nav-link me-4" href="blog.html">Program Promo</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link text-decoration-underline me-4"
-                    href="https://templatesjungle.gumroad.com/l/bookly-bookstore-ecommerce-bootstrap-html-css-website-template"
-                    target="_blank">Get Pro</a>
+                  <a class="nav-link me-4" href="contact.html">Contact</a>
                 </li>
               </ul>
               <div class="user-items d-flex">
