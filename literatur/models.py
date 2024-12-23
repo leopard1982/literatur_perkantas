@@ -204,7 +204,7 @@ class BookReview(models.Model):
 
 class UserBook(models.Model):
 	id_book = models.ForeignKey(Books,on_delete=models.RESTRICT)
-	id_user = models.ForeignKey(UserDetail,on_delete=models.CASCADE)
+	id_user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="id_user",null=True,blank=True)
 	last_page = models.PositiveSmallIntegerField(default=0)
 	booked_date = models.DateField(auto_now_add=False,blank=True,null=True)
 	payment = models.CharField(max_length=20,choices=payment)

@@ -4,12 +4,14 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram, RegisterEmail
+from .models import UserBook
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 import uuid
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.sessions.models import Session
 
 def verifyLinkRegistrasi(request,id):
     try:
@@ -70,6 +72,12 @@ def mainPage(request):
     except:
         userid=None
 
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        userbook = UserBook.objects.all().filter(id_user=user)
+    else:
+        userbook = None
+
     if request.method=="POST":
         if 'username_register' in request.POST:
             email = request.POST['username_register']
@@ -110,6 +118,21 @@ def mainPage(request):
             password = request.POST['password_login']
             user = authenticate(username=username,password=password)
             if(user):
+                sessionUser = Session.objects.all()
+                #delete aktif session yang ada
+                # for ses in sessionUser:
+                #         #cek apakah user id sudah pernah login
+                #         #jika pernah login hapus semua sesionnya
+                #         user_id = int(ses.get_decoded().get('_auth_user_id'))
+                #         try:
+                #             user_logged_id = int(request.user.id)
+                #         except:
+                #             user_logged_id=0
+
+                #         if(user_id == user_logged_id):
+                #             ses.delete()
+                #             ses.save()
+                #buat session baru
                 login(request,user)
                 messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.username}!')
             else:
@@ -148,7 +171,8 @@ def mainPage(request):
         'books_on_sale':books_on_sale,
         'pengumuman':pengumuman,
         'instagram':instagram,
-        'free_book':free_book
+        'free_book':free_book,
+        'userbook':userbook
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
