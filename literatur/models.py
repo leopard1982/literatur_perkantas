@@ -141,6 +141,16 @@ class Books(models.Model):
 
 	def __str__(self):
 		return f"{self.judul}"
+	
+class MyWishlist(models.Model):
+	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
+
+	class Meta:
+		unique_together = ['user','book']
+	
+	def __str__(self):
+		return f"{self.book.judul} - {self.book.pengarang}"
 
 class FeaturedBook(models.Model):
 	book = models.OneToOneField(Books,on_delete=models.CASCADE)
@@ -196,9 +206,6 @@ class BookReview(models.Model):
 
 	class Meta:
 		unique_together = ['id_buku','id_customer']
-
-
-# Create your models here.
 
 		
 
