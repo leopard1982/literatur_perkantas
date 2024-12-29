@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram, RegisterEmail
-from .models import UserBook
+from .models import UserBook, LupaPassword
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
@@ -12,6 +12,42 @@ from django.contrib.auth.models import User
 import uuid
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.sessions.models import Session
+import random
+
+def resetPassword(request):
+    if( request.method == "POST"):
+        try:
+            email=request.POST['resetEmail']
+            user = User.objects.get(email=email)
+            lupapassword = LupaPassword()
+            lupapassword.email = email
+            lupapassword.save()
+
+            #send email again
+            subject = "Reset Password"
+            message = f"\n Untuk Reset Password silakan klik pada link:. \n \n https://literatur.pythonanywhere.com/forgot/{lupapassword.id}/ \n \n \n Link ini hanya berlaku 1 jam \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            try:
+                send_mail(
+                subject,
+                message,
+                from_email,
+                [f"{email}"],
+                fail_silently=False
+                )
+                messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk konfirmasi reset password yah...")
+            except Exception as ex:
+                messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
+                print(ex)
+            return HttpResponseRedirect('/')
+        
+        except Exception as ex:
+            print(ex)
+            messages.add_message(request,messages.SUCCESS,f'Email {request.POST["resetEmail"]} belum terdaftar, silakan registrasi terlebih dahulu yah...')
+            return HttpResponseRedirect('/')
+    else:
+        messages.add_message(request,messages.SUCCESS,'Silakan masukkan email yang akan direset. Terima kasih.')
+        return HttpResponseRedirect('/')
 
 def verifyLinkRegistrasi(request,id):
     try:
@@ -59,6 +95,49 @@ def verifyLinkRegistrasi(request,id):
     except Exception as ex:
         print(ex)
         messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
+    return HttpResponseRedirect('/')
+
+def verifyLinkLupaPassword(request,id):
+    try:
+        resetemail = LupaPassword.objects.get(Q(id=id) & Q(is_used=False))
+        if(resetemail.expired.timestamp()>datetime.datetime.now().timestamp()):
+            try:
+                #create password
+                password = []
+                for pas1 in range(0,10):
+                    password.append(chr(97+int(random.random()*27)))
+                
+                password="".join(password)
+                user = User.objects.get(email=resetemail.email)
+                user.set_password(password)
+                print(password)
+                user.save()
+                
+                #send email again
+                subject = "Password Baru"
+                message = f"\n Hallo Ka selamat untuk email {resetemail.email} memiliki password baru: {password} \n \n Password bisa kaka ganti. \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                try:
+                    send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    [f"{resetemail.email}"],
+                    fail_silently=False
+                    )
+                    messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk melihat password baru....")
+                    logout(request)
+                except Exception as ex:
+                    messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
+                    print(ex)
+            except Exception as ex:
+                print(ex)
+                # messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
+        else:
+            messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Klik Lupa Password Kembali yah...')
+    except Exception as ex:
+        print(ex)
+        messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Klik Lupa Password Kembali yah...')
     return HttpResponseRedirect('/')
 
 def logoutUser(request):

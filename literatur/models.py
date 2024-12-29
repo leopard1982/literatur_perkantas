@@ -283,4 +283,19 @@ class RegisterEmail(models.Model):
 		self.expired=datetime.datetime.now() + datetime.timedelta(minutes=settings.EXPIRED_MINUTES)
 		super(RegisterEmail,self).save(*args,**kwargs)
 
-	
+	def __str__(self):
+		return f"{self.email} - {self.is_used} - {self.expired}"
+
+class LupaPassword(models.Model):
+	id = models.UUIDField(editable=False,auto_created=True,default=uuid.uuid4,primary_key=True)
+	email = models.CharField(max_length=200,default="")
+	is_used = models.BooleanField(default=False)
+	created_at = models.DateTimeField(auto_now_add=True)
+	expired = models.DateTimeField(auto_now_add=False)
+
+	def save(self,*args,**kwargs):
+		self.expired=datetime.datetime.now() + datetime.timedelta(minutes=settings.EXPIRED_MINUTES)
+		super(LupaPassword,self).save(*args,**kwargs)
+
+	def __str__(self):
+		return f"{self.email} - {self.is_used} - {self.expired}"

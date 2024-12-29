@@ -313,16 +313,19 @@
                             <h5 class="modal-title" id="modalResetPasswordLabel">Reset Password</h5>
                             <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
-                            <p>Silakan Masukkan Email Anda</p>
-                            <p><small>Link Reset Password akan dikirim ke email Anda setelah melakukan klik reset password</small></p>
-                            <p>
-                              <input type="email" name="resetEmail" id="resetEmail" required class="form-control shadow border border-1" placeholder="Silakan Masukkan Email Anda">
-                            </p>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Reset Password</button>
-                          </div>
+                          <form action="{% url 'reset_password'%}" method="post">
+                            {% csrf_token%}
+                            <div class="modal-body">
+                              <p>Silakan Masukkan Email Anda</p>
+                              <p><small>Link Reset Password akan dikirim ke email Anda setelah melakukan klik reset password</small></p>
+                              <p>
+                                <input type="email" name="resetEmail" id="resetEmail" required class="form-control shadow border border-1" placeholder="Silakan Masukkan Email Anda">
+                              </p>
+                            </div>
+                            <div class="modal-footer">
+                              <input type="submit" class="btn btn-primary" />
+                            </div>    
+                          </form>
                         </div>
                       </div>
                     </div>
