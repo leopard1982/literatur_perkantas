@@ -112,6 +112,10 @@ def verifyLinkLupaPassword(request,id):
                 user.set_password(password)
                 print(password)
                 user.save()
+
+                #update resetemail field to expired
+                resetemail.is_used=True
+                resetemail.save()
                 
                 #send email again
                 subject = "Password Baru"
