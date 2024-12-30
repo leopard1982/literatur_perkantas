@@ -351,6 +351,8 @@
                       </div>
                     </div>
 
+                    
+
                     <!-- Modal Registrasi -->
                     <div class="modal fade shadow" style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                       aria-hidden="true">
@@ -429,80 +431,74 @@
                   </li>
                   {% endif %}
                   {% if user.is_authenticated %}
-                  <li class="wishlist-dropdown dropdown pe-3">
-                    <a href="#" class="dropdown-toggle" style="margin-left: 20px;" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                  
+                  <li class="pe-3">
+                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded" data-bs-target="#modalWishList">
                       <svg class="wishlist">
                         <use xlink:href="#heart"></use>
                       </svg>
                     </a>
-                    <div class="dropdown-menu animate slide dropdown-menu-start dropdown-menu-lg-end p-3">
-                      <h4 class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-primary">Daftar Disukai</span>
-                        <span class="badge bg-primary rounded-pill">2</span>
-                      </h4>
-                      <ul class="list-group mb-3">
-                        <div style="height: 200px;overflow-y: scroll;">
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">The Emerald Crown</a>
-                              </h5>
-                              <small>Special discounted price.</small>
-                              <a href="#" class="d-block fw-medium text-capitalize mt-2">Add to cart</a>
+                    <!-- Modal WishList-->
+                    <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalWishList" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWishListLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title fw-bold text-primary"  id="modalWishListLabel">Daftar Buku Disukai</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-3 w-100" >
+                            <!-- daftar wishlist -->
+                            <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
+                              <div style="padding-bottom: 5px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                <h5>
+                                  <a href="single-product.html">The Emerald Crown</a>
+                                </h5>
+                                <small>Special discounted price.</small>
+                                <a href="#" class="d-block fw-medium text-capitalize mt-2">Tambahkan ke Keranjang</a>
+                                <span class="text-primary">$2000</span>
+                              </div>
+                              <div style="padding-bottom: 5px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                <h5>
+                                  <a href="single-product.html">The Emerald Crown</a>
+                                </h5>
+                                <small>Special discounted price.</small>
+                                <a href="#" class="d-block fw-medium text-capitalize mt-2">Tambahkan ke Keranjang</a>
+                                <span class="text-primary">$2000</span>
+                              </div>
+                              <div style="padding-bottom: 5px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                <h5>
+                                  <a href="single-product.html">The Emerald Crown</a>
+                                </h5>
+                                <small>Special discounted price.</small>
+                                <a href="#" class="d-block fw-medium text-capitalize mt-2">Tambahkan ke Keranjang</a>
+                                <span class="text-primary">$2000</span>
+                              </div>
+                              <div style="padding-bottom: 5px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                <h5>
+                                  <a href="single-product.html">The Emerald Crown</a>
+                                </h5>
+                                <small>Special discounted price.</small>
+                                <a href="#" class="d-block fw-medium text-capitalize mt-2">Tambahkan ke Keranjang</a>
+                                <span class="text-primary">$2000</span>
+                              </div>
+                              <div style="padding-bottom: 5px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                <h5>
+                                  <a href="single-product.html">The Emerald Crown</a>
+                                </h5>
+                                <small>Special discounted price.</small>
+                                <a href="#" class="d-block fw-medium text-capitalize mt-2">Tambahkan ke Keranjang</a>
+                                <span class="text-primary">$2000</span>
+                              </div>
                             </div>
-                            <span class="text-primary">$2000</span>
-                          </li>
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">The Emerald Crown</a>
-                              </h5>
-                              <small>Special discounted price.</small>
-                              <a href="#" class="d-block fw-medium text-capitalize mt-2">Add to cart</a>
-                            </div>
-                            <span class="text-primary">$2000</span>
-                          </li>
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">The Emerald Crown</a>
-                              </h5>
-                              <small>Special discounted price.</small>
-                              <a href="#" class="d-block fw-medium text-capitalize mt-2">Add to cart</a>
-                            </div>
-                            <span class="text-primary">$2000</span>
-                          </li>
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">The Emerald Crown</a>
-                              </h5>
-                              <small>Special discounted price.</small>
-                              <a href="#" class="d-block fw-medium text-capitalize mt-2">Add to cart</a>
-                            </div>
-                            <span class="text-primary">$2000</span>
-                          </li>
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">The Last Enchantment</a>
-                              </h5>
-                              <small>Perfect for enlightened people.</small>
-                              <a href="#" class="d-block fw-medium text-capitalize mt-2">Add to cart</a>
-                            </div>
-                            <span class="text-primary">$400</span>
-                          </li>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Lihat Keranjang</button>
+                          </div>
                         </div>
-                        <li class="list-group-item bg-transparent d-flex justify-content-between">
-                            <span class="text-capitalize"><b>Total (USD)</b></span>
-                            <strong>$1470</strong>
-                        </li>
-                      </ul>
-                      <div class="d-flex flex-wrap justify-content-center">
-                        <a href="#" class="w-100 btn btn-dark mb-1" type="submit">Add all to cart</a>
-                        <a href="cart.html" class="w-100 btn btn-primary" type="submit">View cart</a>
                       </div>
                     </div>
+                    
                   </li>
                   <li class="cart-dropdown dropdown">
                     <a href="cart.html" style="margin-left: 20px;" class="dropdown-toggle" data-bs-toggle="dropdown" role="button"
