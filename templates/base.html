@@ -449,6 +449,7 @@
                           <div class="modal-body p-3 w-100" >
                             <!-- daftar wishlist -->
                             <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
+                              {% if mywishlist %}
                               <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
                                 <h5>
                                   <a href="single-product.html">The Emerald Crown</a>
@@ -460,51 +461,15 @@
                                   <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;width: 75px;border-radius: 5px; margin-left: 20px; color: green;">Hapus</a>
                                 </div>
                               </div>
-                              <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                <h5>
-                                  <a href="single-product.html">The Emerald Crown</a>
-                                </h5>
-                                <small>Special discounted price.</small>
-                                <p>Harga: <span class="text-primary">$2000</span></p>
-                                <div class="d-flex justify-content-start">
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;width: 230px;border-radius: 5px;">Tambahkan ke Keranjang</a>
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;width: 75px;border-radius: 5px; margin-left: 20px; color: green;">Hapus</a>
-                                </div>
+                              {% else %}
+                              <div class="text-center" >
+                                <p>Ups... belum ada buku dalam wishlist kamu...</p>
+                                <p>Yuks... cari buku yang kamu sukai...</p>
+                                <p>
+                                  <img src="{% static 'images/baca-buku.png'%}" style="width: 70px;height: 130px;" alt="">
+                                </p>
                               </div>
-                              <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                <h5>
-                                  <a href="single-product.html">The Emerald Crown</a>
-                                </h5>
-                                <small>Special discounted price.</small>
-                                <p>Harga: <span class="text-primary">$2000</span></p>
-                                <div class="d-flex justify-content-start">
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;width: 230px;border-radius: 5px;">Tambahkan ke Keranjang</a>
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;width: 75px;border-radius: 5px; margin-left: 20px; color: green;">Hapus</a>
-                                </div>
-                              </div>
-                              <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                <h5>
-                                  <a href="single-product.html">The Emerald Crown</a>
-                                </h5>
-                                <small>Special discounted price.</small>
-                                <p>Harga: <span class="text-primary">$2000</span></p>
-                                <div class="d-flex justify-content-start">
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;width: 230px;border-radius: 5px;">Tambahkan ke Keranjang</a>
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;width: 75px;border-radius: 5px; margin-left: 20px; color: green;">Hapus</a>
-                                </div>
-                              </div>
-                              <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                <h5>
-                                  <a href="single-product.html">The Emerald Crown</a>
-                                </h5>
-                                <small>Special discounted price.</small>
-                                <p>Harga: <span class="text-primary">$2000</span></p>
-                                <div class="d-flex justify-content-start">
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;width: 230px;border-radius: 5px;">Tambahkan ke Keranjang</a>
-                                  <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;width: 75px;border-radius: 5px; margin-left: 20px; color: green;">Hapus</a>
-                                </div>
-                                
-                              </div>
+                              {% endif %}
                             </div>
                           </div>
                           <div class="modal-footer">

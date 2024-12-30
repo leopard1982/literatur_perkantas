@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram, RegisterEmail
-from .models import UserBook, LupaPassword
+from .models import UserBook, LupaPassword, MyWishlist
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
@@ -158,8 +158,10 @@ def mainPage(request):
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
     else:
         userbook = None
+        mywishlist = None
 
     if request.method=="POST":
         if 'username_register' in request.POST:
@@ -255,7 +257,8 @@ def mainPage(request):
         'pengumuman':pengumuman,
         'instagram':instagram,
         'free_book':free_book,
-        'userbook':userbook
+        'userbook':userbook,
+        'mywishlist':mywishlist
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
