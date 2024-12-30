@@ -292,9 +292,6 @@ def bacaBuku(request):
     except:
         page=1
 
-
-    
-
     if page==1:
         prev=1
     else:
@@ -320,3 +317,41 @@ def bacaBuku(request):
     }
     return render(request,'landing/baca-buku.html',context)
 
+def addWishList(request,id):
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+            print(book)
+            print(id)
+            try:
+                mywishlist = MyWishlist()
+                mywishlist.user=user
+                mywishlist.book = book
+                mywishlist.save()
+            except Exception as ex:
+                print(ex)
+            messages.add_message(request,messages.SUCCESS,'Buku Berhasil ditambahkan dalam wishlist kamu..')
+        except:
+            messages.add_message(request,messages.SUCCESS,'Buku Tidak diketemukan... Buku gagal ditambahkan ke wishlist kamu...')
+    else:
+        messages.add_message(request,messages.SUCCESS,'Silakan Login terlebih dahulu untuk bisa menambahkan buku di wishlist...')
+    return HttpResponseRedirect("/")
+
+def delWishList(request,id):
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+            print(book)
+            print(id)
+            try:
+                MyWishlist.objects.get(Q(book=book) & Q(user=user)).delete()
+            except Exception as ex:
+                print(ex)
+            messages.add_message(request,messages.SUCCESS,'Buku Berhasil dihapus dari wishlist kamu..')
+        except:
+            messages.add_message(request,messages.SUCCESS,'Buku Tidak diketemukan... Buku gagal dihapus dari wishlist kamu...')
+    else:
+        messages.add_message(request,messages.SUCCESS,'Silakan Login terlebih dahulu untuk bisa menghapus buku di  wishlist...')
+    return HttpResponseRedirect("/")
