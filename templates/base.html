@@ -451,15 +451,17 @@
                             <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
                               {% if mywishlist %}
                                 {% for wish in mywishlist %}
-                                <div class="justify-content-start d-flex">
-                                    <div style="margin-right: 20px;padding:10px">
-                                      <img src="/media/extract/pdf_full/{{wish.book.id}}/1.jpg" style="width: 80px;height: 100px;" alt="">  
+                                <div class="justify-content-start d-flex row">
+                                    <div style="padding:10px" class="col-3">
+                                      <img src="/media/extract/pdf_full/{{wish.book.id}}/1.jpg" class="rounded shadow w-100"  alt="">  
                                     </div>
-                                    <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                      <h5>
-                                        <a href="single-product.html">{{wish.book.judul}}</a>
-                                      </h5>
-                                      <small>Special discounted price.</small>
+                                    <div class="col-8" style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                      <p class="h5">
+                                        <a href="{% url 'baca_buku'%}?id={{wish.book.id}}">{{wish.book.judul}}</a>
+                                      </p>
+                                      <p class="small">
+                                        Special Discounted Price
+                                      </p>  
                                       <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
                                       <div class="d-flex justify-content-start">
                                         <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;width: 230px;border-radius: 5px;">Tambahkan ke Keranjang</a>
