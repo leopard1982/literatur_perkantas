@@ -258,7 +258,8 @@ def mainPage(request):
         'instagram':instagram,
         'free_book':free_book,
         'userbook':userbook,
-        'mywishlist':mywishlist
+        'mywishlist':mywishlist,
+        'jumlahwishlist':mywishlist.count()
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)

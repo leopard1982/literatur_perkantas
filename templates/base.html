@@ -459,10 +459,15 @@
                                       <p class="h5">
                                         <a href="{% url 'baca_buku'%}?id={{wish.book.id}}">{{wish.book.judul}}</a>
                                       </p>
-                                      <p class="small">
-                                        Special Discounted Price
-                                      </p>  
-                                      <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
+                                      {% if wish.book.onsalebook.is_active %}
+                                        <p class="small">
+                                          {{wish.book.onsalebook.header}}<br>
+                                          Potongan: <span class="text-success">{{wish.book.onsalebook.discount|intcomma}}</span> %
+                                        </p>  
+                                        <p>Harga: <span class="text-primary"><s><i>Rp. {{wish.book.price|intcomma}}.00</i></s></span> &rarr; <span class="text-primary">Rp. {{wish.book.onsalebook.nett_price|intcomma}}.00</span></p>
+                                      {% else %}
+                                        <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
+                                      {% endif %}
                                       <div class="d-flex justify-content-start">
                                         <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
                                           <svg class="cart" style="height: 30px;width: 30px;">
@@ -488,6 +493,11 @@
                               </div>
                               {% endif %}
                             </div>
+                            {% if mywishlist %}
+                              <p style="margin-top: 20px;">
+                                  Jumlah Wishlist: <span class="text-primary">{{jumlahwishlist}}</span> Buku
+                              </p>
+                            {% endif %}
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
