@@ -436,7 +436,7 @@
                     <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded" data-bs-target="#modalWishList">
                       <svg class="wishlist">
                         <use xlink:href="#heart"></use>
-                      </svg>
+                      </svg> (<span class="text-primary">{{jumlahwishlist}}</span>)
                     </a>
                     <!-- Modal WishList-->
                     <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalWishList" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWishListLabel" aria-hidden="true">
@@ -462,7 +462,7 @@
                                       {% if wish.book.onsalebook.is_active %}
                                         <p class="small">
                                           {{wish.book.onsalebook.header}}<br>
-                                          Potongan: <span class="text-success">{{wish.book.onsalebook.discount|intcomma}}</span> %
+                                          Potongan: <span class="text-primary">{{wish.book.onsalebook.discount|intcomma}}</span> %
                                         </p>  
                                         <p>Harga: <span class="text-primary"><s><i>Rp. {{wish.book.price|intcomma}}.00</i></s></span> &rarr; <span class="text-primary">Rp. {{wish.book.onsalebook.nett_price|intcomma}}</span></p>
                                       {% else %}
