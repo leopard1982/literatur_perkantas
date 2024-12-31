@@ -169,8 +169,19 @@ class MyPayment(models.Model):
 	bukti = models.ImageField(upload_to="invoice")
 	created_at = models.DateTimeField(auto_now_add=True)
 	jumlah_buku = models.IntegerField(default=0)
+	jumlah_point = models.IntegerField(default=0)
 	is_verified = models.BooleanField(default=False)
-	is_canceled = models.BooleanField(default=False)	
+	is_canceled = models.BooleanField(default=False)
+
+	def __str__(self):
+		return f"{self.payment} - {self.user.username} - {self.total}"	
+
+class MyPaymentDetail(models.Model):
+	payment = models.ForeignKey(MyPayment,on_delete=models.CASCADE)
+	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
+
+	def __str__(self):
+		return f"{self.payment.payment} - {self.book.judul}"
 
 
 class FeaturedBook(models.Model):
