@@ -151,6 +151,27 @@ class MyWishlist(models.Model):
 	
 	def __str__(self):
 		return f"{self.book.judul} - {self.book.pengarang}"
+	
+class MyCart(models.Model):
+	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
+
+	class Meta:
+		unique_together = ['user','book']
+	
+	def __str__(self):
+		return f"{self.book.judul} - {self.book.pengarang}"
+
+class MyPayment(models.Model):
+	payment = models.UUIDField(editable=False,default=uuid.uuid4,primary_key=True,auto_created=True)
+	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+	total = models.DecimalField(decimal_places=2,max_digits=30,default=0)
+	bukti = models.ImageField(upload_to="invoice")
+	created_at = models.DateTimeField(auto_now_add=True)
+	jumlah_buku = models.IntegerField(default=0)
+	is_verified = models.BooleanField(default=False)
+	is_canceled = models.BooleanField(default=False)	
+
 
 class FeaturedBook(models.Model):
 	book = models.OneToOneField(Books,on_delete=models.CASCADE)

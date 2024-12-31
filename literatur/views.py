@@ -159,9 +159,11 @@ def mainPage(request):
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user)
         mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
     else:
         userbook = None
         mywishlist = None
+        jml_wishlist=0
 
     if request.method=="POST":
         if 'username_register' in request.POST:
@@ -259,7 +261,7 @@ def mainPage(request):
         'free_book':free_book,
         'userbook':userbook,
         'mywishlist':mywishlist,
-        'jumlahwishlist':mywishlist.count()
+        'jumlahwishlist':jml_wishlist
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -279,8 +281,10 @@ def bacaBuku(request):
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
     else:
         mywishlist = None
+        jml_wishlist=0
 
     try:
         if request.method=="POST":
@@ -322,7 +326,7 @@ def bacaBuku(request):
         'page':page,
         'max_page':max_page,
         'mywishlist':mywishlist,
-        'jumlahwishlist':mywishlist.count()
+        'jumlahwishlist':jml_wishlist
     }
     return render(request,'landing/baca-buku.html',context)
 
