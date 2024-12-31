@@ -276,6 +276,12 @@ def bacaBuku(request):
     except:
         return HttpResponseRedirect(reverse('main_page'))
     
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+    else:
+        mywishlist = None
+
     try:
         if request.method=="POST":
             page=int(request.POST['halaman'])
@@ -314,7 +320,9 @@ def bacaBuku(request):
         'next':next,
         'prev':prev,
         'page':page,
-        'max_page':max_page
+        'max_page':max_page,
+        'mywishlist':mywishlist,
+        'jumlahwishlist':mywishlist.count()
     }
     return render(request,'landing/baca-buku.html',context)
 
