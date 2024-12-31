@@ -199,6 +199,7 @@ def mainPage(request):
             except Exception as ex:
                 messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                 print(ex)
+            return HttpResponseRedirect('/')
 
         if 'username_login' in request.POST:
             username = request.POST['username_login']
