@@ -180,25 +180,36 @@ def mainPage(request):
             except:
                 pass
                 
-            
-            registeremail = RegisterEmail.objects.create(email=email)
-            print(type(registeremail.email))
-            id_register = RegisterEmail.objects.all().filter(email=email).order_by('-created_at')[0]
-            subject = "Konfirmasi Registrasi"
-            message = f"Hallo Ka, untuk melanjutkan registrasi email: {registeremail.email}, silakan klik link ini untuk konfirmasi: https://literatur.pythonanywhere.com/reg/{id_register.id}/?p={password1} yah... Tuhan Memberkati!"
-            from_email = settings.DEFAULT_FROM_EMAIL
             try:
-                send_mail(
-                subject,
-                message,
-                from_email,
-                [f"{request.POST['username_register']}"],
-                fail_silently=False
+                print(password)
+                user = User.objects.create(
+                    username=email,
+                    password=password1,
+                    email=email
                 )
-                messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk konfirmasi.")
+                user.set_password(password1)
+                user.save()
+                
+                #send email again
+                subject = "Initial Email dan Password"
+                message = f"\n Hallo Ka selamat untuk email {email} sudah terdaftar di Litanas Perkantas Nasional!. \n \n Terlampir Username dan Password yang bisa kaka pakai: \n \n \n ****** \n Username (email): {email} \n Password: {password1} \n ****** \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                try:
+                    send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    [f"{email}"],
+                    fail_silently=False
+                    )
+                    messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
+                except Exception as ex:
+                    messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
+                    print(ex)
+                
             except Exception as ex:
-                messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                 print(ex)
+                messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
             return HttpResponseRedirect('/')
 
         if 'username_login' in request.POST:
