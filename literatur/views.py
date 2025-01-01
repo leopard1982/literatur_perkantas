@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
-from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram, RegisterEmail
+from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist
 from django.db.models import Avg,Q
 import datetime
@@ -49,53 +49,6 @@ def resetPassword(request):
         messages.add_message(request,messages.SUCCESS,'Silakan masukkan email yang akan direset. Terima kasih.')
         return HttpResponseRedirect('/')
 
-def verifyLinkRegistrasi(request,id):
-    try:
-        registeremail = RegisterEmail.objects.get(Q(id=id) & Q(is_used=False))
-        if(registeremail.expired.timestamp()>datetime.datetime.now().timestamp()):
-            try:
-                password = request.GET['p']
-            except Exception as ex:
-                print(ex)
-                password = str(uuid.uuid4())
-            try:
-                print(password)
-                user = User.objects.create(
-                    username=registeremail.email,
-                    password=password,
-                    email=registeremail.email
-                )
-                user.set_password(password)
-                user.save()
-                registeremail.is_used=True
-                registeremail.save()
-                
-                #send email again
-                subject = "Initial Email dan Password"
-                message = f"\n Hallo Ka selamat untuk email {registeremail.email} sudah terdaftar di Litanas Perkantas Nasional!. \n \n Terlampir Username dan Password yang bisa kaka pakai: \n \n \n ****** \n Username (email): {registeremail.email} \n Password: {password} \n ****** \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
-                from_email = settings.DEFAULT_FROM_EMAIL
-                try:
-                    send_mail(
-                    subject,
-                    message,
-                    from_email,
-                    [f"{registeremail.email}"],
-                    fail_silently=False
-                    )
-                    messages.add_message(request,messages.SUCCESS,f"Hallo Ka, silakan cek email Anda untuk konfirmasi.")
-                except Exception as ex:
-                    messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
-                    print(ex)
-                messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
-            except Exception as ex:
-                print(ex)
-                messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
-        else:
-            messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Registrasi Ulang Kembali yah...')
-    except Exception as ex:
-        print(ex)
-        messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
-    return HttpResponseRedirect('/')
 
 def verifyLinkLupaPassword(request,id):
     try:
