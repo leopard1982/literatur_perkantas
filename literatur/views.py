@@ -181,7 +181,7 @@ def mainPage(request):
                 pass
                 
             try:
-                print(password)
+                # print(password)
                 user = User.objects.create(
                     username=email,
                     password=password1,
