@@ -1,0 +1,40 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block contents %}
+<div class="p-2" style="margin-bottom:20px;border: 1px solid lightgrey;border-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
+    <h3 style="text-align: center;">{{book.judul}}</h3>
+    <h4 style="text-align: center;">{{book.pengarang}}</h4>
+
+    {% if max_page == 5 %}
+        <h5 style="text-align: center;">[ <b>Preview Sampul</b> ]</h5>
+        <h5 style="font-size: 15px; text-align: center;font-style: italic;">
+            Untuk Bisa Membaca Seluruh Buku Silakan Berlangganan Terlebih Dahulu <br>
+            Preview Sampul Maksimal 5 Halaman Pertama
+        </h5>
+    {% else %}
+        <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
+    {% endif %}
+    
+
+    <div class="justify-content-center d-flex my-3 p-2 rounded shadow">
+        <a href="?id={{book.id}}&p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>
+        <div class="justify-content-center d-flex">
+            <form action="" method="post">
+                {% csrf_token %}
+                
+                <input style="text-align: center;" type="number" name="halaman" id="" min="1" max="{{book.halaman}}" value="{{page}}"  required>
+                
+            </form>
+        </div>
+        <a href="?id={{book.id}}&p={{next}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/right.jpeg'%}" style="margin-left:50px;width: 30px;height: 30px;" alt="" srcset=""></a>
+    </div>
+    
+</div>
+
+<div class="d-flex justify-content-center p-3 border-1 border-black">
+    <a href="?id={{book.id}}&p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="width: 30px;height: 30px;"  alt="" srcset=""></a>
+    <img src="/media/extract/pdf_full/{{book.id}}/{{page}}.jpg" class="w-75 rounded shadow" alt="">
+    <a href="?id={{book.id}}&p={{next}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/right.jpeg'%}" style="width: 30px;height: 30px;" alt="" srcset=""></a>
+</div>
+
+{% endblock%}

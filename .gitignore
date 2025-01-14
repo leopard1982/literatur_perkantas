@@ -1,0 +1,5 @@
+db.sqlite3
+.env
+/perkantas_literatur/settings.py
+/literatur/migrations/
+/media/extract/
