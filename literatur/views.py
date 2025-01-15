@@ -314,7 +314,7 @@ def addWishList(request,id):
             messages.add_message(request,messages.SUCCESS,'Buku Tidak diketemukan... Buku gagal ditambahkan ke wishlist kamu...')
     else:
         messages.add_message(request,messages.SUCCESS,'Silakan Login terlebih dahulu untuk bisa menambahkan buku di wishlist...')
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def delWishList(request,id):
     if request.user.is_authenticated:
@@ -332,7 +332,7 @@ def delWishList(request,id):
             messages.add_message(request,messages.SUCCESS,'Buku Tidak diketemukan... Buku gagal dihapus dari wishlist kamu...')
     else:
         messages.add_message(request,messages.SUCCESS,'Silakan Login terlebih dahulu untuk bisa menghapus buku di  wishlist...')
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def test123(request):
     try:
@@ -346,8 +346,20 @@ def test123(request):
 def allBookView(request):
     category = Category.objects.all()
     books = Books.objects.all()
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        userbook = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+    else:
+        userbook = None
+        mywishlist = None
+        jml_wishlist=0
+
     context = {
         'category':category,
-        'books':books
+        'books':books,
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist
     }
     return render(request,'landing/all-book.html',context)
