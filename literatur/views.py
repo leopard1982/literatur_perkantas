@@ -344,8 +344,24 @@ def test123(request):
         return HttpResponse("Initial")
 
 def allBookView(request):
+    try:
+        kategori=request.GET['k']
+    except:
+        kategori=0
+
     category = Category.objects.all()
-    books = Books.objects.all()
+    if(kategori==0):
+        kategori_buku = Category.objects.all()
+    else:
+        try:
+            kategori_buku = Category.objects.get(id=kategori)
+        except:
+            kategori_buku = Category.objects.all()
+    try:
+        books = Books.objects.all().filter(kategori=kategori_buku)
+    except:
+        books = Books.objects.all()
+
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user)
@@ -360,6 +376,7 @@ def allBookView(request):
         'category':category,
         'books':books,
         'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist
+        'jumlahwishlist':jml_wishlist,
+        'kategori':int(kategori)
     }
     return render(request,'landing/all-book.html',context)

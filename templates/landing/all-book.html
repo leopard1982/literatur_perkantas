@@ -61,12 +61,29 @@
 {% block contents%}
 <div class="d-flex align-items-center justify-content-center " style="flex-wrap: wrap;">
     <div >Kategori: </div>
-    <div class="filtering" style="min-width: 50px !important;">Semua</div>
+    {% if kategori == 0 %}
+        <a href="{% url 'all_book_view'%}?k=0'"><div class="filtering"  style="min-width: 50px !important;background-color: rgb(255, 91, 91);color:white">Semua</div></a>
+    {% else %}
+        <a href="{% url 'all_book_view'%}?k=0"><div class="filtering"  style="min-width: 50px !important;">Semua</div></a>
+    {% endif %}
     {% for cat in category%}
-        <div class="filtering">
-            <img src="{{cat.gambar.url}}" style="width: 20px;height: 20px;" alt="category">
-            <span style="margin-left: 10px;">{{cat.nama}}</span>
-        </div>
+        {% if cat.id == kategori %}
+        <a href="{% url 'all_book_view'%}?k={{cat.id}}">
+            <div class="filtering" style="background-color: rgb(255, 91, 91);color:white" >
+                <img src="{{cat.gambar.url}}" style="width: 20px;height: 20px;background-color: rgb(255, 91, 91);color:white" alt="category">
+                <span style="margin-left: 10px;">{{cat.nama}}</span>
+            </div>
+        </a>
+
+        {% else %}
+        <a href="{% url 'all_book_view'%}?k={{cat.id}}">
+            <div class="filtering" >
+                <img src="{{cat.gambar.url}}" style="width: 20px;height: 20px;" alt="category">
+                <span style="margin-left: 10px;">{{cat.nama}}</span>
+            </div>
+        </a>
+        
+        {% endif %}
     {% endfor %}
     <div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div>
     </div>
