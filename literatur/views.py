@@ -377,13 +377,16 @@ def allBookView(request):
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user)
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
     else:
-        userbook = None
         mywishlist = None
         jml_wishlist=0
+
+    try:
+        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
     context = {
         'category':category,
@@ -391,6 +394,7 @@ def allBookView(request):
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
         'kategori':int(kategori),
-        'jumlah_promo':jumlah_promo
+        'jumlah_promo':jumlah_promo,
+        'pengumuman':pengumuman
     }
     return render(request,'landing/all-book.html',context)
