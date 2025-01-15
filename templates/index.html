@@ -489,7 +489,7 @@
             <p class="h2 text-dark fw-bold">: : : Gratis Baca </p>
             <img src="{% static 'images/gratis.png'%}" style="width: 80px;height: 40px;" alt="">
           </div>
-          <a href="shop.html" class="btn  text-white fw-bold">lihat semua</a>
+          <a href="{% url 'all_book_view'%}?k=3" class="btn  text-white fw-bold">lihat semua</a>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
