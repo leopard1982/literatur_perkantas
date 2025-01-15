@@ -85,7 +85,11 @@
         
         {% endif %}
     {% endfor %}
-    <div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div>
+    {% if kategori == 10 %}
+      <a href="{% url 'all_book_view'%}?k=10"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div></a>
+    {% else %}
+      <a href="{% url 'all_book_view'%}?k=10"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div></a>      
+    {% endif%}
     </div>
 </div>
 <div class="list">

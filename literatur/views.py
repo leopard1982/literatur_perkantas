@@ -346,21 +346,34 @@ def test123(request):
 def allBookView(request):
     try:
         kategori=request.GET['k']
+        if int(kategori) != 10:
+            if int(kategori) > 3:
+                kategori=0
+                print(kategori)
     except:
         kategori=0
+    print(kategori)
 
     category = Category.objects.all()
     if(kategori==0):
         kategori_buku = Category.objects.all()
     else:
         try:
-            kategori_buku = Category.objects.get(id=kategori)
-        except:
+            kategori_buku = Category.objects.get(id=int(kategori))
+        except Exception as ex:
+            print(ex)
             kategori_buku = Category.objects.all()
     try:
-        books = Books.objects.all().filter(kategori=kategori_buku)
-    except:
+        print(kategori_buku)   
+        if(int(kategori)==10):
+            books = Books.objects.all().filter(is_best_seller=True)
+        else:
+            books = Books.objects.all().filter(kategori=kategori_buku)
+    except Exception as ex:
+        print(ex)
         books = Books.objects.all()
+    
+    print(books)
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)

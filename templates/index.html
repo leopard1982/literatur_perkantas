@@ -98,7 +98,7 @@
       <div class="container rounded">
         <div class="section-title   d-md-flex mt-2 justify-content-between align-items-center mb-4 p-2" >
           <h3 class="d-flex align-items-center text-dark fw-bold">: : : Best Seller : : :</h3>
-          <a href="shop.html" class="btn  small text-white fw-bold">lihat semua</a>
+          <a href="{% url 'all_book_view'%}?k=10" class="btn  small text-white fw-bold">lihat semua</a>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -111,7 +111,7 @@
           </svg>
         </div>
         <div class="swiper product-swiper">
-          <div class="swiper-wrapper">
+          <div class="swiper-wrapper d-flex justify-content-between">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
             <div class="swiper-slide " >
