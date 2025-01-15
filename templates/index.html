@@ -327,7 +327,7 @@
                     {% if book.kategori.id == 3 %}
                     <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{book.id}}" style="height: 50px;">{{book.judul}}</a></h6>
                     {% else %}
-                    <h6 class="mb-0 fw-bold"><a href="#" style="height: 50px;">{{book.judul}}</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{book.id}}" style="height: 50px;">{{book.judul}}</a></h6>
                     {% endif %}
                     <div class="review-content d-flex">
                       <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
