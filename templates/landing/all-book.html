@@ -10,8 +10,8 @@
         background-color: white;
         min-width: 200px;
         max-width: 200px;
-        min-height: 300px;
-        max-height: 300px;
+        /* min-height: 450px;
+        max-height: 450px; */
         margin:20px;
         font-size: 15px;
         padding:5px;
@@ -23,7 +23,7 @@
 
     .card:hover {
         border: 1px solid none;
-        box-shadow: 0px 0px 10px rgb(223, 57, 57);
+        box-shadow: 0px 0px 10px rgb(252, 143, 143);
         cursor: pointer;
     }
 
@@ -63,9 +63,39 @@
 </div>
 <div class="list">
     {% for book in books %}
-    <div class="card">
-        <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="">
-    </div>
+    {% if book.kategori.id == 3 %}
+        <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
+            <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+            <hr>
+            <p class="fw-bold">
+                {{book.judul}}
+            </p>
+            <hr>
+            <p class="fw-bold text-success">
+                BUKU GRATIS
+            </p>
+        </div>
+    {% else %}
+        <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
+            <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+            <hr>
+            <p class="fw-bold text-primary">
+                {{book.judul}}
+            </p>
+            <hr>
+            <p class=" fw-bold">
+                 
+                {% if book.onsalebook.is_active %}
+                    Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
+                    <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
+                {% else %}
+                    Harga: <span style="color:green">
+                        Rp.{{book.price|intcomma}}.00
+                    </span>
+                {% endif%} 
+            </p>
+        </div>
+    {% endif %}
     {% endfor%}
 </div>
 {% endblock %}
