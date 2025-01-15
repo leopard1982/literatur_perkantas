@@ -41,13 +41,15 @@
         padding: 5px;
         background-color: white;
         min-width: 200px;
-        margin: 10px
+        margin: 10px;
+        text-align: center;
     }
 
     .filtering:hover {
         border: 1px solid  rgb(255, 91, 91);
         box-shadow: 0 0 5px grey;
-        background-color: white;;
+        background-color: white;
+        cursor: pointer;
     }
 
     .filtering :hover {
@@ -59,6 +61,7 @@
 {% block contents%}
 <div class="d-flex align-items-center justify-content-center " style="flex-wrap: wrap;">
     <div >Kategori: </div>
+    <div class="filtering" style="min-width: 50px !important;">Semua</div>
     {% for cat in category%}
         <div class="filtering">
             <img src="{{cat.gambar.url}}" style="width: 20px;height: 20px;" alt="category">
