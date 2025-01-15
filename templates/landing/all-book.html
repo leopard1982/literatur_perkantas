@@ -40,7 +40,7 @@
         border-radius: 5px;
         padding: 5px;
         background-color: white;
-        min-width: 200px;
+        min-width: 150px;
         margin: 10px;
         text-align: center;
     }
@@ -90,9 +90,15 @@
     {% else %}
       <a href="{% url 'all_book_view'%}?k=10"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div></a>      
     {% endif%}
+    {% if kategori == 11 %}
+      <a href="{% url 'all_book_view'%}?k=11"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Terbaru</div></a>
+    {% else %}
+      <a href="{% url 'all_book_view'%}?k=11"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Terbaru</div></a>      
+    {% endif%}
     </div>
 </div>
 <div class="list">
+  {% if books %}
     {% for book in books %}
     {% if book.kategori.id == 3 %}
         <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
@@ -173,5 +179,10 @@
         </div>
     {% endif %}
     {% endfor%}
+  {% else %}
+  <div class="text-center py-3">
+    <p>Ups... Maaf kategori yang kaka cari belum tersedia...</p>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

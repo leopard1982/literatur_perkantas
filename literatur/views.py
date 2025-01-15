@@ -346,14 +346,13 @@ def test123(request):
 def allBookView(request):
     try:
         kategori=request.GET['k']
-        if int(kategori) != 10:
-            if int(kategori) > 3:
-                kategori=0
-                print(kategori)
-    except:
+        if int(kategori)>3 and int(kategori)<10:
+            kategori=0
+    except Exception as ex:
         kategori=0
-    print(kategori)
+        print(ex)
 
+    print(kategori)
     category = Category.objects.all()
     if(kategori==0):
         kategori_buku = Category.objects.all()
@@ -361,12 +360,13 @@ def allBookView(request):
         try:
             kategori_buku = Category.objects.get(id=int(kategori))
         except Exception as ex:
-            print(ex)
             kategori_buku = Category.objects.all()
     try:
-        print(kategori_buku)   
+        print(kategori)
         if(int(kategori)==10):
             books = Books.objects.all().filter(is_best_seller=True)
+        elif(int(kategori)==11):
+            books = Books.objects.all().order_by('-created_at')
         else:
             books = Books.objects.all().filter(kategori=kategori_buku)
     except Exception as ex:
