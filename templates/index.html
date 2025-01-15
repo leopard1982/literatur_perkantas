@@ -384,7 +384,7 @@
                 <div class="item d-flex newcard2" >
                   <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{books.book.judul}}</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{books.book.id}}" style="height: 50px;">{{books.book.judul}}</a></h6>
                     <div class="review-content d-flex">
                       <p class="my-2 me-2 fs-6 text-black-50">{{books.book.pengarang}}</p>
                       <div class="rating text-warning d-flex align-items-center">
