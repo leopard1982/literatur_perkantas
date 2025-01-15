@@ -373,7 +373,7 @@ def allBookView(request):
         print(ex)
         books = Books.objects.all()
     
-    print(books)
+    jumlah_promo = OnSaleBook.objects.all().filter(is_active=True).count()
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
@@ -390,6 +390,7 @@ def allBookView(request):
         'books':books,
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
-        'kategori':int(kategori)
+        'kategori':int(kategori),
+        'jumlah_promo':jumlah_promo
     }
     return render(request,'landing/all-book.html',context)

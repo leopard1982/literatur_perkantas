@@ -95,89 +95,168 @@
     {% else %}
       <a href="{% url 'all_book_view'%}?k=11"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Terbaru</div></a>      
     {% endif%}
+    {% if kategori == 12 %}
+      <a href="{% url 'all_book_view'%}?k=12"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Promo</div></a>
+    {% else %}
+      <a href="{% url 'all_book_view'%}?k=12"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Promo</div></a>      
+    {% endif%}
     </div>
 </div>
 <div class="list">
+  {% if kategori == 12 %}
+    {% if jumlah_promo == 0%}
+    
+            <div class="text-center py-3">
+              <p>Ups... Nantikan Promo Menarik Kami ya Kaka...</p>
+              <p><img src="{% static 'images/wait.png'%}" class="w-25" alt=""></p>
+            </div>  
+    {% endif %}
+  {% endif %}
+  
   {% if books %}
     {% for book in books %}
-    {% if book.kategori.id == 3 %}
-        <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
-            <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
-            <hr>
-            <p class="fw-bold">
-                {{book.judul}}
-            </p>
-            <hr>
-            <p class="fw-bold text-success">
-                BUKU GRATIS
-            </p>
-            <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                    <span>
-                      <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                    </span>
-                  </a>
+      {% if kategori == 12 %}
+        {% if jumlah_promo > 0 %}
+          {% if book.onsalebook.is_active %}
+            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
+                    <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+                    <hr>
+                    <p class="fw-bold text-primary">
+                        {{book.judul}}
+                    </p>
+                    <hr>
+                    <p class=" fw-bold">
+                        {% if book.onsalebook.is_active %}
+                            Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
+                            <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
+                        {% else %}
+                            Harga: <span style="color:green">
+                                Rp.{{book.price|intcomma}}.00
+                            </span>
+                        {% endif%} 
+                    </p>
+                    <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
+                          {% if user.is_authenticated%}
+                          <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                            data-bs-title="Tooltip on top">
+                            <svg class="cart">
+                              <use xlink:href="#cart"></use>
+                            </svg>
+                          </button>
+                          {% else %}
+                          <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                            data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
+                            <svg class="cart">
+                              <use xlink:href="#cart"></use>
+                            </svg>
+                          </button>
+                          {% endif%}
+                          {% if user.is_authenticated%}
+                          <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
+                            <span>
+                              <svg class="wishlist">
+                                <use xlink:href="#heart"></use>
+                              </svg>
+                            </span>
+                          </a>
+                          {% else %}
+                          <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <span>
+                              <svg class="wishlist">
+                                <use xlink:href="#heart"></use>
+                              </svg>
+                            </span>
+                          </a>
+                          {% endif %}
+                          <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
+                            <span>
+                              <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
+                            </span>
+                          </a>
+                    </div>
             </div>
-        </div>
-    {% else %}
-        <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
-            <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
-            <hr>
-            <p class="fw-bold text-primary">
-                {{book.judul}}
-            </p>
-            <hr>
-            <p class=" fw-bold">
-                {% if book.onsalebook.is_active %}
-                    Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
-                    <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
-                {% else %}
-                    Harga: <span style="color:green">
-                        Rp.{{book.price|intcomma}}.00
-                    </span>
-                {% endif%} 
-            </p>
-            <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                  {% if user.is_authenticated%}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  {% else %}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
-                    data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </button>
-                  {% endif%}
-                  {% if user.is_authenticated%}
-                  <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                  {% else %}
-                  <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                  {% endif %}
-                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                    <span>
-                      <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                    </span>
-                  </a>
+          {% endif %}
+        {% endif%}
+      {% else %}
+        {% if book.kategori.id == 3 %}
+            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
+                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+                <hr>
+                <p class="fw-bold">
+                    {{book.judul}}
+                </p>
+                <hr>
+                <p class="fw-bold text-success">
+                    BUKU GRATIS
+                </p>
+                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
+                      <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
+                        <span>
+                          <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
+                        </span>
+                      </a>
+                </div>
             </div>
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
+                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+                <hr>
+                <p class="fw-bold text-primary">
+                    {{book.judul}}
+                </p>
+                <hr>
+                <p class=" fw-bold">
+                    {% if book.onsalebook.is_active %}
+                        Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
+                        <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
+                    {% else %}
+                        Harga: <span style="color:green">
+                            Rp.{{book.price|intcomma}}.00
+                        </span>
+                    {% endif%} 
+                </p>
+                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
+                      {% if user.is_authenticated%}
+                      <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Tooltip on top">
+                        <svg class="cart">
+                          <use xlink:href="#cart"></use>
+                        </svg>
+                      </button>
+                      {% else %}
+                      <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                        data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
+                        <svg class="cart">
+                          <use xlink:href="#cart"></use>
+                        </svg>
+                      </button>
+                      {% endif%}
+                      {% if user.is_authenticated%}
+                      <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
+                        <span>
+                          <svg class="wishlist">
+                            <use xlink:href="#heart"></use>
+                          </svg>
+                        </span>
+                      </a>
+                      {% else %}
+                      <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <span>
+                          <svg class="wishlist">
+                            <use xlink:href="#heart"></use>
+                          </svg>
+                        </span>
+                      </a>
+                      {% endif %}
+                      <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
+                        <span>
+                          <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
+                        </span>
+                      </a>
+                </div>
+            </div>
+        {% endif %}
+      {% endif %}
     {% endfor%}
   {% else %}
   <div class="text-center py-3">
