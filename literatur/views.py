@@ -342,3 +342,12 @@ def test123(request):
             return HttpResponse("Belum Ada Query Params")
     except:
         return HttpResponse("Initial")
+
+def allBookView(request):
+    category = Category.objects.all()
+    books = Books.objects.all()
+    context = {
+        'category':category,
+        'books':books
+    }
+    return render(request,'landing/all-book.html',context)

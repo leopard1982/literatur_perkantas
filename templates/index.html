@@ -2,6 +2,35 @@
 {% load static %}
 {% load humanize %}
 
+{% block styling %}
+<style>
+  .newcard:hover {
+    border: 2px solid lightgrey !important;
+    box-shadow: 0px 5px 0px rgba(230, 100, 100,0.5) !important;
+    cursor: pointer;
+  }
+  .newcard2:hover {
+    background-image: linear-gradient(to right,white,rgba(230, 100, 100,0.4)) !important;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+   .newcard3:hover {
+    /* background-image: linear-gradient(to top,white,rgba(235, 132, 132, 0.4)) !important; */
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0px 5px 10px grey;
+    border: 2px solid grey;
+  }
+
+   .newcard4:hover {
+    cursor: pointer;
+    box-shadow: 0px 0px 10px grey;
+    transition-duration: 0.3s;
+    border-radius:5px
+  }
+</style>
+{% endblock %}
 
 {% block contents%}
     <!-- <div id="test">
@@ -63,7 +92,7 @@
     </section>
     {% endif %}  
 
-    <section id="best-selling-items" class="position-relative padding-small shadow" style="background-color:rgba(156,175,136,0.5)">
+    <section id="best-selling-items" class="position-relative padding-small shadow" style="background-color:#eefcff">
       <div class="container rounded">
         <div class="section-title   d-md-flex mt-2 justify-content-between align-items-center mb-4 p-2" >
           <h3 class="d-flex align-items-center text-dark fw-bold">: : : Best Seller : : :</h3>
@@ -83,8 +112,8 @@
           <div class="swiper-wrapper">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide" >
-              <div class="card position-relative p-4  rounded-top shadow" style="height: 550px;">
+            <div class="swiper-slide " >
+              <div class="newcard card position-relative p-4  rounded-top shadow" style="height: 550px;">
                 <div class="d-flex justify-content-center" style="z-index:30">
                   <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
@@ -157,7 +186,7 @@
             </div>
             {% else %}
             <div class="swiper-slide">
-              <div class="card position-relative p-4  shadow  " style="height: 550px;">
+              <div class="newcard card position-relative p-4  shadow  " style="height: 550px;">
                 <div style="height: 300px;  " class="justify-content-center d-flex">
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="height: 300px;width: 200px;" alt="product item">
                 </div>
@@ -275,7 +304,7 @@
       </div>
     </section> -->
 
-    <section id="items-listing" class="padding-small" style="background-color:rgba(156,175,136,0.3)">
+    <section id="items-listing" class="padding-small" style="background-color:#ffeeee">
       <div class="container  p-3 rounded  text-dark">
         <div class=" fw-bold  py-4 px-2 text-start h2" >
           : : : Info Terbaru : : :
@@ -290,7 +319,7 @@
               <hr class="border border-primary">
               <div class="items-lists mt-2">
                 {% for book in books%}
-                <div class="item d-flex">
+                <div class="item d-flex newcard2">
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid  rounded border" style="box-shadow: 0px 0 5px blue; min-width: 70px;min-height: 100px;" alt="product item">
                   <div class="item-content ms-3">
                     {% if book.kategori.id == 3 %}
@@ -350,7 +379,7 @@
               <div class="items-lists mt-2">
               {% if books_on_sale %}
                 {% for books in books_on_sale%}
-                <div class="item d-flex" >
+                <div class="item d-flex newcard2" >
                   <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                   <div class="item-content ms-3">
                     <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{books.book.judul}}</a></h6>
@@ -400,7 +429,7 @@
               {% if userbook %}
                 <div class="items-lists mt-1">
                   {% for book in userbook%}
-                  <div class="item d-flex" style="height: 150px;">
+                  <div class="item d-flex newcard2" style="height: 150px;">
                     <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                     <div class="item-content ms-3">
                       <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
@@ -451,7 +480,7 @@
       </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-small "style="background-color:rgba(156,175,136,0.1)">
+    <section id="best-selling-items" class="position-relative padding-small " style="background-color:#fff5ee">
       <div class="container p-3  rounded rounded-top ">
         <div class="section-title d-md-flex justify-content-between align-items-center rounded mb-4   p-2">
           <div class="d-flex align-items-center justify-content-start">
@@ -473,8 +502,8 @@
         <div class="swiper product-swiper">
           <div class="swiper-wrapper">
           {% for book in free_book %}
-            <div class="swiper-slide">
-              <div class="card position-relative p-4 border border-success rounded-3 " >
+            <div class="swiper-slide ">
+              <div class="card newcard3 position-relative p-4 border border-success rounded-3 " >
                 <div style="height: 300px;" class="justify-content-center d-flex">
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="height: 300px;width: 200px;box-shadow: 0 0 5px rgb(2, 128, 34);" alt="product item">
                 </div>
@@ -518,7 +547,7 @@
       </div>
     </section>
 
-    <section id="categories" class="padding-small pt-0" style="margin-top:50px">
+    <!-- <section id="categories" class="padding-small pt-0" style="margin-top:50px">
       <div class="container">
         <div class="section-title overflow-hidden mb-4">
           <h3 class="d-flex align-items-center">Kategori Buku</h3>
@@ -537,7 +566,7 @@
           {% endfor %}
         </div>
       </div>
-    </section>
+    </section> -->
 
     <section id="latest-posts" class="padding-large" style="background-color: rgba(32, 206, 46, 0.1);">
       <div class="container">
@@ -546,7 +575,7 @@
           <a href="shop.html" class="btn">View All</a>
         </div>
         <div class="row">
-          <div class="col-md-3 posts mb-4">
+          <div class="newcard4 col-md-3 posts mb-4">
             <img src="{% static 'images/post-item1.jpg'%}" alt="post image" class="img-fluid rounded-3">
             <a href="blog.html" class="fs-6 text-primary">Books</a>
             <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">10 Must-Read Books of the Year: Our Top Picks!</a></h4>
@@ -554,14 +583,14 @@
               five essential gadge. <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
             </p>
           </div>
-          <div class="col-md-3 posts mb-4">
+          <div class="newcard4 col-md-3 posts mb-4">
             <img src="{% static 'images/post-item2.jpg'%}" alt="post image" class="img-fluid rounded-3">
             <a href="blog.html" class="fs-6 text-primary">Books</a>
             <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">The Fascinating Realm of Science Fiction</a></h4>
             <p class="mb-2">Explore the intersection of technology and sustainability in our latest blog post. Learn about
               the innovative <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span> </p>
           </div>
-          <div class="col-md-3 posts mb-4">
+          <div class="newcard4 col-md-3 posts mb-4">
             <img src="{% static 'images/post-item3.jpg'%}" alt="post image" class="img-fluid rounded-3">
             <a href="blog.html" class="fs-6 text-primary">Books</a>
             <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">Finding Love in the Pages of a Book</a></h4>
@@ -569,7 +598,7 @@
               wearable technology. <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
             </p>
           </div>
-          <div class="col-md-3 posts mb-4">
+          <div class="newcard4 col-md-3 posts mb-4">
             <img src="{% static 'images/post-item4.jpg'%}" alt="post image" class="img-fluid rounded-3">
             <a href="blog.html" class="fs-6 text-primary">Books</a>
             <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">Reading for Mental Health: How Books Can Heal and Inspire</a></h4>
