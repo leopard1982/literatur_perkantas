@@ -44,20 +44,21 @@
                     {% endif %}
                 </div>
                 <div class="col-10 d-flex justify-content-start" >
-                    <div class="col-lg-2 col-md-3 ">
-                        <img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" class="w-100 p-2 rounded" alt="">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-3 ">
+                            <img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" class="w-100 p-2 rounded" alt="">
+                        </div>
+                        <div class="col-lg-10 col-md-9 p-2">
+                            <p class="text-primary fw-bold h2" >{{cart.book.judul}}</p>
+                            <p class="h3">{{cart.book.pengarang}}</p>
+                            {% if cart.book.onsalebook.is_active %}
+                            <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
+                            <p><i>Promo Potongan: {{cart.book.onsalebook.discount|intcomma}}%</i> - {{cart.book.onsalebook.header}}</p>
+                            {% else %}
+                            <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="col-lg-10 col-md-9 p-2">
-                        <p class="text-primary fw-bold h2" >{{cart.book.judul}}</p>
-                        <p class="h3">{{cart.book.pengarang}}</p>
-                        {% if cart.book.onsalebook.is_active %}
-                        <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
-                        <p><i>Promo Potongan: {{cart.book.onsalebook.discount|intcomma}}%</i> - {{cart.book.onsalebook.header}}</p>
-                        {% else %}
-                        <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
-                        {% endif %}
-                    </div>
-                    
                 </div>
                 <div class="col-1">
                     <a href="{% url 'del_cart_list' cart.book.id %}">
