@@ -125,40 +125,24 @@
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
-                  <div class="rating text-warning d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
+                  
                 </div>
                 <span class="price text-primary fw-bold mb-2 fs-5"><s style="color: rgba(0,0,0,0.5);"><i>Rp.{{book.price|intcomma}}.00</i></s> Rp.{{book.onsalebook.nett_price|intcomma}} </span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
                   {% if user.is_authenticated%}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                     data-bs-title="Tooltip on top">
                     <svg class="cart">
                       <use xlink:href="#cart"></use>
                     </svg>
-                  </button>
+                  </a>
                   {% else %}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
                     data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
                     <svg class="cart">
                       <use xlink:href="#cart"></use>
                     </svg>
-                  </button>
+                  </a>
                   {% endif%}
                   {% if user.is_authenticated%}
                   <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
@@ -196,41 +180,25 @@
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
-                  <div class="rating text-warning d-flex align-items-center">
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                    <svg class="star star-fill">
-                      <use xlink:href="#star-fill"></use>
-                    </svg>
-                  </div>
+                  
                 </div>
 
                 <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2" >
                   {% if user.is_authenticated%}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                     data-bs-title="Tooltip on top">
                     <svg class="cart">
                       <use xlink:href="#cart"></use>
                     </svg>
-                  </button>
+                  </a>
                   {% else %}
-                  <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
                     data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
                     <svg class="cart">
                       <use xlink:href="#cart"></use>
                     </svg>
-                  </button>
+                  </a>
                   {% endif%}
                   {% if user.is_authenticated%}
                   <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">

@@ -472,7 +472,7 @@
                                         <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
                                       {% endif %}
                                       <div class="d-flex justify-content-start">
-                                        <a href="#" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
+                                        <a href="{% url 'add_cart_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
                                           <svg class="cart" style="height: 30px;width: 30px;">
                                             <use xlink:href="#cart"></use>
                                           </svg>
@@ -512,48 +512,12 @@
                     
                   </li>
                   <li class="cart-dropdown dropdown">
-                    <a href="cart.html" style="margin-left: 20px;" class="dropdown-toggle" data-bs-toggle="dropdown" role="button"
-                      aria-expanded="false">
+                    <a href="{% url 'cart_view'%}" style="margin-left: 20px;" >
                       <svg class="cart">
                         <use xlink:href="#cart"></use>
-                      </svg><span class="fs-6 fw-light">(02)</span>
+                      </svg><span class="fs-6 fw-light">(<span class="text-primary">{{jml_mycart}}</span>)</span>
                     </a>
-                    <div class="dropdown-menu animate slide dropdown-menu-start dropdown-menu-lg-end p-3">
-                      <h4 class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-primary">Keranjangmu</span>
-                        <span class="badge bg-primary rounded-pill">2</span>
-                      </h4>
-                      <ul class="list-group mb-3">
-                        <div style="height: 200px;overflow-y: scroll;">
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">Secrets of the Alchemist</a>
-                              </h5>
-                              <small>High quality in good price.</small>
-                            </div>
-                            <span class="text-primary">$870</span>
-                          </li>
-                          <li class="list-group-item bg-transparent d-flex justify-content-between lh-sm">
-                            <div>
-                              <h5>
-                                <a href="single-product.html">Quest for the Lost City</a>
-                              </h5>
-                              <small>Professional Quest for the Lost City.</small>
-                            </div>
-                            <span class="text-primary">$600</span>
-                          </li>
-                        </div>
-                        <li class="list-group-item bg-transparent d-flex justify-content-between">
-                            <span class="text-capitalize"><b>Total (USD)</b></span>
-                            <strong>$1470</strong>
-                        </li>
-                      </ul>
-                      <div class="d-flex flex-wrap justify-content-center">
-                        <a href="cart.html" class="w-100 btn btn-dark mb-1" type="submit">View Cart</a>
-                        <a href="checkout.html" class="w-100 btn btn-primary" type="submit">Go to checkout</a>
-                      </div>
-                    </div>
+                    
                   </li>
                   {% endif %}
                 </ul>

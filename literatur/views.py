@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
-from .models import UserBook, LupaPassword, MyWishlist
+from .models import UserBook, LupaPassword, MyWishlist, MyCart
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
@@ -113,10 +113,12 @@ def mainPage(request):
         userbook = UserBook.objects.all().filter(id_user=user)
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
     else:
         userbook = None
         mywishlist = None
         jml_wishlist=0
+        jml_mycart=0
 
     if request.method=="POST":
         if 'username_register' in request.POST:
@@ -226,7 +228,8 @@ def mainPage(request):
         'free_book':free_book,
         'userbook':userbook,
         'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist
+        'jumlahwishlist':jml_wishlist,
+        'jml_mycart':jml_mycart
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -300,16 +303,18 @@ def addWishList(request,id):
         user = User.objects.get(username=request.user.username)
         try:
             book = Books.objects.get(id=id)
-            print(book)
-            print(id)
             try:
-                mywishlist = MyWishlist()
-                mywishlist.user=user
-                mywishlist.book = book
-                mywishlist.save()
-            except Exception as ex:
-                print(ex)
-            messages.add_message(request,messages.SUCCESS,'Buku Berhasil ditambahkan dalam wishlist kamu..')
+                userbook = UserBook.objects.get(Q(id_user=user) & Q(id_book=book))
+                messages.add_message(request,messages.SUCCESS,"Buku sudah kaka beli, tidak bisa masuk ke wishlist yah... kaka bisa lihat di Koleksiku...")
+            except:
+                try:
+                    mywishlist = MyWishlist()
+                    mywishlist.user=user
+                    mywishlist.book = book
+                    mywishlist.save()
+                except Exception as ex:
+                    print(ex)
+                messages.add_message(request,messages.SUCCESS,'Buku Berhasil ditambahkan dalam wishlist kamu..')
         except:
             messages.add_message(request,messages.SUCCESS,'Buku Tidak diketemukan... Buku gagal ditambahkan ke wishlist kamu...')
     else:
@@ -379,9 +384,11 @@ def allBookView(request):
         user= User.objects.get(username=request.user.username)
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
     else:
         mywishlist = None
         jml_wishlist=0
+        jml_mycart=0
 
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -395,6 +402,81 @@ def allBookView(request):
         'jumlahwishlist':jml_wishlist,
         'kategori':int(kategori),
         'jumlah_promo':jumlah_promo,
-        'pengumuman':pengumuman
+        'pengumuman':pengumuman,
+        'jml_mycart':jml_mycart
     }
     return render(request,'landing/all-book.html',context)
+
+def addCartList(request,id):
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+            try:
+                try:
+                    userbook = UserBook.objects.get(Q(id_user=user) & Q(id_book=book))
+                    messages.add_message(request,messages.SUCCESS,f"Kaka sudah pernah membeli buku {book.judul} ini. Silakan cek kembali di Koleksiku yah...")
+                except:
+                    try:
+                        MyWishlist.objects.all().filter(Q(book=book) & Q(user=user)).delete()
+                        mycart = MyCart()
+                        mycart.user=user
+                        mycart.book=book
+                        mycart.is_checked=False
+                        mycart.save()
+                        messages.add_message(request,messages.SUCCESS,"Buku berhasil ditambahkan ke keranjang..")
+                    except Exception as ex:
+                        print(ex)
+                        messages.add_message(request,messages.SUCCESS,'Buku berhasil ditambahkan ke keranjang..')
+            except Exception as ex:
+                print(ex)
+                messages.add_message(request,messages.SUCCESS,"Ups.. ada masalah di server, silakan ulangi lagi kembali...")
+        except:
+            messages.add_message(request,messages.SUCCESS,"Buku tidak diketemukan...")
+    else:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
+
+def cartView(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        mycart = MyCart.objects.all().filter(user=user)
+    else:
+        mywishlist = None
+        jml_wishlist=0
+        jml_mycart=0
+        mycart=None
+
+    try:
+        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+    context = {
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist,
+        'pengumuman':pengumuman,
+        'jml_mycart':jml_mycart,
+        'mycart':mycart
+
+    }
+    return render(request,'landing/daftar_cart.html',context)
+
+def delCartList(request,id):
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+            try:
+                MyCart.objects.all().filter(Q(user=user) & Q(book=book)).delete()
+                messages.add_message(request,messages.SUCCESS,"Buku berhasil dihapus dari keranjang...")
+            except:
+                messages.add_message(request,messages.SUCCESS,"Buku gagal dihapus dari keranjang...")    
+        except:
+            messages.add_message(request,messages.SUCCESS,"Buku tidak diketemukan...")
+    else:
+        pass
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    

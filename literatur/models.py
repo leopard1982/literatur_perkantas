@@ -246,20 +246,16 @@ class UserBook(models.Model):
 	id_book = models.ForeignKey(Books,on_delete=models.RESTRICT)
 	id_user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="id_user",null=True,blank=True)
 	last_page = models.PositiveSmallIntegerField(default=0)
-	booked_date = models.DateField(auto_now_add=False,blank=True,null=True)
-	payment = models.CharField(max_length=20,choices=payment)
-	payment_code = models.CharField(max_length=100,null=True,blank=True)
-	point = models.PositiveSmallIntegerField(default=0)
-
-	def save(self,*args,**kwargs):
-		self.point = self.id_book.point
-		super(UserBook,self).save(*args,**kwargs)
-		total_point = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Sum('point'))
-		print(self.id_user)
-		print(total_point['jumlah'])
-		total_book = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Count('point'))
-		print(total_book['jumlah'])
-		UserDetail.objects.all().filter(username=self.id_user.username).update(total_poin=total_point['jumlah'],total_book=total_book['jumlah'])
+	payment = models.ForeignKey(MyPayment,on_delete=models.RESTRICT,related_name="payment_book")
+	# def save(self,*args,**kwargs):
+	# 	self.point = self.id_book.point
+	# 	super(UserBook,self).save(*args,**kwargs)
+	# 	total_point = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Sum('point'))
+	# 	print(self.id_user)
+	# 	print(total_point['jumlah'])
+	# 	total_book = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Count('point'))
+	# 	print(total_book['jumlah'])
+	# 	UserDetail.objects.all().filter(username=self.id_user.username).update(total_poin=total_point['jumlah'],total_book=total_book['jumlah'])
 		
 
 	def __str__(self):

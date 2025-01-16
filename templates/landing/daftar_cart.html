@@ -1,0 +1,63 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load humanize %}
+
+{% block styling1 %}
+<style>
+    .card-cart {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        margin-top:10px;
+        margin-bottom:10px
+    }
+
+    .header1 {
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .trash1 {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block contents%}
+<div class="p-5">
+    <div class="header1">
+        <svg class="cart" style="width:30px;height: 40px;">
+            <use xlink:href="#cart"></use>
+        </svg>
+        Jumlah Item di Keranjang: <span class="text-primary">{{jml_mycart}}</span> item.
+    </div>
+    {% for cart in mycart%}
+        <div class="card-cart row p-2">
+            <div class="col-1">
+                <input type="checkbox" name="" id="">
+            </div>
+            <div class="col-10">
+                <p class="text-primary fw-bold" style="font-size:25px;">{{cart.book.judul}}</p>
+                {% if cart.book.onsalebook.is_active %}
+                <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
+                <p><i>Potongan: {{cart.book.onsalebook.discount}}</i> - {{cart.book.onsalebook.header}}</p>
+                {% else %}
+                <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
+                {% endif %}
+            </div>
+            <div class="col-1">
+                <a href="{% url 'del_cart_list' cart.book.id %}">
+                    <img src="{% static 'images/trash.svg'%}" class="trash1" style="width: 25px;height: 25px;"></img>
+                </a>
+            </div>
+        </div>    
+    {% endfor %}
+    <div class="header1 text-center mt-4" >
+        <i class="fa fa-money" aria-hidden="true"></i>
+        Total Belanja: Rp.<span class="text-primary">100.000,00</span>
+    </div>
+</div>
+
+
+{% endblock %}

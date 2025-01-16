@@ -136,19 +136,19 @@
                     </p>
                     <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
                           {% if user.is_authenticated%}
-                          <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                          <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                             data-bs-title="Tooltip on top">
                             <svg class="cart">
                               <use xlink:href="#cart"></use>
                             </svg>
-                          </button>
+                          </a>
                           {% else %}
-                          <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                          <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
                             data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
                             <svg class="cart">
                               <use xlink:href="#cart"></use>
                             </svg>
-                          </button>
+                          </a>
                           {% endif%}
                           {% if user.is_authenticated%}
                           <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
@@ -216,19 +216,19 @@
                 </p>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
                       {% if user.is_authenticated%}
-                      <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                      <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                         data-bs-title="Tooltip on top">
                         <svg class="cart">
                           <use xlink:href="#cart"></use>
                         </svg>
-                      </button>
+                      </a>
                       {% else %}
-                      <button type="button" href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
+                      <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
                         data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
                         <svg class="cart">
                           <use xlink:href="#cart"></use>
                         </svg>
-                      </button>
+                      </a>
                       {% endif%}
                       {% if user.is_authenticated%}
                       <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
