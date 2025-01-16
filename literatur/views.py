@@ -444,26 +444,33 @@ def cartView(request):
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         mycart = MyCart.objects.all().filter(user=user)
+        total_payment = 0
+        for cart in mycart.filter(is_checked=True):
+            try:
+                onsalebook = OnSaleBook.objects.get(Q(book=cart.book) & Q(is_active=True))
+                total_payment+=int(onsalebook.nett_price)
+            except:
+                total_payment+=int(cart.book.price)
+
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'mycart':mycart,
+            'total_payment':total_payment
+
+        }
+        return render(request,'landing/daftar_cart.html',context)
     else:
-        mywishlist = None
-        jml_wishlist=0
-        jml_mycart=0
-        mycart=None
+        return HttpResponseRedirect('/')
 
-    try:
-        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
-    except:
-        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
-
-    context = {
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'pengumuman':pengumuman,
-        'jml_mycart':jml_mycart,
-        'mycart':mycart
-
-    }
-    return render(request,'landing/daftar_cart.html',context)
+    
 
 def delCartList(request,id):
     if request.user.is_authenticated:
@@ -477,6 +484,28 @@ def delCartList(request,id):
                 messages.add_message(request,messages.SUCCESS,"Buku gagal dihapus dari keranjang...")    
         except:
             messages.add_message(request,messages.SUCCESS,"Buku tidak diketemukan...")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
     else:
-        pass
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
+        return HttpResponseRedirect('/')
+       
+
+def changeCartStatus(request,id):
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+            try:
+                mycart = MyCart.objects.all().get(Q(user=user) & Q(book=book))
+                if mycart.is_checked==True:
+                    mycart.is_checked=False
+                else:
+                    mycart.is_checked=True
+                mycart.save()
+            except:
+                messages.add_message(request,messages.SUCCESS,"Buku gagal dihapus dari keranjang...")    
+        except:
+            messages.add_message(request,messages.SUCCESS,"Buku tidak diketemukan...")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect('/')
+        

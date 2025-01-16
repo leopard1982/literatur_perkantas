@@ -35,7 +35,11 @@
     {% for cart in mycart%}
         <div class="card-cart row p-2">
             <div class="col-1">
-                <input type="checkbox" name="" id="">
+                {% if cart.is_checked %}
+                    <input checked type="checkbox" name="" id="" onclick="gotos('{{cart.book.id}}')">
+                {% else %}
+                    <input type="checkbox" name="" id="" onclick="gotos('{{cart.book.id}}')">
+                {% endif %}
             </div>
             <div class="col-10">
                 <p class="text-primary fw-bold" style="font-size:25px;">{{cart.book.judul}}</p>
@@ -55,9 +59,14 @@
     {% endfor %}
     <div class="header1 text-center mt-4" >
         <i class="fa fa-money" aria-hidden="true"></i>
-        Total Belanja: Rp.<span class="text-primary">100.000,00</span>
+        Total Belanja: Rp.<span class="text-primary">{{total_payment|intcomma}}.00</span>
     </div>
 </div>
 
+<script>
+    function gotos(data) {
+        location.href="/cart/change/" + data +"/";
+    }
+</script>
 
 {% endblock %}

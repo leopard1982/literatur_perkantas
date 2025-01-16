@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
-from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList
+from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -15,4 +15,5 @@ urlpatterns = [
     path('cart/add/<str:id>/',addCartList,name="add_cart_list"),
     path('cart/',cartView,name="cart_view"),
     path('cart/del/<str:id>/',delCartList,name="del_cart_list"),
+    path('cart/change/<str:id>/',changeCartStatus,name="change_cart_status"),
 ]
