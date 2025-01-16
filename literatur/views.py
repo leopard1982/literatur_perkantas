@@ -443,6 +443,7 @@ def cartView(request):
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
         mycart = MyCart.objects.all().filter(user=user)
         total_payment = 0
         for cart in mycart.filter(is_checked=True):
@@ -463,7 +464,8 @@ def cartView(request):
             'pengumuman':pengumuman,
             'jml_mycart':jml_mycart,
             'mycart':mycart,
-            'total_payment':total_payment
+            'total_payment':total_payment,
+            'jml_dibeli':jml_dibeli
 
         }
         return render(request,'landing/daftar_cart.html',context)

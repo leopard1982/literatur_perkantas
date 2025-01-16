@@ -41,14 +41,21 @@
                     <input type="checkbox" name="" id="" onclick="gotos('{{cart.book.id}}')">
                 {% endif %}
             </div>
-            <div class="col-10">
-                <p class="text-primary fw-bold" style="font-size:25px;">{{cart.book.judul}}</p>
-                {% if cart.book.onsalebook.is_active %}
-                <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
-                <p><i>Potongan: {{cart.book.onsalebook.discount}}</i> - {{cart.book.onsalebook.header}}</p>
-                {% else %}
-                <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
-                {% endif %}
+            <div class="col-10 d-flex justify-content-start" >
+                <div class="col-2">
+                    <img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" class="w-100 rounded" alt="">
+                </div>
+                <div class="col-10 p-2">
+                    <p class="text-primary fw-bold" style="font-size:25px;">{{cart.book.judul}}</p>
+                    <p style="font-size: 25px;">{{cart.book.pengarang}}</p>
+                    {% if cart.book.onsalebook.is_active %}
+                    <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
+                    <p><i>Promo Potongan: {{cart.book.onsalebook.discount|intcomma}}%</i> - {{cart.book.onsalebook.header}}</p>
+                    {% else %}
+                    <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
+                    {% endif %}
+                </div>
+                
             </div>
             <div class="col-1">
                 <a href="{% url 'del_cart_list' cart.book.id %}">
@@ -58,6 +65,10 @@
         </div>    
     {% endfor %}
     <div class="header1 text-center mt-4" >
+        <i class="fa fa-book" aria-hidden="true"></i>
+        Total Buku Dibeli: <span class="text-primary">{{jml_dibeli|intcomma}}</span> item.
+    </div>
+    <div class="header1 text-center mt-2" >
         <i class="fa fa-money" aria-hidden="true"></i>
         Total Belanja: Rp.<span class="text-primary">{{total_payment|intcomma}}.00</span>
     </div>
