@@ -50,12 +50,14 @@
                         </div>
                         <div class="col-lg-10 col-md-9 p-2">
                             <p class="text-primary fw-bold h2" >{{cart.book.judul}}</p>
-                            <p class="h3">{{cart.book.pengarang}}</p>
+                            <p class="h4">{{cart.book.pengarang}}</p>
                             {% if cart.book.onsalebook.is_active %}
-                            <p>Harga Rp: {{cart.book.onsalebook.nett_price|intcomma}}</p>
-                            <p><i>Promo Potongan: {{cart.book.onsalebook.discount|intcomma}}%</i> - {{cart.book.onsalebook.header}}</p>
+                            <p>Harga <span class="text-danger"><i><s>Rp. {{cart.book.price|intcomma}}.00</s></i></span></p>
+                            <p> Menjadi <span class="text-success fw-bold">Rp: {{cart.book.onsalebook.nett_price|intcomma}}</span></p>
+                            <p><i>Promo Potongan: <span class="text-info fw-bold">{{cart.book.onsalebook.discount|intcomma}}%</span></i> - {{cart.book.onsalebook.header}}</p>
                             {% else %}
-                            <p>Harga Rp: {{cart.book.price|intcomma}}.00</p>
+                            <p>Harga <span class="text-success fw-bold">Rp: {{cart.book.price|intcomma}}.00</span></p>
+                            <p class="text-warning fw-bold h4">Best Price!</p>
                             {% endif %}
                         </div>
                     </div>
