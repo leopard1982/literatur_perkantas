@@ -113,15 +113,15 @@
           <div class="swiper-wrapper d-flex justify-content-between">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide " >
+            <div class="swiper-slide row " >
               <div class="newcard card position-relative p-4  rounded-top " style="height: 550px;">
                 <div class="d-flex justify-content-center" style="z-index:30">
                   <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
                 <div style="height: 300px;margin-top:-30px" class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg"  style="height: 300px;width: 200px;" alt="product item">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg"  style="height: 150px;min-width: 70px;" alt="product item">
                 </div>
-                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="#">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
@@ -173,10 +173,10 @@
             <div class="swiper-slide">
               <div class="newcard card position-relative p-4  shadow  " style="height: 550px;">
                 <div style="height: 300px;  " class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="height: 300px;width: 200px;" alt="product item">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="#">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
