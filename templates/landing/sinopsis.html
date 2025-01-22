@@ -7,16 +7,23 @@
         <div class="col-sm-5 col-md-5 col-lg-3 col-xl-3 px-2 ">
             <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100 rounded border shadow" alt="" srcset="">
         </div>
-        <div class="col-sm-7 col-md-7 col-lg-9 col-xl-9 px-2">
+        <div class="col-sm-7 col-md-7 col-lg-9 col-xl-9 ">
             <p class="h4 fw-bold">{{book.judul}}</p>
             <p class="h5">ISBN: {{book.isbn}}</p>
             <p class="h5">Pengarang: {{book.pengarang}}</p>
             <hr>
             <p>{{book.sinopsis|linebreaksbr|title}}</p>
-            <div class="justify-content-center py-4 d-flex">
-                <a href="{% url 'add_wish_list' book.id %}" class="mx-2 btn btn-success"><i class="fa fa-heart" aria-hidden="true"></i> wishlist</a>
-                <a href="{% url 'add_cart_list' book.id %}" class="mx-2 btn btn-warning"><i class="fa fa-cart-plus" aria-hidden="true"></i> keranjang</a>
-                <a href="{% url 'baca_buku' %}?id={{book.id}}" class="mx-2 btn btn-info"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>                
+            <div class="justify-content-center py-4 d-flex" style="flex-wrap: wrap;">
+                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                    <a href="{% url 'add_wish_list' book.id %}" class="m-2 btn btn-success" style="font-size: 12px;"><i class="fa fa-heart" aria-hidden="true"></i> wishlist</a>
+                </div>
+                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                    <a href="{% url 'add_cart_list' book.id %}" class="m-2 btn btn-warning" style="font-size: 12px;"><i class="fa fa-cart-plus" aria-hidden="true"></i> keranjang</a>
+                </div>
+                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                    <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>
+                </div>
+                                
             </div>
         </div>
     </div>
