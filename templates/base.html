@@ -272,7 +272,7 @@
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link me-4" href="{% url 'all_book_view'%}?k=12">Program Promo</a>
+                  <a class="nav-link me-4" href="{% url 'all_book_view'%}?k=12">Promo</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link me-4" href="#l">Contact</a>
@@ -280,7 +280,7 @@
               </ul>
               <div class="user-items d-flex">
                 <ul class="d-flex justify-content-end list-unstyled mb-0">
-                  <li class="search-item pe-3">
+                  <li class="search-item pe-3" style="margin-top: -2px;">
                     <a href="#" class="search-button">
                       <svg class="search">
                         <use xlink:href="#search"></use>
@@ -289,14 +289,103 @@
                   </li>
                   {% if user.is_authenticated %}
                   <li class="pe-3">
-                    <a href="{% url 'logout_user'%}"  style="margin-left: 20px;">
-                      <img src="{% static 'images/logout.jpg'%}" alt="logout" style="height: 30px;width: 30px;">
+                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex" data-bs-target="#modalWishList">
+                      <svg class="wishlist">
+                        <use xlink:href="#heart"></use>
+                      </svg> (<span style="font-size: 15px;" class="text-primary">{{jumlahwishlist}}</span>)
+                    </a>
+                    <!-- Modal WishList-->
+                    <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalWishList" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWishListLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title fw-bold text-primary"  id="modalWishListLabel">Daftar Buku Disukai</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-3 w-100" >
+                            <!-- daftar wishlist -->
+                            <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
+                              {% if mywishlist %}
+                                {% for wish in mywishlist %}
+                                <div class="justify-content-start d-flex row">
+                                    <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;" class="col-3">
+                                      <img src="/media/extract/pdf_full/{{wish.book.id}}/1.jpg" class="rounded shadow w-100"  alt="">  
+                                    </div>
+                                    <div class="col-8" style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
+                                      <p class="h5">
+                                        <a href="{% url 'baca_buku'%}?id={{wish.book.id}}">{{wish.book.judul}}</a>
+                                      </p>
+                                      {% if wish.book.onsalebook.is_active %}
+                                        <p class="small">
+                                          {{wish.book.onsalebook.header}}<br>
+                                          Potongan: <span class="text-primary">{{wish.book.onsalebook.discount|intcomma}}</span> %
+                                        </p>  
+                                        <p>Harga: <span class="text-primary"><s><i>Rp. {{wish.book.price|intcomma}}.00</i></s></span> &rarr; <span class="text-primary">Rp. {{wish.book.onsalebook.nett_price|intcomma}}</span></p>
+                                      {% else %}
+                                        <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
+                                      {% endif %}
+                                      <div class="d-flex justify-content-start">
+                                        <a href="{% url 'add_cart_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
+                                          <svg class="cart" style="height: 30px;width: 30px;">
+                                            <use xlink:href="#cart"></use>
+                                          </svg>
+                                        </a>
+                                        <a href="{% url 'del_wish_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;border-radius: 5px; margin-left: 20px; color: green;">
+                                          <img src="{% static 'images/trash.svg'%}" style="width: 30px;height: 30px;"></img>
+                                        </a>
+                                      </div>
+                                    </div>
+                                </div>
+                                
+                                {% endfor %}
+                                
+                              {% else %}
+                              <div class="text-center" >
+                                <p>Ups... belum ada buku dalam wishlist kamu...</p>
+                                <p>Yuks... cari buku yang kamu sukai...</p>
+                                <p>
+                                  <img src="{% static 'images/baca-buku.png'%}" style="width: 70px;height: 130px;" alt="">
+                                </p>
+                              </div>
+                              {% endif %}
+                            </div>
+                            {% if mywishlist %}
+                              <p style="margin-top: 20px;">
+                                  Jumlah Wishlist: <span class="text-primary">{{jumlahwishlist}}</span> Buku
+                              </p>
+                            {% endif %}
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </li>
+                  <li class="cart-dropdown dropdown">
+                    <a href="{% url 'cart_view'%}" class="justify-content-start d-flex" style="margin-left: 20px;" >
+                      <svg class="cart">
+                        <use xlink:href="#cart"></use>
+                      </svg><span class="fs-6 fw-light" style="font-size: 15px;">(<span class="text-primary">{{jml_mycart}}</span>)</span>
+                    </a>
+                    
+                  </li>
+                  <li >
+                    <a href="{% url 'cart_view'%}" class="d-flex justify-content-start" style="margin-left: 25px;" >
+                      <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">1</span>)</span></span> 
+                    </a>
+                  </li>
+                  <li class="pe-3">
+                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start"   style="margin-left: 20px;" >
+                      <i class="fa fa-sign-out" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;">logout</sub>
                     </a>
                   </li>
                   {% else%}
                   <li class="pe-3">
                     <a href="#" data-bs-toggle="modal" style="background-color:coral !important; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded" data-bs-target="#exampleModal">
-                      <div class="justify-content-center d-flex" style="margin-left: 20px;">
+                      <div class="justify-content-center d-flex" style="margin-left: 20px; margin-top: -2px;">
                         <div style="margin-right: 5px;">
                           <svg class="user">
                             <use xlink:href="#user"></use>
@@ -431,93 +520,6 @@
                         </div>
                       </div>
                     </div>
-                  </li>
-                  {% endif %}
-                  {% if user.is_authenticated %}
-                  
-                  <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded" data-bs-target="#modalWishList">
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg> (<span class="text-primary">{{jumlahwishlist}}</span>)
-                    </a>
-                    <!-- Modal WishList-->
-                    <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalWishList" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWishListLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title fw-bold text-primary"  id="modalWishListLabel">Daftar Buku Disukai</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body p-3 w-100" >
-                            <!-- daftar wishlist -->
-                            <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
-                              {% if mywishlist %}
-                                {% for wish in mywishlist %}
-                                <div class="justify-content-start d-flex row">
-                                    <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;" class="col-3">
-                                      <img src="/media/extract/pdf_full/{{wish.book.id}}/1.jpg" class="rounded shadow w-100"  alt="">  
-                                    </div>
-                                    <div class="col-8" style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                      <p class="h5">
-                                        <a href="{% url 'baca_buku'%}?id={{wish.book.id}}">{{wish.book.judul}}</a>
-                                      </p>
-                                      {% if wish.book.onsalebook.is_active %}
-                                        <p class="small">
-                                          {{wish.book.onsalebook.header}}<br>
-                                          Potongan: <span class="text-primary">{{wish.book.onsalebook.discount|intcomma}}</span> %
-                                        </p>  
-                                        <p>Harga: <span class="text-primary"><s><i>Rp. {{wish.book.price|intcomma}}.00</i></s></span> &rarr; <span class="text-primary">Rp. {{wish.book.onsalebook.nett_price|intcomma}}</span></p>
-                                      {% else %}
-                                        <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
-                                      {% endif %}
-                                      <div class="d-flex justify-content-start">
-                                        <a href="{% url 'add_cart_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
-                                          <svg class="cart" style="height: 30px;width: 30px;">
-                                            <use xlink:href="#cart"></use>
-                                          </svg>
-                                        </a>
-                                        <a href="{% url 'del_wish_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;border-radius: 5px; margin-left: 20px; color: green;">
-                                          <img src="{% static 'images/trash.svg'%}" style="width: 30px;height: 30px;"></img>
-                                        </a>
-                                      </div>
-                                    </div>
-                                </div>
-                                
-                                {% endfor %}
-                                
-                              {% else %}
-                              <div class="text-center" >
-                                <p>Ups... belum ada buku dalam wishlist kamu...</p>
-                                <p>Yuks... cari buku yang kamu sukai...</p>
-                                <p>
-                                  <img src="{% static 'images/baca-buku.png'%}" style="width: 70px;height: 130px;" alt="">
-                                </p>
-                              </div>
-                              {% endif %}
-                            </div>
-                            {% if mywishlist %}
-                              <p style="margin-top: 20px;">
-                                  Jumlah Wishlist: <span class="text-primary">{{jumlahwishlist}}</span> Buku
-                              </p>
-                            {% endif %}
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Lihat Keranjang</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  </li>
-                  <li class="cart-dropdown dropdown">
-                    <a href="{% url 'cart_view'%}" style="margin-left: 20px;" >
-                      <svg class="cart">
-                        <use xlink:href="#cart"></use>
-                      </svg><span class="fs-6 fw-light">(<span class="text-primary">{{jml_mycart}}</span>)</span>
-                    </a>
-                    
                   </li>
                   {% endif %}
                 </ul>

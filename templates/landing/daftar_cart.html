@@ -13,6 +13,21 @@
         margin-bottom:10px
     }
 
+    .card-cart-selected {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid violet;
+        border-radius: 5px;
+        margin-top:10px;
+        margin-bottom:10px
+    }
+
+    .card-cart:hover,.card-cart-selected:hover {
+        box-shadow: 5px 5px 5px lightgrey;
+        transition-duration: 1s;
+        border: 1px solid grey;
+    }
+
     .header1 {
         font-weight: bold;
     }
@@ -35,7 +50,11 @@
 {% else %}
     <div class="p-5">
         {% for cart in mycart%}
+            {% if cart.is_checked %}
+            <div class="card-cart-selected row p-2">
+            {% else %}
             <div class="card-cart row p-2">
+            {% endif %}
                 <div class="col-1">
                     {% if cart.is_checked %}
                         <input checked type="checkbox"  name="" id="" onclick="gotos('{{cart.book.id}}')">
