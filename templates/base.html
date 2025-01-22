@@ -216,7 +216,7 @@
 
       <div class="top-info border-bottom d-none d-md-block ">
         <div class=" text-center rounded-2 ">
-          <marquee class="bg-primary">
+          <marquee behavior="alternate" class="bg-primary" >
             {% if user.is_authenticated %}
             <b>Shallom, {{user.username}}! INFO: </b>{{pengumuman}}
             {% else %}
@@ -373,8 +373,8 @@
                     
                   </li>
                   <li >
-                    <a href="{% url 'cart_view'%}" class="d-flex justify-content-start" style="margin-left: 25px;" >
-                      <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">1</span>)</span></span> 
+                    <a href="{% url 'list_inbox_message'%}" class="d-flex justify-content-start" style="margin-left: 25px;" >
+                      <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">{{jml_inbox_message}}</span>)</span></span> 
                     </a>
                   </li>
                   <li class="pe-3">

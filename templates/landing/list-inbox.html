@@ -1,0 +1,30 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load humanize %}
+
+{% block contents %}
+<div class="container mt-3 p-2 border rounded border-primary">
+    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-inbox" aria-hidden="true"></i> Pesan Masuk - <span class="text-primary">{{user.username}}</span> [<span class="text-primary">{{jml_inbox_message}}</span>]</p>
+    <hr class="border-primary">
+    {% if jml_inbox_message > 0 %}
+        {% for inbox in inbox_message %}
+            <div class="d-flex justify-content-start p-2">
+                <div class="col-1 align-items-center">
+                    {{forloop.counter}}
+                </div>
+                <div class="col-11" style="border-left: 2px solid lightgrey; padding-left:10px">
+                        <a href="{{inbox.link}}">
+                            <span class="h5 text-primary fw-bold">{{inbox.header|title}}</span>
+                        </a>
+                    <br>
+                    <span style="font-size: 15px;font-style: italic;">dikirim: {{inbox.created_at}}</span>
+                    <br>
+                    <span>{{inbox.body}}</span>
+                </div>
+            </div>
+        {% endfor%}
+    {% else %}
+    <p style="font-style: italic;">Belum ada pesan masuk untuk {{user.username}}...</p>
+    {% endif %}
+</div>
+{% endblock %}

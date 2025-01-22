@@ -329,3 +329,19 @@ class BannerIklan(models.Model):
 
 	def __str__(self):
 		return f"{self.header} - {self.link} - {self.start_live} - {self.end_live}"
+
+class inboxMessage(models.Model):
+	user = models.ForeignKey(User,on_delete=models.RESTRICT)
+	header = models.CharField(max_length=50,default="")
+	body = models.CharField(max_length=200,default="")
+	link = models.CharField(max_length=200,default="https://")
+	created_at = models.DateTimeField(auto_now_add=True)
+	expired_at = models.DateTimeField(auto_now_add=True)
+
+	def save(self,*args,**kwargs):
+		super(inboxMessage,self).save(*args,**kwargs)
+		self.expired_at = self.created_at + datetime.timedelta(weeks=52)
+		super(inboxMessage,self).save(*args,**kwargs)
+
+	def __str__(self):
+		return f"{self.user} - {self.header} - {self.body} - {self.link}"

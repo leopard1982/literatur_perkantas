@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
-from .models import UserBook, LupaPassword, MyWishlist, MyCart
+from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
@@ -114,9 +114,12 @@ def mainPage(request):
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
     else:
         userbook = None
         mywishlist = None
+        jml_inbox_message=0
         jml_wishlist=0
         jml_mycart=0
 
@@ -229,7 +232,8 @@ def mainPage(request):
         'userbook':userbook,
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
-        'jml_mycart':jml_mycart
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -250,9 +254,12 @@ def bacaBuku(request):
         user= User.objects.get(username=request.user.username)
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
     else:
         mywishlist = None
         jml_wishlist=0
+        jml_inbox_message=0
 
     try:
         if request.method=="POST":
@@ -294,7 +301,8 @@ def bacaBuku(request):
         'page':page,
         'max_page':max_page,
         'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist
+        'jumlahwishlist':jml_wishlist,
+        'jml_inbox_message':jml_inbox_message
     }
     return render(request,'landing/baca-buku.html',context)
 
@@ -385,10 +393,13 @@ def allBookView(request):
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
     else:
         mywishlist = None
         jml_wishlist=0
         jml_mycart=0
+        jml_inbox_message=0
 
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -403,7 +414,8 @@ def allBookView(request):
         'kategori':int(kategori),
         'jumlah_promo':jumlah_promo,
         'pengumuman':pengumuman,
-        'jml_mycart':jml_mycart
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message
     }
     return render(request,'landing/all-book.html',context)
 
@@ -445,6 +457,8 @@ def cartView(request):
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
         mycart = MyCart.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
         total_payment = 0
         for cart in mycart.filter(is_checked=True):
             try:
@@ -465,7 +479,8 @@ def cartView(request):
             'jml_mycart':jml_mycart,
             'mycart':mycart,
             'total_payment':total_payment,
-            'jml_dibeli':jml_dibeli
+            'jml_dibeli':jml_dibeli,
+            'jml_inbox_message':jml_inbox_message
 
         }
         return render(request,'landing/daftar_cart.html',context)
@@ -508,6 +523,36 @@ def changeCartStatus(request,id):
         except:
             messages.add_message(request,messages.SUCCESS,"Buku tidak diketemukan...")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect('/')
+    
+def listInboxMessage(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+        mycart = MyCart.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        
+        context = {
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'mycart':mycart,
+            'jml_dibeli':jml_dibeli,
+            'jml_inbox_message':jml_inbox_message,
+            'inbox_message':inbox_message
+        }
+        return render(request,'landing/list-inbox.html',context)
     else:
         return HttpResponseRedirect('/')
         
