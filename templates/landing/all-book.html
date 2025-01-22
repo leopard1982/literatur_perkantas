@@ -118,7 +118,9 @@
         {% if jumlah_promo > 0 %}
           {% if book.onsalebook.is_active %}
             <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
-                    <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
+                    <a href="{% url 'sinopsis_buku' book.id %}">
+                      <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
+                    </a>
                     <hr>
                     <p class="fw-bold text-primary">
                         {{book.judul}}
@@ -179,7 +181,9 @@
       {% else %}
         {% if book.kategori.id == 3 %}
             <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
-                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
+                <a href="{% url 'sinopsis_buku' book.id %}">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
+                </a>
                 <hr>
                 <p class="fw-bold">
                     {{book.judul}}
@@ -198,7 +202,9 @@
             </div>
         {% else %}
             <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
-                <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+                <a href="{% url 'sinopsis_buku' book.id %}">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
+                </a>
                 <hr>
                 <p class="fw-bold text-primary">
                     {{book.judul}}
