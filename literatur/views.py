@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
-from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage
+from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs
 from django.db.models import Avg,Q
 import datetime
 from django.contrib import messages
@@ -123,6 +123,8 @@ def mainPage(request):
         jml_wishlist=0
         jml_mycart=0
 
+    blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')[:4]
+
     if request.method=="POST":
         if 'username_register' in request.POST:
             email = request.POST['username_register']
@@ -233,7 +235,8 @@ def mainPage(request):
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
         'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message
+        'jml_inbox_message':jml_inbox_message,
+        'blogs':blogs
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -605,4 +608,80 @@ def sinopsisBuku(request,id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         
     
-        
+def allBlogsView(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+    else:
+        mywishlist = None
+        jml_wishlist=0
+        jml_mycart=0
+        jml_inbox_message=0
+
+    blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')
+
+    try:
+        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+    context = {
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist,
+        'pengumuman':pengumuman,
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message,
+        'blogs':blogs
+    }
+    return render(request,'landing/all-blogs.html',context)
+
+def detailBlog(request,id):
+    try:
+        blog = Blogs.objects.get(id=id)
+    except:
+        messages.add_message(request,messages.success,"Maaf, blogs yang kaka cari tidak ada...")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+        mycart = MyCart.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
+        jml_inbox_message = inbox_message.count()
+    else:
+        mywishlist=None
+        jml_wishlist=0
+        jml_mycart=0
+        mycart=None
+        jml_dibeli=None
+        jml_inbox_message=0
+        inbox_message=None
+    
+    try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+    prev = request.META.get('HTTP_REFERER')
+
+    context = {
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'mycart':mycart,
+            'jml_dibeli':jml_dibeli,
+            'jml_inbox_message':jml_inbox_message,
+            'inbox_message':inbox_message,
+            'blog':blog,
+            'prev':prev
+        }
+    return render(request,'landing/blog-detail.html',context)
+    

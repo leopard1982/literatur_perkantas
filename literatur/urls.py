@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
-from .views import listInboxMessage,sinopsisBuku
+from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -18,5 +18,7 @@ urlpatterns = [
     path('cart/',cartView,name="cart_view"),
     path('cart/del/<str:id>/',delCartList,name="del_cart_list"),
     path('cart/change/<str:id>/',changeCartStatus,name="change_cart_status"),
-    path('inbox/',listInboxMessage,name='list_inbox_message')
+    path('inbox/',listInboxMessage,name='list_inbox_message'),
+    path('blogs/',allBlogsView,name="all_blogs_view"),
+    path('blogs/<str:id>/',detailBlog,name="detail_blog"),
 ]

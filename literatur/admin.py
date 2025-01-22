@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserDetail, UserBook, customerBookmark,BookReview,Books,BannerIklan
+from .models import UserDetail, UserBook, customerBookmark,BookReview,Books,BannerIklan,Blogs
 from .models import PageReview, Category, FeaturedBook,OnSaleBook, Pengumuman, Instagram, inboxMessage
 
 # class viewCustomerDb(admin.ModelAdmin):
@@ -19,3 +19,4 @@ admin.site.register(Pengumuman)
 admin.site.register(Instagram)
 admin.site.register(BannerIklan)
 admin.site.register(inboxMessage)
+admin.site.register(Blogs)

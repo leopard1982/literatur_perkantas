@@ -554,15 +554,16 @@
           <h3 class=" text-primary ">Kisah Buku</h3>
         </div>
         <div class="row">
-          <div class="newcard4 col-md-3 posts mb-4">
-            <img src="{% static 'images/post-item1.jpg'%}" alt="post image" class="img-fluid rounded-3">
-            <a href="#" class="fs-6 text-primary">Books</a>
-            <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">10 Must-Read Books of the Year: Our Top Picks!</a></h4>
-            <p class="mb-2">Dive into the world of cutting-edge technology with our latest blog post, where we highlight
-              five essential gadge. <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
-            </p>
-          </div>
-          <div class="newcard4 col-md-3 posts mb-4">
+          {% for blog in blogs %}
+            <div class="newcard4 col-md-3 posts mb-4">
+              <img src="{{blog.image.url}}" alt="post image" class="img-fluid rounded-3">
+              <a href="{% url 'detail_blog' blog.id %}" class="fs-5 text-primary fw-bold">by: {{blog.author.username|title}}<br><i><span class="fs-6">{{blog.updated_at}}</span></i></a>
+              <h4 class="card-title mb-2 text-capitalize text-dark"><a href="{% url 'detail_blog' blog.id %}">{{blog.header|title}}</a></h4>
+              <p class="mb-2">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>Read More</i></a></span>
+              </p>
+            </div>
+          {% endfor%}
+          <!-- <div class="newcard4 col-md-3 posts mb-4">
             <img src="{% static 'images/post-item2.jpg'%}" alt="post image" class="img-fluid rounded-3">
             <a href="#" class="fs-6 text-primary">Books</a>
             <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">The Fascinating Realm of Science Fiction</a></h4>
@@ -584,10 +585,10 @@
             <p class="mb-2">In today's remote work environment, productivity is key. Discover the top apps and tools that
               can help you stay <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
             </p>
-          </div>
+          </div> -->
         </div>
         <div class="text-center mt-4">
-          <a href="#" class="btn">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
+          <a href="{% url 'all_blogs_view'%}" class="btn">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
         </div>
       </div>
     </section>

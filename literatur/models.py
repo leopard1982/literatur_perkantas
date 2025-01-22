@@ -345,3 +345,16 @@ class inboxMessage(models.Model):
 
 	def __str__(self):
 		return f"{self.user} - {self.header} - {self.body} - {self.link}"
+
+class Blogs(models.Model):
+	id = models.UUIDField(auto_created=True,primary_key=True,editable=False,default=uuid.uuid4)
+	author = models.ForeignKey(User,on_delete=models.RESTRICT,verbose_name="Pengarang")
+	image = models.ImageField(upload_to='blogs',null=True,blank=True,verbose_name="Gambar Tema Blog")
+	header = models.CharField(max_length=50,verbose_name="Judul Blog")
+	body = models.TextField(verbose_name="Isi Blog")
+	is_active = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"{self.author} - {self.header}"

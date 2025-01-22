@@ -252,7 +252,7 @@
                   <a class="nav-link me-4 active" href="{% url 'main_page'%}">Home</a>
                 </li>                
                 <li class="nav-item">
-                  <a class="nav-link me-4" href="#">Blogs</a>
+                  <a class="nav-link me-4" href="{% url 'all_blogs_view'%}">Blogs</a>
                 </li>
                 {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
