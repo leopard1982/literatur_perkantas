@@ -3,11 +3,11 @@
 {% block contents %}
 <div class="container mt-3 p-2 rounded border border-primary">
     <div class="h3 fw-bold text-center mb-5 mt-2">SINOPSIS BUKU</div>
-    <div class="d-flex justify-content-start">
-        <div class="col-sm-12 col-md-5 col-lg-3 col-xl-3 px-2 ">
+    <div class="d-flex justify-content-start row">
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 col-xl-3 px-2 ">
             <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100 rounded border shadow" alt="" srcset="">
         </div>
-        <div class="col-sm-12 col-md-7 col-lg-9 col-xl-9 ">
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-9 col-xl-9 ">
             <p class="h4 fw-bold">{{book.judul}}</p>
             <p class="h5">ISBN: {{book.isbn}}</p>
             <p class="h5">Pengarang: {{book.pengarang}}</p>
