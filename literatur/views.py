@@ -256,10 +256,14 @@ def bacaBuku(request):
         jml_wishlist=mywishlist.count()
         inbox_message = inboxMessage.objects.all().filter(user=user)
         jml_inbox_message = inbox_message.count()
+        mycart = MyCart.objects.all().filter(user=user)
+        jml_mycart = mycart.count()
     else:
         mywishlist = None
         jml_wishlist=0
         jml_inbox_message=0
+        mycart=None
+        jml_mycart=0
 
     try:
         if request.method=="POST":
@@ -302,7 +306,9 @@ def bacaBuku(request):
         'max_page':max_page,
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
-        'jml_inbox_message':jml_inbox_message
+        'jml_inbox_message':jml_inbox_message,
+        'jml_mycart':jml_mycart,
+
     }
     return render(request,'landing/baca-buku.html',context)
 

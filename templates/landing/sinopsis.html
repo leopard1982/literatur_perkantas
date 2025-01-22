@@ -13,6 +13,11 @@
             <p class="h5">Pengarang: {{book.pengarang}}</p>
             <hr>
             <p>{{book.sinopsis|linebreaksbr|title}}</p>
+            <div class="justify-content-center py-4 d-flex">
+                <a href="{% url 'add_wish_list' book.id %}" class="mx-2 btn btn-success"><i class="fa fa-heart" aria-hidden="true"></i> wishlist</a>
+                <a href="{% url 'add_cart_list' book.id %}" class="mx-2 btn btn-warning"><i class="fa fa-cart-plus" aria-hidden="true"></i> keranjang</a>
+                <a href="{% url 'baca_buku' %}?id={{book.id}}" class="mx-2 btn btn-info"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>                
+            </div>
         </div>
     </div>
 </div>
