@@ -17,16 +17,21 @@
             <hr>
             <p>{{book.sinopsis|linebreaksbr|title}}</p>
             <div class="justify-content-center py-4 d-flex" style="flex-wrap: wrap;">
-                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
-                    <a href="{% url 'add_wish_list' book.id %}" class="m-2 btn btn-success" style="font-size: 12px;"><i class="fa fa-heart" aria-hidden="true"></i> wishlist</a>
-                </div>
-                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
-                    <a href="{% url 'add_cart_list' book.id %}" class="m-2 btn btn-warning" style="font-size: 12px;"><i class="fa fa-cart-plus" aria-hidden="true"></i> keranjang</a>
-                </div>
-                <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
-                    <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>
-                </div>
-                                
+                {% if user.is_authenticated %}
+                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
+                        <a href="{% url 'add_wish_list' book.id %}" class="m-2 btn btn-success" style="font-size: 12px;"><i class="fa fa-heart" aria-hidden="true"></i> wishlist</a>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
+                        <a href="{% url 'add_cart_list' book.id %}" class="m-2 btn btn-warning" style="font-size: 12px;"><i class="fa fa-cart-plus" aria-hidden="true"></i> keranjang</a>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
+                        <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>
+                    </div>
+                {% else %}
+                    <div>
+                        <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca</a>
+                    </div>
+                {% endif %}                                
             </div>
         </div>
     </div>
