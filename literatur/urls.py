@@ -1,11 +1,12 @@
 from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
-from .views import listInboxMessage
+from .views import listInboxMessage,sinopsisBuku
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
     path('book/', bacaBuku,name="baca_buku"),
+    path('book/<str:id>/', sinopsisBuku,name="sinopsis_buku"),
     path('logout/',logoutUser,name='logout_user'),
     path('forgot/',resetPassword,name="reset_password"),
     path('forgot/<str:id>/',verifyLinkLupaPassword,name="verify_link_lupa_password"),

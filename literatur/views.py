@@ -534,7 +534,7 @@ def listInboxMessage(request):
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
         mycart = MyCart.objects.all().filter(user=user)
-        inbox_message = inboxMessage.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
         jml_inbox_message = inbox_message.count()
 
         try:
@@ -555,4 +555,48 @@ def listInboxMessage(request):
         return render(request,'landing/list-inbox.html',context)
     else:
         return HttpResponseRedirect('/')
+    
+def sinopsisBuku(request,id):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+        mycart = MyCart.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
+        jml_inbox_message = inbox_message.count()
+    else:
+        mywishlist=None
+        jml_wishlist=0
+        jml_mycart=0
+        mycart=None
+        jml_dibeli=None
+        jml_inbox_message=0
+        inbox_message=None
+
+    try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+    try:
+        book = Books.objects.get(id=id)
+        context = {
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'mycart':mycart,
+            'jml_dibeli':jml_dibeli,
+            'jml_inbox_message':jml_inbox_message,
+            'inbox_message':inbox_message,
+            'book':book
+        }
+        return render(request,'landing/sinopsis.html',context)
+    except:
+        messages.add_message(request,messages.SUCCESS,"Maaf sinopsis dari buku yang kaka dari tidak diketemukan...")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        
+    
         

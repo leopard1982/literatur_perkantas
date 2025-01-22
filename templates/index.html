@@ -119,9 +119,11 @@
                   <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
                 </div>
                 <div style="height: 300px;margin-top:-30px" class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg"  style="height: 150px;min-width: 70px;" alt="product item">
+                  <a href="{% url 'sinopsis_buku' book.id %}">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg"  style="height: 150px;min-width: 70px;" alt="product item">
+                  </a>                  
                 </div>
-                <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="#">{{book.judul}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
@@ -173,7 +175,9 @@
             <div class="swiper-slide">
               <div class="newcard card position-relative p-4  shadow  " style="height: 550px;">
                 <div style="height: 300px;  " class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
+                  <a href="{% url 'sinopsis_buku' book.id %}">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
+                  </a>                  
                 </div>
 
                 <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="#">{{book.judul}}</a></h6>
@@ -295,9 +299,9 @@
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid  rounded border" style=" min-width: 70px;min-height: 100px;" alt="product item">
                   <div class="item-content ms-3">
                     {% if book.kategori.id == 3 %}
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{book.id}}" style="height: 50px;">{{book.judul}}</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id %}" style="height: 50px;">{{book.judul}}</a></h6>
                     {% else %}
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{book.id}}" style="height: 50px;">{{book.judul}}</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id %}" style="height: 50px;">{{book.judul}}</a></h6>
                     {% endif %}
                     <div class="review-content d-flex">
                       <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
@@ -354,7 +358,7 @@
                 <div class="item d-flex newcard2" >
                   <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid rounded border" alt="product item">
                   <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'baca_buku'%}?id={{books.book.id}}" style="height: 50px;">{{books.book.judul}}</a></h6>
+                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' books.book.id %}" style="height: 50px;">{{books.book.judul}}</a></h6>
                     <div class="review-content d-flex">
                       <p class="my-2 me-2 fs-6 text-black-50">{{books.book.pengarang}}</p>
                       <div class="rating text-warning d-flex align-items-center">
@@ -407,7 +411,7 @@
                   <div class="item d-flex newcard2" style="height: 150px;">
                     <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
                     <div class="item-content ms-3">
-                      <h6 class="mb-0 fw-bold"><a href="single-product.html" style="height: 50px;">{{book.judul}}</a></h6>
+                      <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id }" style="height: 50px;">{{book.judul}}</a></h6>
                       <div class="review-content d-flex">
                         <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
                         <div class="rating text-warning d-flex align-items-center">
@@ -481,7 +485,7 @@
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="height: 300px;width: 200px;border:1px solid lightgrey" alt="product item">
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="single-product.html">{{book.judul}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold" style="height: 50px;"><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
                 <div class="review-content d-flex">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
 
