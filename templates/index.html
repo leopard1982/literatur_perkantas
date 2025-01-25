@@ -110,11 +110,11 @@
           </svg>
         </div>
         <div class="swiper product-swiper w-100">
-          <div class="swiper-wrapper ">
+          <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide shadow col-xl-3 col-lg-12 col-md-12 col-sm-12 mx-2" >
-              <div class="newcard card position-relative p-4  " style="height: 550px; min-width: 200px;">
+            <div class="swiper-slide shadow" style="height: 550px; min-width: 200px;">
+              <div class="newcard card position-relative p-4" >
                 <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
                   <p class="bg-primary rounded shadow text-white " style="min-width: 150px;">
                     <i class="fa fa-bullhorn" aria-hidden="true"></i> disc: {{book.onsalebook.discount|intcomma}}%
@@ -175,8 +175,8 @@
               </div>
             </div>
             {% else %}
-            <div class="swiper-slide col-xl-3 col-lg-6 col-md-12 col-sm-12 mx-2 ">
-              <div class="newcard card position-relative p-4  shadow  " style="height: 550px; min-width: 200px;">
+            <div class="swiper-slide  " style="height: 550px; min-width: 200px;">
+              <div class="newcard card position-relative p-4   shadow  " style="height: 550px; min-width: 200px;">
                 <div style="height: 300px;  " class="justify-content-center d-flex">
                   <a href="{% url 'sinopsis_buku' book.id %}">
                     <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
