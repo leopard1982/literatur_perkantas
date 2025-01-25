@@ -109,11 +109,11 @@
             <use xlink:href="#alt-arrow-left-outline"></use>
           </svg>
         </div>
-        <div class="swiper product-swiper w-100">
+        <div class="swiper product-swiper container-fluid">
           <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide shadow" style="height: 550px; min-width: 200px;">
+            <div class="swiper-slide shadow" style="height: 550px; min-width: 150px;">
               <div class="newcard card position-relative p-4" >
                 <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
                   <p class="bg-primary rounded shadow text-white " style="min-width: 150px;">
@@ -123,7 +123,7 @@
                 
                 <div style="height: 300px;margin-top:-40px;  " class="justify-content-center d-flex">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded w-100" style="min-height: 150px;max-height:300px;min-width: 70px; " alt="product item">
                   </a>                  
                 </div>
                 <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
@@ -175,11 +175,11 @@
               </div>
             </div>
             {% else %}
-            <div class="swiper-slide  " style="height: 550px; min-width: 200px;">
-              <div class="newcard card position-relative p-4   shadow  " style="height: 550px; min-width: 200px;">
+            <div class="swiper-slide  " style="height: 550px; min-width: 150px;">
+              <div class="newcard card position-relative p-4   shadow  " style="height: 550px; ">
                 <div style="height: 300px;  " class="justify-content-center d-flex">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded w-100" style="min-height: 150px;max-height:300px;min-width: 70px; " alt="product item">
                   </a>                  
                 </div>
 
