@@ -114,13 +114,16 @@
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
             <div class="swiper-slide row " >
-              <div class="newcard card position-relative p-4  rounded-top " style="height: 550px;">
-                <div class="d-flex justify-content-center" style="z-index:30">
-                  <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">disc {{book.onsalebook.discount}} %</p>
+              <div class="newcard card position-relative p-4  shadow  " style="height: 550px;">
+                <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
+                  <p class="border border-success bg-white rounded shadow text-success w-75">
+                    <i class="fa fa-bullhorn" aria-hidden="true"></i> disc: {{book.onsalebook.discount|intcomma}}%
+                  </p>
                 </div>
-                <div style="height: 300px;margin-top:-30px" class="justify-content-center d-flex">
+                
+                <div style="height: 300px;margin-top:-45px;  " class="justify-content-center d-flex">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg"  style="height: 150px;min-width: 70px;" alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="min-height: 150px;max-height:300px;min-width: 70px; max-width:200px" alt="product item">
                   </a>                  
                 </div>
                 <h6 class="mt-4 mb-0 fw-bold text-primary" style="height: 50px;"><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
