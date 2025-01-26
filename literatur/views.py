@@ -715,7 +715,7 @@ def paymentProcess(request):
                 inboxmessage.user=user
                 inboxmessage.save()
 
-                MyCart.objects.all().filter(Q(user=user) & q(is_checked=True)).delete()
+                MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).delete()
                 
             except Exception as ex:
                 print(ex)
