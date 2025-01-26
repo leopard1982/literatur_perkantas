@@ -714,6 +714,8 @@ def paymentProcess(request):
                 inboxmessage.body = f"Pembayaran untuk nomor invoice {id_payment} telah kami terima, silakan menunggu konfirmasi dari admin kami maksimal 1x24 jam. Tuhan memberkati!!"
                 inboxmessage.user=user
                 inboxmessage.save()
+
+                MyCart.objects.all().filter(Q(user=user) & q(is_checked=True)).delete()
                 
             except Exception as ex:
                 print(ex)
