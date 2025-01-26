@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs
+from .models import MyPayment
 from django.db.models import Avg,Q,Sum
 import datetime
 from django.contrib import messages
@@ -13,6 +14,8 @@ import uuid
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.sessions.models import Session
 import random
+from django.core.files.storage import default_storage
+import os
 
 def resetPassword(request):
     if( request.method == "POST"):
@@ -686,6 +689,38 @@ def detailBlog(request,id):
     return render(request,'landing/blog-detail.html',context)
 
 def paymentProcess(request):
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            user = User.objects.get(username=request.user.username)
+            x=request.FILES['bukti_bayar']
+            filenya = "bukti_bayar/" + str(uuid.uuid4()) + ".jpg"
+            default_storage.save(filenya, x)
+            id_payment=request.POST['nomor_invoice']
+            total_bayar = request.POST['total_bayar']
+            nilai_bayar = "".join(total_bayar.split('.00')[0].split(','))
+            jumlah_buku = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+            try:
+                mypayment = MyPayment()
+                mypayment.payment=id_payment
+                mypayment.user=user
+                mypayment.total=int(nilai_bayar)
+                mypayment.bukti=filenya
+                mypayment.jumlah_buku=jumlah_buku
+                mypayment.save()
+                messages.add_message(request,messages.SUCCESS,"Pembayaran kaka telah kami terima, silakan menunggu verifikasi dari kami maksimal 1x24 yah...")
+
+                inboxmessage = inboxMessage()
+                inboxmessage.header = "Pembayaran Menunggu Konfirmasi"
+                inboxmessage.body = f"Pembayaran untuk nomor invoice {id_payment} telah kami terima, silakan menunggu konfirmasi dari admin kami maksimal 1x24 jam. Tuhan memberkati!!"
+                inboxmessage.user=user
+                inboxmessage.save()
+                
+            except Exception as ex:
+                print(ex)
+        else:
+            messages.add_message(request,messages.SUCCESS,"Silakan Kaka login terlebih dahulu untuk memproses pembayaran...")
+
+        
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         mywishlist = MyWishlist.objects.all().filter(user=user)

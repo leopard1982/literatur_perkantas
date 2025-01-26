@@ -164,10 +164,10 @@ class MyCart(models.Model):
 		return f"{self.book.judul} - {self.book.pengarang}"
 
 class MyPayment(models.Model):
-	payment = models.UUIDField(editable=False,default=uuid.uuid4,primary_key=True,auto_created=True)
+	payment = models.CharField(max_length=300,default="",primary_key=True)
 	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
 	total = models.DecimalField(decimal_places=2,max_digits=30,default=0)
-	bukti = models.ImageField(upload_to="invoice")
+	bukti = models.CharField(max_length=300,default="",null=True,blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	jumlah_buku = models.IntegerField(default=0)
 	jumlah_point = models.IntegerField(default=0)
@@ -334,7 +334,6 @@ class inboxMessage(models.Model):
 	user = models.ForeignKey(User,on_delete=models.RESTRICT)
 	header = models.CharField(max_length=50,default="")
 	body = models.CharField(max_length=200,default="")
-	link = models.CharField(max_length=200,default="https://")
 	created_at = models.DateTimeField(auto_now_add=True)
 	expired_at = models.DateTimeField(auto_now_add=True)
 
