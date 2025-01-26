@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
-from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog
+from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog,paymentProcess
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -21,4 +21,5 @@ urlpatterns = [
     path('inbox/',listInboxMessage,name='list_inbox_message'),
     path('blogs/',allBlogsView,name="all_blogs_view"),
     path('blogs/<str:id>/',detailBlog,name="detail_blog"),
+    path('buy/', paymentProcess,name="payment_process"),
 ]

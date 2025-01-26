@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs
-from django.db.models import Avg,Q
+from django.db.models import Avg,Q,Sum
 import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -684,4 +684,63 @@ def detailBlog(request,id):
             'prev':prev
         }
     return render(request,'landing/blog-detail.html',context)
+
+def paymentProcess(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+        mycart = MyCart.objects.all().filter(user=user)
+        mycart_buy = mycart.filter(is_checked=True)
+        jml_mcart_buy = mycart_buy.count()
+        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
+        jml_inbox_message = inbox_message.count()
+
+        if(mycart_buy.count()==0) :
+            return HttpResponseRedirect("/cart/")
+    
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        nomor_invoice = 'ltn'+str(datetime.datetime.now().year) + str(uuid.uuid4())
+
+        total_bayar = 0
+
+        for cart in mycart_buy:
+            book = Books.objects.get(id=cart.book.id)
+            try:
+                onsalebook = OnSaleBook.objects.get(book=book)
+                if(onsalebook.is_active==True):
+                    total_bayar+=onsalebook.nett_price
+                else:
+                    total_bayar+=book.price
+            except:
+                total_bayar+=cart.book.price
+
+        context = {
+                'mywishlist':mywishlist,
+                'jumlahwishlist':jml_wishlist,
+                'pengumuman':pengumuman,
+                'jml_mycart':jml_mycart,
+                'mycart':mycart,
+                'jml_dibeli':jml_dibeli,
+                'jml_inbox_message':jml_inbox_message,
+                'inbox_message':inbox_message,
+                'mycart_buy':mycart_buy,
+                'nomor_invoice':nomor_invoice,
+                'jml_mycart_buy':jml_mcart_buy,
+                'total_bayar':total_bayar,
+                'no_rekening':'1234567890',
+                'nama_bank':'BCA Cabang Pulo Gadung',
+                'nama_pemilik':'Literatur Perkantas Nasional'
+            }
+        return render(request,'landing/payment.html',context)
+    else:
+        return HttpResponseRedirect('/cart/')
+    
+    
     

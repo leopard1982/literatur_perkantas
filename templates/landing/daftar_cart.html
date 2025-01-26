@@ -99,7 +99,7 @@
 
         <div class="text-center">
             {% if total_payment > 0 %}
-                <a href="#" class="btn btn-primary">Proses Pembayaran</a>
+                <a href="{% url 'payment_process'%}" class="btn btn-primary">Proses Pembayaran</a>
             {% else %}
                 <button href="#" class="btn btn-primary" disabled>Proses Pembayaran</button>
             {% endif %}

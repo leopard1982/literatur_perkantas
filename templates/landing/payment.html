@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block contents %}
+<div class="container py-4">
+    <div class="p-4">
+        <p class="h3 fw-bold mb-3">Konfirmasi Pembayaran Buku</p>
+        <p class="fw-bold my-4">
+            <i>Nomor Invoice: {{nomor_invoice}}</i>
+        </p>
+        <p class="fw-bold rounded">
+            <table class="table border border-dark">
+                <thead>
+                    <th class="fw-bold">No.</th>
+                    <th class="fw-bold">Buku</th>
+                    <th class="fw-bold">Judul</th>
+                    <th class="fw-bold">Harga</th>
+                </thead>
+                {% for cart in mycart_buy %}
+                <tr>
+                    <td class="fs-6">{{forloop.counter}}</td>
+                    <td><img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" style="width: 50px;height: 80px;border-radius: 5px;" alt="{{cart.book.judul}}"></td>
+                    <td class="fs-6 fw-bold text-primary">{{cart.book.judul}}</td>
+                    <td class="fs-6 fw-bold text-success">
+                        {% if cart.book.onsalebook.is_active %}
+                            Rp.{{cart.book.onsalebook.nett_price|intcomma}}
+                        {% else %}
+                            Rp.{{cart.book.price|intcomma}}.00
+                        {% endif %}
+                    </td>
+                </tr>            
+                {% endfor%}
+            </table>
+            <div class="my-3 row">
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold">
+                    Jumlah Buku Dibeli:
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
+                    {{jml_mycart_buy|intcomma}} Buku
+                </div>
+            </div>
+            <div class="my-3 row">
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold">
+                    Total Pembayaran:
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
+                    Rp.{{total_bayar|intcomma}}.00
+                </div>
+            </div>
+            <div class="mt-1 mb-1">
+                <pre class="border border-success rounded">
+                    Pembayaran dilakukan melalui transfer ke rekening:
+                    Nomor Rekening: <b>{{no_rekening}}</b>
+                    Pemilik Rekening: <b>{{nama_pemilik}}</b>
+                    Nama Bank: <b>{{nama_bank}}</b>
+                </pre>
+            </div>
+            <div class="my-3 row">
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
+                    Bukti Transfer:
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
+                    <input type="file" class="form-control fs-6" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp">
+                </div>
+            </div>
+            <div class="mt-1 mb-1">
+                <pre class="border border-success rounded">
+                    Silakan Upload foto bukti bayar dalam bentuk format gambar
+                    .gif, .png, .jpeg, .jpg kemudian tunggu konfirmasi 1x24 jam.
+                    Untuk update status akan kami kirimkan via inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i>
+                </pre>
+            </div>
+            <div class="my-3 row">
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
+                    <input type="submit" value="Konfirmasi Pembayaran" class="btn ">
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
+                    <!-- <input type="file" class="form-control fs-6" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp"> -->
+                </div>
+            </div>
+        </p>
+        
+        
+    </div>
+    
+</div>
+{% endblock %}
