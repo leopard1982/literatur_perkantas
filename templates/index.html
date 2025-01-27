@@ -497,7 +497,7 @@
         <div class="row">
           {% for blog in blogs %}
             <div class="newcard4 col-md-3 posts mb-4  p-2">
-              <div class="bg-white border p-2 rounded">
+              <div class="bg-white border p-2 rounded text-center">
                 <a href="{% url 'detail_blog' blog.id %}">
                   <img src="{{blog.image.url}}" alt="post image" class="img-fluid rounded-3">
                 </a>
@@ -506,7 +506,7 @@
                 <a href="{% url 'detail_blog' blog.id %}" class="fs-6 fw-bold" style="font-style: italic;">Oleh: {{blog.author.username|title}}</a>
                 <br><i><span  style="font-size: 12px;">{{blog.updated_at}}</span></i>
                 
-                <p class="mb-2">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>Read More</i></a></span>
+                <p class="my-2 fs-6 text-start">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>...</i></a></span>
                 </p>
               </div>
               
