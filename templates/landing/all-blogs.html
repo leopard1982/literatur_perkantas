@@ -62,7 +62,7 @@
     Coretan Pena
 </div>
 <div class="list">  
-    {% for blog in blogs %}
+    {% for blog in halaman %}
             <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca">
                 <a href="{% url 'detail_blog' blog.id %}">
                   <img src="{{blog.image.url}}" class="w-100 rounded" >
@@ -87,5 +87,16 @@
             </div>
         
     {% endfor%}
+</div>
+<div class="text-center">
+    <span class="mx-1 p-2"><a href="{% url 'all_blogs_view' %}?h={{prev_page}}">&larr;</a></span>
+    {% for page  in range_page %}
+        {% if page == current %}
+        <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'all_blogs_view' %}?h={{page}}" class="text-white">{{page}}</a></span>
+        {% else %}
+        <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'all_blogs_view' %}?h={{page}}" class="fw-bold">{{page}}</a></span>
+        {% endif%}
+    {% endfor %}
+    <span class="mx-2 p-2"><a href="{% url 'all_blogs_view' %}?h={{next_page}}">&rarr;</a></span>
 </div>
 {% endblock %}

@@ -16,6 +16,7 @@ from django.contrib.sessions.models import Session
 import random
 from django.core.files.storage import default_storage
 import os
+from django.core.paginator import Paginator
 
 def resetPassword(request):
     if( request.method == "POST"):
@@ -628,7 +629,29 @@ def allBlogsView(request):
         jml_mycart=0
         jml_inbox_message=0
 
+    try:
+        h=request.GET['h']
+    except:
+        h=1
     blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')
+    page = Paginator(blogs,per_page=4)
+    range_page = page.page_range
+    
+    try:
+        halaman = page.page(h)
+    except:
+        h=1
+        halaman = page.page(1)
+
+    if(int(h)>1):
+        prev_page=int(h)-1
+    else:
+        prev_page=1
+    
+    if(int(h)<page.num_pages):
+        next_page=int(h)+1
+    else:
+        next_page=h
 
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -641,7 +664,12 @@ def allBlogsView(request):
         'pengumuman':pengumuman,
         'jml_mycart':jml_mycart,
         'jml_inbox_message':jml_inbox_message,
-        'blogs':blogs
+        'blogs':blogs,
+        'prev_page':prev_page,
+        'next_page':next_page,
+        'range_page':range_page,
+        'halaman':halaman,
+        'current':int(h)
     }
     return render(request,'landing/all-blogs.html',context)
 
@@ -687,7 +715,7 @@ def detailBlog(request,id):
             'jml_inbox_message':jml_inbox_message,
             'inbox_message':inbox_message,
             'blog':blog,
-            'prev':prev
+            'prev':prev,
         }
     return render(request,'landing/blog-detail.html',context)
 
