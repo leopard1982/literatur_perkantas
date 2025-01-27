@@ -385,7 +385,7 @@ class inboxMessage(models.Model):
 		super(inboxMessage,self).save(*args,**kwargs)
 
 	def __str__(self):
-		return f"{self.user} - {self.header} - {self.body} - {self.link}"
+		return f"{self.user} - {self.header} - {self.body} "
 
 class Blogs(models.Model):
 	id = models.UUIDField(auto_created=True,primary_key=True,editable=False,default=uuid.uuid4)
