@@ -225,7 +225,7 @@ class MyPayment(models.Model):
 			inboxmessage = inboxMessage()
 			inboxmessage.user=self.user
 			inboxmessage.header="Pembayaran Gagal Dikonfirmasi"
-			inboxmessage.body=f"Maaf kaka, untuk pembayaran sebesar {self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai. Terima kasih, Tuhan memberkati!"
+			inboxmessage.body=f"Maaf kaka, untuk pembayaran sebesar {self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai ke nomor whatsapp admin Litanas di nomor: +6281291508616. Terima kasih, Tuhan memberkati!"
 			inboxmessage.save()
 
 			#simpan pemroses
