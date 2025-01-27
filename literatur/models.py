@@ -7,6 +7,7 @@ from pdf2image import convert_from_bytes
 from django.conf import settings
 import os
 import datetime
+from django.contrib import messages
 
 colornya = [
 	('pink','pink'),
@@ -178,10 +179,59 @@ class MyPayment(models.Model):
 
 	def __str__(self):
 		return f"{self.payment} - {self.user.username} - {self.total}"	
+	
+	def save(self,*args,**kwargs):
+		super(MyPayment,self).save(*args,**kwargs)
+		#jika verified
+		if self.is_verified and not self.is_canceled:
+			#update status buku detail jadi aktif
+			mypaymentdetail=MyPaymentDetail.objects.all().filter(payment=self.payment)
+			mypaymentdetail.update(is_active=True)
+			
+			#tambahkan buku ke UserBook
+			for detail in mypaymentdetail:
+				userbook = UserBook()
+				userbook.id_book = detail.book
+				userbook.id_user=self.user
+				userbook.payment=MyPayment.objects.get(payment=self.payment)
+				userbook.save()
+
+			# buat pesan inbox
+			inboxmessage = inboxMessage()
+			inboxmessage.user=self.user
+			inboxmessage.header="Pembayaran Selesai Dikonfirmasi"
+			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca. Terima kasih, Tuhan memberkati!"
+			inboxmessage.save()
+
+			#simpan pemroses
+			self.pemroses=self.user.username
+			super(MyPayment,self).save(*args,**kwargs)
+		
+		# jika tidak verified
+		if not self.is_verified and self.is_canceled:
+			#update status buku detail jadi aktif
+			mypaymentdetail=MyPaymentDetail.objects.all().filter(payment=self.payment)
+			mypaymentdetail.update(is_active=False)
+			
+			#hapus  UserBook
+			UserBook.objects.all().filter(payment=MyPayment.objects.get(payment=self.payment)).delete()
+
+			# buat pesan inbox
+			inboxmessage = inboxMessage()
+			inboxmessage.user=self.user
+			inboxmessage.header="Pembayaran Gagal Dikonfirmasi"
+			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai. Terima kasih, Tuhan memberkati!"
+			inboxmessage.save()
+
+			#simpan pemroses
+			self.pemroses=self.user.username
+			super(MyPayment,self).save(*args,**kwargs)
+
 
 class MyPaymentDetail(models.Model):
 	payment = models.ForeignKey(MyPayment,on_delete=models.CASCADE)
 	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
+	is_active = models.BooleanField(default=False)
 
 	def __str__(self):
 		return f"{self.payment.payment} - {self.book.judul}"
@@ -249,16 +299,6 @@ class UserBook(models.Model):
 	id_user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="id_user",null=True,blank=True)
 	last_page = models.PositiveSmallIntegerField(default=0)
 	payment = models.ForeignKey(MyPayment,on_delete=models.RESTRICT,related_name="payment_book")
-	# def save(self,*args,**kwargs):
-	# 	self.point = self.id_book.point
-	# 	super(UserBook,self).save(*args,**kwargs)
-	# 	total_point = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Sum('point'))
-	# 	print(self.id_user)
-	# 	print(total_point['jumlah'])
-	# 	total_book = UserBook.objects.all().filter(id_user=self.id_user).aggregate(jumlah=Count('point'))
-	# 	print(total_book['jumlah'])
-	# 	UserDetail.objects.all().filter(username=self.id_user.username).update(total_poin=total_point['jumlah'],total_book=total_book['jumlah'])
-		
 
 	def __str__(self):
 		return f"{self.id_book}"

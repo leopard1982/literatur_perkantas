@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs
-from .models import MyPayment
+from .models import MyPayment, MyPaymentDetail
 from django.db.models import Avg,Q,Sum
 import datetime
 from django.contrib import messages
@@ -114,6 +114,7 @@ def mainPage(request):
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user)
+        jml_userbook=userbook.count()
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
@@ -125,6 +126,7 @@ def mainPage(request):
         jml_inbox_message=0
         jml_wishlist=0
         jml_mycart=0
+        jml_userbook=0
 
     blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')[:4]
 
@@ -239,7 +241,8 @@ def mainPage(request):
         'jumlahwishlist':jml_wishlist,
         'jml_mycart':jml_mycart,
         'jml_inbox_message':jml_inbox_message,
-        'blogs':blogs
+        'blogs':blogs,
+        'jml_userbook':jml_userbook
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -715,7 +718,18 @@ def paymentProcess(request):
                 inboxmessage.user=user
                 inboxmessage.save()
 
-                MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).delete()
+                # simpan buku ke paymentdetail
+                mycart = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True))
+                for cart in mycart:
+                    try:
+                        book = Books.objects.get(id=cart.book.id)
+                        paymentdetail = MyPaymentDetail()
+                        paymentdetail.payment=mypayment
+                        paymentdetail.book=book
+                        paymentdetail.save()
+                    except Exception as ex:
+                        print(ex)
+                mycart.delete()
                 
             except Exception as ex:
                 print(ex)
