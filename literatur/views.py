@@ -634,7 +634,7 @@ def allBlogsView(request):
     except:
         h=1
     blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')
-    page = Paginator(blogs,per_page=4)
+    page = Paginator(blogs,per_page=8)
     range_page = page.page_range
     
     try:
