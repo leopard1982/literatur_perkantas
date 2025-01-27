@@ -492,18 +492,24 @@
     <section id="latest-posts" class="padding-large pt-4" style="background-color: rgba(32, 206, 46, 0.1);">
       <div class="container">
         <div class="text-center pb-3">
-          <h3 class=" text-primary ">Kisah Buku</h3>
+          <h3 class=" text-primary ">Coretan Pena</h3>
         </div>
         <div class="row">
           {% for blog in blogs %}
-            <div class="newcard4 col-md-3 posts mb-4">
-              <a href="{% url 'detail_blog' blog.id %}">
-                <img src="{{blog.image.url}}" alt="post image" class="img-fluid rounded-3">
-              </a>
-              <a href="{% url 'detail_blog' blog.id %}" class="fs-5 text-primary fw-bold">by: {{blog.author.username|title}}<br><i><span class="fs-6">{{blog.updated_at}}</span></i></a>
-              <h4 class="card-title mb-2 text-capitalize text-dark"><a href="{% url 'detail_blog' blog.id %}">{{blog.header|title}}</a></h4>
-              <p class="mb-2">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>Read More</i></a></span>
-              </p>
+            <div class="newcard4 col-md-3 posts mb-4  p-2">
+              <div class="bg-white border p-2 rounded">
+                <a href="{% url 'detail_blog' blog.id %}">
+                  <img src="{{blog.image.url}}" alt="post image" class="img-fluid rounded-3">
+                </a>
+                <p class="my-2 fw-bold fs-6">{{blog.tipe}}</p>
+                <h4 class="card-title mb-2 text-capitalize text-dark"><a href="{% url 'detail_blog' blog.id %}">{{blog.header|title}}</a></h4>
+                <a href="{% url 'detail_blog' blog.id %}" class="fs-6 fw-bold" style="font-style: italic;">Oleh: {{blog.author.username|title}}</a>
+                <br><i><span  style="font-size: 12px;">{{blog.updated_at}}</span></i>
+                
+                <p class="mb-2">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>Read More</i></a></span>
+                </p>
+              </div>
+              
             </div>
           {% endfor%}
           <!-- <div class="newcard4 col-md-3 posts mb-4">

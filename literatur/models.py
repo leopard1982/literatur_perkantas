@@ -392,8 +392,15 @@ class inboxMessage(models.Model):
 	def __str__(self):
 		return f"{self.user} - {self.header} - {self.body} "
 
+
+TIPE_BLOGS = [
+	('Renungan','Renungan'),
+	('Kisah Buku','Kisah Buku')
+]
+
 class Blogs(models.Model):
 	id = models.UUIDField(auto_created=True,primary_key=True,editable=False,default=uuid.uuid4)
+	tipe = models.CharField(max_length=20,choices=TIPE_BLOGS,default="Renungan")
 	author = models.ForeignKey(User,on_delete=models.RESTRICT,verbose_name="Pengarang")
 	image = models.ImageField(upload_to='blogs',null=True,blank=True,verbose_name="Gambar Tema Blog")
 	header = models.CharField(max_length=50,verbose_name="Judul Blog")

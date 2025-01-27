@@ -59,7 +59,7 @@
 
 {% block contents%}
 <div class=" h1 text-center text-primary fw-bold p-3">
-    Kisah Buku
+    Coretan Pena
 </div>
 <div class="list">  
     {% for blog in blogs %}
@@ -69,13 +69,16 @@
                 </a>
                 <hr>
                 <p>
+                    {{blog.tipe}}
+                </p>
+                <p>
                     <span class="fs-5 fw-bold text-primary">
                         <a href="{% url 'detail_blog' blog.id %}">
                             {{blog.header|title}}
                         </a>
                     </span><br>
-                    <span class="fs-6 fw-bold">by: {{blog.author.username|title}}</span><br>
-                    <span class="fs-6"><i>{{blog.updated_at}}</i></span>
+                    <span class="fs-6 fw-bold">Oleh: {{blog.author.username|title}}</span><br>
+                    <span style="font-size: 12px;"><i>{{blog.updated_at}}</i></span>
                 </p>
                 <hr>
                 <p class="text-start">
