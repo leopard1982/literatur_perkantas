@@ -173,6 +173,8 @@ class MyPayment(models.Model):
 	jumlah_point = models.IntegerField(default=0)
 	is_verified = models.BooleanField(default=False)
 	is_canceled = models.BooleanField(default=False)
+	pemroses = models.CharField(max_length=100,null=True,blank=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return f"{self.payment} - {self.user.username} - {self.total}"	
@@ -357,3 +359,12 @@ class Blogs(models.Model):
 
 	def __str__(self):
 		return f"{self.author} - {self.header}"
+
+class DaftarPayment(models.Model):
+	user = models.ForeignKey(User,on_delete=models.RESTRICT)
+	payment = models.ForeignKey(MyPayment,on_delete=models.RESTRICT,related_name="Pembayaran")
+	sisa = models.IntegerField(default=0)
+	tgl_trf_sisa = models.DateTimeField(auto_now_add=False,null=True,blank=True)
+	pemroses = models.CharField(max_length=100,null=True,blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)

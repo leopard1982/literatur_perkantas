@@ -9,8 +9,8 @@
             {% csrf_token %}
             <p class="h3 fw-bold mb-3">Konfirmasi Pembayaran Buku</p>
             <div class="fw-bold my-4 row">
-                <div class="col-4 py-3">Nomor Invoice:</div>
-                <div class="col-8"><input name="nomor_invoice" type="text" readonly value="{{nomor_invoice}}" class="form-control fs-6 fw-bold"></div>
+                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">Nomor Invoice:</div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold"><input name="nomor_invoice" type="text" readonly value="{{nomor_invoice}}" class="form-control fs-6 fw-bold"></div>
             </div>
             <p class="fw-bold rounded">
                 <table class="table border border-dark">
@@ -36,11 +36,11 @@
                     {% endfor%}
                 </table>
                 <div class="my-3 row">
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
                         Jumlah Buku Dibeli:
                     </div>
                     <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        {{jml_mycart_buy|intcomma}} Buku
+                        <input type="text" readonly value="{{jml_mycart_buy|intcomma}} Buku" class="form-control fs-6 fw-bold">                        
                     </div>
                 </div>
                 <div class="my-3 row">
@@ -51,29 +51,38 @@
                         <input type="text" name="total_bayar" id="" class="fw-bold form-control fs-6" readonly value="{{total_bayar|intcomma}}">
                     </div>
                 </div>
-                <div class="mt-1 mb-1">
-                    <pre class="border border-success rounded">
-                        Pembayaran dilakukan melalui transfer ke rekening:
-                        Nomor Rekening: <b>{{no_rekening}}</b>
-                        Pemilik Rekening: <b>{{nama_pemilik}}</b>
-                        Nama Bank: <b>{{nama_bank}}</b>
-                    </pre>
+                <div class="mt-1 mb-1 border border-success rounded d-flex justify-content-center">
+                    <div class="col-4 d-flex justify-content-end">
+                        <img src="{% static 'images/qris.jpg'%}" class="w-75" alt="">
+                    </div>
+                    <div class="col-8 p-4">
+                        Pembayaran dilakukan melalui: <br>
+                        <ol>
+                            <li>Scan QRIS di samping.</li>
+                            <li>
+                                Transfer ke rekening BCA Give Thanks Production: <br>
+                                Nomor Rekening: <b>{{no_rekening}}</b> <br>
+                                Pemilik Rekening: <b>{{nama_pemilik}}</b> <br>
+                                Nama Bank: <b>{{nama_bank}}</b>
+                            </li>
+                        </ol>
+                        <p>
+                            Setelah transfer berhasil, silakan Upload foto bukti bayar dalam bentuk format gambar .gif, .png, .jpeg, atau .jpg 
+                            kemudian tunggu konfirmasi dari admin maksimal 1x24 jam. <br>
+                            Untuk update status pembelian akan kami kirimkan via <a href="{% url 'list_inbox_message'%}" target="_blank">inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i></a>
+                        </p>
+                        
+                    </div>
                 </div>
                 <div class="my-3 row">
                     <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
-                        Bukti Transfer:
+                        Foto Bukti Transfer:
                     </div>
                     <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
                         <input required  type="file" class="form-control fs-6" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp">
                     </div>
                 </div>
-                <div class="mt-1 mb-1">
-                    <pre class="border border-success rounded">
-                        Silakan Upload foto bukti bayar dalam bentuk format gambar
-                        .gif, .png, .jpeg, .jpg kemudian tunggu konfirmasi 1x24 jam.
-                        Untuk update status akan kami kirimkan via inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i>
-                    </pre>
-                </div>
+                
                 <div class="my-3 row">
                     <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
                         <input type="submit" value="Konfirmasi Pembayaran" class="btn ">
