@@ -190,11 +190,14 @@ class MyPayment(models.Model):
 			
 			#tambahkan buku ke UserBook
 			for detail in mypaymentdetail:
-				userbook = UserBook()
-				userbook.id_book = detail.book
-				userbook.id_user=self.user
-				userbook.payment=MyPayment.objects.get(payment=self.payment)
-				userbook.save()
+				try:
+					userbook = UserBook()
+					userbook.id_book = detail.book
+					userbook.id_user=self.user
+					userbook.payment=MyPayment.objects.get(payment=self.payment)
+					userbook.save()
+				except Exception as ex:
+					print(ex)
 
 			# buat pesan inbox
 			inboxmessage = inboxMessage()
