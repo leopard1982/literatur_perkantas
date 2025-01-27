@@ -785,9 +785,9 @@ def paymentProcess(request):
                 'nomor_invoice':nomor_invoice,
                 'jml_mycart_buy':jml_mcart_buy,
                 'total_bayar':total_bayar,
-                'no_rekening':'1234567890',
-                'nama_bank':'BCA Cabang Pulo Gadung',
-                'nama_pemilik':'Literatur Perkantas Nasional'
+                'no_rekening':'01230254390',
+                'nama_bank':'BCA',
+                'nama_pemilik':'PT SULUH  CENDEKIA'
             }
         return render(request,'landing/payment.html',context)
     else:
