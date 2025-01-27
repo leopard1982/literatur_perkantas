@@ -190,6 +190,7 @@ class MyPayment(models.Model):
 			
 			mypayment = MyPayment.objects.get(payment=self.payment)
 			#tambahkan buku ke UserBook
+			
 			for detail in mypaymentdetail:
 				try:
 					userbook = UserBook()
@@ -224,7 +225,7 @@ class MyPayment(models.Model):
 			inboxmessage = inboxMessage()
 			inboxmessage.user=self.user
 			inboxmessage.header="Pembayaran Gagal Dikonfirmasi"
-			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai. Terima kasih, Tuhan memberkati!"
+			inboxmessage.body=f"Maaf kaka, untuk pembayaran sebesar {self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai. Terima kasih, Tuhan memberkati!"
 			inboxmessage.save()
 
 			#simpan pemroses
