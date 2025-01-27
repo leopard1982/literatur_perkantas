@@ -188,13 +188,14 @@ class MyPayment(models.Model):
 			mypaymentdetail=MyPaymentDetail.objects.all().filter(payment=self.payment)
 			mypaymentdetail.update(is_active=True)
 			
+			mypayment = MyPayment.objects.get(payment=self.payment)
 			#tambahkan buku ke UserBook
 			for detail in mypaymentdetail:
 				try:
 					userbook = UserBook()
 					userbook.id_book = detail.book
 					userbook.id_user=self.user
-					userbook.payment=MyPayment.objects.get(payment=self.payment)
+					userbook.payment= mypayment
 					userbook.save()
 				except Exception as ex:
 					print(ex)
