@@ -10,7 +10,7 @@
             <p class="h3 fw-bold mb-3">Konfirmasi Pembayaran Buku</p>
             <div class="fw-bold my-4 row">
                 <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">Nomor Invoice:</div>
-                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold"><input name="nomor_invoice" type="text" readonly value="{{nomor_invoice}}" class="form-control fs-6 fw-bold"></div>
+                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold "><input name="nomor_invoice" type="text" readonly value="{{nomor_invoice}}" class="text-primary form-control fs-6 fw-bold"></div>
             </div>
             <p class="fw-bold rounded">
                 <table class="table border border-dark">
@@ -40,7 +40,7 @@
                         Jumlah Buku Dibeli:
                     </div>
                     <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <input type="text" readonly value="{{jml_mycart_buy|intcomma}} Buku" class="form-control fs-6 fw-bold">                        
+                        <input type="text" readonly value="{{jml_mycart_buy|intcomma}} Buku" class="text-primary form-control fs-6 fw-bold">                        
                     </div>
                 </div>
                 <div class="my-3 row">
@@ -48,14 +48,14 @@
                         Total Pembayaran:
                     </div>
                     <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <input type="text" name="total_bayar" id="" class="fw-bold form-control fs-6" readonly value="{{total_bayar|intcomma}}">
+                        <input type="text" name="total_bayar" id="" class="text-primary fw-bold form-control fs-6" readonly value="{{total_bayar|intcomma}}">
                     </div>
                 </div>
-                <div class="mt-1 mb-1 border border-success rounded d-flex justify-content-center">
-                    <div class="col-4 d-flex justify-content-end">
+                <div class="mt-1 mb-1 border border-success rounded d-flex justify-content-center row">
+                    <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 d-flex justify-content-center">
                         <img src="{% static 'images/qris.jpg'%}" class="w-75" alt="">
                     </div>
-                    <div class="col-8 p-4">
+                    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 p-4 text-wrap">
                         Pembayaran dilakukan melalui: <br>
                         <ol>
                             <li>Scan QRIS di samping.</li>
