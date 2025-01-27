@@ -417,6 +417,26 @@ def allBookView(request):
         jml_mycart=0
         jml_inbox_message=0
 
+
+    page = Paginator(books,per_page=8)
+    range_page = page.page_range
+    
+    try:
+            halaman = page.page(h)
+    except:
+            h=1
+            halaman = page.page(1)
+
+    if(int(h)>1):
+            prev_page=int(h)-1
+    else:
+            prev_page=1
+        
+    if(int(h)<page.num_pages):
+            next_page=int(h)+1
+    else:
+            next_page=h
+
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
     except:
@@ -431,7 +451,12 @@ def allBookView(request):
         'jumlah_promo':jumlah_promo,
         'pengumuman':pengumuman,
         'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message
+        'jml_inbox_message':jml_inbox_message,
+        'prev_page':prev_page,
+        'next_page':next_page,
+        'range_page':range_page,
+        'halaman':halaman,
+        'current':int(h)
     }
     return render(request,'landing/all-book.html',context)
 
@@ -554,6 +579,30 @@ def listInboxMessage(request):
         jml_inbox_message = inbox_message.count()
 
         try:
+            h=int(request.GET['h'])
+        except:
+            h=1
+
+        page = Paginator(inbox_message,per_page=10)
+        range_page = page.page_range
+    
+        try:
+            halaman = page.page(h)
+        except:
+            h=1
+            halaman = page.page(1)
+
+        if(int(h)>1):
+            prev_page=int(h)-1
+        else:
+            prev_page=1
+        
+        if(int(h)<page.num_pages):
+            next_page=int(h)+1
+        else:
+            next_page=h
+
+        try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
         except:
             pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
@@ -566,7 +615,13 @@ def listInboxMessage(request):
             'mycart':mycart,
             'jml_dibeli':jml_dibeli,
             'jml_inbox_message':jml_inbox_message,
-            'inbox_message':inbox_message
+            'inbox_message':inbox_message,
+            'prev_page':prev_page,
+            'next_page':next_page,
+            'range_page':range_page,
+            'halaman':halaman,
+            'current':int(h)
+
         }
         return render(request,'landing/list-inbox.html',context)
     else:

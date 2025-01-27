@@ -7,7 +7,7 @@
     <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-inbox" aria-hidden="true"></i> Pesan Masuk - <span class="text-primary">{{user.username}}</span> [<span class="text-primary">{{jml_inbox_message}}</span>]</p>
     <hr class="border-primary">
     {% if jml_inbox_message > 0 %}
-        {% for inbox in inbox_message %}
+        {% for inbox in halaman %}
             <div class="d-flex justify-content-start p-2">
                 <div class="col-1 align-items-center">
                     {{forloop.counter}}
@@ -23,6 +23,18 @@
                 </div>
             </div>
         {% endfor%}
+        <hr class="border border-primary">
+        <div class="text-center my-3">
+            <span class="mx-1 p-2"><a href="{% url 'list_inbox_message' %}?h={{prev_page}}">&larr;</a></span>
+            {% for page  in range_page %}
+                {% if page == current %}
+                <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'list_inbox_message' %}?h={{page}}" class="text-white">{{page}}</a></span>
+                {% else %}
+                <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'list_inbox_message' %}?h={{page}}" class="fw-bold">{{page}}</a></span>
+                {% endif%}
+            {% endfor %}
+            <span class="mx-2 p-2"><a href="{% url 'list_inbox_message' %}?h={{next_page}}">&rarr;</a></span>
+        </div>
     {% else %}
     <p style="font-style: italic;">Belum ada pesan masuk untuk {{user.username}}...</p>
     {% endif %}

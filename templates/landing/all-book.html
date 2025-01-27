@@ -113,7 +113,7 @@
   {% endif %}
   
   {% if books %}
-    {% for book in books %}
+    {% for book in halaman %}
       {% if kategori == 12 %}
         {% if jumlah_promo > 0 %}
           {% if book.onsalebook.is_active %}
@@ -263,6 +263,7 @@
         {% endif %}
       {% endif %}
     {% endfor%}
+    
   {% else %}
   <div class="text-center py-3">
     <p>Ups... Maaf kategori yang kaka cari belum tersedia...</p>
@@ -271,4 +272,21 @@
   </div>
   {% endif %}
 </div>
+{% if books %}
+    <div class="justify-content-center d-flex">
+      <hr class="border border-primary w-50">
+    </div>
+
+    <div class="text-center">
+        <span class="mx-1 p-2"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{prev_page}}">&larr;</a></span>
+        {% for page  in range_page %}
+            {% if page == current %}
+            <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{page}}" class="text-white">{{page}}</a></span>
+            {% else %}
+            <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{page}}" class="fw-bold">{{page}}</a></span>
+            {% endif%}
+        {% endfor %}
+        <span class="mx-2 p-2"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{next_page}}">&rarr;</a></span>
+    </div>
+{% endif %}
 {% endblock %}
