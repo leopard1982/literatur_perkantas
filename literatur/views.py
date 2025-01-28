@@ -878,8 +878,6 @@ def paymentProcess(request):
     
     
 def bacaBukuKoleksi(request,id):
-    
-
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         try:
@@ -895,7 +893,11 @@ def bacaBukuKoleksi(request,id):
             return HttpResponseRedirect(f'/book/?id={book.id}')
 
         try:
-            page=int(request.GET['p'])
+            if request.method=="POST":
+                page = int(request.POST['halaman'])
+            else:
+                page=int(request.GET['p'])
+            
             if page>book.halaman:
                 page=book.halaman
             userbook.last_page=int(page)
