@@ -877,4 +877,89 @@ def paymentProcess(request):
         return HttpResponseRedirect('/cart/')
     
     
+def bacaBukuKoleksi(request,id):
+    
+
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        try:
+            book = Books.objects.get(id=id)
+        except:
+            messages.add_message(request,messages.SUCCESS,'Buku yang kaka cari tidak ada...')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
+        
+        try:
+            userbook = UserBook.objects.get(Q(id_book=book) & Q(id_user=user))
+        except:
+            messages.add_message(request,messages.SUCCESS,'Karena ini buku berbayar, dan kaka belum memiliki di koleksi, kaka hanya bisa melihat preview sampul saja yah...')
+            return HttpResponseRedirect(f'/book/?id={book.id}')
+
+        try:
+            page=int(request.GET['p'])
+            if page>book.halaman:
+                page=book.halaman
+            userbook.last_page=int(page)
+            userbook.save()
+        except:
+            page=int(userbook.last_page)
+            if page==0:
+                page=1
+        
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+        mycart = MyCart.objects.all().filter(user=user)
+        jml_mycart = mycart.count()
+
+        max_page = book.halaman
+
+        if page==1:
+            prev=1
+        else:
+            prev=page-1
+        
+        next=page+1
+        if(next>max_page):
+            next=max_page
+
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'pengumuman':pengumuman,
+            'book':book,
+            'next':next,
+            'prev':prev,
+            'page':page,
+            'max_page':max_page,
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'jml_inbox_message':jml_inbox_message,
+            'jml_mycart':jml_mycart,
+
+        }
+        return render(request,'landing/baca-premium.html',context)
+    else:
+        messages.add_message(request,messages.SUCCESS,'Untuk bisa membaca buku ini kaka harus login terlebih dahulu dan memiliki buku ini di koleksi kaka..')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # try:
+    #     if request.method=="POST":
+    #         page=int(request.POST['halaman'])
+    #         if(page>max_page):
+    #             page=5
+    #     else:
+    #         page=int(request.GET['p'])
+            
+    #         if int(page)>max_page:
+    #             page=max_page
+            
+    #         if page<1:
+    #             page=1
+
+    # except:
+    #     page=1
+
     
