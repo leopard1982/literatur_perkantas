@@ -336,7 +336,7 @@
             <div class="on-sale border rounded-3 p-2   bg-white shadow">
               <div class="section-title overflow-hidden d-flex justify-content-start align-items-center mt-2"  style="height: 70px;  ">
                 <img src="{% static 'images/discount.png'%}" style="height: 80px;" alt="">
-                <h3 class="d-flex flex-column mb-0">Promo </h3><hr>
+                <h3 class=" mb-0">Promo (<span class="text-primary">{{jml_on_sale}}</span>)</h3><hr>
               </div>
               <hr style="border: 1px solid lightblue; ">
               <div class="items-lists mt-2">
@@ -375,25 +375,23 @@
             <div class="latest-items  border rounded-3 p-2 bg-white " >
               <div class="section-title d-flex justify-content-start align-items-center overflow-hidden mb-4"  style="height: 70px;">
                 <img src="{% static 'images/collection.png'%}" style="height: 80px;" alt="">
-                <h3 class="text-dark">Koleksiku (<span class="text-primary">{{jml_userbook}}</span>)</h3><hr>
+                <h3 class="text-dark py-3">Koleksiku (<span class="text-primary">{{jml_userbook}}</span>)</h3><hr>
               </div>
               <hr style="border: 1px solid lightblue; ">
               {% if userbook %}
                 <div class="items-lists mt-1">
                   {% for book in userbook%}
                   <div class="item d-flex newcard2" style="height: 150px;">
-                    <img src="/media/extract/pdf_full/{{book.id_book.id}}/1.jpg" class="img-fluid shadow-sm" alt="product item">
+                    <img src="/media/extract/pdf_full/{{book.id_book.id}}/1.jpg" class="img-fluid shadow-sm rounded" alt="product item" style="width: 100px;height: 180px;">
                     <div class="item-content ms-3">
                       <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id }" style="height: 50px;">{{book.id_book.judul}}</a></h6>
                       <div class="review-content d-flex">
                         <p class="my-2 me-2 fs-6 text-black-50">{{book.id_book.pengarang}}</p>
-                        <div class="rating text-warning d-flex align-items-center">
-                          
-                        </div>
+                        
                       </div>
                       <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="btn btn-success" style="height: 40px;padding:5px;min-width: 150px;max-width: 150px;">
                         <div class="d-flex justify-content-center align-items-center">
-                          <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;margin-right: 20px;">
+                          <img src="{% static 'images/read_koleksi.jpeg'%}" class="rounded-circle" style="height: 30px;width: 30px;margin-right: 20px;">
                           <span>Baca </span>
                         </div>
                         
@@ -403,6 +401,9 @@
                   </div>
                   <hr class="gray-400">
                   {% endfor %}
+                </div>
+                  <div class="p-2 text-center">
+                  <a href="{% url 'semua_buku_koleksi'%}" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
                 </div>
               {% else %}
                 <div style="text-align: center;">

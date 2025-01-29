@@ -114,8 +114,9 @@ def mainPage(request):
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user)
+        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
         jml_userbook=userbook.count()
+        userbook=userbook[:4]
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
@@ -213,6 +214,7 @@ def mainPage(request):
     #id category=3 adalah freebook
     books_best_seller = Books.objects.all().filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).order_by('-updated_at')[:4]
     books = Books.objects.all().order_by('-updated_at')[:4]
+    jml_on_sale = OnSaleBook.objects.all().count()
     books_on_sale = OnSaleBook.objects.all().order_by('-updated_at')[:4]
     
     #category=3 free
@@ -243,7 +245,8 @@ def mainPage(request):
         'jml_mycart':jml_mycart,
         'jml_inbox_message':jml_inbox_message,
         'blogs':blogs,
-        'jml_userbook':jml_userbook
+        'jml_userbook':jml_userbook,
+        'jml_on_sale':jml_on_sale
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -963,5 +966,66 @@ def bacaBukuKoleksi(request,id):
 
     # except:
     #     page=1
+
+def allKoleksiView(request):
+    try:
+        h=int(request.GET['h'])
+    except:
+        h=1
+
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        koleksiku = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+        jml_koleksiku = koleksiku.count()
+
+        page = Paginator(koleksiku,per_page=8)
+        range_page = page.page_range
+        
+        try:
+                halaman = page.page(h)
+        except:
+                h=1
+                halaman = page.page(1)
+
+        if(int(h)>1):
+                prev_page=int(h)-1
+        else:
+                prev_page=1
+            
+        if(int(h)<page.num_pages):
+                next_page=int(h)+1
+        else:
+                next_page=h
+
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'koleksiku':koleksiku,
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'jml_inbox_message':jml_inbox_message,
+            'prev_page':prev_page,
+            'next_page':next_page,
+            'range_page':range_page,
+            'halaman':halaman,
+            'current':int(h),
+            'jml_koleksiku':jml_koleksiku
+        }
+        return render(request,'landing/all-koleksi.html',context)
+
+    else:
+        messages.add_message(request,messages.SUCCESS,'Untuk bisa melihat daftar koleksi, kaka harus login terlebih dahulu yah...')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
     
