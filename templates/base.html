@@ -251,12 +251,6 @@
                 <li class="nav-item">
                   <a class="nav-link me-4 active" href="{% url 'main_page'%}">Home</a>
                 </li>                
-                <li class="nav-item">
-                  <div>
-                    <a class="nav-link me-4" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
-                  </div>
-                  
-                </li>
                 {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
                   <a class="nav-link me-4 dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
@@ -278,7 +272,10 @@
                   <a class="nav-link me-4" href="{% url 'all_book_view'%}?k=12">Promo</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link me-4" href="#l">Contact</a>
+                  <div>
+                    <a class="nav-link me-4" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
+                  </div>
+                  
                 </li>
               </ul>
               <div class="user-items d-flex">
