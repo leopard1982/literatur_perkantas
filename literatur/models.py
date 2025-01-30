@@ -73,7 +73,7 @@ class UserDetail(models.Model):
 		return f"{self.nama_lengkap}"
 
 class Books(models.Model):
-	id = models.UUIDField(primary_key=True,editable=False,auto_created=True,default=uuid.uuid4)
+	id = models.UUIDField(primary_key=True,editable=False,auto_created=True,default=uuid.uuid4,db_index=True)
 	judul = models.CharField(max_length=100,default="",verbose_name="Nama Buku")
 	pengarang = models.CharField(max_length=100,default="",verbose_name="Pengarang Buku")
 	price = models.PositiveIntegerField(default=0,verbose_name="Harga Buku")
@@ -165,7 +165,7 @@ class MyCart(models.Model):
 		return f"{self.book.judul} - {self.book.pengarang}"
 
 class MyPayment(models.Model):
-	payment = models.CharField(max_length=300,default="",primary_key=True)
+	payment = models.CharField(max_length=300,default="",primary_key=True,db_index=True)
 	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
 	total = models.DecimalField(decimal_places=2,max_digits=30,default=0)
 	bukti = models.CharField(max_length=300,default="",null=True,blank=True)
