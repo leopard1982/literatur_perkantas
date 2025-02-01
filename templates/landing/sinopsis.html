@@ -15,7 +15,7 @@
             <p class="h5">ISBN: {{book.isbn}}</p>
             <p class="h5">Pengarang: {{book.pengarang}}</p>
             <hr>
-            <p>{{book.sinopsis|linebreaksbr|title}}</p>
+            <p>{{book.sinopsis|linebreaksbr}}</p>
             <div class="justify-content-center py-4 d-flex" style="flex-wrap: wrap;">
                 {% if user.is_authenticated %}
                     <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
