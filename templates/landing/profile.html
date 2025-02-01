@@ -36,7 +36,11 @@
                 <div class="row my-2">
                     <div class="col-3">Foto Profil:</div>
                     <div class="col-2">
+                        {% if user.userdetail.photo %}
                         <img src="{{user.userdetail.photo.url}}" class="w-100 rounded" alt="">
+                        {% else %}
+                        <img src="{% static 'images/profile.jpeg' %}" class="w-100 rounded" alt="">
+                        {% endif %}
                     </div>
                     <div class="col-4">
                         <input type="file" name="foto"  id="" class="form-control" accept=".gif,.jpg,.jpeg,.png,.webp">
