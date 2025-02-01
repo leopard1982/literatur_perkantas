@@ -215,10 +215,10 @@
     <header id="header" class="site-header">
 
       <div class="top-info border-bottom d-none d-md-block ">
-        <div class=" text-center rounded-2 ">
-          <marquee behavior="alternate" class="bg-primary" >
+        <div class=" container-fluid rounded text-center rounded-2 ">
+          <marquee  class="bg-primary" >
             {% if user.is_authenticated %}
-            <b>Shallom, {{user.username}}! INFO: </b>{{pengumuman}}
+            <b>Shallom, {{user.userdetail|title}}! INFO: </b>{{pengumuman}}
             {% else %}
             <b>INFO: </b>{{pengumuman}}
             {% endif%}

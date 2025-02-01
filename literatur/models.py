@@ -8,6 +8,7 @@ from django.conf import settings
 import os
 import datetime
 from django.contrib import messages
+import re
 
 colornya = [
 	('pink','pink'),
@@ -68,9 +69,18 @@ class UserDetail(models.Model):
 	total_book = models.PositiveSmallIntegerField(default=0)
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
+	no_whatsapp = models.CharField(max_length=50,default="08123456789")
+	pekerjaan=models.CharField(max_length=50,default="Swasta")
 
 	def __str__(self):
 		return f"{self.nama_lengkap}"
+	
+	def save(self,*args,**kwargs):
+		# extract kalau ada inputan bukan angka difiliter
+		nowa = re.findall('\d+',self.no_whatsapp)
+		# simpan kembali no whatsapp mengunakan angka saja.
+		self.no_whatsapp="".join(nowa)
+		super(UserDetail,self).save(*args,**kwargs)
 
 class Books(models.Model):
 	id = models.UUIDField(primary_key=True,editable=False,auto_created=True,default=uuid.uuid4,db_index=True)
@@ -201,6 +211,14 @@ class MyPayment(models.Model):
 				except Exception as ex:
 					print(ex)
 
+			#get jumlah user book
+			jml_userbook = UserBook.objects.all().filter(id_user=self.user).count()
+
+			#update jumlah buku
+			userdetail = UserDetail.objects.get(user=self.user)
+			userdetail.total_book =jml_userbook
+			userdetail.save()
+
 			# buat pesan inbox
 			inboxmessage = inboxMessage()
 			inboxmessage.user=self.user
@@ -220,6 +238,14 @@ class MyPayment(models.Model):
 			
 			#hapus  UserBook
 			UserBook.objects.all().filter(payment=MyPayment.objects.get(payment=self.payment)).delete()
+
+			#get jumlah user book
+			jml_userbook = UserBook.objects.all().filter(id_user=self.user).count()
+
+			#update jumlah buku
+			userdetail = UserDetail.objects.get(user=self.user)
+			userdetail.total_book =jml_userbook
+			userdetail.save()
 
 			# buat pesan inbox
 			inboxmessage = inboxMessage()

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
-from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs
+from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail
 from django.db.models import Avg,Q,Sum
 import datetime
@@ -17,6 +17,7 @@ import random
 from django.core.files.storage import default_storage
 import os
 from django.core.paginator import Paginator
+
 
 def resetPassword(request):
     if( request.method == "POST"):
@@ -67,8 +68,8 @@ def verifyLinkLupaPassword(request,id):
                 password="".join(password)
                 user = User.objects.get(email=resetemail.email)
                 user.set_password(password)
-                print(password)
                 user.save()
+
 
                 #update resetemail field to expired
                 resetemail.is_used=True
@@ -156,6 +157,12 @@ def mainPage(request):
                 )
                 user.set_password(password1)
                 user.save()
+
+                 # tambahkan userdetail untuk nama lengkap saja
+                userdetail = UserDetail()
+                userdetail.user=user
+                userdetail.nama_lengkap=user.username
+                userdetail.save()
                 
                 #send email again
                 subject = "Initial Email dan Password"
@@ -227,6 +234,7 @@ def mainPage(request):
 
     instagram = Instagram.objects.all().order_by('-id')[:6]
 
+
     # messages.add_message(request,messages.ERROR,"Test")
 
     context = {
@@ -246,7 +254,7 @@ def mainPage(request):
         'jml_inbox_message':jml_inbox_message,
         'blogs':blogs,
         'jml_userbook':jml_userbook,
-        'jml_on_sale':jml_on_sale
+        'jml_on_sale':jml_on_sale,
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -1028,4 +1036,30 @@ def allKoleksiView(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-    
+def profileView(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        koleksiku = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'koleksiku':koleksiku,
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'jml_inbox_message':jml_inbox_message,
+        }
+        return render(request,'landing/profile.html',context)
+
+    else:
+        messages.add_message(request,messages.SUCCESS,'Untuk bisa melihat profile harus login terlebih dahulu kaka...')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
