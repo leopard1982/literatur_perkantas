@@ -2,32 +2,32 @@
 {% load static %}
 {% load humanize %}
 {% block contents %}
-<div class="p-2 text-center fw-bold h2 text-white bg-primary rounded container">
+<div class="p-2 text-center containerfw-bold h2 text-white bg-primary rounded container">
     Detail Info saya
 </div>
-<div class="container ">
-    <div class="d-flex justify-content-start ">
-        <div style="padding-right: 20px;">
+<div class="container">
+    <div class="d-flex justify-content-start row ">
+        <div style="padding-right: 20px;" class="py-3 d-flex justify-content-center">
             {% if user.userdetail.photo %}
                 <img src="{{user.userdetail.photo.url }}" class="shadow rounded-circle border-white border" alt="foto profile"  style="width: 100px;height: 100px;">
             {% else %}
                 <img src="{% static 'images/profile.jpeg'%}" class="shadow  border-white border"  alt="foto profile"  style="width: 100px;height: 100px;">
             {% endif %}
         </div>
-        <div class="w-100" style="margin-left: 5px; padding-left: 20px;">
+        <div class="w-100" style=" padding-left: 20px;">
             <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  fw-bold pt-2">
+                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
                     <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
                     {{user.userdetail.nama_lengkap|title}}
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  fw-bold pt-2">
+                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
                     <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
                     {% if user.userdetail.birthday %}
                         {{user.userdetail.birthday|date:"j F Y"}}
                     {% else %}
@@ -36,42 +36,42 @@
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 pt-2 fw-bold">
+                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 fw-bold">
                     <p class="text-primary fw-bold fs-4">Email Terdaftar:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
                     {{user.username}}
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
+                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Tanggal Bergabung:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
                     {{user.date_joined|date:"j F Y"}}
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
                     {{user.userdetail.no_whatsapp}}
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
                     {{user.userdetail.pekerjaan}}
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded">
                     {% if user.userdetail.alamat %}
                         {{user.userdetail.alamat}}
                     {% else %}
@@ -80,10 +80,10 @@
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left ">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left ">
                     <p class="text-primary fw-bold fs-4">Review Litanas:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
                     {% if user.pagereview.review %}
                         {{user.pagereview.review}}
                     {% else %}
