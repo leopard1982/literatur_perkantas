@@ -265,7 +265,7 @@
               <ul id="navbar"
                 class="navbar-nav text-uppercase justify-content-start  mx-3 align-items-start align-items-lg-center flex-grow-1">
                 <li class="nav-item">
-                  <a class="nav-link me-2 active" href="{% url 'main_page'%}">Home</a>
+                  <a class="nav-link me-2 active link-underline" href="{% url 'main_page'%}">Home</a>
                 </li>                
                 {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
@@ -297,7 +297,7 @@
               <div class="user-items d-flex">
                 <ul class="d-flex justify-content-end list-unstyled mb-0">
                   <li class="search-item pe-3" style="margin-top: -2px;">
-                    <a href="#" class="search-button link-underline">
+                    <a href="#" class="search-button link-underline" title="klik untuk melakukan pencarian">
                       <svg class="search">
                         <use xlink:href="#search"></use>
                       </svg>
@@ -305,7 +305,7 @@
                   </li>
                   {% if user.is_authenticated %}
                   <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
+                    <a href="#" data-bs-toggle="modal" title="Klik Untuk melihat daftar keinginan" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
                       <svg class="wishlist link-underline">
                         <use xlink:href="#heart"></use>
                       </svg> (<span style="font-size: 15px;" class="text-primary">{{jumlahwishlist}}</span>)
@@ -341,7 +341,7 @@
                                         <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
                                       {% endif %}
                                       <div class="d-flex justify-content-start">
-                                        <a href="{% url 'add_cart_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
+                                        <a href="{% url 'add_cart_list' wish.book.id %}" title="Klik untuk Melihat Keranjang Belanja" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
                                           <svg class="cart" style="height: 30px;width: 30px;">
                                             <use xlink:href="#cart"></use>
                                           </svg>
@@ -394,7 +394,7 @@
                     </a>
                   </li>
                   <li class="pe-3">
-                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start"   style="margin-left: 20px;" >
+                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start" title="klik untuk melakukan logout"  style="margin-left: 20px;" >
                       <i class="fa fa-sign-out link-underline" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;"></sub>
                     </a>
                   </li>
