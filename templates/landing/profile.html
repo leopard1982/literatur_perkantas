@@ -19,7 +19,7 @@
                 <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
                     <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {{user.userdetail.nama_lengkap|title}}
                 </div>
             </div>
@@ -27,7 +27,7 @@
                 <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
                     <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {% if user.userdetail.birthday %}
                         {{user.userdetail.birthday|date:"j F Y"}}
                     {% else %}
@@ -39,7 +39,7 @@
                 <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 fw-bold">
                     <p class="text-primary fw-bold fs-4">Email Terdaftar:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {{user.username}}
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Tanggal Bergabung:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {{user.date_joined|date:"j F Y"}}
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {{user.userdetail.no_whatsapp}}
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {{user.userdetail.pekerjaan}}
                 </div>
             </div>
@@ -71,7 +71,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
                     <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {% if user.userdetail.alamat %}
                         {{user.userdetail.alamat}}
                     {% else %}
@@ -83,7 +83,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left ">
                     <p class="text-primary fw-bold fs-4">Review Litanas:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded">
+                <div class="col-lg-9 col-md-6 col-sm-6 col-5 col-xs-6 pt-2 border border-primary rounded flex-wrap">
                     {% if user.pagereview.review %}
                         {{user.pagereview.review}}
                     {% else %}
