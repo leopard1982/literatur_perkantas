@@ -230,9 +230,9 @@
 
     <header id="header" class="site-header">
 
-      <div class="top-info border-bottom d-none d-md-block ">
-        <div class=" container-fluid rounded text-center rounded-2 ">
-          <marquee  class="bg-primary" >
+      <div class="top d-none d-md-block ">
+        <div class=" container rounded text-center  " >
+          <marquee  class="bg-success text-white " style="border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;">
             {% if user.is_authenticated %}
             <b>Shallom, {{user.userdetail|title}}! INFO: </b>{{pengumuman}}
             {% else %}
