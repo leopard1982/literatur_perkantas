@@ -294,10 +294,10 @@
                   
                 </li>
               </ul>
-              <div class="user-items d-flex">
-                <ul class="d-flex justify-content-end list-unstyled mb-0">
-                  <li class="search-item pe-3" style="margin-top: -2px;">
-                    <a href="#" class="search-button link-underline" title="klik untuk melakukan pencarian">
+              <div class="user-items d-flex mt-xs-5 mt-sm-5 mt-md-0 mt-lg-0 justify-content-evenly p-2 border border-primary rounded">
+                <ul class="d-flex justify-content-end list-unstyled mb-0 ">
+                  <li class="search-item pe-3" style="margin-top: -5px;">
+                    <a href="#" class="search-button link-underline" title="pencarian">
                       <svg class="search">
                         <use xlink:href="#search"></use>
                       </svg>
@@ -305,7 +305,7 @@
                   </li>
                   {% if user.is_authenticated %}
                   <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" title="Klik Untuk melihat daftar keinginan" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
+                    <a href="#" data-bs-toggle="modal" title="daftar keinginan" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
                       <svg class="wishlist link-underline">
                         <use xlink:href="#heart"></use>
                       </svg> (<span style="font-size: 15px;" class="text-primary">{{jumlahwishlist}}</span>)
@@ -381,7 +381,7 @@
                     
                   </li>
                   <li class="cart-dropdown dropdown">
-                    <a href="{% url 'cart_view'%}" class="justify-content-start d-flex" style="margin-left: 20px;" >
+                    <a href="{% url 'cart_view'%}" title="keranjang belanja" class="justify-content-start d-flex" style="margin-left: 20px;" >
                       <svg class="cart link-underline">
                         <use xlink:href="#cart"></use>
                       </svg><span class="fs-6 fw-light" style="font-size: 15px;">(<span class="text-primary">{{jml_mycart}}</span>)</span>
@@ -389,12 +389,12 @@
                     
                   </li>
                   <li >
-                    <a href="{% url 'list_inbox_message'%}" class="d-flex justify-content-start" style="margin-left: 25px;" >
+                    <a href="{% url 'list_inbox_message'%}" title="pesan inbox" class="d-flex justify-content-start" style="margin-left: 25px;" >
                       <i class="fa fa-inbox link-underline" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">{{jml_inbox_message}}</span>)</span></span> 
                     </a>
                   </li>
                   <li class="pe-3">
-                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start" title="klik untuk melakukan logout"  style="margin-left: 20px;" >
+                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start" title="logout"  style="margin-left: 20px;" >
                       <i class="fa fa-sign-out link-underline" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;"></sub>
                     </a>
                   </li>
