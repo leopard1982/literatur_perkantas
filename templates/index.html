@@ -97,7 +97,7 @@
     <section id="best-selling-items" class="position-relative padding-small shadow" style="background-color:#eefcff">
       <div class="container rounded">
         <div class="section-title  text-center   mt-2  align-items-center mb-4 p-2" >
-          <h3 class="text-center text-primary fw-bold ">Buku Best Seller</h3>
+          <h2 class="text-center text-primary fw-bold ">Buku Best Seller</h2>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -253,7 +253,7 @@
               <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                   <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12"></div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-100 rounded border " alt="..."></div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 py-5 d-flex justify-content-center"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-75 rounded border p-2 " alt="..."></div>
                   </div>
               </div>
               <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2  text-lg-start text-md-start text-sm-center text-center text-xs-center">
@@ -289,8 +289,8 @@
 
     <section id="items-listing" class="padding-small" style="background-color:#ffeeee">
       <div class="container  p-3 rounded  text-dark">
-        <div class=" fw-bold  py-4 px-2 text-center text-primary h2" >
-          Info Buku
+        <div class=" fw-bold  py-4 px-2 text-center text-primary" >
+          <h2>Info Buku</h2>
         </div>
         <div class="row d-flex justify-content-between">
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
@@ -434,11 +434,11 @@
       </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-small " style="background-color:#fff5ee">
+    <section id="best-selling-items" class="position-relative padding-small bg-white">
       <div class="container p-3  rounded rounded-top ">
         <div class="section-title  rounded mb-4   p-2">
           <div class="text-center d-flex justify-content-center">
-            <p class="h2 text-primary fw-bold">Buku Gratis Litanas </p>
+            <p class=" text-primary fw-bold"><h2 class="text-primary">Buku Gratis Litanas </h2></p>
           </div>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
@@ -452,17 +452,17 @@
           </svg>
         </div>
         <div class="swiper product-swiper">
-          <div class="swiper-wrapper text-center">
+          <div class="swiper-wrapper d-flex justify-content-center text-center">
           {% for book in free_book %}
-            <div class="swiper-slide ">
-              <div class="card newcard3 position-relative p-4 border  rounded-3 " style="min-width: 200px;">
+            <div class="swiper-slide " >
+              <div class="card newcard3 position-relative p-4 border shadow   rounded-3 " style="background-image:linear-gradient(to bottom,rgba(100,100,0,0.2),white) ;min-width: 200px;border:1px solid rgba(0,255,0,0.1)">
                 <div  class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-75" style="border:1px solid lightgrey" alt="product item">
+                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100" style="border:1px solid lightgrey" alt="product item">
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold text-start" ><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
+                <h6 class="mt-4 mb-0 fw-bold text-center fs-5" ><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
+                <div class="review-content ">
+                  <p class=" text-black text-center fs-6">Oleh: {{book.pengarang}}</p>
                 </div>
                 <div class="card-concern position-absolute start-0 end-0 text-center gap-2" >
                   <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
@@ -508,7 +508,7 @@
     <section id="latest-posts" class="padding-large pt-4" style="background-color: rgba(32, 206, 46, 0.1);">
       <div class="container">
         <div class="text-center pb-3">
-          <h3 class=" text-primary ">Coretan Pena</h3>
+          <h2 class=" text-primary ">Coretan Pena</h2>
         </div>
         <div class="row">
           {% for blog in blogs %}
@@ -572,7 +572,7 @@
           </svg>
         </div>
           <div class="section-title mb-4 text-center">
-            <h3 class="mb-4">Review dari Member</h3>
+            <h3 class="mb-4 text-primary fw-bold">Review Sahabat</h3>
           </div>
           <div class="swiper testimonial-swiper ">
             <div class="swiper-wrapper">
@@ -595,7 +595,7 @@
     <section id="instagram" class="padding-small" style="background-color: rgba(229, 255, 0, 0.1)">
       <div class="container">
         <div class="text-center mb-4">
-          <h3>Instagram</h3>
+          <h2 class="text-primary">Instagram</h2>
         </div>
         <div class="row justify-content-between d-flex">
           {% for inst in instagram%}
