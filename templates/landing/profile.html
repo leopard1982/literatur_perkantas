@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-lg-9 col-md-6 col-sm-6 col-xs-6 pt-2 border border-primary">
                     {% if user.userdetail.birthday %}
-                        {{user.userdetail.birthday}}
+                        {{user.userdetail.birthday|date:"j F Y"}}
                     {% else %}
                         -
                     {% endif %}
