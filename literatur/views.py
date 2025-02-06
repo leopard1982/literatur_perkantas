@@ -207,7 +207,7 @@ def mainPage(request):
                 #             ses.save()
                 #buat session baru
                 login(request,user)
-                messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.username}!')
+                messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.userdetail.nama_lengkap}!')
             else:
                 messages.add_message(request,messages.SUCCESS,"Username atau Password tidak sesuai, mohon ulangi login lagi yah...")
             
