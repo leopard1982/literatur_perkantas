@@ -25,6 +25,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     {% block mystyling %} {%endblock%}
+    <style>
+      .link-underline:hover {
+        background-color: rgba(255,0, 0,0.5);
+        border-radius: 5px;
+        /* padding: 5px; */
+        color:white !important;
+        transition-duration: 0.3s;
+        /* font-size: 13.5px !important; */
+      }
+      .link-submenu:hover {
+        border-bottom: 2px solid rgba(255,0,0,0.5);
+        transition-duration: 0.3s;
+        color: rgba(255,0,0,0.8);
+        font-weight: bold !important;
+      }
+    </style>
   </head>
   <body  oncontextmenu="return false;">
     <!-- 
@@ -231,7 +247,7 @@
           <a class="navbar-brand " href="/">
             <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" style="width:230px;height: 90px;">
           </a>
-          <button class="navbar-toggler d-flex d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas"
+          <button class="navbar-toggler d-flex  d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <svg class="navbar-icon">
               <use xlink:href="#navbar-icon"></use>
@@ -247,33 +263,33 @@
             </div>
             <div class="offcanvas-body">
               <ul id="navbar"
-                class="navbar-nav text-uppercase justify-content-start justify-content-lg-center align-items-start align-items-lg-center flex-grow-1">
-                <li class="nav-item">
+                class="navbar-nav text-uppercase justify-content-start  mx-3 align-items-start align-items-lg-center flex-grow-1">
+                <!-- <li class="nav-item">
                   <a class="nav-link me-4 active" href="{% url 'main_page'%}">Home</a>
-                </li>                
+                </li>                 -->
                 {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
-                  <a class="nav-link me-4 dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                  <a class="nav-link me-4 dropdown-toggle link-underline" data-bs-toggle="dropdown" href="#" role="button"
                     aria-expanded="false">Info Saya</a>
                   <ul class="dropdown-menu animate slide border">
                     <li>
-                      <a href="{% url 'profile_view'%}" class="dropdown-item fw-light">Detail Info Saya</a>
+                      <a href="{% url 'profile_view'%}" class="dropdown-item fw-light link-submenu">Detail Info Saya</a>
                     </li>
                     <li>
-                      <a href="#" class="dropdown-item fw-light">Pembelian Buku Saya </a>
+                      <a href="#" class="dropdown-item fw-light link-submenu">Pembelian Buku Saya </a>
                     </li>
                     <li>
-                      <a href="#" class="dropdown-item fw-light">Wishlist Saya </a>
+                      <a href="#" class="dropdown-item fw-light link-submenu">Wishlist Saya </a>
                     </li>
                   </ul>
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link me-4" href="{% url 'all_book_view'%}?k=12">Promo</a>
+                  <a class="nav-link me-4 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
                 </li>
                 <li class="nav-item">
                   <div>
-                    <a class="nav-link me-4" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
+                    <a class="nav-link me-4 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
                   </div>
                   
                 </li>
@@ -281,7 +297,7 @@
               <div class="user-items d-flex">
                 <ul class="d-flex justify-content-end list-unstyled mb-0">
                   <li class="search-item pe-3" style="margin-top: -2px;">
-                    <a href="#" class="search-button">
+                    <a href="#" class="search-button link-underline">
                       <svg class="search">
                         <use xlink:href="#search"></use>
                       </svg>
@@ -289,8 +305,8 @@
                   </li>
                   {% if user.is_authenticated %}
                   <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex" data-bs-target="#modalWishList">
-                      <svg class="wishlist">
+                    <a href="#" data-bs-toggle="modal" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
+                      <svg class="wishlist link-underline">
                         <use xlink:href="#heart"></use>
                       </svg> (<span style="font-size: 15px;" class="text-primary">{{jumlahwishlist}}</span>)
                     </a>
@@ -366,7 +382,7 @@
                   </li>
                   <li class="cart-dropdown dropdown">
                     <a href="{% url 'cart_view'%}" class="justify-content-start d-flex" style="margin-left: 20px;" >
-                      <svg class="cart">
+                      <svg class="cart link-underline">
                         <use xlink:href="#cart"></use>
                       </svg><span class="fs-6 fw-light" style="font-size: 15px;">(<span class="text-primary">{{jml_mycart}}</span>)</span>
                     </a>
@@ -374,12 +390,12 @@
                   </li>
                   <li >
                     <a href="{% url 'list_inbox_message'%}" class="d-flex justify-content-start" style="margin-left: 25px;" >
-                      <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">{{jml_inbox_message}}</span>)</span></span> 
+                      <i class="fa fa-inbox link-underline" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">{{jml_inbox_message}}</span>)</span></span> 
                     </a>
                   </li>
                   <li class="pe-3">
                     <a href="{% url 'logout_user'%}" class="d-flex justify-content-start"   style="margin-left: 20px;" >
-                      <i class="fa fa-sign-out" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;">logout</sub>
+                      <i class="fa fa-sign-out link-underline" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;"></sub>
                     </a>
                   </li>
                   {% else%}
