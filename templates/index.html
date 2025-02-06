@@ -360,14 +360,16 @@
                 {% endfor %}
               {% else %}
                 <div style="display: flex;justify-content: center;">
-                  <img src="{% static 'images/wait.png'%}" class="shadow" style="width: 200px;height: 200px;" alt="wait for promo">
+                  <img src="{% static 'images/wait.png'%}" class="shadow w-25"  alt="wait for promo">
                 </div>
-                <p style="text-align: center;">Nantikan Promo Menarik Bulan ini yah...</p>
+                <p style="text-align: center;">Ups.. sepertinya belum ada promo. <br>Nantikan promo menarik dari kami kembali yah...</p>
               {% endif%}
               </div>
-              <div class="p-2 text-center">
-                <a href="{% url 'all_book_view'%}?k=12" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
-              </div>
+              {% if books_on_sale %}
+                <div class="p-2 text-center">
+                  <a href="{% url 'all_book_view'%}?k=12" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
+                </div>
+              {% endif%}
             </div>
           </div>
           {% if user.is_authenticated%}
@@ -407,8 +409,17 @@
                 </div>
               {% else %}
                 <div style="text-align: center;">
-                  <p>Ups.. sepertinya kamu belum punya koleksi kaka... Litanas menyediakan banyak buku premium yang bisa membangun...</p>
-                  
+                  <p><img src="{% static 'images/empty.jpg'%}" class="w-25" alt=""></p>
+                  <p>Ups.. sepertinya kaka belum memiliki koleksi... </p>
+                  <p>Segera checkout 
+                    <a href="{% url 'cart_view'%}">
+                      <svg class="cart" style="height: 20px;width: 20px;">
+                                            <use xlink:href="#cart"></use>
+                      </svg>
+                      keranjang
+                    </a> 
+                    kaka ya...
+                  </p>
                 </div>
               {% endif%}
             </div>
