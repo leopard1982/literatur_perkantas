@@ -264,13 +264,13 @@
             <div class="offcanvas-body">
               <ul id="navbar"
                 class="navbar-nav text-uppercase justify-content-start  mx-3 align-items-start align-items-lg-center flex-grow-1">
-                <!-- <li class="nav-item">
-                  <a class="nav-link me-4 active" href="{% url 'main_page'%}">Home</a>
-                </li>                 -->
+                <li class="nav-item">
+                  <a class="nav-link me-2 active" href="{% url 'main_page'%}">Home</a>
+                </li>                
                 {% if user.is_authenticated%}
                 <li class="nav-item dropdown">
-                  <a class="nav-link me-4 dropdown-toggle link-underline" data-bs-toggle="dropdown" href="#" role="button"
-                    aria-expanded="false">Info Saya</a>
+                  <a class="nav-link me-2 dropdown-toggle link-underline" data-bs-toggle="dropdown" href="#" role="button"
+                    aria-expanded="false">Profil</a>
                   <ul class="dropdown-menu animate slide border">
                     <li>
                       <a href="{% url 'profile_view'%}" class="dropdown-item fw-light link-submenu">Detail Info Saya</a>
@@ -285,11 +285,11 @@
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link me-4 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
+                  <a class="nav-link me-2 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
                 </li>
                 <li class="nav-item">
                   <div>
-                    <a class="nav-link me-4 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
+                    <a class="nav-link me-2 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
                   </div>
                   
                 </li>
