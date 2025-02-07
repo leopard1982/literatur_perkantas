@@ -15,9 +15,9 @@
                 <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
                     <p class="px-2">
                         {% if user.userdetail.photo %}
-                            <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 150px;height: 150px;">
+                            <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 100px;height: 100px;">
                         {% else %}
-                            <img src="{% static 'images/profile.jpeg'%}" class="p-2 shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 150px;height: 150px;">
+                            <img src="{% static 'images/profile.jpeg'%}" class="p-2 shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 100px;height: 100px;">
                         {% endif %}
                     </p>
                     <p>{{updateprofile.photo}}</p>

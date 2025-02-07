@@ -109,7 +109,7 @@
           </svg>
         </div>
         <div class="swiper product-swiper container-fluid">
-          <div class="swiper-wrapper justify-content-center d-flex ">
+          <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
             <div class="swiper-slide shadow" style=" min-width: 150px;height: inherit;">
@@ -244,7 +244,6 @@
     </section>
 
     {% if books_on_sale %}
-
     <div class=" py-3" style="background-color: white; border-top: 1px solid grey;border-bottom: 1px solid grey;">
         {% for book in books_on_sale %}
           {% if forloop.first%}
