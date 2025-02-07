@@ -1,17 +1,17 @@
 {% extends 'base.html'%}
 {% load static %}
 {% block contents %}
-<div class="container  d-flex rounded justify-content-between bg-primary">
-    <p class="fs-6 fw-bold text-white rounded" style="margin-top: 30px;">BUKU KOLEKSIKU</p>
+<div class="container-fluid  d-flex justify-content-between bg-primary" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
+    <p class="fs-5 fw-bold text-white rounded" style="margin-top: 30px;">BUKU KOLEKSIKU</p>
     <p style="margin-top: 10px;"><a href="{% url 'semua_buku_koleksi'%}" class="btn bg-white text-dark fs-6" style="height: 50px;">Koleksiku&rarr;</a></p>
 </div>
-<div class="p-2" style="margin-bottom:20px;border: 1px solid lightgrey;border-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
+<div class="p-3" style="margin-bottom:20px;border: 1px solid lightgrey;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
     <h3 style="text-align: center;">{{book.judul}}</h3>
     <h4 style="text-align: center;">{{book.pengarang}}</h4>
     <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
     
 
-    <div class="justify-content-center d-flex my-3 p-2 rounded shadow">
+    <div class="justify-content-center d-flex my-3 p-2 rounded ">
         <a href="?p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>
         <div class="justify-content-center d-flex">
             <form action="" method="post">
