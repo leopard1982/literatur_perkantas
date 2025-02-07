@@ -12,8 +12,8 @@
                 <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
                     <p class="text-primary fw-bold fs-4">Foto Profil:</p>
                 </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p class="px-2">
+                <div class="col-lg-9 col-md-6col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                    <p class="px-2 text-center w-100">
                         {% if user.userdetail.photo %}
                             <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 100px;height: 100px;">
                         {% else %}
