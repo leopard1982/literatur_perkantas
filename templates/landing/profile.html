@@ -107,9 +107,14 @@
                     <p class="text-primary fw-bold fs-4">Koleksiku:</p>
                 </div>
                 <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2  flex-wrap" style="overflow-wrap: break-word;">
-                    {% for koleksi in koleksiku%}
-                        <a class="m-2" href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" title="klik untuk membaca: {{koleksi.id_book.judul}}" ><span class="p-2 rounded bg-success fs-6 text-white" style="margin-right: 20px;margin-top:10px;">{{koleksi.id_book.judul}}</span></a>
-                    {% endfor %}
+                    <ul>
+                        <li>
+                            {% for koleksi in koleksiku%}
+                                <a  href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" title="klik untuk membaca: {{koleksi.id_book.judul}}" ><span class="p-2 rounded bg-success fs-6 text-white" style="margin-right: 20px;margin-top:10px;">{{koleksi.id_book.judul}}</span></a>
+                            {% endfor %}
+                        </li>
+                    </ul>
+                    
                 </div>
             </div>
         </div>
