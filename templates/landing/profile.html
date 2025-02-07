@@ -110,7 +110,7 @@
                     <ol>
                         {% for koleksi in koleksiku%}
                             <li class="mt-3">        
-                                <a  href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" title="klik untuk membaca: {{koleksi.id_book.judul}}" ><span class="fw-bold fs-6 text-white" style="margin-right: 20px;margin-top:10px;">{{koleksi.id_book.judul}}</span></a>
+                                <a  href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" title="klik untuk membaca: {{koleksi.id_book.judul}}" ><span class="fw-bold fs-6 text-dark" style="margin-right: 20px;margin-top:10px;">{{koleksi.id_book.judul}}</span></a>
                             </li>
                         {% endfor %}    
                     </ol>
