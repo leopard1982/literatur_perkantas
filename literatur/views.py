@@ -17,7 +17,7 @@ import random
 from django.core.files.storage import default_storage
 import os
 from django.core.paginator import Paginator
-
+from .forms import FormUpdateProfile
 
 def resetPassword(request):
     if( request.method == "POST"):
@@ -1059,6 +1059,36 @@ def profileView(request):
             'jml_inbox_message':jml_inbox_message,
         }
         return render(request,'landing/profile.html',context)
+
+    else:
+        messages.add_message(request,messages.SUCCESS,'Untuk bisa melihat profile harus login terlebih dahulu kaka...')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def profileUpdate(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        koleksiku = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+        updateprofile = FormUpdateProfile()
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'koleksiku':koleksiku,
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'jml_inbox_message':jml_inbox_message,
+            'updateprofile':updateprofile
+        }
+        return render(request,'landing/profile_edit.html',context)
 
     else:
         messages.add_message(request,messages.SUCCESS,'Untuk bisa melihat profile harus login terlebih dahulu kaka...')

@@ -69,8 +69,9 @@ class UserDetail(models.Model):
 	total_book = models.PositiveSmallIntegerField(default=0)
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
-	no_whatsapp = models.CharField(max_length=50,default="08123456789")
+	no_whatsapp = models.CharField(max_length=50,default="0")
 	pekerjaan=models.CharField(max_length=50,default="Swasta")
+	alamat = models.CharField(max_length=200,default='jl.')
 
 	def __str__(self):
 		return f"{self.nama_lengkap}"
