@@ -4,7 +4,7 @@
 
 {% block contents %}
 <div class="container mt-3 p-2 border rounded border-primary">
-    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-inbox" aria-hidden="true"></i> Pesan Masuk - <span class="text-primary">{{user.username}}</span> [<span class="text-primary">{{jml_inbox_message}}</span>]</p>
+    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-inbox" aria-hidden="true"></i> Pesan Masuk - <span class="text-primary">{{user.userdetail.nama_lengkap}}</span> [<span class="text-primary">{{jml_inbox_message}}</span>]</p>
     <hr class="border-primary">
     {% if jml_inbox_message > 0 %}
         {% for inbox in halaman %}
