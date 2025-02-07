@@ -112,8 +112,8 @@
           <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
-            <div class="swiper-slide shadow" style=" min-width: 150px;height: inherit;">
-              <div class="newcard card position-relative p-4" >
+            <div class="swiper-slide shadow" style=" min-width: 150px;">
+              <div class="newcard card position-relative p-4 text-center text-lg-start text-md-start" >
                 <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
                   <p class="bg-primary rounded shadow text-white fs-6 " style="min-width: 150px;">
                     disc: {{book.onsalebook.discount|intcomma}}%
@@ -122,16 +122,16 @@
                 
                 <div style="margin-bottom:20px;margin-top:-40px;  " class="text-center">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded w-75"  alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="width: 150px;height: 200px;"   alt="product item">
                   </a>                  
                 </div>
-                <h6 class="mt-4 mb-0 fw-bold text-primary"><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
+                <div class="review-content d-flex justify-content-center justify-content-lg-start justify-content-md-start">
+                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
                   
                 </div>
-                <span class="price text-primary fw-bold mb-2 fs-5"><s style="color: rgba(0,0,0,0.5);"><i>Rp.{{book.price|intcomma}}.00</i></s> Rp.{{book.onsalebook.nett_price|intcomma}} </span>
+                <span style="height: 50px;" class="price text-success fw-bold mb-2 fs-5"><s class="text-primary fs-6"><i>Rp.{{book.price|intcomma}}.00</i></s> Rp.{{book.onsalebook.nett_price|intcomma}} </span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
                   {% if user.is_authenticated%}
                   <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -174,22 +174,22 @@
               </div>
             </div>
             {% else %}
-            <div class="swiper-slide  " style=" min-width: 150px;height: inherit;">
-              <div class="newcard card position-relative p-4   shadow  " >
+            <div class="swiper-slide  " style=" min-width: 150px;">
+              <div class="newcard card position-relative p-4 text-center text-lg-start text-md-start  shadow  " >
                 <div style="margin-bottom:20px;  " class="text-center">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded w-75"  alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="width: 150px;height: 200px;"  alt="product item">
                   </a>                  
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a href="#">{{book.judul}}</a></h6>
-                <div class="review-content d-flex">
-                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
+                <div class="review-content d-flex justify-content-center justify-content-lg-start justify-content-md-start">
+                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
                   
                 </div>
 
-                <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                <span style="height: 50px;" class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
                 <div class="card-concern position-absolute start-0 end-0 d-flex gap-2" >
                   {% if user.is_authenticated%}
                   <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -290,7 +290,7 @@
         <div class=" fw-bold  py-4 px-2 text-center text-primary" >
           <h2>Info Buku</h2>
         </div>
-        <div class="row d-flex justify-content-between">
+        <div class="row d-flex justify-content-center">
           <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
             <div class="featured rounded-3 border p-2 bg-white shadow" >
               <div class="section-title overflow-hidden d-flex justify-content-start align-items-center mt-2"  style="height: 70px;  ">
@@ -510,17 +510,17 @@
         </div>
         <div class="row">
           {% for blog in blogs %}
-            <div class="newcard4 col-md-3 posts mb-4  p-2">
+            <div class="newcard4 col-md-3 posts mb-4  p-2" >
               <div class="bg-white border p-2 rounded text-center">
                 <a href="{% url 'detail_blog' blog.id %}">
-                  <img src="{{blog.image.url}}" alt="post image" class="img-fluid rounded-3">
+                  <img src="{{blog.image.url}}" alt="post image" class="rounded-3" style="height: 150px;width: 250px;">
                 </a>
                 <p class="my-2 fw-bold fs-6">{{blog.tipe}}</p>
-                <h4 class="card-title mb-2 text-capitalize text-dark"><a href="{% url 'detail_blog' blog.id %}">{{blog.header|title}}</a></h4>
-                <a href="{% url 'detail_blog' blog.id %}" class="fs-6 fw-bold" style="font-style: italic;">Oleh: {{blog.author.username|title}}</a>
+                <h4 class="card-title mb-2 text-capitalize text-dark"><a title="{{blog.header|title}}" href="{% url 'detail_blog' blog.id %}">{{blog.header|title|truncatechars:15}}</a></h4>
+                <a href="{% url 'detail_blog' blog.id %}" class="fs-6 fw-bold" style="font-style: italic;">Oleh: {{blog.author.username|title|truncatechars:15}}</a>
                 <br><i><span  style="font-size: 12px;">{{blog.updated_at}}</span></i>
                 
-                <p class="my-2 fs-6 text-start">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>...</i></a></span>
+                <p style="height: 150px;" class="my-2 fs-6 text-start">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>...</i></a></span>
                 </p>
               </div>
               
