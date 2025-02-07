@@ -5,89 +5,89 @@
 <div class="p-2 text-center containerfw-bold h2 text-white bg-primary rounded container mb-5">
     Perbaharui Info Saya
 </div>
-<div class="container">
-    <div class="d-flex justify-content-start row ">
-        <div class="w-100" style=" padding-left: 20px;">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                    <p class="text-primary fw-bold fs-4">Foto Profil:</p>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container">
+        <div class="d-flex justify-content-start row ">
+            <div class="w-100" style=" padding-left: 20px;">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
+                        <p class="text-primary fw-bold fs-4">Foto Profil:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        <p>{{updateprofile.photo}}</p>
+                    </div>
                 </div>
-                <div class="col-lg-9 col-md-6col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p class="px-2 text-center text-lg-start text-md-start">
-                        {% if user.userdetail.photo %}
-                            <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 100px;height: 100px;">
-                        {% else %}
-                            <img src="{% static 'images/profile.jpeg'%}" class="p-2 shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 100px;height: 100px;">
-                        {% endif %}
-                    </p>
-                    <p>{{updateprofile.photo}}</p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
+                        <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>{{updateprofile.nama_lengkap}}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                    <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
+                        <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>
+                            {{updateprofile.birthday}}
+                        </p>
+                    </div>
                 </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p  class="px-2 fw-bold">{{user.userdetail.nama_lengkap|title}}</p>
-                    <p>{{updateprofile.nama_lengkap}}</p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
+                        <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>{{updateprofile.no_whatsapp}}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                    <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
+                        <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>{{updateprofile.pekerjaan}}</p>
+                    </div>
                 </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p  class="px-2 fw-bold">
-                        {% if user.userdetail.birthday %}
-                            {{user.userdetail.birthday|date:"j F Y"}}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
-                    <p>
-                        {{updateprofile.birthday}}
-                    </p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
+                        <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>
+                            {{updateprofile.alamat}}
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p  class="px-2 fw-bold">{{user.userdetail.no_whatsapp}}</p>
-                    <p>{{updateprofile.no_whatsapp}}</p>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p  class="px-2 fw-bold">{{user.userdetail.pekerjaan}}</p>
-                    <p>{{updateprofile.pekerjaan}}</p>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    <p  class="px-2 fw-bold">
-                        {% if user.userdetail.alamat %}
-                            {{user.userdetail.alamat}}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
-                    <p>
-                        {{updateprofile.alamat}}
-                    </p>
+                <div class="row mt-2">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
+                        <p class="text-primary fw-bold fs-4">Review Sahabat Litanas:</p>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
+                        
+                        <p>
+                            {% if user.pagereview.review %}
+                                <input type="text" name="review_litanas" placeholder="silakan masukkan review untuk sahabat litanas..." value="{{user.pagereview.review}}" id="" class="form-control fs-italic fs-6">
+                            {% else %}
+                                <input type="text" name="review_litanas" placeholder="silakan masukkan review untuk sahabat litanas..." id="" class="form-control fs-italic fs-6">
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="text-center mt-4">
+            <input type="submit" value="Konfirmasi Pembaharuan" class="btn">
+        </div>
     </div>
-    <div class="text-center mt-4">
-        <a href="#" class="btn">Konfirmasi Pembaharuan</a>
-    </div>
-</div>
+</form>
+
 {% endblock %}

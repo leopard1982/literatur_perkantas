@@ -1067,13 +1067,89 @@ def profileView(request):
 def profileUpdate(request):
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
+        if request.method == "POST":
+            formnya = FormUpdateProfile(data=request.POST,files=request.FILES)
+            if formnya.is_valid():
+                try:
+                    # simpan file foto ke dalam uuid format
+                    nama_file = str(uuid.uuid4())
+                    #dapatkan extension file
+                    extension = request.FILES['photo'].name.split('.')[1]
+
+                    file = request.FILES['photo']
+                    filename=default_storage.save(f"{nama_file}.{extension}",file)
+                except:
+                    file = None
+                    filename=""
+                updateprofile = UserDetail.objects.get(user=user)
+                updateprofile.nama_lengkap = request.POST['nama_lengkap']
+                updateprofile.no_whatsapp = request.POST['no_whatsapp']
+                updateprofile.pekerjaan = request.POST['pekerjaan']
+                updateprofile.alamat = request.POST['alamat']
+                
+                # jika tanggal lahir ada maka simpan
+                if(request.POST['birthday']):
+                    tgl = int(request.POST['birthday'].split('-')[2])
+                    bulan = int(request.POST['birthday'].split('-')[1])
+                    tahun = int(request.POST['birthday'].split('-')[0])
+                    updateprofile.birthday = datetime.date(tahun,bulan,tgl)
+                
+                # jika foto ada simpan
+                if(file):
+                    updateprofile.photo = filename
+                # simpan perubahan
+                updateprofile.save()
+
+                # kirim pesan inbox kalau ada perubahan page review
+                inbox = inboxMessage()
+                inbox.header="Perubahan Profil"
+                inbox.body = f"Perubahan Data Profil  untuk {user.userdetail.nama_lengkap} sudah disimpan pada {datetime.datetime.now()}"
+                inbox.user=user
+                inbox.save()
+
+                #sekarang simpan untuk review page
+                if(request.POST['review_litanas']):
+                    try:
+                        # coba untuk dapatkan pagereview
+                        pagereview = PageReview.objects.get(user=user)
+                        if pagereview.review != request.POST['review_litanas']:
+                            pagereview.review=request.POST['review_litanas']
+                            pagereview.save()
+                            # kirim pesan inbox kalau ada perubahan page review
+                            inbox = inboxMessage()
+                            inbox.header="Page Review"
+                            inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} sudah berubah menjadi: {request.POST['review_litanas']} pada {datetime.datetime.now()}"
+                            inbox.user=user
+                            inbox.save()
+                            messages.add_message(request,messages.SUCCESS,"Untuk Page Review Dilakukan Perubahan")
+                    except:
+                        # kalau tidak ada maka akan buat pagereview baru
+                        pagereview = PageReview()
+                        pagereview.user=user
+                        pagereview.review=request.POST['review_litanas']    
+                        pagereview.is_active=True
+                        pagereview.save()      
+                        messages.add_message(request,messages.SUCCESS,"Untuk Page Review Sudah Bershasil Disimpan dan  Aktif")
+                        
+                        # kirim pesan inbox kalau ada perubahan page review
+                        inbox = inboxMessage()
+                        inbox.header="Page Review"
+                        inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} berhasil disimpan pada {datetime.datetime.now()}. Kaka bisa melihat di bagian Review Sahabat."
+                        inbox.user=user
+                        inbox.save()
+                        messages.add_message(request,messages.SUCCESS,"Info Saya Berhasil Diperbaharui...")
+            else:
+                messages.add_message(request,messages.SUCCESS,"Info Saya Gagal Diperbaharui...")
+            return HttpResponseRedirect('/profile/')
+
         koleksiku = UserBook.objects.all().filter(id_user=user)
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         inbox_message = inboxMessage.objects.all().filter(user=user)
         jml_inbox_message = inbox_message.count()
-        updateprofile = FormUpdateProfile()
+        userdetail = UserDetail.objects.get(user=user)
+        updateprofile = FormUpdateProfile(instance=userdetail)
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
         except:
