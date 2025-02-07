@@ -9,9 +9,9 @@
     <div class="d-flex justify-content-start row ">
         <div style="padding-right: 20px;" class="py-3 d-flex justify-content-center">
             {% if user.userdetail.photo %}
-                <img src="{{user.userdetail.photo.url }}" class="shadow rounded-circle border-white border" alt="foto profile"  style="width: 150px;height: 150px;">
+                <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 150px;height: 150px;">
             {% else %}
-                <img src="{% static 'images/profile.jpeg'%}" class="shadow  border-white border"  alt="foto profile"  style="width: 150px;height: 150px;">
+                <img src="{% static 'images/profile.jpeg'%}" class="p-2 shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 150px;height: 150px;">
             {% endif %}
         </div>
         <div class="d-flex justify-content-center mb-3" >
