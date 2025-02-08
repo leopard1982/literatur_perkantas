@@ -577,9 +577,15 @@
               {% for review in page_review %}
                 <div class="swiper-slide" style="border:1px solid lightgrey !important;">              
                     <div class="card position-relative text-left p-5 border rounded-3">
-                      <blockquote>"{{review.review}}"</blockquote>
-                      <h5 class="mt-1 fw-bold" style="font-size: 16px;">{{review.user.userdetail.nama_lengkap}} <br><span class="text-lowercase mt-3 mb-3" style="font-size: 14px;font-weight:normal;"><i>({{review.user.username}})</i></span></h5>
-                      <p style="font-size: 12px;font-style: italic;margin-top:-5px">{{review.updated_at|date:"j F Y"}}, {{review.updated_at|date:"H:i:s"}}</p>
+                      <blockquote class="lead">"{{review.review}}"</blockquote>
+                      <hr>
+                      <div class="d-flex justify-content-start align-items-start">
+                        <div>
+                          <h5 class="mt-1 fw-bold" style="font-size: 16px;">{{review.user.userdetail.nama_lengkap}} <br><span class="text-lowercase mt-3 mb-3" style="font-size: 14px;font-weight:normal;"><i>({{review.user.username}})</i></span></h5>
+                          <p style="font-size: 12px;font-style: italic;margin-top:-5px">{{review.updated_at|date:"j F Y"}}, {{review.updated_at|date:"H:i:s"}}</p>
+                        </div>
+                      </div>
+                      
                     </div>
                 </div>
               {% endfor %}
