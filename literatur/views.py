@@ -478,20 +478,35 @@ def addCartList(request,id):
             book = Books.objects.get(id=id)
             try:
                 try:
+                    # cek apakah buku tersebut sudah ada di dalam koleksi?
                     userbook = UserBook.objects.get(Q(id_user=user) & Q(id_book=book))
                     messages.add_message(request,messages.SUCCESS,f"Kaka sudah pernah membeli buku {book.judul} ini. Silakan cek kembali di Koleksiku yah...")
                 except:
-                    try:
-                        MyWishlist.objects.all().filter(Q(book=book) & Q(user=user)).delete()
-                        mycart = MyCart()
-                        mycart.user=user
-                        mycart.book=book
-                        mycart.is_checked=False
-                        mycart.save()
-                        messages.add_message(request,messages.SUCCESS,"Buku berhasil ditambahkan ke keranjang..")
-                    except Exception as ex:
-                        print(ex)
-                        messages.add_message(request,messages.SUCCESS,'Buku berhasil ditambahkan ke keranjang..')
+                    # ternyata buku belum ada di koleksi, kita cek apakah sudah ada di dalam payment dengan status
+                    # masih proses? jika di temukan status is_waiting=True
+                    is_waiting=False
+                    mypayment = MyPayment.objects.all().filter(Q(user=user) & Q(is_verified=False) & Q(is_canceled=False))
+                    for pay in mypayment:
+                        mypaymentdetail = MyPaymentDetail.objects.all().filter(payment=pay)
+                        for detail in mypaymentdetail:
+                            if detail.book == book:
+                                is_waiting=True
+                    
+                    # pengecekan apakah is_waiting == True
+                    if is_waiting:
+                        messages.add_message(request,messages.SUCCESS,f"Buku masih dalam proses verifikasi pembelian oleh admin dengan nomor invoice: {detail.payment.payment} jadi tidak bisa masuk keranjang.")
+                    else:
+                        try:
+                            MyWishlist.objects.all().filter(Q(book=book) & Q(user=user)).delete()
+                            mycart = MyCart()
+                            mycart.user=user
+                            mycart.book=book
+                            mycart.is_checked=False
+                            mycart.save()
+                            messages.add_message(request,messages.SUCCESS,"Buku berhasil ditambahkan ke keranjang..")
+                        except Exception as ex:
+                            print(ex)
+                            messages.add_message(request,messages.SUCCESS,'Buku berhasil ditambahkan ke keranjang..')
             except Exception as ex:
                 print(ex)
                 messages.add_message(request,messages.SUCCESS,"Ups.. ada masalah di server, silakan ulangi lagi kembali...")
@@ -817,9 +832,20 @@ def paymentProcess(request):
                 for cart in mycart:
                     try:
                         book = Books.objects.get(id=cart.book.id)
+                        price=0
+                        # pengecekan harga buku
+                        # apakah merupakan buku on sale?
+                        try:
+                            onsalebook = OnSaleBook.objects.get(book=book)
+                            # jika onsale maka dikasih harga nett nya
+                            price = onsalebook.nett_price
+                        except:
+                            # jika tidak dikasih harga asli
+                            price = book.price
                         paymentdetail = MyPaymentDetail()
                         paymentdetail.payment=mypayment
                         paymentdetail.book=book
+                        paymentdetail.harga=price
                         paymentdetail.save()
                     except Exception as ex:
                         print(ex)

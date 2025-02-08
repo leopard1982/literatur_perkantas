@@ -27,7 +27,7 @@
     {% block mystyling %} {%endblock%}
     <style>
       .link-underline:hover {
-        background-color: rgba(255,0, 0,0.5);
+        background-color: rgba(255,0,0,0.5);
         border-radius: 5px;
         /* padding: 5px; */
         color:white !important;
@@ -35,7 +35,7 @@
         /* font-size: 13.5px !important; */
       }
       .link-submenu:hover {
-        border-bottom: 2px solid rgba(255,0,0,0.5);
+        border-bottom: 2px solid rgba(255,0,0,0.8);
         transition-duration: 0.3s;
         color: rgba(255,0,0,0.8);
         font-weight: bold !important;
@@ -265,13 +265,38 @@
               <ul id="navbar"
                 class="navbar-nav text-uppercase justify-content-start  mx-3 align-items-start align-items-lg-center flex-grow-1">
                 <li class="nav-item">
-                  <a class="nav-link me-2 active link-underline" href="{% url 'main_page'%}">Home</a>
+                  <a class="nav-link me-2 active link-underline " href="{% url 'main_page'%}">Home</a>
                 </li>                
+                
+                <li class="nav-item">
+                  <a class="nav-link me-2 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
+                </li>
+                <li class="nav-item">
+                  <div>
+                    <a class="nav-link me-2 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
+                  </div>
+                </li>
                 {% if user.is_authenticated%}
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown border-white " >
                   <a class="nav-link me-2 dropdown-toggle link-underline" data-bs-toggle="dropdown" href="#" role="button"
-                    aria-expanded="false">Profil</a>
-                  <ul class="dropdown-menu animate slide border">
+                    aria-expanded="false">
+                    Profil
+                  </a>
+                  <ul class="dropdown-menu animate slide border" style="box-shadow: 5px 5px 5px lightgrey;border-radius: 0px !important;">
+                    <li class="bg-primary mb-3" style="height: 60px; width: 300px;">
+                      <div class="d-flex justify-content-center align-items-center">
+                        {% if user.userdetail.photo %}
+                            <img src="{{user.userdetail.photo.url }}" class="shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 80px;height: 80px;margin-top: -15px;">
+                        {% else %}
+                            <img src="{% static 'images/profile.jpeg'%}" class="shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 80px;height: 80px;margin-top: -15px;">
+                        {% endif %}
+                        <p class="fs-6 fw-bold text-white pt-2" style="margin-left: 5px;">
+                          {{user.userdetail.nama_lengkap|truncatechars:18}}<br>
+                          <span style="font-size: 10px;font-style: italic;font-weight: normal;" class="text-lowercase">{{user.username}}</span>
+                        </p>
+                      </div>
+
+                    </li>
                     <li>
                       <a href="{% url 'profile_view'%}" class="dropdown-item fw-light link-submenu">Detail Info Saya</a>
                     </li>
@@ -284,15 +309,6 @@
                   </ul>
                 </li>
                 {% endif %}
-                <li class="nav-item">
-                  <a class="nav-link me-2 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
-                </li>
-                <li class="nav-item">
-                  <div>
-                    <a class="nav-link me-2 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
-                  </div>
-                  
-                </li>
               </ul>
               <div class="user-items shadow bg-white d-flex mt-xs-5 mt-sm-5 mt-md-0 mt-lg-0 justify-content-evenly p-2 border border-primary rounded">
                 <ul class="d-flex justify-content-end list-unstyled mb-0 ">

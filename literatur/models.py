@@ -78,7 +78,7 @@ class UserDetail(models.Model):
 	
 	def save(self,*args,**kwargs):
 		# extract kalau ada inputan bukan angka difiliter
-		nowa = re.findall('\d+',self.no_whatsapp)
+		nowa = re.findall('\\d+',self.no_whatsapp)
 		# simpan kembali no whatsapp mengunakan angka saja.
 		self.no_whatsapp="".join(nowa)
 		super(UserDetail,self).save(*args,**kwargs)
@@ -264,6 +264,7 @@ class MyPaymentDetail(models.Model):
 	payment = models.ForeignKey(MyPayment,on_delete=models.CASCADE)
 	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
 	is_active = models.BooleanField(default=False)
+	harga = models.DecimalField(decimal_places=2,max_digits=30,default=0)
 
 	def __str__(self):
 		return f"{self.payment.payment} - {self.book.judul}"
