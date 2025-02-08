@@ -1180,8 +1180,9 @@ def listPayment(request):
         mycart = MyCart.objects.all().filter(user=user)
         inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
         jml_inbox_message = inbox_message.count()
-        mypayment = MyPayment.objects.all().filter(user=user)
+        mypayment = MyPayment.objects.all().filter(user=user).order_by('-created_at')
         jml_mypayment = mypayment.count()
+        mypaymentdetail = MyPaymentDetail.objects.all().filter(payment__in=mypayment)
 
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -1198,7 +1199,8 @@ def listPayment(request):
             'jml_inbox_message':jml_inbox_message,
             'inbox_message':inbox_message,
             'mypayment':mypayment,
-            'jml_mypayment':jml_mypayment
+            'jml_mypayment':jml_mypayment,
+            'mypaymentdetail':mypaymentdetail
         }
         return render(request,'landing/detail-payment.html',context)
     else:

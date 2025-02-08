@@ -18,10 +18,18 @@
                             <img src="/media/{{payment.bukti}}" alt="bukti bayar" class="w-100 rounded p-2 border shadow">
                         </div>
                         <div class="col-9">
-                            <p>Nomor Invoice Pembelian: <b>{{payment.payment}}</b></p>
-                            <p>Tanggal Transaksi: <b>{{payment.created_at|date:"d F Y"}}, pukul {{payment.created_at|date:"h:i"}}</b></p>
+                            <p>Nomor Invoice : <b>{{payment.payment}}</b></p>
+                            <p>Tanggal : <b>{{payment.created_at|date:"d F Y"}}, {{payment.created_at|date:"h:i"}} WIB</b></p>
                             <p>Jumlah Pembayaran: <b>Rp. {{payment.total|intcomma}}</b></p>
-                            <p>Jumlah Buku: <b>{{payment.jumlah_buku}}</b></p>
+                            <p>Jumlah Buku: <b>{{payment.jumlah_buku}}</b><br>
+                                <ol class="fs-6 " style="border-left: 1px solid grey; margin-left:20px">
+                                    {% for detail in mypaymentdetail%}
+                                        {% if detail.payment == payment%}
+                                            <li class="px-2"><b class="fs-6 text-success fw-bold">{{detail.book.judul}}</b></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ol>
+                            </p>
                             <p>Status:
                                 {% if payment.is_verified == False  and payment.is_canceled == False %}
                                     <span class="text-info fw-bold">Sedang Diproses</span>
@@ -30,12 +38,12 @@
                                 {% if payment.is_verified  %}
                                     <span class="text-success fw-bold">Disetujui</span><br>
                                     <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
-                                    <span class="fs-6 px-3">Diproses Pada: <b>{{payment.updated_at|date:"d F Y"}}, pukul {{payment.updated_at|date:"h:i"}}</b></span>
+                                    <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
                                 {% endif %}
                                 {% if payment.is_canceled  %}
                                     <span class="text-warning fw-bold">Ditolak</span><br>
                                     <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
-                                    <span class="fs-6 px-3">Diproses Pada: <b>{{payment.updated_at|date:"d F Y"}}, pukul {{payment.updated_at|date:"h:i"}}</b></span>
+                                    <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
                                     <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
                                 {% endif %}
                             </p>
