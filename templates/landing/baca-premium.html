@@ -1,9 +1,11 @@
 {% extends 'base.html'%}
 {% load static %}
 {% block contents %}
-<div class="container-fluid  d-flex justify-content-between bg-primary" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
-    <p class="fs-5 fw-bold text-white rounded" style="margin-top: 30px;">BUKU KOLEKSIKU</p>
-    <p style="margin-top: 10px;"><a href="{% url 'semua_buku_koleksi'%}" class="btn bg-white text-dark fs-6" style="height: 50px;">Koleksiku&rarr;</a></p>
+<div class=" container-fluid  bg-primary p-2" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
+    <div class="row  d-flex justify-content-between">
+        <div class="col-6 fs-5 fw-bold text-white rounded d-flex align-items-center justify-content-start">BUKU KOLEKSIKU</div>
+        <div class="col-6 d-flex align-items-center justify-content-end"><a href="{% url 'semua_buku_koleksi'%}" class="btn bg-white text-dark fs-6" style="height: 60px;">Koleksiku&rarr;</a></div>
+    </div>
 </div>
 <div class="p-3" style="margin-bottom:20px;border: 1px solid lightgrey;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
     <h3 style="text-align: center;">{{book.judul}}</h3>
