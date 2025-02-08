@@ -1,12 +1,14 @@
 {% extends 'base.html'%}
 {% load static %}
 {% block contents %}
+<div class=" container-fluid  bg-primary p-2" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
+        <div class="col-12 fs-5 fw-bold text-white rounded d-flex align-items-center justify-content-center">Preview Sampul</div>
+</div>
 <div class="p-2" style="margin-bottom:20px;border: 1px solid lightgrey;border-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
     <h3 style="text-align: center;">{{book.judul}}</h3>
     <h4 style="text-align: center;">{{book.pengarang}}</h4>
 
     {% if max_page == 5 %}
-        <h5 style="text-align: center;">[ <b>Preview Sampul</b> ]</h5>
         <h5 style="font-size: 15px; text-align: center;font-style: italic;">
             Untuk Bisa Membaca Seluruh Buku Silakan Berlangganan Terlebih Dahulu <br>
             Preview Sampul Maksimal 5 Halaman Pertama
