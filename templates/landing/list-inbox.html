@@ -36,7 +36,7 @@
             <span class="mx-2 p-2"><a href="{% url 'list_inbox_message' %}?h={{next_page}}">&rarr;</a></span>
         </div>
     {% else %}
-    <p style="font-style: italic;">Belum ada pesan masuk untuk {{user.username}}...</p>
+    <p style="font-style: italic;">Belum ada pesan masuk untuk {{user.userdetail.nama_lengkap|title}}...</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -248,13 +248,13 @@
         {% for book in books_on_sale %}
           {% if forloop.first%}
             <div class="row d-flex justify-content-center">
-              <div class="col-3">
+              <div class="col-2">
 
               </div>
               <div class="col-lg-3 col-md-3 col-sm-12 col-12">
                   <div class=" px-2 d-flex justify-content-center"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-100 rounded border " style="height: 450px !important" alt="..."></div>
               </div>
-              <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2  text-lg-start text-md-start text-sm-center text-center text-xs-center">
+              <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 p-2  text-lg-start text-md-start text-sm-center text-center text-xs-center">
                 <p>
                   <h2 class="text-primary">Promo Hari Ini!</h2>
                 </p>
@@ -276,7 +276,7 @@
                   <a href="{% url 'all_book_view'%}?k=12" class="btn small fw-bold">Cek Promo Sekarang!</a>
                 </p>
               </div>
-              <div class="col-3">
+              <div class="col-2">
 
               </div>
             </div>

@@ -1,0 +1,54 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load humanize %}
+
+{% block contents %}
+<div class="container mt-3 p-2 border rounded border-primary">
+    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-credit-card" aria-hidden="true"></i> Detail Pembelian - <span class="text-primary">{{user.userdetail.nama_lengkap}}</span> [<span class="text-primary">{{jml_mypayment}}</span>]</p>
+    <hr class="border-primary">
+    
+    {% if mypayment %}
+        <div class="row">
+            {% for payment in mypayment %}
+                <div class="col-1 text-end p-2">{{forloop.counter}}</div>
+                <div class="col-10 p-2 mx-1">
+                    <div class="row  rounded p-2" style="border: 1px solid grey;">
+                        <div class="col-3 p-2" style="border-right: 1px solid grey;">
+                            <p>Bukti Bayar:</p>
+                            <img src="/media/{{payment.bukti}}" alt="bukti bayar" class="w-100 rounded p-2 border shadow">
+                        </div>
+                        <div class="col-9">
+                            <p>Nomor Invoice Pembelian: <b>{{payment.payment}}</b></p>
+                            <p>Tanggal Transaksi: <b>{{payment.created_at|date:"d F Y"}}, pukul {{payment.created_at|date:"h:i"}}</b></p>
+                            <p>Jumlah Pembayaran: <b>Rp. {{payment.total|intcomma}}</b></p>
+                            <p>Jumlah Buku: <b>{{payment.jumlah_buku}}</b></p>
+                            <p>Status:
+                                {% if payment.is_verified == False  and payment.is_canceled == False %}
+                                    <span class="text-info fw-bold">Sedang Diproses</span>
+                                    <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
+                                {% endif %}
+                                {% if payment.is_verified  %}
+                                    <span class="text-success fw-bold">Disetujui</span><br>
+                                    <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
+                                    <span class="fs-6 px-3">Diproses Pada: <b>{{payment.updated_at|date:"d F Y"}}, pukul {{payment.updated_at|date:"h:i"}}</b></span>
+                                {% endif %}
+                                {% if payment.is_canceled  %}
+                                    <span class="text-warning fw-bold">Ditolak</span><br>
+                                    <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
+                                    <span class="fs-6 px-3">Diproses Pada: <b>{{payment.updated_at|date:"d F Y"}}, pukul {{payment.updated_at|date:"h:i"}}</b></span>
+                                    <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
+                                {% endif %}
+                            </p>
+                            {% if payment.is_verified %}
+                            
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>    
+    {% else %}
+    <p style="font-style: italic;">Ka {{user.detailuser.nama_lengkap|title}}...</p>
+    {% endif %}
+</div>
+{% endblock %}

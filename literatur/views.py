@@ -1169,3 +1169,37 @@ def profileUpdate(request):
     else:
         messages.add_message(request,messages.SUCCESS,'Untuk bisa melihat profile harus login terlebih dahulu kaka...')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def listPayment(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+        mycart = MyCart.objects.all().filter(user=user)
+        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
+        jml_inbox_message = inbox_message.count()
+        mypayment = MyPayment.objects.all().filter(user=user)
+        jml_mypayment = mypayment.count()
+
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        
+        context = {
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'mycart':mycart,
+            'jml_dibeli':jml_dibeli,
+            'jml_inbox_message':jml_inbox_message,
+            'inbox_message':inbox_message,
+            'mypayment':mypayment,
+            'jml_mypayment':jml_mypayment
+        }
+        return render(request,'landing/detail-payment.html',context)
+    else:
+        return HttpResponseRedirect('/')
