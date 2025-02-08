@@ -267,7 +267,7 @@
                   Discount: <span class="fw-bold text-success">{{book.discount}}%</span>
                 </p>
                 <p>
-                  Harga Sekarang: <span class="fw-bold text-success">Rp.{{book.nett_price|intcomma}}.00</span>
+                  Harga Sekarang: <span class="fw-bold text-success">Rp.{{book.nett_price|intcomma}}</span>
                 </p>
                 <p>
                   Promo Sampai: <span class="fw-bold">{{book.end_date|date:"j F Y"}}</span>
@@ -435,7 +435,7 @@
       </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-small bg-white">
+    <section id="best-selling-items" class="position-relative padding-small bg-white" style="z-index: -1;">
       <div class="container p-3  rounded rounded-top ">
         <div class="section-title  rounded mb-4   p-2">
           <div class="text-center d-flex justify-content-center">
@@ -560,7 +560,7 @@
     </section>
 
     <section id="customers-reviews" class="position-relative padding-large"
-      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 650px;margin-top:-50px;">
+      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 650px;margin-top:-50px;z-index: -1;">
       <div class="container offset-md-3 col-md-6 ">
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
