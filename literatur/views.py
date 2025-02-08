@@ -800,7 +800,7 @@ def paymentProcess(request):
                 mypayment = MyPayment()
                 mypayment.payment=id_payment
                 mypayment.user=user
-                mypayment.total=int(nilai_bayar)
+                mypayment.total=float(nilai_bayar)
                 mypayment.bukti=filenya
                 mypayment.jumlah_buku=jumlah_buku
                 mypayment.save()
