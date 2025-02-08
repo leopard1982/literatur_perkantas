@@ -113,7 +113,7 @@
           {% for book in books_best_seller %}
             {% if book.onsalebook %}  
             <div class="swiper-slide shadow" style=" min-width: 150px;">
-              <div class="newcard card position-relative p-1 text-center text-lg-start text-md-start" >
+              <div class="newcard card position-relative p-1 text-center " >
                 <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
                   <p class="bg-primary rounded shadow text-white fs-6 " style="min-width: 150px;">
                     disc: {{book.onsalebook.discount|intcomma}}%
@@ -126,7 +126,7 @@
                   </a>                  
                 </div>
                 <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
-                <div class="review-content d-flex justify-content-center justify-content-lg-start justify-content-md-start">
+                <div class="review-content d-flex justify-content-center ">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
                   
@@ -175,7 +175,7 @@
             </div>
             {% else %}
             <div class="swiper-slide  " style=" min-width: 150px;">
-              <div class="newcard card position-relative p-1 text-center text-lg-start text-md-start  shadow  " >
+              <div class="newcard card position-relative p-1 text-center   shadow  " >
                 <div style="margin-bottom:20px;  " class="text-center">
                   <a href="{% url 'sinopsis_buku' book.id %}">
                     <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="width: 150px;height: 200px;"  alt="product item">
@@ -183,7 +183,7 @@
                 </div>
 
                 <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
-                <div class="review-content d-flex justify-content-center justify-content-lg-start justify-content-md-start">
+                <div class="review-content d-flex justify-content-center ">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
                   
@@ -458,9 +458,9 @@
                   <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100" style="border:1px solid lightgrey" alt="product item">
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold text-center fs-5" ><a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-center fs-5" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:15}}</a></h6>
                 <div class="review-content ">
-                  <p class=" text-black text-center fs-6">Oleh: {{book.pengarang}}</p>
+                  <p class=" text-black text-center fs-6" title="oleh: {{book.pengarang}}">Oleh: {{book.pengarang|truncatechars:20}}</p>
                 </div>
                 <div class="card-concern position-absolute start-0 end-0 text-center gap-2" >
                   <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
