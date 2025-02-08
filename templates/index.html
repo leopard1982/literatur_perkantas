@@ -248,11 +248,11 @@
         {% for book in books_on_sale %}
           {% if forloop.first%}
             <div class="row d-flex justify-content-center">
-              <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                  <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12"></div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 px-2 d-flex justify-content-center"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-100 rounded border " style="height: 450px !important" alt="..."></div>
-                  </div>
+              <div class="col-3">
+
+              </div>
+              <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                  <div class=" px-2 d-flex justify-content-center"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-100 rounded border " style="height: 450px !important" alt="..."></div>
               </div>
               <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2  text-lg-start text-md-start text-sm-center text-center text-xs-center">
                 <p>
@@ -275,6 +275,9 @@
                 <p>
                   <a href="{% url 'all_book_view'%}?k=12" class="btn small fw-bold">Cek Promo Sekarang!</a>
                 </p>
+              </div>
+              <div class="col-3">
+
               </div>
             </div>
           {% endif %}
@@ -557,7 +560,7 @@
     </section>
 
     <section id="customers-reviews" class="position-relative padding-large"
-      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 600px;margin-top:-50px;">
+      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 650px;margin-top:-50px;">
       <div class="container offset-md-3 col-md-6 ">
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
