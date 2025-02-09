@@ -215,11 +215,11 @@ def mainPage(request):
 
     page_review = PageReview.objects.all().filter(is_active=True).order_by('-updated_at')
 
-    featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:6]
+    featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:4]
     category = Category.objects.all()
     OnSaleBook.objects.all().filter(end_date__lt=datetime.datetime.now()).delete()
     #id category=3 adalah freebook
-    books_best_seller = Books.objects.all().filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).order_by('-updated_at')[:4]
+    books_best_seller = Books.objects.all().filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).order_by('-updated_at')[:6]
     books = Books.objects.all().order_by('-updated_at')[:4]
     jml_on_sale = OnSaleBook.objects.all().count()
     books_on_sale = OnSaleBook.objects.all().order_by('-updated_at')[:4]
