@@ -92,6 +92,15 @@ def verifyLinkLupaPassword(request,id):
                 except Exception as ex:
                     messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
                     print(ex)
+
+                # buat pesan inbox
+                # kirimkan pesan notifikasi inbox
+                inbox = inboxMessage()
+                inbox.header="Reset Password Berhasil"
+                inbox.body = f"Reset Password ka {user.userdetail.nama_lengkap} berhasil pada {datetime.datetime.now()}. Untuk detail password baru bisa dilihat pada email yang terdaftar. Terima kasih."
+                inbox.user=user
+                inbox.save()
+
             except Exception as ex:
                 print(ex)
                 # messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
