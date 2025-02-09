@@ -296,7 +296,7 @@ class OnSaleBook(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def save(self,*args,**kwargs):
-		self.nett_price=self.book.price-self.discount*self.book.price/100
+		self.nett_price=int(self.book.price-self.discount*self.book.price/100)
 		super(OnSaleBook,self).save(*args,**kwargs)
 
 

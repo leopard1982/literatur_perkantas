@@ -37,12 +37,10 @@
                                 {% endif %}
                                 {% if payment.is_verified  %}
                                     <span class="text-success fw-bold">Disetujui</span><br>
-                                    <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
                                     <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
                                 {% endif %}
                                 {% if payment.is_canceled  %}
                                     <span class="text-warning fw-bold">Ditolak</span><br>
-                                    <span class="fs-6 px-3">Pemroses: <b>{{payment.pemroses}}</b></span><br>
                                     <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
                                     <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
                                 {% endif %}

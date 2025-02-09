@@ -530,9 +530,9 @@ def cartView(request):
         for cart in mycart.filter(is_checked=True):
             try:
                 onsalebook = OnSaleBook.objects.get(Q(book=cart.book) & Q(is_active=True))
-                total_payment+=float(onsalebook.nett_price)
+                total_payment+=int(onsalebook.nett_price)
             except:
-                total_payment+=float(cart.book.price)
+                total_payment+=int(cart.book.price)
 
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -815,7 +815,7 @@ def paymentProcess(request):
                 mypayment = MyPayment()
                 mypayment.payment=id_payment
                 mypayment.user=user
-                mypayment.total=float(nilai_bayar)
+                mypayment.total=int(nilai_bayar)
                 mypayment.bukti=filenya
                 mypayment.jumlah_buku=jumlah_buku
                 mypayment.save()
@@ -845,7 +845,7 @@ def paymentProcess(request):
                         paymentdetail = MyPaymentDetail()
                         paymentdetail.payment=mypayment
                         paymentdetail.book=book
-                        paymentdetail.harga=price
+                        paymentdetail.harga=int(price)
                         paymentdetail.save()
                     except Exception as ex:
                         print(ex)
@@ -891,7 +891,7 @@ def paymentProcess(request):
                     total_bayar+=book.price
             except:
                 total_bayar+=cart.book.price
-
+        total_bayar = f"{int(total_bayar)}.00"
         context = {
                 'mywishlist':mywishlist,
                 'jumlahwishlist':jml_wishlist,
