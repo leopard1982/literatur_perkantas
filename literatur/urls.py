@@ -2,7 +2,7 @@ from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
 from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog,paymentProcess
-from .views import bacaBukuKoleksi, allKoleksiView,profileView,profileUpdate,listPayment
+from .views import bacaBukuKoleksi, allKoleksiView,profileView,profileUpdate,listPayment,gantiPasswordPage
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -26,6 +26,7 @@ urlpatterns = [
     path('blogs/<str:id>/',detailBlog,name="detail_blog"),
     path('buy/', paymentProcess,name="payment_process"),
     path('profile/',profileView,name="profile_view"),
+    path('profile/p/',gantiPasswordPage,name="ganti_password_page"),
     path('profile/e/',profileUpdate,name="profile_update"),
     path('buy/list/', listPayment,name="list_payment"),
 ]

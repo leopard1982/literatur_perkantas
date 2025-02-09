@@ -30,7 +30,7 @@ def resetPassword(request):
 
             #send email again
             subject = "Reset Password"
-            message = f"\n Untuk Reset Password silakan klik pada link:. \n \n https://literatur.pythonanywhere.com/forgot/{lupapassword.id}/ \n \n \n Link ini hanya berlaku 1 jam \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+            message = f"\nUntuk Reset Password silakan klik pada link:. \n\nhttps://literatur.pythonanywhere.com/forgot/{lupapassword.id}/ \n\n\nLink ini hanya berlaku 1 jam \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
             from_email = settings.DEFAULT_FROM_EMAIL
             try:
                 send_mail(
@@ -77,7 +77,7 @@ def verifyLinkLupaPassword(request,id):
                 
                 #send email again
                 subject = "Password Baru"
-                message = f"\n Hallo Ka selamat untuk email {resetemail.email} memiliki password baru: {password} \n \n Password bisa kaka ganti. \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                message = f"\nHallo Ka selamat untuk email {resetemail.email} memiliki password baru: {password} \n\nPassword bisa kaka ganti sesuai keinginan kaka setelah berhasil login. \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
                 from_email = settings.DEFAULT_FROM_EMAIL
                 try:
                     send_mail(
@@ -166,7 +166,7 @@ def mainPage(request):
                 
                 #send email again
                 subject = "Initial Email dan Password"
-                message = f"\n Hallo Ka selamat untuk email {email} sudah terdaftar di Litanas Perkantas Nasional!. \n \n Terlampir Username dan Password yang bisa kaka pakai: \n \n \n ****** \n Username (email): {email} \n Password: {password1} \n ****** \n \n \n Terima kasih dan Tuhan memberkati! \n \n \n Salam, \n \n \n Literatur Perkantas Nasional \n \n \n Tautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                message = f"\nHallo Ka, selamat untuk email {email} sudah terdaftar di Litanas Perkantas Nasional!. \n\nTerlampir Username dan Password yang bisa kaka pakai: \n\n\n******\nUsername: {email}\nPassword: {password1} \n******\n\nMohon Username dan Password disimpan dan jangan diberikan kepada pihak manapun karena bersifat rahasia.\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
                 from_email = settings.DEFAULT_FROM_EMAIL
                 try:
                     send_mail(
@@ -1133,6 +1133,8 @@ def profileUpdate(request):
                 inbox.user=user
                 inbox.save()
 
+                messages.add_message(request,messages.SUCCESS,"Info Saya Berhasil Diperbaharui...")
+
                 #sekarang simpan untuk review page
                 if(request.POST['review_litanas']):
                     try:
@@ -1231,3 +1233,82 @@ def listPayment(request):
         return render(request,'landing/detail-payment.html',context)
     else:
         return HttpResponseRedirect('/')
+
+def gantiPasswordPage(request):
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+
+        if request.method=="POST":
+            password_lama = request.POST['password_lama']
+            password_baru = request.POST['password_baru']
+            password_konfirmasi = request.POST['password_konfirmasi']
+
+            # cek apakah password lama sama
+            cek = user.check_password(password_lama)
+            if(cek):
+                # apakah password baru dan konfirmasinya sama?
+                if password_baru != password_konfirmasi:
+                    # jika tidak tampilkan pesan tidak sesuai
+                    messages.add_message(request,messages.SUCCESS,'Password Baru dan Konfirmasinya Tidak Sesuai, Mohon ulangi kembali...')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                else:
+                    # jika sama maka diset passwordnya
+                    user.set_password(password_baru)
+                    # simpan credential baru
+                    user.save()
+                    # logout dari sistem
+                    logout(request)
+                    # tampilkan pesan
+                    messages.add_message(request,messages.SUCCESS,f'Password Berhasil Diubah! Silakan Kaka login kembali menggunakan password baru... Terima kasih...')
+
+                    # kirimkan pesan notifikasi inbox
+                    inbox = inboxMessage()
+                    inbox.header="Ganti Password"
+                    inbox.body = f"Ganti Password untuk {user.userdetail.nama_lengkap} berhasil pada {datetime.datetime.now()}. Untuk detail password baru bisa dilihat pada email yang terdaftar. Terima kasih."
+                    inbox.user=user
+                    inbox.save()
+
+                    # kirimkan email
+                    #send email again
+                    subject = "Penggantian Password Berhasil"
+                    message = f"Hallo Ka {user.userdetail.nama_lengkap} selamat untuk password berhasil diubah. \n\n********\nPassword Baru: {password_baru}\n********\n\nHarap password tidak diberikan kepada siapapun karena bersifat rahasia. Terima kasih dan Tuhan memberkati\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                    from_email = settings.DEFAULT_FROM_EMAIL
+                    try:
+                        send_mail(
+                        subject,
+                        message,
+                        from_email,
+                        [f"{user.username}"],
+                        fail_silently=False
+                        )
+                    except Exception as ex:
+                        pass
+                    return HttpResponseRedirect('/')    
+            else:     
+                messages.add_message(request,messages.SUCCESS,'Password Lama Tidak Sesuai... silakan ulangi kembali...')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        koleksiku = UserBook.objects.all().filter(id_user=user)
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+        try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+        context = {
+            'koleksiku':koleksiku,
+            'mywishlist':mywishlist,
+            'jumlahwishlist':jml_wishlist,
+            'pengumuman':pengumuman,
+            'jml_mycart':jml_mycart,
+            'jml_inbox_message':jml_inbox_message,
+        }
+        return render(request,'landing/change_password.html',context)
+
+    else:
+        messages.add_message(request,messages.SUCCESS,'Untuk bisa mengganti password harus login terlebih dahulu kaka...')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
