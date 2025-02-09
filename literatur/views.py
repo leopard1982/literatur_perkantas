@@ -530,9 +530,9 @@ def cartView(request):
         for cart in mycart.filter(is_checked=True):
             try:
                 onsalebook = OnSaleBook.objects.get(Q(book=cart.book) & Q(is_active=True))
-                total_payment+=int(onsalebook.nett_price)
+                total_payment+=float(onsalebook.nett_price)
             except:
-                total_payment+=int(cart.book.price)
+                total_payment+=float(cart.book.price)
 
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
