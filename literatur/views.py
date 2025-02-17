@@ -1321,3 +1321,48 @@ def gantiPasswordPage(request):
     else:
         messages.add_message(request,messages.SUCCESS,'Untuk bisa mengganti password harus login terlebih dahulu kaka...')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def pencarianInfo(request):
+    if request.method=="POST":
+        keyword = request.POST['s']
+
+        blog = Blogs.objects.all().filter(Q(header__icontains=keyword) | Q(body__icontains=keyword))
+        book = Books.objects.all().filter(Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword))
+
+        jumlah_blog = blog.count()
+        jumlah_book = book.count()
+    else:
+        return HttpResponseRedirect('/')
+
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
+        jml_userbook=userbook.count()
+        userbook=userbook[:4]
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+    else:
+        userbook = None
+        mywishlist = None
+        jml_inbox_message=0
+        jml_wishlist=0
+        jml_mycart=0
+        jml_userbook=0
+    
+    context = {
+        'userbook':userbook,
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist,
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message,
+        'jml_userbook':jml_userbook,
+        'keyword':keyword,
+        'book':book,
+        'blog':blog,
+        'jumlah_blog':jumlah_blog,
+        'jumlah_book':jumlah_book,
+    }
+    return render(request,'landing/search.html',context)

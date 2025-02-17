@@ -1,0 +1,69 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block contents %}
+<div class="container mt-3 p-3 rounded border border-primary">
+    <p class="text-center fs-4">
+        <span class="text-primary fw-bold">Hasil Pencarian: </span> "<span class="fst-italic">{{keyword}}</span>"
+    </p>
+    {% if jumlah_book == jumlah_blog %}
+        <div class="text-center">
+            <p>
+                Ups... Tidak Ditemukan Buku atau Coretan Pena yang Kaka Cari... <br>
+                Boleh Kaka cari kata kunci lain?
+            </p>
+            <p>
+                <img src="{% static 'images/notfound.jpg'%}" style="width: 100px;height: 100px;" class="rounded" alt="">
+            </p>
+        </div>
+    {% else %}
+        {% if jumlah_book > 0 %}
+            <div class="m-2 p-2">
+                <p class="fw-bold">Ditemukan: <span class="text-primary">{{jumlah_book}}</span> buku</p>
+                <p class="d-flex flex-wrap" style="max-height: 200px;">
+                    <table class="table table-striped">
+                        {% for b in book %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>
+                                <span class="fs-5 fw-bold">{{b.judul}}</span><br>
+                                <span class="fs-6 fst-italic">{{b.pengarang}}</span><br>
+                                
+                            </td>
+                            <td>
+                                <a href="{% url 'sinopsis_buku' b.id%}" class="btn p-1 px-4">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </p>
+            </div>
+        {% endif %}
+        {% if jumlah_blog > 0 %}
+            <div class="m-2 p-2">
+                <p class="fw-bold">Ditemukan: <span class="text-primary">{{jumlah_blog}}</span> coretan pena</p>
+                <p  class="d-flex flex-wrap" style="max-height: 100px;">
+                    <table class="table table-striped">
+                        {% for c in blog %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>
+                                <span class="fs-6 fw-bold">{{c.header}}</span><br>
+                                <span class="fs-6 fst-italic">{{c.author}}</span><br>
+                                
+                            </td>
+                            <td>
+                                <a href="{% url 'detail_blog' c.id %}" class="btn p-1 px-4">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </p>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

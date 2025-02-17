@@ -191,39 +191,14 @@
     <div class="search-popup">
       <div class="search-popup-container">
 
-        <form role="search" method="get" class="search-form" action="">
-          <input type="search" id="search-form" class="search-field" placeholder="Type and press enter" value=""
+        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}">
+          {% csrf_token%}
+          <input type="search" id="search-form" minlength="5" class="search-field" placeholder="Masukkan kata dan tekan enter" value=""
             name="s" />
           <button type="submit" class="search-submit"><svg class="search">
               <use xlink:href="#search"></use>
             </svg></button>
         </form>
-
-        <h5 class="cat-list-title">Browse Categories</h5>
-
-        <ul class="cat-list">
-          <li class="cat-list-item">
-            <a href="#" title="Romance">Romance</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Thriller">Thriller</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Sci-fi">Sci-fi</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Cooking">Cooking</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Health">Health</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Lifestyle">Lifestyle</a>
-          </li>
-          <li class="cat-list-item">
-            <a href="#" title="Fiction">Fiction</a>
-          </li>
-        </ul>
 
       </div>
     </div>
@@ -505,22 +480,22 @@
                                   aria-labelledby="nav-sign-in-tab">
                                     <form method="post" action="{% url 'main_page'%}">
                                       {% csrf_token %}
-                                      <div class="form-group py-3">
-                                        <label class="mb-2" for="sign-in">Alamat Email *</label>
-                                        <input type="email" minlength="2" name="username_login" placeholder="Masukkan Alamat Email"
-                                          class="form-control w-100 rounded-3 p-3" required>
-                                      </div>
-                                      <div class="form-group pb-3">
-                                        <label class="mb-2" for="sign-in">Password *</label>
-                                        <input type="password" minlength="2" name="password_login" placeholder="Masukkan Password"
-                                          class="form-control w-100 rounded-3 p-3" required>
-                                      </div>                                      
-                                      <!-- <label class="py-3">
-                                        <input type="checkbox" required="" class="d-inline">
-                                        <span class="label-body">Ingat Saya</span>
-                                      </label> -->
-                                      <button type="submit" name="submit" class="btn btn-primary w-100 my-3">Login</button>
-                                      <p class="label-body">Apakah <a href="#" class="fw-bold"  data-bs-toggle="modal" data-bs-target="#modalResetPassword">Lupa Password</a>? </p>
+                                        <div class="form-group py-3">
+                                          <label class="mb-2" for="sign-in">Alamat Email *</label>
+                                          <input type="email" minlength="2" name="username_login" placeholder="Masukkan Alamat Email"
+                                            class="form-control w-100 rounded-3 p-3" required>
+                                        </div>
+                                        <div class="form-group pb-3">
+                                          <label class="mb-2" for="sign-in">Password *</label>
+                                          <input type="password" minlength="2" name="password_login" placeholder="Masukkan Password"
+                                            class="form-control w-100 rounded-3 p-3" required>
+                                        </div>                                      
+                                        <!-- <label class="py-3">
+                                          <input type="checkbox" required="" class="d-inline">
+                                          <span class="label-body">Ingat Saya</span>
+                                        </label> -->
+                                        <button type="submit" name="submit" class="btn btn-primary w-100 my-3">Login</button>
+                                        <p class="label-body">Apakah <a href="#" class="fw-bold"  data-bs-toggle="modal" data-bs-target="#modalResetPassword">Lupa Password</a>? </p>
                                     </form>
                                   </div>
                                   <div class="tab-pane fade" id="nav-register" role="tabpanel"
@@ -600,10 +575,10 @@
                       <span style="font-size: 14px;">Sahabat Anda Bertumbuh</span>
                     </p>
                 </div>
-                <div class="social-links justify-content-center d-flex p-2 rounded bg-white border shadow" style="margin-top:30px">
+                <div class="social-links justify-content-center d-flex p-2 rounded bg-white border border-primary shadow" style="margin-top:30px">
                     <ul class="d-flex list-unstyled justify-content-center" style="padding-top:10px;">
                       <li >
-                        <span class="text-primary">Media Sosial: </span>
+                        <span class="text-dark fw-bold ">Ikuti Kami: </span>
                       </li>
                       <li>
                         <a href="https://www.instagram.com/literaturperkantasnasional?igsh=MTA0eDJqcnh5emVweQ==" target="_blank">
@@ -615,12 +590,20 @@
                           <img src="{% static 'images/spotify.png'%}" alt="logo spotify" style="width: 30px;height: 30px;">
                         </a>
                       </li>
+                      <li>
+                        <a href="https://literaturperkantas.net/" class="btn p-1 px-3" target="_blank">
+                          Beli Buku?
+                        </a>
+                      </li>
                     </ul>
                 </div>
               </div>
               <div class="col-lg-6 col-12 col-md-6 pb-3 pt-4 rounded" >
                 <div class="footer-menu contact-item text-center" style="font-size: 14px;">
-                  <h5 class="widget-title text-capitalize  fw-bold text-primary" style="font-size: 20px;">Hubungi Kami:</h5>
+                  <a href="#" class="btn px-3 pb-2">
+                    <h5 class="widget-title fw-bold text-white" style="font-size: 20px;"><i class="fa fa-hashtag" aria-hidden="true"></i>TentangKami</h5>
+                  </a>
+                  
                   <div class="d-flex justify-content-center">
                     <p style="background-color: white;margin-top: 10px;margin-bottom: 10px;padding-left: 30px !important; padding:10px;border: 1px solid lightgrey;border-radius: 5px;width: 300px;">
                       <span style="font-size: 15px;font-weight: bold;margin-bottom: 10px;">Alamat Surat:</span>

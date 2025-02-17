@@ -448,3 +448,16 @@ class DaftarPayment(models.Model):
 	pemroses = models.CharField(max_length=100,null=True,blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
+
+
+class MyDonation(models.Model):
+	donation = models.UUIDField(auto_created=True,default=uuid.uuid4,primary_key=True,db_index=True)
+	initial = models.CharField(max_length=100)
+	nilai = models.DecimalField(decimal_places=2,max_digits=30,default=0)
+	email = models.EmailField(max_length=200)
+	bukti = models.ImageField(upload_to='donation')
+	keterangan = models.CharField(max_length=200,default="")
+	is_verified = models.BooleanField(default=False)
+	pemroses = models.CharField(max_length=100,null=True,blank=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	created_at = models.DateTimeField(auto_now_add=True)
