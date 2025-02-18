@@ -69,8 +69,8 @@
                       <img src="/media/extract/pdf_full/{{koleksi.id_book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
                     </a>
                     <hr>
-                    <p class="fw-bold text-primary" title="klik untuk melihat sinopsis buku">
-                        <a href="{% url 'sinopsis_buku' koleksi.id_book.id %}"></a>{{koleksi.id_book.judul}}
+                    <p class="fw-bold text-primary fs-6" title="klik untuk melihat sinopsis buku">
+                        <a href="{% url 'sinopsis_buku' koleksi.id_book.id %}">{{koleksi.id_book.judul}}</a>
                     </p>
                     <p class="fs-6">
                         Pengarang: {{koleksi.id_book.pengarang}}
