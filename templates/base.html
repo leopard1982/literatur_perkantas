@@ -203,10 +203,10 @@
       </div>
     </div>
 
-    <header id="header" class="site-header">
+    <header id="header" class="site-header w-100">
 
       <div class="top d-none d-md-block ">
-        <div class=" container-fluid rounded text-center  " >
+        <div class="  rounded text-center  " >
           <marquee  class="bg-success text-white " style="border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;">
             {% if user.is_authenticated %}
             <b>Shallom, {{user.userdetail|title}}! INFO: </b>{{pengumuman}}
@@ -541,14 +541,14 @@
 
     </header>
 
-    <div style="padding:5px;width: 100%;background-color: whitesmoke;">
+    <div class="container-fluid">
           {% block contents %}
           {% endblock %}     
     </div>
 
     <hr>
     <footer id="footer"  style="margin-bottom:-150px;margin-top:20px;background-color: white;" class="bg-light-gray" >
-      <div class="container">
+      <div class="container-fluid">
         <div class="row">
           <div class="footer-top-area">
             <div class="row d-flex flex-wrap justify-content-between">

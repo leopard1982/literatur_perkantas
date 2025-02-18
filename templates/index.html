@@ -53,7 +53,7 @@
       name="q"
     > -->
     {% if feature_book %}
-    <section id="billboard" class="position-relative d-flex align-items-center py-5 bg-light-gray"
+    <section id="billboard" class="position-relative d-flex align-items-center py-5 bg-light-gray rounded"
       style="background-image: url(images/banner-image-bg.jpg); background-size: cover; background-repeat: no-repeat; background-position: center; height: 800px;">
       <div class="position-absolute end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next main-slider-button-next">
         <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -93,7 +93,7 @@
     </section>
     {% endif %}  
 
-    <section id="best-selling-items" class="position-relative padding-small shadow" style="background-color:#eefcff;z-index: 0;">
+    <section id="best-selling-items" class="position-relative padding-small shadow rounded" style="background-color:#eefcff;z-index: 0;">
       <div class="container rounded">
         <div class="section-title  text-center   mt-2  align-items-center mb-4 p-2" >
           <h2 class="text-center text-primary fw-bold ">Buku Best Seller</h2>
@@ -120,9 +120,9 @@
                   </p>
                 </div>
                 
-                <div style="margin-bottom:20px;margin-top:-40px;  " class="text-center">
+                <div style="margin-bottom:20px;margin-top:-30px;  " class="text-center">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="width: 150px;height: 200px;"   alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded border" style="width: 150px;height: 200px;"   alt="product item">
                   </a>                  
                 </div>
                 <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
@@ -176,9 +176,9 @@
             {% else %}
             <div class="swiper-slide  " style=" min-width: 150px;">
               <div class="newcard card position-relative p-1 text-center   shadow  " >
-                <div style="margin-bottom:20px;  " class="text-center">
+                <div style="margin-bottom:30px;  " class="text-center">
                   <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded" style="width: 150px;height: 200px;"  alt="product item">
+                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded border" style="width: 150px;height: 200px;"  alt="product item">
                   </a>                  
                 </div>
 
@@ -244,7 +244,7 @@
     </section>
 
     {% if books_on_sale %}
-    <div class=" py-3" style="background-color: white; border-top: 1px solid grey;border-bottom: 1px solid grey;">
+    <div class=" py-3 bg-white">
         {% for book in books_on_sale %}
           {% if forloop.first%}
             <div class="row d-flex justify-content-center">
@@ -288,7 +288,7 @@
 
     
 
-    <section id="items-listing" class="padding-small" style="background-color:#ffeeee">
+    <section id="items-listing" class="padding-small rounded" style="background-color:#ffeeee">
       <div class="container  p-3 rounded  text-dark">
         <div class=" fw-bold  py-4 px-2 text-center text-primary" >
           <h2>Info Buku</h2>
@@ -435,7 +435,7 @@
       </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-small bg-white" style="z-index: 0;">
+    <section id="best-selling-items" class="position-relative padding-small bg-white rounded" style="z-index: 0;">
       <div class="container p-3  rounded rounded-top ">
         <div class="section-title  rounded mb-4   p-2">
           <div class="text-center d-flex justify-content-center">
@@ -485,7 +485,7 @@
       </div>
     </section>
 
-    <section id="latest-posts" class="padding-large pt-4" style="background-color: rgba(32, 206, 46, 0.1);">
+    <section id="latest-posts" class="padding-large pt-4 rounded" style="background-color: rgba(32, 206, 46, 0.1);">
       <div class="container">
         <div class="text-center pb-3">
           <h2 class=" text-primary ">Coretan Pena</h2>
@@ -538,7 +538,7 @@
       </div>
     </section>
 
-    <section id="customers-reviews" class="position-relative padding-large"
+    <section id="customers-reviews" class="position-relative padding-large rounded"
       style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 650px;margin-top:-50px;z-index: 0;">
       <div class="container offset-md-3 col-md-6 ">
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
@@ -578,7 +578,7 @@
 
     
 
-    <section id="instagram" class="padding-small" style="background-color: rgba(229, 255, 0, 0.1)">
+    <section id="instagram" class="padding-small rounded" style="background-color: rgba(229, 255, 0, 0.1)">
       <div class="container">
         <div class="text-center mb-4">
           <h2 class="text-primary">Instagram</h2>
