@@ -125,7 +125,7 @@
                     <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded border" style="width: 150px;height: 200px;"   alt="product item">
                   </a>                  
                 </div>
-                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:18}}</a></h6>
                 <div class="review-content d-flex justify-content-center ">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
@@ -182,7 +182,7 @@
                   </a>                  
                 </div>
 
-                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="#">{{book.judul|truncatechars:18}}</a></h6>
+                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:18}}</a></h6>
                 <div class="review-content d-flex justify-content-center ">
                   <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
 
