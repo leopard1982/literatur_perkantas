@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render, HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
@@ -18,6 +18,7 @@ from django.core.files.storage import default_storage
 import os
 from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
+from django.template import loader
 
 def resetPassword(request):
     if( request.method == "POST"):
@@ -1370,5 +1371,8 @@ def pencarianInfo(request):
     }
     return render(request,'landing/search.html',context)
 
-def error404_500(request,exception):
-    return render('404.html')
+def error500(request):
+    t = loader.get_template('404.html')
+    response = HttpResponseServerError(t.render())
+    response.status_code=500
+    return response

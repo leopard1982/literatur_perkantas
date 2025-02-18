@@ -31,4 +31,5 @@ urlpatterns = [
     path('profile/e/',profileUpdate,name="profile_update"),
     path('buy/list/', listPayment,name="list_payment"),
     path('search/', pencarianInfo,name="pencarian_info"),
+
 ]

@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path,include,re_path
 from django.views.static import serve
 from django.conf import settings
+from django.shortcuts import redirect,render
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,5 +27,4 @@ urlpatterns = [
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT})
 ]
 
-handler404 = 'literatur.views.error404_500'
-handler404 = 'literatur.views.error404_500'
+handler500 = 'literatur.views.error500'
