@@ -188,19 +188,25 @@
       </div>
     </div>
 
-    <div class="search-popup">
-      <div class="search-popup-container">
-
+    <div class="search-popup" >
+      <div class="search-popup-container " >
         <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}">
           {% csrf_token%}
-          <input type="search" id="search-form" minlength="5" class="search-field" placeholder="Masukkan kata dan tekan enter" value=""
+          <input type="search" id="search-form"  required minlength="5" class="search-field"   placeholder="Masukkan Pencarian..." value=""
             name="s" />
           <button type="submit" class="search-submit"><svg class="search">
               <use xlink:href="#search"></use>
             </svg></button>
         </form>
-
       </div>
+      <!-- <div class="search-popup-container d-flex d-lg-none">
+        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}">
+          {% csrf_token%}
+          <input type="search" id="search-form" minlength="5" required class="search-field" placeholder="Masukkan Pencarian..." value=""
+            name="s" />
+          <button type="submit" class="search-submit text-primary">Cari &rarr;</button>
+        </form>
+      </div> -->
     </div>
 
     <header id="header" class="site-header w-100">
@@ -290,7 +296,7 @@
               </ul>
               <div class="user-items shadow bg-white d-flex mt-xs-5 mt-sm-5 mt-md-0 mt-lg-0 justify-content-evenly p-2 border border-primary rounded">
                 <ul class="d-flex justify-content-end list-unstyled mb-0 ">
-                  <li class="search-item pe-3" style="margin-top: -2px;">
+                  <li class="search-item pe-3 d-none d-lg-flex" style="margin-top: -2px;">
                     <a href="#" class="search-button link-underline" title="pencarian">
                       <svg class="search">
                         <use xlink:href="#search"></use>
