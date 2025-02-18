@@ -1323,15 +1323,18 @@ def gantiPasswordPage(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def pencarianInfo(request):
-    if request.method=="POST":
-        keyword = request.POST['s']
+    try:
+        if request.method=="POST":
+            keyword = request.POST['s']
 
-        blog = Blogs.objects.all().filter(Q(header__icontains=keyword) | Q(body__icontains=keyword))
-        book = Books.objects.all().filter(Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword))
+            blog = Blogs.objects.all().filter(Q(header__icontains=keyword) | Q(body__icontains=keyword))
+            book = Books.objects.all().filter(Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword))
 
-        jumlah_blog = blog.count()
-        jumlah_book = book.count()
-    else:
+            jumlah_blog = blog.count()
+            jumlah_book = book.count()
+        else:
+            return HttpResponseRedirect('/')
+    except:
         return HttpResponseRedirect('/')
 
     if request.user.is_authenticated:
@@ -1366,3 +1369,6 @@ def pencarianInfo(request):
         'jumlah_book':jumlah_book,
     }
     return render(request,'landing/search.html',context)
+
+def error404_500(request,exception):
+    return render('404.html')
