@@ -3,3 +3,4 @@ db.sqlite3
 /perkantas_literatur/settings.py
 /literatur/migrations/
 /media/extract/
+/staticfolder
