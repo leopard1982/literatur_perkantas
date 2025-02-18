@@ -27,3 +27,4 @@ urlpatterns = [
 ]
 
 handler404 = 'literatur.views.error404_500'
+handler404 = 'literatur.views.error404_500'
