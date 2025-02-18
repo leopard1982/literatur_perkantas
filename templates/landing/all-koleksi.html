@@ -64,12 +64,12 @@
 <div class="list">  
     {% if koleksiku %}
         {% for koleksi in halaman %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca..">
+            <div class="card" data-bs-toggle="tooltip" title="Silakan klik tombol baca untuk membaca..">
                     <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}">
                       <img src="/media/extract/pdf_full/{{koleksi.id_book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
                     </a>
                     <hr>
-                    <p class="fw-bold text-primary fs-6">
+                    <p class="fw-bold text-primary fs-5" title="Silakan klik untuk membaca">
                         <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}">{{koleksi.id_book.judul}}</a>
                     </p>
                     <p class="fs-6">
