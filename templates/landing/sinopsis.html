@@ -28,10 +28,11 @@
                         <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 text-center">
                             <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca buku</a>
                         </div>
-                    {% endif %}
+                    {% else %}
                         <div class="col-12 text-center">
                             <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca buku</a>
                         </div>
+                    {% endif %}
                 {% else %}
                     <div>
                         <a href="{% url 'baca_buku' %}?id={{book.id}}" class="m-2 btn btn-info" style="font-size: 12px;"><i class="fa fa-eye" aria-hidden="true"></i> baca buku</a>
