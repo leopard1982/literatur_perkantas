@@ -51,15 +51,15 @@
         <p class="h3 text-primary fw-bold">Laporan Donasi</p>
         <p><span class="text-primary fw-bold">Team Literatur Perkantas Nasional (Litanas)</span> mengucapkan terima kasih atas donasi pada bulan <span class="text-primary fw-bold">{{bulan_now}}</span>.</p>
         <p>Total Donasi terkumpul sebesar  <span class="text-primary fw-bold">Rp.{{total_now|intcomma}}.00</span>.</p>
-        <div>
-            <p class="fw-bold text-primary fs-4">Detail Donatur:</p>
+        <p class="fw-bold text-primary fs-4">Detail Donatur:</p>
+        <div class='d-none d-lg-flex'>
             <table class="table border border-primary">
                 <thead >
-                    <th class="bg-primary text-white fw-bold">No.</th>
-                    <th class="bg-primary text-white fw-bold">Nama</th>
-                    <th class="bg-primary text-white fw-bold">Tanggal Approval</th>
-                    <th class="bg-primary text-white fw-bold">Keterangan</th>
-                    <th class="bg-primary text-white fw-bold">Nominal (Rupiah)</th>
+                    <th class="bg-primary text-white fw-bold  text-start">No.</th>
+                    <th class="bg-primary text-white fw-bold text-start">Nama</th>
+                    <th class="bg-primary text-white fw-bold  text-start">Tanggal Approval</th>
+                    <th class="bg-primary text-white fw-bold  text-center">Keterangan</th>
+                    <th class="bg-primary text-white fw-bold  text-end">Nominal (Rupiah)</th>
                 </thead>
                 {% for don in donatur %}
                 <tr>
@@ -67,6 +67,28 @@
                     <td>{{don.initial|title}}</td>
                     <td>{{don.updated_at|date:"d M Y"}}</td>
                     <td>{{don.keterangan}}</td>
+                    <td class="text-end fw-bold">{{don.nilai|intcomma}}</td>
+                </tr>
+                {% endfor%}
+            </table>
+        </div>
+        <div class='d-flex d-lg-none'>
+            <table class="table border border-primary">
+                <thead >
+                    <th class="bg-primary text-white fw-bold text-start">No.</th>
+                    <th class="bg-primary text-white fw-bold text-center">Informasi</th>
+                    <th class="bg-primary text-white fw-bold text-end">Nominal (Rupiah)</th>
+                </thead>
+                {% for don in donatur %}
+                <tr>
+                    <td style="font-size: 13px;">{{forloop.counter}}</td>
+                    <td style="font-size: 13px;">
+                        <ul style="list-style-type: none;">
+                            <li>Nama: <span  style="font-size: 13px;font-weight: bold;">{{don.initial|title}}</span></li>
+                            <li>Tanggal Konfirmasi: <span   style="font-size: 13px;font-weight: bold;">{{don.updated_at|date:"d M Y"}}</span></li>
+                            <li>Keterangan: <span   style="font-size: 13px;font-weight: bold;">{{don.keterangan}}</span></li>
+                        </ul>
+                    </td>
                     <td class="text-end fw-bold">{{don.nilai|intcomma}}</td>
                 </tr>
                 {% endfor%}
