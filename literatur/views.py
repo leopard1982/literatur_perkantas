@@ -1406,11 +1406,11 @@ def error500(request):
 def tentangKami(request):
     bulan_donasi_now = datetime.datetime.now().month
     tahun_donasi_now = datetime.datetime.now().year
-    data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
+    data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True))
     
     # jjka data donasi sudah ada maka dijumlah
-    if len(data_donasi_now>0):
-        total_donasi_now = data_donasi_now.aggregate(jumlah=Sum('nilai'))
+    if len(data_donasi_now)>0:
+        total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
         total_now = total_donasi_now['jumlah']
     else:
         # kalau belum ada data donasi di nolkan
