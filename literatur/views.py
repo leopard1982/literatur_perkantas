@@ -1406,12 +1406,18 @@ def error500(request):
 def tentangKami(request):
     bulan_donasi_now = datetime.datetime.now().month
     tahun_donasi_now = datetime.datetime.now().year
-    total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
+    data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
+    
+    # jjka data donasi sudah ada maka dijumlah
+    if len(data_donasi_now>0):
+        total_donasi_now = data_donasi_now.aggregate(jumlah=Sum('nilai'))
+        total_now = total_donasi_now['jumlah']
+    else:
+        # kalau belum ada data donasi di nolkan
+        total_now=0
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
 
-    total_now = total_donasi_now['jumlah']
-    if total_now==None:
-        total_now=0
+    
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
@@ -1439,6 +1445,6 @@ def tentangKami(request):
         'jml_inbox_message':jml_inbox_message,
         'jml_userbook':jml_userbook,
         'bulan_now':bulan_now,
-        'total_now':total_donasi_now['jumlah']
+        'total_now':total_now
     }
     return render(request,'landing/tentangkami.html',context)
