@@ -13,21 +13,24 @@
                         <img src="{% static 'images/qris.jpg'%}" class="w-75" alt="">
                     </div>
                     <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 p-4 text-wrap">
-                        Donasi dapat  dilakukan melalui: <br>
+                        Donasi untuk mendukung Literatur Perkantas Nasional (Litanas) Online dapat  dilakukan melalui: <br>
                         <ol>
                             <li>Scan QRIS</li>
                             <li>
                                 Transfer ke rekening: <br>
-                                Nomor Rekening: <b>{{no_rekening}}</b> <br>
-                                Pemilik Rekening: <b>{{nama_pemilik}}</b> <br>
-                                Nama Bank: <b>{{nama_bank}}</b>
+                                Nomor Rekening: <b class="text-primary">{{no_rekening}}</b> <br>
+                                Pemilik Rekening: <b  class="text-primary">{{nama_pemilik}}</b> <br>
+                                Nama Bank: <b  class="text-primary">{{nama_bank}}</b>
                             </li>
                         </ol>
                         <p>
                             Setelah transfer berhasil, silakan Upload foto bukti bayar dalam bentuk format gambar .gif, .png, .jpeg, atau .jpg 
-                            kemudian tunggu konfirmasi dari admin maksimal 1x24 jam. <br>
-                            Untuk update status pembelian akan kami kirimkan via <a href="{% url 'list_inbox_message'%}" target="_blank">inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i></a>
+                            kemudian kaka akan terima email konfirmasi.
                         </p>
+                        <p>
+                            Admin akan melakukan validasi donasi, apabila sudah valid, maka akan dikirimkan email validasi berhasil dan nama kaka akan muncul dalam daftar donatur. 
+                        </p>
+                        <p>Tuhan memberkati para Sahabat!</p>
                         
                     </div>
     </div>
@@ -41,6 +44,33 @@
                     <input type="submit" class="btn p-3 my-3" value="Konfirmasi Donasi">
                 </p>
             </form>
+        </div>
+    </div>
+    <hr class="border border-primary">
+    <div class="mt-4">
+        <p class="h3 text-primary fw-bold">Laporan Donasi</p>
+        <p><span class="text-primary fw-bold">Team Literatur Perkantas Nasional (Litanas)</span> mengucapkan terima kasih atas donasi pada bulan <span class="text-primary fw-bold">{{bulan_now}}</span>.</p>
+        <p>Total Donasi terkumpul sebesar  <span class="text-primary fw-bold">Rp.{{total_now|intcomma}}.00</span>.</p>
+        <div>
+            <p class="fw-bold text-primary fs-4">Detail Donatur:</p>
+            <table class="table border border-primary">
+                <thead >
+                    <th class="bg-primary text-white fw-bold">No.</th>
+                    <th class="bg-primary text-white fw-bold">Nama</th>
+                    <th class="bg-primary text-white fw-bold">Tanggal Approval</th>
+                    <th class="bg-primary text-white fw-bold">Keterangan</th>
+                    <th class="bg-primary text-white fw-bold">Nominal (Rupiah)</th>
+                </thead>
+                {% for don in donatur %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{don.initial|title}}</td>
+                    <td>{{don.updated_at|date:"d M Y"}}</td>
+                    <td>{{don.keterangan}}</td>
+                    <td class="text-end fw-bold">{{don.nilai|intcomma}}</td>
+                </tr>
+                {% endfor%}
+            </table>
         </div>
     </div>
 </div>

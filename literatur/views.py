@@ -1418,8 +1418,6 @@ def tentangKami(request):
         total_now=0
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
 
-    
-
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
@@ -1504,6 +1502,7 @@ def melakukanDonasi(request):
         'no_rekening':'01230254390',
         'nama_bank':'BCA',
         'nama_pemilik':'PT SULUH  CENDEKIA',
-        'form':formmydonation
+        'form':formmydonation,
+        'donatur':data_donasi_now
     }
     return render(request,'landing/form-donasi.html',context)
