@@ -9,6 +9,7 @@ import os
 import datetime
 from django.contrib import messages
 import re
+from django.core.mail import send_mail
 
 colornya = [
 	('pink','pink'),
@@ -461,3 +462,33 @@ class MyDonation(models.Model):
 	pemroses = models.CharField(max_length=100,null=True,blank=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
+
+	def save(self,*args,**kwargs):
+		status=""
+		is_ok=False
+		if self.is_verified:
+			is_ok=True
+			status=" sudah berhasil diverifikasi oleh admin. "
+		else:
+			status =" sedang dalam verifikasi admin, mohon menunggu. "
+
+		# kirimkan email
+        #send email again
+		subject = "Terima Kasih - Donasi Litanas"
+		if is_ok:
+			message = f"Hallo kaka {self.initial} Terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}.\n\nUntuk status donasi kaka {status}\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.\n\nTuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+		else:
+			message = f"Hallo kaka {self.initial} Terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}.\n\nUntuk status donasi kaka {status}\n\nApabila admin sudah selesai melakukan verifikasi, akan diberikan konfirmasi via email kembali.\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.\n\nTuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+		from_email = settings.DEFAULT_FROM_EMAIL
+		
+		try:
+			send_mail(
+					subject,
+					message,
+					from_email,
+					[f"{self.email}"],
+					fail_silently=False
+				)
+		except Exception as ex:
+			print(ex)        
+		super(MyDonation,self).save(*args,**kwargs)
