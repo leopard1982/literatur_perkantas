@@ -1364,6 +1364,11 @@ def pencarianInfo(request):
             return HttpResponseRedirect('/')
     except:
         return HttpResponseRedirect('/')
+    
+    try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
@@ -1395,6 +1400,7 @@ def pencarianInfo(request):
         'blog':blog,
         'jumlah_blog':jumlah_blog,
         'jumlah_book':jumlah_book,
+        'pengumuman':pengumuman
     }
     return render(request,'landing/search.html',context)
 
@@ -1417,6 +1423,11 @@ def tentangKami(request):
         # kalau belum ada data donasi di nolkan
         total_now=0
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
+
+    try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
@@ -1444,7 +1455,8 @@ def tentangKami(request):
         'jml_inbox_message':jml_inbox_message,
         'jml_userbook':jml_userbook,
         'bulan_now':bulan_now,
-        'total_now':total_now
+        'total_now':total_now,
+        'pengumuman':pengumuman
     }
     return render(request,'landing/tentangkami.html',context)
 
@@ -1461,6 +1473,11 @@ def melakukanDonasi(request):
     tahun_donasi_now = datetime.datetime.now().year
     data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True))
     
+    try:
+            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+    except:
+            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
     # jjka data donasi sudah ada maka dijumlah
     if len(data_donasi_now)>0:
         total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
@@ -1503,6 +1520,7 @@ def melakukanDonasi(request):
         'nama_bank':'BCA',
         'nama_pemilik':'PT SULUH  CENDEKIA',
         'form':formmydonation,
-        'donatur':data_donasi_now
+        'donatur':data_donasi_now,
+        'pengumuman':pengumuman
     }
     return render(request,'landing/form-donasi.html',context)
