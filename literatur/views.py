@@ -1408,6 +1408,11 @@ def tentangKami(request):
     tahun_donasi_now = datetime.datetime.now().year
     total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
+
+    total_now = total_donasi_now['jumlah']
+    if not total_now:
+        total_now=0
+        
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
