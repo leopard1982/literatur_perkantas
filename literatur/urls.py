@@ -3,7 +3,7 @@ from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPa
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
 from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog,paymentProcess
 from .views import bacaBukuKoleksi, allKoleksiView,profileView,profileUpdate,listPayment,gantiPasswordPage
-from .views import pencarianInfo
+from .views import pencarianInfo, tentangKami
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -31,5 +31,5 @@ urlpatterns = [
     path('profile/e/',profileUpdate,name="profile_update"),
     path('buy/list/', listPayment,name="list_payment"),
     path('search/', pencarianInfo,name="pencarian_info"),
-
+    path('about/', tentangKami,name="tentang_kami"),
 ]

@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
-from .models import MyPayment, MyPaymentDetail
+from .models import MyPayment, MyPaymentDetail, MyDonation
 from django.db.models import Avg,Q,Sum
 import datetime
 from django.contrib import messages
@@ -20,6 +20,32 @@ from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
 from django.template import loader
 
+def bulanTeks(bulan):
+    if bulan==1:
+        return "Januari"
+    elif bulan==2:
+        return "Februari"
+    elif bulan==3:
+        return "Maret"
+    elif bulan==4:
+        return "April"
+    elif bulan==5:
+        return "Mei"
+    elif bulan==6:
+        return "Juni"
+    elif bulan==7:
+        return "Juli"
+    elif bulan==8:
+        return "Agustus"
+    elif bulan==9:
+        return "September"
+    elif bulan==10:
+        return "Oktober"
+    elif bulan==11:
+        return "November"
+    elif bulan==12:
+        return "Desember"
+    
 def resetPassword(request):
     if( request.method == "POST"):
         try:
@@ -1376,3 +1402,38 @@ def error500(request):
     response = HttpResponseServerError(t.render())
     response.status_code=500
     return response
+
+def tentangKami(request):
+    bulan_donasi_now = datetime.datetime.now().month
+    tahun_donasi_now = datetime.datetime.now().year
+    total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
+    bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
+        jml_userbook=userbook.count()
+        userbook=userbook[:4]
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+    else:
+        userbook = None
+        mywishlist = None
+        jml_inbox_message=0
+        jml_wishlist=0
+        jml_mycart=0
+        jml_userbook=0
+    
+    context = {
+        'userbook':userbook,
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist,
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message,
+        'jml_userbook':jml_userbook,
+        'bulan_now':bulan_now,
+        'total_now':total_donasi_now['jumlah']
+    }
+    return render(request,'landing/tentangkami.html',context)

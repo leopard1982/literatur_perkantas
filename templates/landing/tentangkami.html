@@ -1,0 +1,68 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load humanize %}
+{% block contents %}
+<div class="container mt-3  " style="background-color: whitesmoke;">
+    <div class="row d-flex justify-content-between">
+        <div class="col-12 p-3 col-lg-9 ">
+            <div class="p-3 bg-white rounded border">
+                <p >
+                    <a class="h1 text-primary fw-bold mb-5" href="#">#TentangKami</a>
+                </p>
+                <p>
+                    Sahabat terkasih, hari ini, 1 November 2021, genap sebelas tahun Literatur Perkantas Nasional disahkan menjadi PT Suluh Cendikia oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia.
+                </p>
+                <p>
+                    Sebelas tahun yang membuat kami makin percaya, melayankan Injil melalui media sungguh strategis dan relevan dalam pertumbuhan rohani siswa, mahasiswa, dan alumni.
+                </p>
+                <p>
+                    Sebelas tahun yang membuat kami makin percaya, para sahabat ternyata tak hanya berkenan membeli, melainkan juga memberi, buku. Karena itu kami berterima kasih untuk setiap sahabat yang sudah terlibat dalam penggalangan dana buku selama ini. Laporan penggalangan dana dapat dilihat melalui link berikut: Laporan Donasi Program Berbagi 
+                </p>                
+                <p>
+                    Sebelas tahun yang membuat kami makin percaya, kami tak pernah sendirian. Yesus Kristus—Sang Komunikator Agung—telah menjadi sahabat kami dalam melayankan Injil-Nya melalui media, khususnya di kala pandemi.
+                </p>
+                <p>
+                    Dia juga yang menggerakkan semua sahabat kami—pembaca, penulis, penerjemah, sukarelawan, percetakan, toko buku—berkenan menjadi sahabat kami bertumbuh selama ini.
+                </p>
+                <p>
+                    Di tengah kebahagiaan kami, kami juga menyelenggarakan flash sale hari ini. Kiranya program ini juga membahagiakan hati para sahabat.
+                </p>
+                <p>
+                    Akhirnya, doakanlah kami agar tetap setia menjalani panggilan sebagai ”suluh yang cendekia dan mencendekiakan”, agar mampu menjadi ”Sahabat Anda Bertumbuh!”
+                </p>
+            </div>
+            
+        </div>
+        <div class="col-12  col-lg-3 p-3">
+            <div class="p-3 bg-white border rounded">
+                <p class="text-white rounded p-2 fw-bold fs-5 text-center bg-primary">
+                    <i class="fa fa-heart" aria-hidden="true"></i> Donasi <i class="fa fa-heart" aria-hidden="true"></i>
+                </p>
+                <p class="fs-6">
+                    Terima kasih untuk dukungan bulan <span class="fs-6 text-primary fw-bold">{{bulan_now}}</span> yang telah terkumpul sebesar: Rp. <span class="fs-6 text-primary fw-bold">{{total_now|intcomma}}.00</span>, Tuhan memberkati!
+                </p>
+                <p class="fs-6">
+                    Litanas Online ini merupakan ide dari Literatur Perkantas Nasional yang didukung oleh para Sahabat-Sahabat sekalian.
+                </p>
+                <p class="fs-6">
+                    Untuk mendukung keberadaan litanas online ini dalam hal:
+                    <ul class="fs-6">
+                        <li>Pemeliharaan Server</li>
+                        <li>Sewa Domain dan Web Hosting</li>
+                        <li>Jasa Programmer</li>
+                        <li>Jasa Admin</li>
+                    </ul>
+                    <span class="fs-6">Sahabat bisa menjadi mitra dengan memberikan donasi setiap bulannya melalui transfer atau scan QRIS dengan klik pada link di bawah ini:</span>
+                </p>
+                
+                <p class="fs-6">
+                    Untuk Detail Donatur dapat dilihat dari link berikut:
+                </p>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
