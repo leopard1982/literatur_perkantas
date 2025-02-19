@@ -1410,9 +1410,9 @@ def tentangKami(request):
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
 
     total_now = total_donasi_now['jumlah']
-    if not total_now:
+    if total_now==None:
         total_now=0
-        
+
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
