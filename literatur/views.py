@@ -1453,9 +1453,9 @@ def melakukanDonasi(request):
         formmydonation=FormMyDonation(data=request.POST,files=request.FILES)
         if(formmydonation.is_valid()):
             formmydonation.save()
-            messages.add_message(request,messages.SUCCESS,f'Terima kasih kaka {request.POST['initial']} atas donasinya. ')
+            messages.add_message(request,messages.SUCCESS,f'Terima kasih kaka {request.POST["initial"]} atas donasinya. ')
         else:
-            messages.add_message(request,messages.SUCCESS,f'Maaf, ada kesalah sistem. Silakan kaka {request.POST['initial']} ulangi kembali proses donasinya. Terima kasih.')
+            messages.add_message(request,messages.SUCCESS,f'Maaf, ada kesalah sistem. Silakan kaka {request.POST["initial"]} ulangi kembali proses donasinya. Terima kasih.')
 
     bulan_donasi_now = datetime.datetime.now().month
     tahun_donasi_now = datetime.datetime.now().year
