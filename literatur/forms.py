@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserDetail
+from .models import UserDetail, MyDonation
 
 class FormUpdateProfile(forms.ModelForm):
     class Meta:
@@ -47,4 +47,72 @@ class FormUpdateProfile(forms.ModelForm):
                     'required':'required'
                 }
             )
+        }
+
+class FormMyDonation(forms.ModelForm):
+    class Meta:
+        model = MyDonation
+        fields = [
+            'donation','initial','nilai','email','bukti','keterangan'
+        ]
+
+        widgets = {
+            'donation':forms.TextInput(
+                attrs={
+                'class':'form-control fs-6 fw-bold',
+                'placeholder':'Masukkan Nama Lengkap',
+                'minlength':5,
+                'readonly':'readonly'
+                }
+            ),
+            'initial':forms.TextInput(
+                attrs={
+                    'class':'form-control fs-6 fst-italic',
+                    'placeholder':'Masukkan Nama Lengkap',
+                    'minlength':5,
+                    'required':'required'
+                }
+            ),
+            'nilai':forms.NumberInput(
+                attrs={
+                    'class':'form-control fs-6 fst-italic',
+                    'placeholder':'Masukkan Nilai',
+                    'min':0,
+                    'required':'required',
+                    'value':0
+                }
+            ),
+            'email': forms.EmailInput(
+                attrs={
+                    'class':'form-control fs-6 fst-italic',
+                    'placeholder':'Masukkan Email',
+                    'minlength':10,
+                    'required':'required'
+                }
+            ),
+            'bukti': forms.FileInput(
+                attrs={
+                    'class':'form-control fs-6 fst-italic',
+                    'placeholder':'bukti transfer',
+                    'required':'required',
+                    'accept':'.gif,.jpg,.jpeg,.webp,.png'
+                }
+            ),
+            'keterangan': forms.TextInput(
+                attrs={
+                    'class':'form-control fs-6 fst-italic',
+                    'placeholder':'Masukkan Berita Keterangan',
+                    'minlength':10,
+                    'required':'required'
+                }
+            )
+        }
+
+        labels = {
+            'donation':'Nomor Bukti Donasi:',
+            'initial': 'Nama Pemberi Donasi:',
+            'nilai': 'Nilai Donasi:',
+            'bukti':'Bukti Foto Donasi:',
+            'keterangan':'Berita Keterangan:',
+            'email':'Email (untuk konfirmasi):'
         }

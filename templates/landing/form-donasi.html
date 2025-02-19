@@ -1,0 +1,48 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load humanize %}
+{% block contents %}
+<div class="p-3 container">
+    <div class="my-4">
+        <p class="text-primary fw-bold text-center h2">
+            <i class="fa fa-heart" aria-hidden="true"></i> Donasi <i class="fa fa-heart" aria-hidden="true"></i>
+        </p>
+    </div>
+    <div class="mt-1 mb-1 border border-success rounded d-flex justify-content-center row">
+                    <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 d-flex justify-content-center">
+                        <img src="{% static 'images/qris.jpg'%}" class="w-75" alt="">
+                    </div>
+                    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 p-4 text-wrap">
+                        Donasi dapat  dilakukan melalui: <br>
+                        <ol>
+                            <li>Scan QRIS</li>
+                            <li>
+                                Transfer ke rekening: <br>
+                                Nomor Rekening: <b>{{no_rekening}}</b> <br>
+                                Pemilik Rekening: <b>{{nama_pemilik}}</b> <br>
+                                Nama Bank: <b>{{nama_bank}}</b>
+                            </li>
+                        </ol>
+                        <p>
+                            Setelah transfer berhasil, silakan Upload foto bukti bayar dalam bentuk format gambar .gif, .png, .jpeg, atau .jpg 
+                            kemudian tunggu konfirmasi dari admin maksimal 1x24 jam. <br>
+                            Untuk update status pembelian akan kami kirimkan via <a href="{% url 'list_inbox_message'%}" target="_blank">inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i></a>
+                        </p>
+                        
+                    </div>
+    </div>
+    <div class="mt-4 border border-primary rounded">
+        <div class="p-2">
+            <p class="fs-4 fw-bold text-primary">Formulir Konfirmasi Donasi<hr class="border border-primary"></p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form.as_div}}
+                <p class="d-flex justify-content-center">
+                    <input type="submit" class="btn p-3 my-3" value="Konfirmasi Donasi">
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock%}

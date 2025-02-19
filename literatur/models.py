@@ -492,3 +492,6 @@ class MyDonation(models.Model):
 		except Exception as ex:
 			print(ex)        
 		super(MyDonation,self).save(*args,**kwargs)
+
+	def __str__(self):
+		return f"{self.initial} - {self.email} - {self.nilai}"

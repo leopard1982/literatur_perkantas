@@ -19,6 +19,7 @@ import os
 from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
 from django.template import loader
+from .forms import FormMyDonation
 
 def bulanTeks(bulan):
     if bulan==1:
@@ -1448,3 +1449,61 @@ def tentangKami(request):
         'total_now':total_now
     }
     return render(request,'landing/tentangkami.html',context)
+
+def melakukanDonasi(request):
+    if request.method=="POST":
+        formmydonation=FormMyDonation(data=request.POST,files=request.FILES)
+        if(formmydonation.is_valid()):
+            formmydonation.save()
+            messages.add_message(request,messages.SUCCESS,f'Terima kasih kaka {request.POST['initial']} atas donasinya. ')
+        else:
+            messages.add_message(request,messages.SUCCESS,f'Maaf, ada kesalah sistem. Silakan kaka {request.POST['initial']} ulangi kembali proses donasinya. Terima kasih.')
+
+    bulan_donasi_now = datetime.datetime.now().month
+    tahun_donasi_now = datetime.datetime.now().year
+    data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True))
+    
+    # jjka data donasi sudah ada maka dijumlah
+    if len(data_donasi_now)>0:
+        total_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True)).aggregate(jumlah=Sum('nilai'))
+        total_now = total_donasi_now['jumlah']
+    else:
+        # kalau belum ada data donasi di nolkan
+        total_now=0
+    bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
+
+    formmydonation = FormMyDonation()
+
+    if request.user.is_authenticated:
+        user= User.objects.get(username=request.user.username)
+        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
+        jml_userbook=userbook.count()
+        userbook=userbook[:4]
+        mywishlist = MyWishlist.objects.all().filter(user=user)
+        jml_wishlist=mywishlist.count()
+        jml_mycart = MyCart.objects.all().filter(user=user).count()
+        inbox_message = inboxMessage.objects.all().filter(user=user)
+        jml_inbox_message = inbox_message.count()
+    else:
+        userbook = None
+        mywishlist = None
+        jml_inbox_message=0
+        jml_wishlist=0
+        jml_mycart=0
+        jml_userbook=0
+    
+    context = {
+        'userbook':userbook,
+        'mywishlist':mywishlist,
+        'jumlahwishlist':jml_wishlist,
+        'jml_mycart':jml_mycart,
+        'jml_inbox_message':jml_inbox_message,
+        'jml_userbook':jml_userbook,
+        'bulan_now':bulan_now,
+        'total_now':total_now,
+        'no_rekening':'01230254390',
+        'nama_bank':'BCA',
+        'nama_pemilik':'PT SULUH  CENDEKIA',
+        'form':formmydonation
+    }
+    return render(request,'landing/form-donasi.html',context)
