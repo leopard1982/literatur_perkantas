@@ -235,20 +235,23 @@ def mainPage(request):
             password = request.POST['password_login']
             user = authenticate(username=username,password=password)
             if(user):
-                # dapatkan semua session dengan user id yang sudah login
-                x=Session.objects.all()
-                for xx in x:
-                    # simpan data session di dalam penampung user_id
-                    # dan di decoded untuk mendapatkan user id nya
-                    user_id = xx.get_decoded()['_auth_user_id']
-                    # tipe data user_id adalah str, diubah dulu ke int
-                    user_id = int(user_id)
-                    # dibandingkan apakah user_id sama dengan id user yang akan login
-                    user_id_login = user.id
-                    # dicek apakah ada disession untuk login user tersebut
-                    if user_id == user_id_login:
-                        # jika ada hapus semua sessionnya
-                        Session.objects.all().filter(session_key=xx).delete()
+                try:
+                    # dapatkan semua session dengan user id yang sudah login
+                    x=Session.objects.all()
+                    for xx in x:
+                        # simpan data session di dalam penampung user_id
+                        # dan di decoded untuk mendapatkan user id nya
+                        user_id = xx.get_decoded()['_auth_user_id']
+                        # tipe data user_id adalah str, diubah dulu ke int
+                        user_id = int(user_id)
+                        # dibandingkan apakah user_id sama dengan id user yang akan login
+                        user_id_login = user.id
+                        # dicek apakah ada disession untuk login user tersebut
+                        if user_id == user_id_login:
+                            # jika ada hapus semua sessionnya
+                            Session.objects.all().filter(session_key=xx).delete()
+                except:
+                    pass
                 # dan login
                 login(request,user)
                 messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.userdetail.nama_lengkap}!')
