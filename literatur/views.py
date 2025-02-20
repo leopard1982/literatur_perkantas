@@ -235,10 +235,10 @@ def mainPage(request):
             password = request.POST['password_login']
             user = authenticate(username=username,password=password)
             if(user):
-                try:
-                    # dapatkan semua session dengan user id yang sudah login
-                    x=Session.objects.all()
-                    for xx in x:
+                # dapatkan semua session dengan user id yang sudah login
+                x=Session.objects.all()
+                for xx in x:
+                    try:
                         # simpan data session di dalam penampung user_id
                         # dan di decoded untuk mendapatkan user id nya
                         user_id = xx.get_decoded()['_auth_user_id']
@@ -250,8 +250,8 @@ def mainPage(request):
                         if user_id == user_id_login:
                             # jika ada hapus semua sessionnya
                             Session.objects.all().filter(session_key=xx).delete()
-                except:
-                    pass
+                    except Exception as ex:
+                        print(ex)
                 # dan login
                 login(request,user)
                 messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.userdetail.nama_lengkap}!')
