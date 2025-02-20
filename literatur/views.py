@@ -20,6 +20,8 @@ from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
 from django.template import loader
 from .forms import FormMyDonation
+# test untuk delete session user
+from django.contrib.sessions.models import Session
 
 def bulanTeks(bulan):
     if bulan==1:
@@ -150,6 +152,11 @@ def mainPage(request):
     except:
         userid=None
 
+    
+    # x=request.session.items()
+    # print(x)
+    # print(request.user.)
+
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
         userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
@@ -228,21 +235,21 @@ def mainPage(request):
             password = request.POST['password_login']
             user = authenticate(username=username,password=password)
             if(user):
-                sessionUser = Session.objects.all()
-                #delete aktif session yang ada
-                # for ses in sessionUser:
-                #         #cek apakah user id sudah pernah login
-                #         #jika pernah login hapus semua sesionnya
-                #         user_id = int(ses.get_decoded().get('_auth_user_id'))
-                #         try:
-                #             user_logged_id = int(request.user.id)
-                #         except:
-                #             user_logged_id=0
-
-                #         if(user_id == user_logged_id):
-                #             ses.delete()
-                #             ses.save()
-                #buat session baru
+                # dapatkan semua session dengan user id yang sudah login
+                x=Session.objects.all()
+                for xx in x:
+                    # simpan data session di dalam penampung user_id
+                    # dan di decoded untuk mendapatkan user id nya
+                    user_id = xx.get_decoded()['_auth_user_id']
+                    # tipe data user_id adalah str, diubah dulu ke int
+                    user_id = int(user_id)
+                    # dibandingkan apakah user_id sama dengan id user yang akan login
+                    user_id_login = user.id
+                    # dicek apakah ada disession untuk login user tersebut
+                    if user_id == user_id_login:
+                        # jika ada hapus semua sessionnya
+                        Session.objects.all().filter(session_key=xx).delete()
+                # dan login
                 login(request,user)
                 messages.add_message(request,messages.SUCCESS,f'Hallo, selamat datang {user.userdetail.nama_lengkap}!')
             else:
@@ -952,91 +959,81 @@ def paymentProcess(request):
     
     
 def bacaBukuKoleksi(request,id):
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        try:
-            book = Books.objects.get(id=id)
-        except:
-            messages.add_message(request,messages.SUCCESS,'Buku yang kaka cari tidak ada...')
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
-        
-        try:
-            userbook = UserBook.objects.get(Q(id_book=book) & Q(id_user=user))
-        except:
-            messages.add_message(request,messages.SUCCESS,'Karena ini buku berbayar, dan kaka belum memiliki di koleksi, kaka hanya bisa melihat preview sampul saja yah...')
-            return HttpResponseRedirect(f'/book/?id={book.id}')
+    try:
+        if request.user.is_authenticated:
+            user= User.objects.get(username=request.user.username)
+            try:
+                book = Books.objects.get(id=id)
+            except:
+                messages.add_message(request,messages.SUCCESS,'Buku yang kaka cari tidak ada...')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
+            
+            try:
+                userbook = UserBook.objects.get(Q(id_book=book) & Q(id_user=user))
+            except:
+                messages.add_message(request,messages.SUCCESS,'Karena ini buku berbayar, dan kaka belum memiliki di koleksi, kaka hanya bisa melihat preview sampul saja yah...')
+                return HttpResponseRedirect(f'/book/?id={book.id}')
 
-        try:
-            if request.method=="POST":
-                page = int(request.POST['halaman'])
+            try:
+                if request.method=="POST":
+                    page = int(request.POST['halaman'])
+                else:
+                    page=int(request.GET['p'])
+                
+                if page>book.halaman:
+                    page=book.halaman
+                userbook.last_page=int(page)
+                userbook.save()
+            except:
+                page=int(userbook.last_page)
+                if page==0:
+                    page=1
+            
+            mywishlist = MyWishlist.objects.all().filter(user=user)
+            jml_wishlist=mywishlist.count()
+            inbox_message = inboxMessage.objects.all().filter(user=user)
+            jml_inbox_message = inbox_message.count()
+            mycart = MyCart.objects.all().filter(user=user)
+            jml_mycart = mycart.count()
+
+            max_page = book.halaman
+
+            if page==1:
+                prev=1
             else:
-                page=int(request.GET['p'])
+                prev=page-1
             
-            if page>book.halaman:
-                page=book.halaman
-            userbook.last_page=int(page)
-            userbook.save()
-        except:
-            page=int(userbook.last_page)
-            if page==0:
-                page=1
-        
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-        mycart = MyCart.objects.all().filter(user=user)
-        jml_mycart = mycart.count()
+            next=page+1
+            if(next>max_page):
+                next=max_page
 
-        max_page = book.halaman
+            try:
+                pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            except:
+                pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
-        if page==1:
-            prev=1
+            context = {
+                'pengumuman':pengumuman,
+                'book':book,
+                'next':next,
+                'prev':prev,
+                'page':page,
+                'max_page':max_page,
+                'mywishlist':mywishlist,
+                'jumlahwishlist':jml_wishlist,
+                'jml_inbox_message':jml_inbox_message,
+                'jml_mycart':jml_mycart,
+
+            }
+            return render(request,'landing/baca-premium.html',context)
         else:
-            prev=page-1
-        
-        next=page+1
-        if(next>max_page):
-            next=max_page
-
-        try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
-        except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
-
-        context = {
-            'pengumuman':pengumuman,
-            'book':book,
-            'next':next,
-            'prev':prev,
-            'page':page,
-            'max_page':max_page,
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
-            'jml_inbox_message':jml_inbox_message,
-            'jml_mycart':jml_mycart,
-
-        }
-        return render(request,'landing/baca-premium.html',context)
-    else:
-        messages.add_message(request,messages.SUCCESS,'Untuk bisa membaca buku ini kaka harus login terlebih dahulu dan memiliki buku ini di koleksi kaka..')
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    # try:
-    #     if request.method=="POST":
-    #         page=int(request.POST['halaman'])
-    #         if(page>max_page):
-    #             page=5
-    #     else:
-    #         page=int(request.GET['p'])
-            
-    #         if int(page)>max_page:
-    #             page=max_page
-            
-    #         if page<1:
-    #             page=1
-
-    # except:
-    #     page=1
+            messages.add_message(request,messages.SUCCESS,'Ups sepertinya Kaka sudah login di device lain? Untuk bisa membaca buku ini kaka harus login terlebih dahulu dan memiliki buku ini di koleksi kaka..')
+            return HttpResponseRedirect("/")
+    except Exception as ex:
+        print(ex)
+        messages.add_message(request,messages.SUCCESS,'Kaka sudah login di device lain, silakan login di device ini untuk bisa melanjutkan baca yah...')
+        return HttpResponseRedirect('/')
+    
 
 def allKoleksiView(request):
     try:
