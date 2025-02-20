@@ -698,6 +698,7 @@ def listInboxMessage(request):
         }
         return render(request,'landing/list-inbox.html',context)
     else:
+        messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/')
     
 def sinopsisBuku(request,id):
@@ -901,7 +902,7 @@ def paymentProcess(request):
             except Exception as ex:
                 print(ex)
         else:
-            messages.add_message(request,messages.SUCCESS,"Silakan Kaka login terlebih dahulu untuk memproses pembayaran...")
+            messages.add_message(request,messages.SUCCESS,"Ups.. sepertinya kaka baru login di device lain? Silakan Kaka login kembali di browser ini untuk memproses pembayaran...")
 
         
     if request.user.is_authenticated:
@@ -958,6 +959,7 @@ def paymentProcess(request):
             }
         return render(request,'landing/payment.html',context)
     else:
+                messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/cart/')
     
     
@@ -1269,6 +1271,7 @@ def listPayment(request):
         }
         return render(request,'landing/detail-payment.html',context)
     else:
+        messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/')
 
 def gantiPasswordPage(request):
