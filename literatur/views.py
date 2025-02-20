@@ -959,7 +959,7 @@ def paymentProcess(request):
             }
         return render(request,'landing/payment.html',context)
     else:
-                messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
+        messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/cart/')
     
     
