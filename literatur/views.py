@@ -143,6 +143,7 @@ def verifyLinkLupaPassword(request,id):
 
 def logoutUser(request):
     logout(request)
+    messages.add_message(request,messages.SUCCESS,"Kaka sudah logout.. silakan login untuk bisa membaca buku koleksi...")
     return HttpResponseRedirect('/')
 
 def mainPage(request):
