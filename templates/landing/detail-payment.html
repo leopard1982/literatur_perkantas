@@ -240,10 +240,10 @@
               </div>
 
               <ol class="payment-books">
-                {% for detail in mypaymentdetail %}
-                  {% if detail.payment == payment %}
+                {% for detail in payment.detail_items %}
                   <li><strong>{{ detail.book.judul }}</strong> - Rp.{{ detail.harga|intcomma }}</li>
-                  {% endif %}
+                {% empty %}
+                  <li>Belum ada detail buku untuk invoice ini.</li>
                 {% endfor %}
               </ol>
 

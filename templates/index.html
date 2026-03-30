@@ -4,6 +4,11 @@
 
 {% block styling_akuh %}
 <style>
+  .deferred-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 900px;
+  }
+
   /* ===== HOME PAGE CARD STYLES ===== */
 
   /* === SECTION LAYOUT === */
@@ -1968,7 +1973,13 @@
                 </div>
                 <div class="col-md-6 text-center">
                   <div class="image-holder">
-                    <img src="/media/extract/pdf_full/{{feature.book.id}}/1.jpg"  class="img-fluid w-75 shadow rounded"  alt="banner"  >
+                    <img
+                      src="/media/extract/pdf_full/{{feature.book.id}}/1.jpg"
+                      class="img-fluid w-75 shadow rounded"
+                      alt="banner"
+                      fetchpriority="{% if forloop.first %}high{% else %}auto{% endif %}"
+                      loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                      decoding="async">
                   </div>
                 </div>
               </div>
@@ -2139,7 +2150,7 @@
 
     
 
-    <section id="items-listing" class="info-books-section">
+    <section id="items-listing" class="info-books-section deferred-section">
       <div class="container text-dark">
         <div class="info-books-header">
           <div class="info-books-copy">
@@ -2580,7 +2591,7 @@
       </div>
     </section>
 
-    <section id="best-selling-items" class="free-books-section">
+    <section id="best-selling-items" class="free-books-section deferred-section">
       <div class="container free-books-shell">
         <div class="free-books-header">
           <div class="free-books-copy">
@@ -2640,7 +2651,7 @@
       </div>
     </section>
 
-    <section id="latest-posts" class="blog-section">
+    <section id="latest-posts" class="blog-section deferred-section">
       <div class="container">
         <div class="blog-section-header">
           <div class="blog-section-copy">
@@ -2659,7 +2670,7 @@
               <div class="blog-card">
                 <div class="blog-img-wrap">
                 <a href="{% url 'detail_blog' blog.id %}">
-                  <img src="{{blog.image.url}}" alt="{{ blog.header }}">
+                  <img loading="lazy" decoding="async" src="{{blog.image.url}}" alt="{{ blog.header }}">
                 </a>
                 </div>
                 <div class="blog-body">
@@ -2684,7 +2695,7 @@
       </div>
     </section>
 
-    <section id="customers-reviews" class="reviews-section">
+    <section id="customers-reviews" class="reviews-section deferred-section">
       <div class="container">
         <div class="reviews-header">
           <div class="reviews-copy">
@@ -2737,7 +2748,7 @@
 
     
 
-    <section id="instagram" class="instagram-section">
+    <section id="instagram" class="instagram-section deferred-section">
       <div class="container">
         <div class="instagram-header">
           <div class="instagram-copy">
@@ -2773,7 +2784,7 @@
           {% for inst in instagram %}
           <div class="swiper-slide">
             <a href="{{ inst.link }}" class="insta-item" target="_blank" rel="noopener">
-              <img src="{{ inst.gambar.url }}" alt="Instagram Litanas">
+              <img loading="lazy" decoding="async" src="{{ inst.gambar.url }}" alt="Instagram Litanas">
               <div class="insta-overlay">
                 <svg style="width:30px;height:30px;color:white;"><use xlink:href="#instagram"></use></svg>
               </div>

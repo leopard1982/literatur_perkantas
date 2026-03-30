@@ -2,6 +2,13 @@
 {% load static %}
 
 {% block styling_akuh %}
+<link rel="preload" as="image" href="{{ current_page_image }}">
+{% if next_page_image %}
+<link rel="prefetch" as="image" href="{{ next_page_image }}">
+{% endif %}
+{% if prev_page_image %}
+<link rel="prefetch" as="image" href="{{ prev_page_image }}">
+{% endif %}
 <style>
   .reader-wrapper {
     background: #f5f3ef;
@@ -241,8 +248,12 @@
   <!-- Book Page -->
   <div class="reader-content">
     <div class="page-image-wrapper">
-      <img src="/media/extract/pdf_full/{{ book.id }}/{{ page }}.jpg"
-           alt="Halaman {{ page }}">
+      <img src="{{ current_page_image }}"
+           alt="Halaman {{ page }}"
+           width="2000"
+           height="1500"
+           fetchpriority="high"
+           decoding="async">
     </div>
 
     <!-- Bottom Nav -->

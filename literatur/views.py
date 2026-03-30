@@ -6,7 +6,7 @@ from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation
-from django.db.models import Avg,Q,Sum
+from django.db.models import Avg,Q,Sum,Prefetch
 import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -22,6 +22,128 @@ from django.template import loader
 from .forms import FormMyDonation
 # test untuk delete session user
 from django.contrib.sessions.models import Session
+
+DEFAULT_PENGUMUMAN = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+
+
+def get_authenticated_user(request):
+    if request.user.is_authenticated:
+        return request.user
+    return None
+
+
+def get_pengumuman_text():
+    return (
+        Pengumuman.objects.order_by('-id').values_list('pengumuman', flat=True).first()
+        or DEFAULT_PENGUMUMAN
+    )
+
+
+def build_user_view_context(
+    user,
+    *,
+    include_cart=False,
+    include_checked_cart=False,
+    include_inbox=False,
+    include_koleksi=False,
+    include_userbook_preview=False,
+    include_owned_book_ids=False,
+):
+    context = {
+        'mywishlist': None,
+        'jumlahwishlist': 0,
+        'jml_mycart': 0,
+        'jml_inbox_message': 0,
+    }
+
+    if user is None:
+        if include_checked_cart:
+            context['jml_dibeli'] = 0
+        if include_cart:
+            context['mycart'] = None
+        if include_inbox:
+            context['inbox_message'] = None
+        if include_koleksi:
+            context['koleksiku'] = None
+            context['jml_koleksiku'] = 0
+        if include_userbook_preview:
+            context['userbook'] = None
+            context['jml_userbook'] = 0
+        if include_owned_book_ids:
+            context['owned_book_ids'] = []
+        return context
+
+    wishlist_qs = MyWishlist.objects.filter(user=user).select_related(
+        'book__kategori', 'book__onsalebook'
+    ).order_by('-id')
+    inbox_qs = inboxMessage.objects.filter(user=user).order_by('-id')
+
+    context.update({
+        'mywishlist': wishlist_qs,
+        'jumlahwishlist': wishlist_qs.count(),
+        'jml_inbox_message': inbox_qs.count(),
+    })
+
+    if include_inbox:
+        context['inbox_message'] = inbox_qs
+
+    cart_qs = None
+    if include_cart or include_checked_cart:
+        cart_qs = MyCart.objects.filter(user=user).select_related(
+            'book__kategori', 'book__onsalebook'
+        ).order_by('-id')
+        context['jml_mycart'] = cart_qs.count()
+        if include_cart:
+            context['mycart'] = cart_qs
+        if include_checked_cart:
+            context['jml_dibeli'] = cart_qs.filter(is_checked=True).count()
+    else:
+        context['jml_mycart'] = MyCart.objects.filter(user=user).count()
+
+    koleksi_qs = None
+    if include_koleksi or include_userbook_preview or include_owned_book_ids:
+        koleksi_qs = UserBook.objects.filter(id_user=user).select_related(
+            'id_book__kategori', 'id_book__onsalebook'
+        ).order_by('-id')
+
+    if include_koleksi:
+        context['koleksiku'] = koleksi_qs
+        context['jml_koleksiku'] = koleksi_qs.count()
+
+    if include_userbook_preview:
+        context['userbook'] = koleksi_qs[:4]
+        context['jml_userbook'] = koleksi_qs.count()
+
+    if include_owned_book_ids:
+        context['owned_book_ids'] = list(
+            UserBook.objects.filter(id_user=user).values_list('id_book_id', flat=True)
+        )
+
+    return context
+
+
+def build_pagination_context(page_obj, current_page):
+    current_page = int(current_page)
+    page_range = list(page_obj.paginator.page_range)
+
+    if current_page > 1:
+        prev_page = current_page - 1
+    else:
+        prev_page = 1
+
+    if current_page < page_obj.paginator.num_pages:
+        next_page = current_page + 1
+    else:
+        next_page = current_page
+
+    return {
+        'prev_page': prev_page,
+        'next_page': next_page,
+        'range_page': page_range,
+        'halaman': page_obj,
+        'current': current_page,
+    }
+
 
 def bulanTeks(bulan):
     if bulan==1:
@@ -158,27 +280,14 @@ def mainPage(request):
     # print(x)
     # print(request.user.)
 
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        userbook_qs = UserBook.objects.all().filter(id_user=user).order_by('-id')
-        jml_userbook=userbook_qs.count()
-        owned_book_ids = list(userbook_qs.values_list('id_book_id', flat=True))
-        userbook=userbook_qs[:4]
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-    else:
-        userbook = None
-        mywishlist = None
-        jml_inbox_message=0
-        jml_wishlist=0
-        jml_mycart=0
-        jml_userbook=0
-        owned_book_ids = []
+    user = get_authenticated_user(request)
+    user_context = build_user_view_context(
+        user,
+        include_userbook_preview=True,
+        include_owned_book_ids=True,
+    )
 
-    blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')[:4]
+    blogs = Blogs.objects.filter(is_active=True).select_related('author').order_by('-created_at')[:4]
 
     if request.method=="POST":
         if 'username_register' in request.POST:
@@ -263,7 +372,7 @@ def mainPage(request):
             
         return HttpResponseRedirect('/')
 
-    page_review = PageReview.objects.filter(is_active=True).select_related('user__userdetail').order_by('-updated_at')
+    page_review = PageReview.objects.filter(is_active=True).select_related('user__userdetail').order_by('-updated_at')[:10]
 
     featured_book = FeaturedBook.objects.filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).select_related('book__kategori').order_by('-updated_at')[:4]
     category = Category.objects.all()
@@ -275,12 +384,12 @@ def mainPage(request):
     books_on_sale = OnSaleBook.objects.select_related('book__kategori').order_by('-updated_at')[:4]
 
     #category=3 free
-    free_book = Books.objects.filter(kategori__in=category.filter(id=3)).select_related('kategori')
+    free_book = Books.objects.filter(kategori__in=category.filter(id=3)).select_related('kategori').order_by('-updated_at')[:12]
     print(books_on_sale)
     try:
-        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        pengumuman = get_pengumuman_text()
     except:
-        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        pengumuman = DEFAULT_PENGUMUMAN
 
     instagram = Instagram.objects.all().order_by('-id')[:6]
 
@@ -297,16 +406,10 @@ def mainPage(request):
         'pengumuman':pengumuman,
         'instagram':instagram,
         'free_book':free_book,
-        'userbook':userbook,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
         'blogs':blogs,
-        'jml_userbook':jml_userbook,
         'jml_on_sale':jml_on_sale,
-        'owned_book_ids': owned_book_ids,
     }
+    context.update(user_context)
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
     return render(request,'index.html',context)
@@ -322,20 +425,7 @@ def bacaBuku(request):
     except:
         return HttpResponseRedirect(reverse('main_page'))
     
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-        mycart = MyCart.objects.all().filter(user=user)
-        jml_mycart = mycart.count()
-    else:
-        mywishlist = None
-        jml_wishlist=0
-        jml_inbox_message=0
-        mycart=None
-        jml_mycart=0
+    user_context = build_user_view_context(get_authenticated_user(request))
 
     try:
         if request.method=="POST":
@@ -365,9 +455,9 @@ def bacaBuku(request):
     next=page+1
 
     try:
-        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        pengumuman = get_pengumuman_text()
     except:
-        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        pengumuman = DEFAULT_PENGUMUMAN
 
     context = {
         'pengumuman':pengumuman,
@@ -376,17 +466,16 @@ def bacaBuku(request):
         'prev':prev,
         'page':page,
         'max_page':max_page,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'jml_inbox_message':jml_inbox_message,
-        'jml_mycart':jml_mycart,
-
+        'current_page_image': f"/media/extract/pdf_full/{book.id}/{page}.jpg",
+        'prev_page_image': f"/media/extract/pdf_full/{book.id}/{prev}.jpg" if page > 1 else None,
+        'next_page_image': f"/media/extract/pdf_full/{book.id}/{next}.jpg" if page < max_page else None,
     }
+    context.update(user_context)
     return render(request,'landing/baca-buku.html',context)
 
 def addWishList(request,id):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
             try:
@@ -409,7 +498,7 @@ def addWishList(request,id):
 
 def delWishList(request,id):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
             print(book)
@@ -494,42 +583,20 @@ def allBookView(request):
 
     jumlah_promo = OnSaleBook.objects.filter(is_active=True).count()
 
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-        owned_book_ids = list(
-            UserBook.objects.filter(id_user=user).values_list('id_book_id', flat=True)
-        )
-    else:
-        mywishlist = None
-        jml_wishlist=0
-        jml_mycart=0
-        jml_inbox_message=0
-        owned_book_ids = []
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_owned_book_ids=True,
+    )
 
 
     page = Paginator(books, per_page=page_size)
     range_page = page.page_range
     
     try:
-            halaman = page.page(h)
+        halaman = page.page(h)
     except:
-            h=1
-            halaman = page.page(1)
-
-    if(int(h)>1):
-            prev_page=int(h)-1
-    else:
-            prev_page=1
-        
-    if(int(h)<page.num_pages):
-            next_page=int(h)+1
-    else:
-            next_page=h
+        h=1
+        halaman = page.page(1)
 
     if page.num_pages <= 5:
         page_numbers = list(page.page_range)
@@ -541,38 +608,30 @@ def allBookView(request):
         page_numbers = [1, None, h - 1, h, h + 1, None, page.num_pages]
 
     try:
-        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        pengumuman = get_pengumuman_text()
     except:
-        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        pengumuman = DEFAULT_PENGUMUMAN
 
     context = {
         'category':category,
         'books':books,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
         'kategori':kategori,
         'jumlah_promo':jumlah_promo,
         'pengumuman':pengumuman,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
-        'prev_page':prev_page,
-        'next_page':next_page,
-        'range_page':range_page,
         'page_numbers':page_numbers,
-        'halaman':halaman,
-        'current':int(h),
-        'owned_book_ids':owned_book_ids,
         'tab_title':tab_title,
         'tab_subtitle':tab_subtitle,
         'total_books':books.count(),
         'page_size':page_size,
         'limit_options':limit_options,
     }
+    context.update(user_context)
+    context.update(build_pagination_context(halaman, h))
     return render(request,'landing/all-book.html',context)
 
 def addCartList(request,id):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
             try:
@@ -623,14 +682,12 @@ def addCartList(request,id):
 
 def cartView(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.filter(user=user).select_related('book__onsalebook')
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
+        user_context = build_user_view_context(
+            get_authenticated_user(request),
+            include_cart=True,
+            include_checked_cart=True,
+        )
+        mycart = user_context['mycart']
         total_payment = 0
         for cart in mycart.filter(is_checked=True):
             try:
@@ -643,21 +700,16 @@ def cartView(request):
                 total_payment += int(cart.book.price)
 
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         context = {
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'mycart':mycart,
             'total_payment':total_payment,
-            'jml_dibeli':jml_dibeli,
-            'jml_inbox_message':jml_inbox_message
 
         }
+        context.update(user_context)
         return render(request,'landing/daftar_cart.html',context)
     else:
         return HttpResponseRedirect('/')
@@ -666,7 +718,7 @@ def cartView(request):
 
 def delCartList(request,id):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
             try:
@@ -683,7 +735,7 @@ def delCartList(request,id):
 
 def changeCartStatus(request,id):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
             try:
@@ -703,14 +755,13 @@ def changeCartStatus(request,id):
     
 def listInboxMessage(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
-        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
-        jml_inbox_message = inbox_message.count()
+        user_context = build_user_view_context(
+            get_authenticated_user(request),
+            include_cart=True,
+            include_checked_cart=True,
+            include_inbox=True,
+        )
+        inbox_message = user_context['inbox_message']
 
         try:
             h=int(request.GET['h'])
@@ -718,7 +769,6 @@ def listInboxMessage(request):
             h=1
 
         page = Paginator(inbox_message,per_page=10)
-        range_page = page.page_range
     
         try:
             halaman = page.page(h)
@@ -726,37 +776,17 @@ def listInboxMessage(request):
             h=1
             halaman = page.page(1)
 
-        if(int(h)>1):
-            prev_page=int(h)-1
-        else:
-            prev_page=1
-        
-        if(int(h)<page.num_pages):
-            next_page=int(h)+1
-        else:
-            next_page=h
-
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
         
         context = {
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'mycart':mycart,
-            'jml_dibeli':jml_dibeli,
-            'jml_inbox_message':jml_inbox_message,
             'inbox_message':inbox_message,
-            'prev_page':prev_page,
-            'next_page':next_page,
-            'range_page':range_page,
-            'halaman':halaman,
-            'current':int(h)
-
         }
+        context.update(user_context)
+        context.update(build_pagination_context(halaman, h))
         return render(request,'landing/list-inbox.html',context)
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
@@ -767,7 +797,7 @@ def deleteInboxMessage(request,id):
         if request.method != "POST":
             return HttpResponseRedirect(reverse('list_inbox_message'))
 
-        user = User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         current_page = request.POST.get('h', '1')
 
         deleted_count, _ = inboxMessage.objects.filter(id=id, user=user).delete()
@@ -782,42 +812,25 @@ def deleteInboxMessage(request,id):
         return HttpResponseRedirect('/')
     
 def sinopsisBuku(request,id):
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
-        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
-        jml_inbox_message = inbox_message.count()
-    else:
-        mywishlist=None
-        jml_wishlist=0
-        jml_mycart=0
-        mycart=None
-        jml_dibeli=None
-        jml_inbox_message=0
-        inbox_message=None
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_cart=True,
+        include_checked_cart=True,
+        include_inbox=True,
+    )
 
     try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
     except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
     try:
         book = Books.objects.select_related('kategori', 'onsalebook').get(id=id)
         context = {
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'mycart':mycart,
-            'jml_dibeli':jml_dibeli,
-            'jml_inbox_message':jml_inbox_message,
-            'inbox_message':inbox_message,
             'book':book
         }
+        context.update(user_context)
         return render(request,'landing/sinopsis.html',context)
     except:
         messages.add_message(request,messages.SUCCESS,"Maaf sinopsis dari buku yang kaka dari tidak diketemukan...")
@@ -825,26 +838,14 @@ def sinopsisBuku(request,id):
         
     
 def allBlogsView(request):
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-    else:
-        mywishlist = None
-        jml_wishlist=0
-        jml_mycart=0
-        jml_inbox_message=0
+    user_context = build_user_view_context(get_authenticated_user(request))
 
     try:
         h=request.GET['h']
     except:
         h=1
-    blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')
+    blogs = Blogs.objects.filter(is_active=True).select_related('author').order_by('-created_at')
     page = Paginator(blogs,per_page=8)
-    range_page = page.page_range
     
     try:
         halaman = page.page(h)
@@ -852,86 +853,52 @@ def allBlogsView(request):
         h=1
         halaman = page.page(1)
 
-    if(int(h)>1):
-        prev_page=int(h)-1
-    else:
-        prev_page=1
-    
-    if(int(h)<page.num_pages):
-        next_page=int(h)+1
-    else:
-        next_page=h
-
     try:
-        pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+        pengumuman = get_pengumuman_text()
     except:
-        pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+        pengumuman = DEFAULT_PENGUMUMAN
 
     context = {
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
         'pengumuman':pengumuman,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
         'blogs':blogs,
-        'prev_page':prev_page,
-        'next_page':next_page,
-        'range_page':range_page,
-        'halaman':halaman,
-        'current':int(h)
     }
+    context.update(user_context)
+    context.update(build_pagination_context(halaman, h))
     return render(request,'landing/all-blogs.html',context)
 
 def detailBlog(request,id):
     try:
-        blog = Blogs.objects.get(id=id)
+        blog = Blogs.objects.select_related('author').get(id=id)
     except:
         messages.add_message(request,messages.success,"Maaf, blogs yang kaka cari tidak ada...")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
-        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
-        jml_inbox_message = inbox_message.count()
-    else:
-        mywishlist=None
-        jml_wishlist=0
-        jml_mycart=0
-        mycart=None
-        jml_dibeli=None
-        jml_inbox_message=0
-        inbox_message=None
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_cart=True,
+        include_checked_cart=True,
+        include_inbox=True,
+    )
     
     try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
     except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
     prev = request.META.get('HTTP_REFERER')
 
     context = {
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'mycart':mycart,
-            'jml_dibeli':jml_dibeli,
-            'jml_inbox_message':jml_inbox_message,
-            'inbox_message':inbox_message,
             'blog':blog,
             'prev':prev,
         }
+    context.update(user_context)
     return render(request,'landing/blog-detail.html',context)
 
 def paymentProcess(request):
     if request.method == "POST":
         if request.user.is_authenticated:
-            user = User.objects.get(username=request.user.username)
+            user = get_authenticated_user(request)
             x=request.FILES['bukti_bayar']
             filenya = "bukti_bayar/" + str(uuid.uuid4()) + ".jpg"
             default_storage.save(filenya, x)
@@ -981,24 +948,24 @@ def paymentProcess(request):
 
         
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.filter(user=user).select_related('book__onsalebook')
+        user = get_authenticated_user(request)
+        user_context = build_user_view_context(
+            user,
+            include_cart=True,
+            include_checked_cart=True,
+            include_inbox=True,
+        )
+        mycart = user_context['mycart']
         mycart_buy = mycart.filter(is_checked=True)
         jml_mcart_buy = mycart_buy.count()
-        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
-        jml_inbox_message = inbox_message.count()
 
         if(mycart_buy.count()==0) :
             return HttpResponseRedirect("/cart/")
 
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         nomor_invoice = 'ltn'+str(datetime.datetime.now().year) + str(uuid.uuid4())
 
@@ -1015,14 +982,7 @@ def paymentProcess(request):
                 total_bayar += cart.book.price
         total_bayar = f"{int(total_bayar)}.00"
         context = {
-                'mywishlist':mywishlist,
-                'jumlahwishlist':jml_wishlist,
                 'pengumuman':pengumuman,
-                'jml_mycart':jml_mycart,
-                'mycart':mycart,
-                'jml_dibeli':jml_dibeli,
-                'jml_inbox_message':jml_inbox_message,
-                'inbox_message':inbox_message,
                 'mycart_buy':mycart_buy,
                 'nomor_invoice':nomor_invoice,
                 'jml_mycart_buy':jml_mcart_buy,
@@ -1031,6 +991,7 @@ def paymentProcess(request):
                 'nama_bank':'BCA',
                 'nama_pemilik':'PT SULUH  CENDEKIA'
             }
+        context.update(user_context)
         return render(request,'landing/payment.html',context)
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
@@ -1040,7 +1001,7 @@ def paymentProcess(request):
 def bacaBukuKoleksi(request,id):
     try:
         if request.user.is_authenticated:
-            user= User.objects.get(username=request.user.username)
+            user = get_authenticated_user(request)
             try:
                 book = Books.objects.select_related('kategori').get(id=id)
             except:
@@ -1068,12 +1029,7 @@ def bacaBukuKoleksi(request,id):
                 if page==0:
                     page=1
             
-            mywishlist = MyWishlist.objects.all().filter(user=user)
-            jml_wishlist=mywishlist.count()
-            inbox_message = inboxMessage.objects.all().filter(user=user)
-            jml_inbox_message = inbox_message.count()
-            mycart = MyCart.objects.all().filter(user=user)
-            jml_mycart = mycart.count()
+            user_context = build_user_view_context(user)
 
             max_page = book.halaman
 
@@ -1087,9 +1043,9 @@ def bacaBukuKoleksi(request,id):
                 next=max_page
 
             try:
-                pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+                pengumuman = get_pengumuman_text()
             except:
-                pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+                pengumuman = DEFAULT_PENGUMUMAN
 
             context = {
                 'pengumuman':pengumuman,
@@ -1098,12 +1054,8 @@ def bacaBukuKoleksi(request,id):
                 'prev':prev,
                 'page':page,
                 'max_page':max_page,
-                'mywishlist':mywishlist,
-                'jumlahwishlist':jml_wishlist,
-                'jml_inbox_message':jml_inbox_message,
-                'jml_mycart':jml_mycart,
-
             }
+            context.update(user_context)
             return render(request,'landing/baca-premium.html',context)
         else:
             messages.add_message(request,messages.SUCCESS,'Ups sepertinya Kaka sudah login di device lain? Untuk bisa membaca buku ini kaka harus login terlebih dahulu dan memiliki buku ini di koleksi kaka..')
@@ -1121,53 +1073,30 @@ def allKoleksiView(request):
         h=1
 
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-        jml_koleksiku = koleksiku.count()
+        user_context = build_user_view_context(
+            get_authenticated_user(request),
+            include_koleksi=True,
+        )
+        koleksiku = user_context['koleksiku']
 
         page = Paginator(koleksiku,per_page=8)
-        range_page = page.page_range
         
         try:
-                halaman = page.page(h)
+            halaman = page.page(h)
         except:
-                h=1
-                halaman = page.page(1)
-
-        if(int(h)>1):
-                prev_page=int(h)-1
-        else:
-                prev_page=1
-            
-        if(int(h)<page.num_pages):
-                next_page=int(h)+1
-        else:
-                next_page=h
+            h=1
+            halaman = page.page(1)
 
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         context = {
-            'koleksiku':koleksiku,
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'jml_inbox_message':jml_inbox_message,
-            'prev_page':prev_page,
-            'next_page':next_page,
-            'range_page':range_page,
-            'halaman':halaman,
-            'current':int(h),
-            'jml_koleksiku':jml_koleksiku
         }
+        context.update(user_context)
+        context.update(build_pagination_context(halaman, h))
         return render(request,'landing/all-koleksi.html',context)
 
     else:
@@ -1177,26 +1106,19 @@ def allKoleksiView(request):
 
 def profileView(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
+        user_context = build_user_view_context(
+            get_authenticated_user(request),
+            include_koleksi=True,
+        )
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         context = {
-            'koleksiku':koleksiku,
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'jml_inbox_message':jml_inbox_message,
         }
+        context.update(user_context)
         return render(request,'landing/profile.html',context)
 
     else:
@@ -1205,7 +1127,7 @@ def profileView(request):
 
 def profileUpdate(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
         if request.method == "POST":
             formnya = FormUpdateProfile(data=request.POST,files=request.FILES)
             if formnya.is_valid():
@@ -1283,28 +1205,22 @@ def profileUpdate(request):
                 messages.add_message(request,messages.SUCCESS,"Info Saya Gagal Diperbaharui...")
             return HttpResponseRedirect('/profile/')
 
-        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
+        user_context = build_user_view_context(
+            user,
+            include_koleksi=True,
+        )
         userdetail = UserDetail.objects.get(user=user)
         updateprofile = FormUpdateProfile(instance=userdetail)
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         context = {
-            'koleksiku':koleksiku,
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'jml_inbox_message':jml_inbox_message,
             'updateprofile':updateprofile
         }
+        context.update(user_context)
         return render(request,'landing/profile_edit.html',context)
 
     else:
@@ -1313,36 +1229,33 @@ def profileUpdate(request):
 
 def listPayment(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
-        inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
-        jml_inbox_message = inbox_message.count()
-        mypayment = MyPayment.objects.all().filter(user=user).order_by('-created_at')
+        user = get_authenticated_user(request)
+        user_context = build_user_view_context(
+            user,
+            include_cart=True,
+            include_checked_cart=True,
+            include_inbox=True,
+        )
+        mypayment = MyPayment.objects.filter(user=user).prefetch_related(
+            Prefetch(
+                'mypaymentdetail_set',
+                queryset=MyPaymentDetail.objects.select_related('book').order_by('id'),
+                to_attr='detail_items',
+            )
+        ).order_by('-created_at')
         jml_mypayment = mypayment.count()
-        mypaymentdetail = MyPaymentDetail.objects.all().filter(payment__in=mypayment)
 
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
         
         context = {
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'mycart':mycart,
-            'jml_dibeli':jml_dibeli,
-            'jml_inbox_message':jml_inbox_message,
-            'inbox_message':inbox_message,
             'mypayment':mypayment,
             'jml_mypayment':jml_mypayment,
-            'mypaymentdetail':mypaymentdetail
         }
+        context.update(user_context)
         return render(request,'landing/detail-payment.html',context)
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
@@ -1350,7 +1263,7 @@ def listPayment(request):
 
 def gantiPasswordPage(request):
     if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
+        user = get_authenticated_user(request)
 
         if request.method=="POST":
             password_lama = request.POST['password_lama']
@@ -1402,25 +1315,19 @@ def gantiPasswordPage(request):
                 messages.add_message(request,messages.SUCCESS,'Password Lama Tidak Sesuai... silakan ulangi kembali...')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        koleksiku = UserBook.objects.all().filter(id_user=user)
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
+        user_context = build_user_view_context(
+            user,
+            include_koleksi=True,
+        )
         try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
         except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
         context = {
-            'koleksiku':koleksiku,
-            'mywishlist':mywishlist,
-            'jumlahwishlist':jml_wishlist,
             'pengumuman':pengumuman,
-            'jml_mycart':jml_mycart,
-            'jml_inbox_message':jml_inbox_message,
         }
+        context.update(user_context)
         return render(request,'landing/change_password.html',context)
 
     else:
@@ -1432,8 +1339,12 @@ def pencarianInfo(request):
         if request.method=="POST":
             keyword = request.POST['s']
 
-            blog = Blogs.objects.all().filter(Q(header__icontains=keyword) | Q(body__icontains=keyword))
-            book = Books.objects.all().filter(Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword))
+            blog = Blogs.objects.filter(
+                Q(header__icontains=keyword) | Q(body__icontains=keyword)
+            ).select_related('author')
+            book = Books.objects.filter(
+                Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword)
+            ).select_related('kategori', 'onsalebook')
 
             jumlah_blog = blog.count()
             jumlah_book = book.count()
@@ -1443,35 +1354,16 @@ def pencarianInfo(request):
         return HttpResponseRedirect('/')
     
     try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
     except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
-        jml_userbook=userbook.count()
-        userbook=userbook[:4]
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-    else:
-        userbook = None
-        mywishlist = None
-        jml_inbox_message=0
-        jml_wishlist=0
-        jml_mycart=0
-        jml_userbook=0
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_userbook_preview=True,
+    )
     
     context = {
-        'userbook':userbook,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
-        'jml_userbook':jml_userbook,
         'keyword':keyword,
         'book':book,
         'blog':blog,
@@ -1479,6 +1371,7 @@ def pencarianInfo(request):
         'jumlah_book':jumlah_book,
         'pengumuman':pengumuman
     }
+    context.update(user_context)
     return render(request,'landing/search.html',context)
 
 def error500(request):
@@ -1502,39 +1395,21 @@ def tentangKami(request):
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
 
     try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
     except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
-        jml_userbook=userbook.count()
-        userbook=userbook[:4]
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-    else:
-        userbook = None
-        mywishlist = None
-        jml_inbox_message=0
-        jml_wishlist=0
-        jml_mycart=0
-        jml_userbook=0
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_userbook_preview=True,
+    )
     
     context = {
-        'userbook':userbook,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
-        'jml_userbook':jml_userbook,
         'bulan_now':bulan_now,
         'total_now':total_now,
         'pengumuman':pengumuman
     }
+    context.update(user_context)
     return render(request,'landing/tentangkami.html',context)
 
 def melakukanDonasi(request):
@@ -1551,9 +1426,9 @@ def melakukanDonasi(request):
     data_donasi_now = MyDonation.objects.all().filter(Q(updated_at__month=bulan_donasi_now) & Q(updated_at__year=tahun_donasi_now) & Q(is_verified=True))
     
     try:
-            pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
+            pengumuman = get_pengumuman_text()
     except:
-            pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
+            pengumuman = DEFAULT_PENGUMUMAN
 
     # jjka data donasi sudah ada maka dijumlah
     if len(data_donasi_now)>0:
@@ -1566,31 +1441,12 @@ def melakukanDonasi(request):
 
     formmydonation = FormMyDonation()
 
-    if request.user.is_authenticated:
-        user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
-        jml_userbook=userbook.count()
-        userbook=userbook[:4]
-        mywishlist = MyWishlist.objects.all().filter(user=user)
-        jml_wishlist=mywishlist.count()
-        jml_mycart = MyCart.objects.all().filter(user=user).count()
-        inbox_message = inboxMessage.objects.all().filter(user=user)
-        jml_inbox_message = inbox_message.count()
-    else:
-        userbook = None
-        mywishlist = None
-        jml_inbox_message=0
-        jml_wishlist=0
-        jml_mycart=0
-        jml_userbook=0
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_userbook_preview=True,
+    )
     
     context = {
-        'userbook':userbook,
-        'mywishlist':mywishlist,
-        'jumlahwishlist':jml_wishlist,
-        'jml_mycart':jml_mycart,
-        'jml_inbox_message':jml_inbox_message,
-        'jml_userbook':jml_userbook,
         'bulan_now':bulan_now,
         'total_now':total_now,
         'no_rekening':'01230254390',
@@ -1600,4 +1456,5 @@ def melakukanDonasi(request):
         'donatur':data_donasi_now,
         'pengumuman':pengumuman
     }
+    context.update(user_context)
     return render(request,'landing/form-donasi.html',context)
