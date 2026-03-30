@@ -147,6 +147,29 @@
         },
       });      
 
+      var promoSpotlightElement = document.querySelector(".promo-spotlight-swiper");
+      if (promoSpotlightElement) {
+        var promoSpotlightSlideCount = promoSpotlightElement.querySelector(".swiper-wrapper")
+          ? promoSpotlightElement.querySelector(".swiper-wrapper").children.length
+          : 0;
+
+        new Swiper(promoSpotlightElement, {
+          direction: "vertical",
+          slidesPerView: 1,
+          spaceBetween: 18,
+          autoHeight: true,
+          speed: 850,
+          allowTouchMove: true,
+          loop: promoSpotlightSlideCount > 1,
+          autoplay: promoSpotlightSlideCount > 1 ? {
+            delay: 4200,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+            reverseDirection: true,
+          } : false,
+        });
+      }
+
       var instagramSwiper = null;
       var collectionShelfSwiper = null;
       var newBooksShelfSwiper = null;

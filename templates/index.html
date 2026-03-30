@@ -468,6 +468,12 @@
   .promo-spotlight-section {
     padding: 20px 0 28px;
   }
+  .promo-spotlight-swiper {
+    overflow: hidden;
+  }
+  .promo-spotlight-swiper .swiper-slide {
+    height: auto;
+  }
   .promo-spotlight {
     position: relative;
     overflow: hidden;
@@ -664,6 +670,9 @@
   @media (max-width: 991px) {
     .promo-spotlight {
       padding: 22px;
+    }
+    .promo-spotlight-title {
+      font-size: clamp(1.45rem, 5vw, 2rem);
     }
     .promo-book-card {
       margin: 0 auto;
@@ -2066,60 +2075,64 @@
     {% if books_on_sale %}
     <section class="promo-spotlight-section">
       <div class="container">
-        {% for book in books_on_sale %}
-          {% if forloop.first %}
-          <div class="promo-spotlight">
-            <div class="row align-items-center g-4">
-              <div class="col-lg-7">
-                <div class="promo-spotlight-copy">
-                  <span class="promo-spotlight-kicker"><i class="fa fa-bolt"></i> Promo Hari Ini</span>
-                  <h2 class="promo-spotlight-title">{{ book.header }}</h2>
-                  <p class="promo-spotlight-body">{{ book.body }}</p>
-                  <div class="promo-offer-grid">
-                    <div class="promo-offer-card">
-                      <strong>Harga awal</strong>
-                      <span class="muted">Rp.{{ book.book.price|intcomma }}.00</span>
-                    </div>
-                    <div class="promo-offer-card">
-                      <strong>Diskon</strong>
-                      <span class="discount">-{{ book.discount }}%</span>
-                    </div>
-                    <div class="promo-offer-card">
-                      <strong>Harga sekarang</strong>
-                      <span class="sale">Rp.{{ book.nett_price|intcomma }}</span>
-                    </div>
-                    <div class="promo-offer-card">
-                      <strong>Berlaku sampai</strong>
-                      <span>{{ book.end_date|date:"j F Y" }}</span>
+        <div class="swiper promo-spotlight-swiper">
+          <div class="swiper-wrapper">
+            {% for book in books_on_sale %}
+            <div class="swiper-slide">
+              <div class="promo-spotlight">
+                <div class="row align-items-center g-4">
+                  <div class="col-lg-7">
+                    <div class="promo-spotlight-copy">
+                      <span class="promo-spotlight-kicker"><i class="fa fa-bolt"></i> Promo Hari Ini</span>
+                      <h2 class="promo-spotlight-title">{{ book.header }}</h2>
+                      <p class="promo-spotlight-body">{{ book.body }}</p>
+                      <div class="promo-offer-grid">
+                        <div class="promo-offer-card">
+                          <strong>Harga awal</strong>
+                          <span class="muted">Rp.{{ book.book.price|intcomma }}.00</span>
+                        </div>
+                        <div class="promo-offer-card">
+                          <strong>Diskon</strong>
+                          <span class="discount">-{{ book.discount }}%</span>
+                        </div>
+                        <div class="promo-offer-card">
+                          <strong>Harga sekarang</strong>
+                          <span class="sale">Rp.{{ book.nett_price|intcomma }}</span>
+                        </div>
+                        <div class="promo-offer-card">
+                          <strong>Berlaku sampai</strong>
+                          <span>{{ book.end_date|date:"j F Y" }}</span>
+                        </div>
+                      </div>
+                      <div class="promo-spotlight-actions">
+                        <a href="{% url 'all_book_view' %}?k=12" class="promo-main-cta">
+                          <i class="fa fa-fire"></i> Cek Semua Promo
+                        </a>
+                        <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-secondary-cta">
+                          Lihat Detail Buku <i class="fa fa-arrow-right"></i>
+                        </a>
+                      </div>
                     </div>
                   </div>
-                  <div class="promo-spotlight-actions">
-                    <a href="{% url 'all_book_view' %}?k=12" class="promo-main-cta">
-                      <i class="fa fa-fire"></i> Cek Semua Promo
-                    </a>
-                    <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-secondary-cta">
-                      Lihat Detail Buku <i class="fa fa-arrow-right"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-5">
-                <div class="promo-book-card">
-                  <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-book-cover">
-                    <img src="/media/extract/pdf_full/{{ book.book.id }}/1.jpg" alt="{{ book.book.judul }}">
-                    <span class="promo-book-discount">Hemat {{ book.discount }}%</span>
-                  </a>
-                  <div class="promo-book-meta">
-                    <h3>{{ book.book.judul }}</h3>
-                    <p>{{ book.book.pengarang }}</p>
-                    <span class="promo-book-timing"><i class="fa fa-clock-o"></i> Promo aktif sampai {{ book.end_date|date:"j M Y" }}</span>
+                  <div class="col-lg-5">
+                    <div class="promo-book-card">
+                      <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-book-cover">
+                        <img src="/media/extract/pdf_full/{{ book.book.id }}/1.jpg" alt="{{ book.book.judul }}">
+                        <span class="promo-book-discount">Hemat {{ book.discount }}%</span>
+                      </a>
+                      <div class="promo-book-meta">
+                        <h3>{{ book.book.judul }}</h3>
+                        <p>{{ book.book.pengarang }}</p>
+                        <span class="promo-book-timing"><i class="fa fa-clock-o"></i> Promo aktif sampai {{ book.end_date|date:"j M Y" }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            {% endfor %}
           </div>
-          {% endif %}
-        {% endfor %}
+        </div>
       </div>
     </section>
     {% endif %}
