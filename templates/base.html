@@ -753,8 +753,8 @@
                 <div class="dropdown">
                   <a href="#" class="nav-action-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notice">
                     <i class="fa fa-bell" style="font-size:18px;"></i>
-                    {% if jml_inbox_message > 0 %}
-                    <span class="nav-badge">{{ jml_inbox_message }}</span>
+                    {% if nav_jml_inbox_message > 0 %}
+                    <span class="nav-badge">{{ nav_jml_inbox_message }}</span>
                     {% endif %}
                   </a>
                   <div class="dropdown-menu dropdown-menu-end notice-dropdown">
@@ -765,8 +765,8 @@
                       </div>
                     </div>
                     <div class="notice-list px-2 pb-2">
-                      {% if inbox_message %}
-                        {% for notice in inbox_message|slice:":10" %}
+                      {% if nav_inbox_message %}
+                        {% for notice in nav_inbox_message %}
                         <a href="{% url 'list_inbox_message' %}" class="notice-card">
                           <div class="title">{{ notice.header }}</div>
                           <div class="body">{{ notice.body|truncatechars:88 }}</div>
@@ -812,7 +812,7 @@
                     <li>
                       <a href="{% url 'list_inbox_message' %}" class="dropdown-item account-menu-item">
                         <span class="account-menu-main"><i class="fa fa-bell-o text-muted"></i> Inbox</span>
-                        <span class="account-menu-count">{{ jml_inbox_message }}</span>
+                        <span class="account-menu-count">{{ nav_jml_inbox_message }}</span>
                       </a>
                     </li>
                     <li>

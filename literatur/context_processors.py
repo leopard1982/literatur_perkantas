@@ -1,5 +1,7 @@
 from django.urls import reverse
 
+from .models import inboxMessage
+
 
 PUBLIC_BREADCRUMB_LABELS = {
     'main_page': 'Beranda',
@@ -114,4 +116,18 @@ def breadcrumbs(request):
             PUBLIC_BREADCRUMB_LABELS,
             PUBLIC_BREADCRUMB_PARENTS,
         )
+    }
+
+
+def nav_notifications(request):
+    if not request.user.is_authenticated:
+        return {
+            'nav_inbox_message': [],
+            'nav_jml_inbox_message': 0,
+        }
+
+    notice_qs = inboxMessage.objects.filter(user=request.user).order_by('-id')
+    return {
+        'nav_inbox_message': notice_qs[:10],
+        'nav_jml_inbox_message': notice_qs.count(),
     }
