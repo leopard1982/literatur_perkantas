@@ -4,3 +4,10 @@ db.sqlite3
 /literatur/migrations/
 /media/extract/
 /staticfolder
+.codex
+.claude
+.vs
+cms/migrations/
+cms/__pycache__/
+literatur/__pycache__/
+perkantas_literatur/__pycache__/
