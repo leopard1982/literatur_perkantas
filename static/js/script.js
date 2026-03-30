@@ -378,14 +378,23 @@
       initInstagramSwiper();
       window.addEventListener("resize", initInstagramSwiper);
 
-      var testimonialSwiper = new Swiper(".testimonial-swiper", {
-        slidesPerView: 1,
-        spaceBetween: 20,
-        navigation: {
-          nextEl: ".testimonial-button-next",
-          prevEl: ".testimonial-button-prev",
-        },
-      });
+      var testimonialElement = document.querySelector(".testimonial-swiper");
+      if (testimonialElement) {
+        var testimonialSlideCount = getRealSlideCount(testimonialElement);
+        var testimonialSwiper = new Swiper(testimonialElement, {
+          slidesPerView: 1,
+          spaceBetween: 20,
+          loop: testimonialSlideCount > 1,
+          autoHeight: true,
+          speed: 440,
+          navigation: {
+            nextEl: ".testimonial-button-next",
+            prevEl: ".testimonial-button-prev",
+          },
+        });
+
+        bindManualNav(testimonialSwiper, ".testimonial-button-prev", ".testimonial-button-next");
+      }
 
       var thumb_slider = new Swiper(".thumb-swiper", {
         slidesPerView: 1,
