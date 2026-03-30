@@ -1,3 +1,4 @@
+{% load static %}
 {% extends 'cms/base.html' %}
 
 {% block title %}Login CMS{% endblock %}
@@ -149,6 +150,18 @@
         margin-bottom: 10px;
     }
 
+    .mobile-login-brand {
+        display: none;
+        margin-bottom: 18px;
+        text-align: center;
+    }
+
+    .mobile-login-brand img {
+        width: auto;
+        max-width: min(220px, 70vw);
+        max-height: 72px;
+    }
+
     .auth-title {
         font-size: 2rem;
         line-height: 1.1;
@@ -230,13 +243,53 @@
     }
 
     @media (max-width: 960px) {
-        .auth-shell {
-            grid-template-columns: 1fr;
+        .shell {
+            padding-top: 20px;
+            padding-bottom: 20px;
         }
 
-        .auth-aside,
+        .auth-shell {
+            grid-template-columns: 1fr;
+            border-radius: 28px;
+        }
+
+        .auth-aside {
+            display: none;
+        }
+
         .auth-main {
             padding: 34px 24px;
+        }
+
+        .auth-panel {
+            max-width: 100%;
+        }
+
+        .mobile-login-brand {
+            display: block;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+        }
+
+        .auth-copy {
+            margin-bottom: 22px;
+        }
+
+        .auth-card {
+            padding: 22px 18px;
+            border-radius: 22px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-main {
+            padding: 24px 16px;
+        }
+
+        .auth-shell {
+            border-radius: 24px;
         }
     }
 </style>
@@ -275,6 +328,9 @@
 
     <section class="auth-main">
         <div class="auth-panel">
+            <div class="mobile-login-brand">
+                <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Literatur Perkantas">
+            </div>
             <div class="auth-kicker">CMS Login</div>
             <h2 class="auth-title">Masuk ke panel superuser</h2>
             <p class="auth-copy">Gunakan akun superuser untuk membuka area manajemen internal dan melanjutkan ke modul yang Anda butuhkan.</p>

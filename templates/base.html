@@ -162,6 +162,50 @@
         box-shadow: 0 4px 12px rgba(248,109,114,0.35);
         color: white !important;
       }
+      .mobile-top-actions {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .mobile-top-btn {
+        min-height: 38px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .mobile-top-btn-login {
+        background: linear-gradient(135deg, #F86D72, #e74c3c);
+        color: white !important;
+      }
+      .mobile-top-btn-profile {
+        background: #fff4f3;
+        border: 1px solid #f3d7d4;
+        color: #c96765;
+      }
+      .mobile-top-btn-profile:hover,
+      .mobile-top-btn-login:hover {
+        color: inherit;
+      }
+      .mobile-top-icon-btn {
+        min-width: 38px;
+        min-height: 38px;
+        padding: 0 10px;
+        justify-content: center;
+        position: relative;
+      }
+      .mobile-top-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
       /* Dropdown */
       .user-avatar-small {
         width: 36px;
@@ -278,34 +322,6 @@
         font-size: 13px;
         color: #7c8b95;
       }
-      .mobile-account-card {
-        border: 1px solid #f0e4de;
-        border-radius: 16px;
-        padding: 16px;
-        background: linear-gradient(180deg, #fff, #fff7f4);
-        margin: 12px 16px 0;
-      }
-      .mobile-account-links {
-        display: grid;
-        gap: 8px;
-        margin-top: 14px;
-      }
-      .mobile-account-links a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        color: #333;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 10px 12px;
-        border-radius: 12px;
-        background: rgba(255,255,255,0.86);
-      }
-      .mobile-account-links a:hover {
-        background: #fff0f0;
-        color: #F86D72;
-      }
       /* ===== FOOTER REDESIGN ===== */
       #footer {
         background: #1a1a2e !important;
@@ -411,6 +427,9 @@
           min-width: 0;
           justify-content: space-between;
         }
+        .mobile-top-actions {
+          display: inline-flex;
+        }
         .navbar-brand img.logo {
           max-width: calc(100vw - 108px);
           height: auto !important;
@@ -440,10 +459,6 @@
           border-top: 1px solid #f1f1f1;
           flex-wrap: wrap;
         }
-        .mobile-account-card {
-          width: calc(100% - 32px);
-          margin: 12px 16px 0;
-        }
         .nav-action-btn {
           min-width: 48px;
           justify-content: center;
@@ -457,9 +472,6 @@
         }
       }
       @media (min-width: 992px) {
-        .mobile-account-card {
-          display: none;
-        }
         .desktop-profile-only {
           display: flex !important;
         }
@@ -696,6 +708,92 @@
               <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" alt="Literatur Perkantas">
             </a>
 
+            <div class="mobile-top-actions d-lg-none">
+              {% if user.is_authenticated %}
+              <div class="dropdown d-lg-none">
+                <a href="#" class="mobile-top-btn mobile-top-btn-profile mobile-top-icon-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notice">
+                  <i class="fa fa-bell" style="font-size:16px;"></i>
+                  {% if nav_jml_inbox_message > 0 %}
+                  <span class="nav-badge">{{ nav_jml_inbox_message }}</span>
+                  {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end notice-dropdown">
+                  <div class="d-flex justify-content-between align-items-center px-3 pt-2 pb-1">
+                    <div>
+                      <div style="font-size:13px;font-weight:800;color:#24343d;">Notice</div>
+                      <div style="font-size:11px;color:#8a8f96;">Update terbaru akun Anda</div>
+                    </div>
+                  </div>
+                  <div class="notice-list px-2 pb-2">
+                    {% if nav_inbox_message %}
+                      {% for notice in nav_inbox_message %}
+                      <a href="{% url 'list_inbox_message' %}" class="notice-card">
+                        <div class="title">{{ notice.header }}</div>
+                        <div class="body">{{ notice.body|truncatechars:88 }}</div>
+                        <div class="meta">{{ notice.created_at|date:"d M Y H:i" }} WIB</div>
+                      </a>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="px-3 pb-3 pt-1 text-center">
+                    <a href="{% url 'list_inbox_message' %}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 16px;border-radius:999px;background:#fff3f2;border:1px solid #f3d7d4;color:#c97b78;font-size:12px;font-weight:800;text-decoration:none;">
+                      Lihat Semua <i class="fa fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown d-lg-none">
+                <a href="#" class="mobile-top-btn mobile-top-btn-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if user.userdetail.photo %}
+                    <img src="{{ user.userdetail.photo.url }}" class="mobile-top-avatar" alt="foto">
+                  {% else %}
+                    <i class="fa fa-user-circle" style="font-size:18px;"></i>
+                  {% endif %}
+                  Profil
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a href="{% url 'profile_view' %}" class="dropdown-item account-menu-item">
+                      <span class="account-menu-main"><i class="fa fa-user-circle-o text-muted"></i> Profil</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'semua_buku_koleksi' %}" class="dropdown-item account-menu-item">
+                      <span class="account-menu-main"><i class="fa fa-book text-muted"></i> Koleksiku</span>
+                      <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'cart_view' %}" class="dropdown-item account-menu-item">
+                      <span class="account-menu-main"><i class="fa fa-shopping-basket text-muted"></i> Keranjang</span>
+                      <span class="account-menu-count">{{ jml_mycart }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'list_inbox_message' %}" class="dropdown-item account-menu-item">
+                      <span class="account-menu-main"><i class="fa fa-bell-o text-muted"></i> Inbox</span>
+                      <span class="account-menu-count">{{ nav_jml_inbox_message }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'list_payment' %}" class="dropdown-item account-menu-item">
+                      <span class="account-menu-main"><i class="fa fa-credit-card text-muted"></i> Pembelian</span>
+                      <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
+                    </a>
+                  </li>
+                  <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item"><i class="fa fa-lock me-2 text-muted"></i> Ganti Password</a></li>
+                  <li><hr style="margin:6px 8px; border-color:#f0f0f0;"></li>
+                  <li><a href="{% url 'logout_user' %}" class="dropdown-item" style="color:#e74c3c;"><i class="fa fa-sign-out me-2"></i> Logout</a></li>
+                </ul>
+              </div>
+              {% else %}
+              <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" class="mobile-top-btn mobile-top-btn-login">
+                <i class="fa fa-user-o" style="font-size:15px;"></i>
+                Login
+              </a>
+              {% endif %}
+            </div>
+
             <!-- Mobile toggle -->
             <button class="navbar-toggler d-flex d-lg-none order-3 p-2 border-0" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -742,38 +840,10 @@
                   </a>
                 </li>
               </ul>
-
-              {% if user.is_authenticated %}
-              <div class="mobile-account-card d-lg-none">
-                <div class="d-flex align-items-center gap-3">
-                  {% if user.userdetail.photo %}
-                    <img src="{{ user.userdetail.photo.url }}" class="user-avatar-small" alt="foto">
-                  {% else %}
-                    <img src="{% static 'images/profile.jpeg' %}" class="user-avatar-small" alt="foto">
-                  {% endif %}
-                  <div style="min-width:0;">
-                    <div style="font-size:14px;font-weight:800;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.userdetail.nama_lengkap|truncatechars:24 }}</div>
-                    <div style="font-size:12px;color:#888;">{{ user.username }}</div>
-                  </div>
-                </div>
-                <div class="mobile-account-links">
-                  <a href="{% url 'profile_view' %}"><i class="fa fa-id-card text-muted"></i> Profil Saya</a>
-                  <a href="{% url 'semua_buku_koleksi' %}"><i class="fa fa-book text-muted"></i> Koleksi Buku</a>
-                  <a href="{% url 'cart_view' %}"><i class="fa fa-shopping-cart text-muted"></i> Keranjang Belanja</a>
-                  <a href="{% url 'list_payment' %}"><i class="fa fa-receipt text-muted"></i> Riwayat Pembelian</a>
-                  <a href="{% url 'ganti_password_page' %}"><i class="fa fa-lock text-muted"></i> Ganti Password</a>
-                  <a href="{% url 'logout_user' %}" style="color:#e74c3c;"><i class="fa fa-sign-out"></i> Logout</a>
-                </div>
-              </div>
-              {% endif %}
-
               <!-- Right: Action Icons -->
               <div class="header-actions mt-3 mt-lg-0">
                 {% if user.is_authenticated %}
-                <a href="#" class="nav-action-btn search-button d-lg-none" title="Cari">
-                  <svg class="search" style="width:20px;height:20px;"><use xlink:href="#search"></use></svg>
-                </a>
-                <div class="dropdown">
+                <div class="dropdown d-none d-lg-block">
                   <a href="#" class="nav-action-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notice">
                     <i class="fa fa-bell" style="font-size:18px;"></i>
                     {% if nav_jml_inbox_message > 0 %}
@@ -851,9 +921,6 @@
                 </div>
 
                 {% else %}
-                <a href="#" class="nav-action-btn search-button d-lg-none" title="Cari">
-                  <svg class="search" style="width:20px;height:20px;"><use xlink:href="#search"></use></svg>
-                </a>
                 <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn-login-nav d-none d-lg-inline-flex">
                   <svg class="user" style="width:18px;height:18px;filter:invert(1);"><use xlink:href="#user"></use></svg>
                   Login / Daftar
