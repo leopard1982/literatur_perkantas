@@ -273,6 +273,54 @@
     border-color: #273744;
     color: white;
   }
+  .inbox-delete-modal .modal-content {
+    border: 0;
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(28, 43, 52, 0.18);
+  }
+  .inbox-delete-modal .modal-header {
+    padding: 22px 24px 0;
+    border-bottom: 0;
+  }
+  .inbox-delete-modal .modal-title {
+    color: #18232b;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+  .inbox-delete-modal .modal-body {
+    padding: 10px 24px 0;
+    color: #5d6a73;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .inbox-delete-modal .modal-footer {
+    padding: 20px 24px 24px;
+    border-top: 0;
+    gap: 10px;
+  }
+  .inbox-delete-cancel,
+  .inbox-delete-confirm {
+    min-width: 120px;
+    min-height: 42px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .inbox-delete-cancel {
+    border: 1px solid rgba(217, 223, 228, 0.96);
+    background: #f7f9fb;
+    color: #55636d;
+  }
+  .inbox-delete-confirm {
+    border: 1px solid #c76f6c;
+    background: #c76f6c;
+    color: #fff;
+  }
+  .inbox-delete-confirm:hover {
+    border-color: #b95f5c;
+    background: #b95f5c;
+    color: #fff;
+  }
   @media (max-width: 991px) {
     .inbox-hero {
       flex-direction: column;
@@ -352,17 +400,35 @@
             </div>
             <div class="inbox-card-actions">
               <div class="inbox-card-time">{{ inbox.created_at|date:"j F Y, H:i" }} WIB</div>
-              <form method="post" action="{% url 'delete_inbox_message' inbox.id %}" class="inbox-delete-form" onsubmit="return confirm('Hapus notifikasi ini?');">
-                {% csrf_token %}
-                <input type="hidden" name="h" value="{{ current }}">
-                <button type="submit" class="inbox-delete-btn">
-                  <i class="fa fa-trash"></i> Hapus
-                </button>
-              </form>
+              <button type="button" class="inbox-delete-btn" data-bs-toggle="modal" data-bs-target="#deleteInboxModal{{ inbox.id }}">
+                <i class="fa fa-trash"></i> Hapus
+              </button>
             </div>
           </div>
           <p class="inbox-card-body">{{ inbox.body }}</p>
         </article>
+
+        <div class="modal fade inbox-delete-modal" id="deleteInboxModal{{ inbox.id }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Hapus notifikasi ini?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p class="mb-0">Notifikasi <strong>{{ inbox.header|title }}</strong> akan dihapus dari inbox Anda. Tindakan ini tidak bisa dibatalkan.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn inbox-delete-cancel" data-bs-dismiss="modal">Batal</button>
+                <form method="post" action="{% url 'delete_inbox_message' inbox.id %}" class="inbox-delete-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="h" value="{{ current }}">
+                  <button type="submit" class="btn inbox-delete-confirm">Ya, hapus</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
         {% endfor %}
       </div>
 
