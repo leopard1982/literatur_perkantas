@@ -154,18 +154,16 @@
           : 0;
 
         new Swiper(promoSpotlightElement, {
-          direction: "vertical",
           slidesPerView: 1,
           spaceBetween: 18,
           autoHeight: true,
-          speed: 850,
+          speed: 1200,
           allowTouchMove: true,
           loop: promoSpotlightSlideCount > 1,
           autoplay: promoSpotlightSlideCount > 1 ? {
-            delay: 4200,
+            delay: 5200,
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
-            reverseDirection: true,
           } : false,
         });
       }
