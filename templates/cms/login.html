@@ -17,14 +17,16 @@
 
     .shell {
         max-width: 1320px;
-        padding-top: 40px;
-        padding-bottom: 40px;
+        min-height: 100vh;
+        padding: 24px;
         display: grid;
         place-items: center;
     }
 
     .auth-shell {
         width: min(1140px, 100%);
+        min-height: calc(100vh - 48px);
+        max-height: calc(100vh - 48px);
         display: grid;
         grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
         border-radius: 36px;
@@ -78,11 +80,12 @@
     }
 
     .aside-title {
-        font-size: clamp(2rem, 4vw, 3.4rem);
-        line-height: 1.05;
+        font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+        line-height: 1.15;
         font-weight: 800;
         margin: 18px 0 14px;
-        max-width: 12ch;
+        max-width: none;
+        white-space: nowrap;
     }
 
     .aside-copy {
@@ -92,47 +95,40 @@
         max-width: 52ch;
     }
 
-    .signal-grid {
-        display: grid;
-        gap: 14px;
-        margin-top: 26px;
-    }
-
-    .signal-card {
-        padding: 18px 18px 16px;
-        border-radius: 20px;
+    .vision-quote {
+        margin-top: 28px;
+        padding: 24px 26px;
+        border-radius: 24px;
         background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
-    .signal-card strong {
-        display: block;
-        font-size: 14px;
-        margin-bottom: 6px;
-    }
-
-    .signal-card span {
-        display: block;
-        color: rgba(255,255,255,0.74);
-        font-size: 13px;
-        line-height: 1.6;
+    .vision-quote blockquote {
+        margin: 0;
+        font-size: clamp(1.05rem, 1.7vw, 1.4rem);
+        line-height: 1.8;
+        font-weight: 600;
+        color: rgba(255,255,255,0.92);
     }
 
     .aside-footer {
-        margin-top: 26px;
-        padding-top: 20px;
+        margin-top: 16px;
+        padding-top: 12px;
         border-top: 1px solid rgba(255,255,255,0.12);
         color: rgba(255,255,255,0.64);
         font-size: 13px;
         line-height: 1.6;
+        text-align: center;
     }
 
     .auth-main {
-        padding: 52px 44px;
+        padding: 32px 44px;
         background:
             linear-gradient(180deg, rgba(255,255,255,0.74), rgba(250,244,237,0.92));
         display: flex;
         align-items: center;
+        overflow: auto;
     }
 
     .auth-panel {
@@ -142,12 +138,19 @@
     }
 
     .auth-kicker {
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-        color: #bf5b3d;
-        margin-bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        color: #355070;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(211, 193, 172, 0.9);
+        margin-bottom: 14px;
     }
 
     .mobile-login-brand {
@@ -163,10 +166,13 @@
     }
 
     .auth-title {
-        font-size: 2rem;
-        line-height: 1.1;
-        font-weight: 800;
-        margin-bottom: 10px;
+        margin-bottom: 14px;
+    }
+
+    .auth-title-logo {
+        display: block;
+        width: min(100%, 320px);
+        height: auto;
     }
 
     .auth-copy {
@@ -220,17 +226,6 @@
         transform: translateY(-1px);
     }
 
-    .note-box {
-        margin-top: 18px;
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: #f8efe6;
-        color: var(--muted);
-        border: 1px solid rgba(219, 205, 189, 0.85);
-        font-size: 14px;
-        line-height: 1.65;
-    }
-
     .portal-link {
         display: inline-flex;
         align-items: center;
@@ -244,12 +239,14 @@
 
     @media (max-width: 960px) {
         .shell {
-            padding-top: 20px;
-            padding-bottom: 20px;
+            min-height: auto;
+            padding: 20px 16px;
         }
 
         .auth-shell {
             grid-template-columns: 1fr;
+            min-height: auto;
+            max-height: none;
             border-radius: 28px;
         }
 
@@ -258,7 +255,8 @@
         }
 
         .auth-main {
-            padding: 34px 24px;
+            padding: 24px;
+            align-items: center;
         }
 
         .auth-panel {
@@ -270,7 +268,11 @@
         }
 
         .auth-title {
-            font-size: 1.75rem;
+            margin-bottom: 12px;
+        }
+
+        .auth-title-logo {
+            width: min(100%, 280px);
         }
 
         .auth-copy {
@@ -285,7 +287,7 @@
 
     @media (max-width: 576px) {
         .auth-main {
-            padding: 24px 16px;
+            padding: 18px 16px;
         }
 
         .auth-shell {
@@ -299,30 +301,18 @@
 <div class="auth-shell">
     <section class="auth-aside">
         <div>
-            <span class="eyebrow">Internal Access Portal</span>
-            <h1 class="aside-title">Portal kontrol operasional Literatur Perkantas.</h1>
-            <p class="aside-copy">Area ini dirancang sebagai pintu masuk khusus untuk tim inti yang mengelola pembayaran, katalog, pengguna, konten, dan pelacakan operasional harian dalam satu workspace yang rapi.</p>
+            <h1 class="aside-title">Admin Literatur Perkantas</h1>
+            <p class="aside-copy">Akses khusus untuk administrator dalam mengelola operasional internal Literatur Perkantas.</p>
 
-            <div class="signal-grid">
-                <div class="signal-card">
-                    <strong>Kontrol yang terpusat</strong>
-                    <span>Semua area penting bermuara dari dashboard CMS dengan alur kerja yang lebih fokus dan lebih mudah diawasi.</span>
-                </div>
-                <div class="signal-card">
-                    <strong>Akses yang terbatas</strong>
-                    <span>Hanya akun dengan hak superuser yang dapat membuka panel ini untuk menjaga keamanan data dan keputusan operasional.</span>
-                </div>
-                <div class="signal-card">
-                    <strong>Siap dikembangkan</strong>
-                    <span>Tampilan ini disiapkan sebagai fondasi aplikasi admin internal yang terasa mandiri dan tidak bergantung pada kesan back office generik.</span>
-                </div>
+            <div class="vision-quote">
+                <blockquote>
+                    “Menjadi penerbit buku berkualitas bagi pertumbuhan rohani dan pembentukan pola pikir bagi siswa, mahasiswa, dan alumni.”
+                </blockquote>
             </div>
         </div>
 
         <div class="aside-footer">
-            Literatur Perkantas CMS
-            <br>
-            Secure internal workspace for administration and payment operations.
+            &copy; 2026{% now "Y" as current_year %}{% if current_year != "2026" %} - {{ current_year }}{% endif %} Literatur Perkantas Nasional
         </div>
     </section>
 
@@ -331,10 +321,10 @@
             <div class="mobile-login-brand">
                 <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Literatur Perkantas">
             </div>
-            <div class="auth-kicker">CMS Login</div>
-            <h2 class="auth-title">Masuk ke panel superuser</h2>
-            <p class="auth-copy">Gunakan akun superuser untuk membuka area manajemen internal dan melanjutkan ke modul yang Anda butuhkan.</p>
-
+            <a class="auth-kicker" href="/">Kembali ke halaman Literatur Perkantas</a>
+            <div class="auth-title">
+                <img class="auth-title-logo" src="{% static 'images/literatur_perkantas.jpg' %}" alt="Admin Literatur Perkantas">
+            </div>
             <div class="auth-card">
                 <form method="post">
                     {% csrf_token %}
@@ -349,10 +339,6 @@
                     </div>
                     <button class="btn btn-login w-100" type="submit">Masuk ke CMS</button>
                 </form>
-
-                <div class="note-box">
-                    Akses ini hanya untuk pengelola internal. Jika akun Anda tidak memiliki hak akses yang sesuai, sistem akan menolak proses masuk.
-                </div>
             </div>
 
             <a class="portal-link" href="/">Kembali ke website utama</a>
