@@ -147,6 +147,229 @@
         },
       });      
 
+      var instagramSwiper = null;
+      var collectionShelfSwiper = null;
+      var newBooksShelfSwiper = null;
+      var promoShelfSwiper = null;
+
+      function syncManualNavState(swiperInstance, prevButton, nextButton) {
+        if (!prevButton || !nextButton) {
+          return;
+        }
+
+        if (!swiperInstance || swiperInstance.destroyed) {
+          prevButton.classList.add("is-disabled");
+          nextButton.classList.add("is-disabled");
+          return;
+        }
+
+        if (swiperInstance.params.loop) {
+          prevButton.classList.remove("is-disabled");
+          nextButton.classList.remove("is-disabled");
+          return;
+        }
+
+        prevButton.classList.toggle("is-disabled", swiperInstance.isBeginning);
+        nextButton.classList.toggle("is-disabled", swiperInstance.isEnd);
+      }
+
+      function bindManualNav(swiperInstance, prevSelector, nextSelector) {
+        var prevButton = document.querySelector(prevSelector);
+        var nextButton = document.querySelector(nextSelector);
+
+        syncManualNavState(swiperInstance, prevButton, nextButton);
+
+        if (swiperInstance && !swiperInstance.destroyed) {
+          var syncState = function() {
+            syncManualNavState(swiperInstance, prevButton, nextButton);
+          };
+
+          swiperInstance.on("init", syncState);
+          swiperInstance.on("slideChange", syncState);
+          swiperInstance.on("update", syncState);
+          swiperInstance.on("resize", syncState);
+        }
+
+        if (prevButton) {
+          prevButton.onclick = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (swiperInstance && !swiperInstance.destroyed) {
+              swiperInstance.update();
+              swiperInstance.slidePrev(360);
+            }
+          };
+        }
+
+        if (nextButton) {
+          nextButton.onclick = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (swiperInstance && !swiperInstance.destroyed) {
+              swiperInstance.update();
+              swiperInstance.slideNext(360);
+            }
+          };
+        }
+      }
+
+      function getRealSlideCount(swiperElement) {
+        var wrapper = swiperElement ? swiperElement.querySelector(".swiper-wrapper") : null;
+        if (!wrapper) {
+          return 0;
+        }
+        return wrapper.children.length;
+      }
+
+      function initNewBooksShelfSwiper() {
+        if (newBooksShelfSwiper && !newBooksShelfSwiper.destroyed) {
+          newBooksShelfSwiper.destroy(true, true);
+          newBooksShelfSwiper = null;
+        }
+
+        if (window.innerWidth > 991.98) {
+          return;
+        }
+
+        var newBooksElement = document.querySelector(".new-books-shelf-swiper");
+        if (!newBooksElement) {
+          return;
+        }
+
+        var newBooksSlideCount = getRealSlideCount(newBooksElement);
+
+        newBooksShelfSwiper = new Swiper(newBooksElement, {
+          slidesPerView: 1,
+          spaceBetween: 18,
+          grabCursor: true,
+          autoHeight: true,
+          centeredSlides: true,
+          loop: newBooksSlideCount > 1,
+          observer: true,
+          observeParents: true,
+          speed: 440,
+          watchSlidesProgress: true,
+        });
+
+        bindManualNav(newBooksShelfSwiper, ".new-books-button-prev", ".new-books-button-next");
+      }
+
+      function initPromoShelfSwiper() {
+        if (promoShelfSwiper && !promoShelfSwiper.destroyed) {
+          promoShelfSwiper.destroy(true, true);
+          promoShelfSwiper = null;
+        }
+
+        if (window.innerWidth > 991.98) {
+          return;
+        }
+
+        var promoElement = document.querySelector(".promo-shelf-swiper");
+        if (!promoElement) {
+          return;
+        }
+
+        var promoSlideCount = getRealSlideCount(promoElement);
+
+        promoShelfSwiper = new Swiper(promoElement, {
+          slidesPerView: 1,
+          spaceBetween: 18,
+          grabCursor: true,
+          autoHeight: true,
+          centeredSlides: true,
+          loop: promoSlideCount > 1,
+          observer: true,
+          observeParents: true,
+          speed: 440,
+          watchSlidesProgress: true,
+        });
+
+        bindManualNav(promoShelfSwiper, ".promo-button-prev", ".promo-button-next");
+      }
+
+      function initCollectionShelfSwiper() {
+        if (collectionShelfSwiper && !collectionShelfSwiper.destroyed) {
+          collectionShelfSwiper.destroy(true, true);
+          collectionShelfSwiper = null;
+        }
+
+        if (window.innerWidth > 991.98) {
+          return;
+        }
+
+        var collectionElement = document.querySelector(".collection-shelf-swiper");
+        if (!collectionElement) {
+          return;
+        }
+
+        var collectionSlideCount = getRealSlideCount(collectionElement);
+
+        collectionShelfSwiper = new Swiper(collectionElement, {
+          slidesPerView: 1,
+          spaceBetween: 18,
+          grabCursor: true,
+          autoHeight: true,
+          centeredSlides: true,
+          loop: collectionSlideCount > 1,
+          observer: true,
+          observeParents: true,
+          speed: 440,
+          watchSlidesProgress: true,
+        });
+
+        bindManualNav(collectionShelfSwiper, ".collection-button-prev", ".collection-button-next");
+      }
+
+      function initInstagramSwiper() {
+        if (instagramSwiper && !instagramSwiper.destroyed) {
+          instagramSwiper.destroy(true, true);
+          instagramSwiper = null;
+        }
+
+        if (window.innerWidth > 991.98) {
+          return;
+        }
+
+        var instagramElement = document.querySelector(".insta-swiper");
+        if (!instagramElement) {
+          return;
+        }
+
+        var instagramSlideCount = getRealSlideCount(instagramElement);
+
+        instagramSwiper = new Swiper(instagramElement, {
+          slidesPerView: 1.2,
+          spaceBetween: 14,
+          grabCursor: true,
+          loop: instagramSlideCount > 1,
+          observer: true,
+          observeParents: true,
+          speed: 420,
+          breakpoints: {
+            480: {
+              slidesPerView: 2.2,
+            },
+            640: {
+              slidesPerView: 3.2,
+            },
+          },
+        });
+
+        bindManualNav(instagramSwiper, ".instagram-button-prev", ".instagram-button-next");
+      }
+
+      initNewBooksShelfSwiper();
+      window.addEventListener("resize", initNewBooksShelfSwiper);
+
+      initPromoShelfSwiper();
+      window.addEventListener("resize", initPromoShelfSwiper);
+
+      initCollectionShelfSwiper();
+      window.addEventListener("resize", initCollectionShelfSwiper);
+
+      initInstagramSwiper();
+      window.addEventListener("resize", initInstagramSwiper);
+
       var testimonialSwiper = new Swiper(".testimonial-swiper", {
         slidesPerView: 1,
         spaceBetween: 20,

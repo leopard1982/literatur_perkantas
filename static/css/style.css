@@ -102,12 +102,23 @@ CSS STRUCTURE:
 }
 html {
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 body {
   font-family: var(--body-font);
   font-size: 18px;
   font-weight: 300;
   margin: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+img,
+svg,
+iframe,
+video,
+canvas {
+  max-width: 100%;
 }
 p {
   color: var(--black-color);

@@ -452,6 +452,16 @@
     .best-seller-note {
       width: 100%;
     }
+    .best-seller-section .product-swiper {
+      max-width: 280px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .best-seller-section .product-swiper .swiper-slide {
+      width: 280px !important;
+      display: flex;
+      justify-content: center;
+    }
   }
 
   /* === PROMO SPOTLIGHT === */
@@ -800,11 +810,15 @@
   }
   .info-shelf-track {
     display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
     gap: 18px;
     overflow-x: auto;
     padding: 4px 2px 8px;
     scrollbar-width: thin;
     scrollbar-color: rgba(248,109,114,0.32) rgba(255,255,255,0.35);
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
   }
   .info-shelf-track::-webkit-scrollbar {
     height: 8px;
@@ -815,6 +829,213 @@
   }
   .info-shelf-card {
     flex: 0 0 220px;
+    min-width: 220px;
+  }
+  .collection-shelf-track {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .collection-shelf-card {
+    min-width: 220px;
+  }
+  .promo-desktop-track {
+    display: flex;
+  }
+  .promo-mobile-shell {
+    display: none;
+  }
+  .promo-shelf-swiper {
+    overflow: hidden;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .mobile-carousel-shell {
+    position: relative;
+    width: 100%;
+    max-width: 316px;
+    margin: 0 auto;
+  }
+  .mobile-carousel-shell::before {
+    content: "";
+    position: absolute;
+    inset: 46px 8px -8px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0));
+    pointer-events: none;
+  }
+  .promo-shelf-swiper .swiper-slide,
+  .new-books-shelf-swiper .swiper-slide,
+  .collection-shelf-swiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+  }
+  .promo-shelf-swiper,
+  .new-books-shelf-swiper,
+  .collection-shelf-swiper {
+    position: relative;
+    z-index: 1;
+  }
+  .mobile-carousel-nav {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+  }
+  .mobile-carousel-nav::before {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(219, 205, 198, 0.12), rgba(219, 205, 198, 0.75), rgba(219, 205, 198, 0.12));
+  }
+  .mobile-carousel-nav::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(219, 205, 198, 0.12), rgba(219, 205, 198, 0.75), rgba(219, 205, 198, 0.12));
+  }
+  .mobile-carousel-nav-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(233, 224, 218, 0.92);
+    box-shadow: 0 14px 28px rgba(36, 52, 61, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .mobile-carousel-nav-label {
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8c817a;
+    font-weight: 800;
+  }
+  .mobile-carousel-nav-button {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 18px rgba(36, 52, 61, 0.08);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .mobile-carousel-nav-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(36, 52, 61, 0.12);
+  }
+  .mobile-carousel-nav-button.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+    transform: none;
+    box-shadow: 0 8px 14px rgba(36, 52, 61, 0.05);
+  }
+  .promo-mobile-nav {
+    display: none;
+  }
+  .promo-mobile-nav .promo-nav-btn {
+    border: 1px solid rgba(214, 225, 238, 0.95);
+    color: #355070;
+  }
+  .promo-mobile-nav .promo-nav-btn:hover {
+    background: linear-gradient(135deg, #8da9c4, #5c7c99);
+    border-color: transparent;
+    color: white;
+  }
+  .promo-mobile-nav .promo-nav-btn.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .new-books-desktop-track {
+    display: flex;
+  }
+  .new-books-mobile-shell {
+    display: none;
+  }
+  .new-books-shelf-swiper {
+    overflow: hidden;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .new-books-mobile-nav {
+    display: none;
+  }
+  .new-books-mobile-nav .new-books-nav-btn {
+    border: 1px solid rgba(241, 220, 214, 0.95);
+    color: var(--primary-color);
+  }
+  .new-books-mobile-nav .new-books-nav-btn:hover {
+    background: linear-gradient(135deg, #d69490, #c97b78);
+    border-color: transparent;
+    color: white;
+  }
+  .new-books-mobile-nav .new-books-nav-btn.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .new-books-mobile-nav svg {
+    width: 18px;
+    height: 18px;
+  }
+  .new-books-mobile-nav i {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .collection-desktop-track {
+    display: flex;
+  }
+  .collection-mobile-shell {
+    display: none;
+  }
+  .collection-shelf-swiper {
+    overflow: hidden;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .collection-mobile-nav {
+    display: none;
+  }
+  .collection-mobile-nav .collection-nav-btn {
+    border: 1px solid rgba(214, 232, 225, 0.95);
+    color: #11998e;
+  }
+  .collection-mobile-nav .collection-nav-btn:hover {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    border-color: transparent;
+    color: white;
+  }
+  .collection-mobile-nav .collection-nav-btn.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .collection-mobile-nav svg {
+    width: 18px;
+    height: 18px;
+  }
+  .collection-mobile-nav i {
+    font-size: 16px;
+    line-height: 1;
   }
   .info-empty-card {
     min-height: 240px;
@@ -861,6 +1082,94 @@
     .info-shelf-head {
       flex-direction: column;
       align-items: start;
+    }
+  }
+  @media (max-width: 991.98px) {
+    .info-shelf {
+      padding: 20px 16px;
+    }
+    .info-shelf-track {
+      gap: 14px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 4px 0 8px;
+      scrollbar-width: none;
+      scroll-padding-inline: 2px;
+    }
+    .info-shelf-track::-webkit-scrollbar {
+      display: none;
+    }
+    .info-shelf-card {
+      flex: 0 0 auto;
+      width: 220px;
+      min-width: 220px;
+      scroll-snap-align: start;
+    }
+    .collection-desktop-track {
+      display: none;
+    }
+    .new-books-desktop-track {
+      display: none;
+    }
+    .promo-desktop-track {
+      display: none;
+    }
+    .promo-mobile-shell {
+      display: block !important;
+    }
+    .promo-mobile-nav {
+      display: flex !important;
+    }
+    .promo-mobile-shell .mobile-carousel-shell {
+      max-width: 316px;
+    }
+    .promo-shelf-swiper .swiper-slide {
+      width: 280px !important;
+    }
+    .promo-shelf-swiper .info-shelf-card {
+      min-width: 220px;
+      width: 220px;
+      max-width: 220px;
+      margin: 0 auto;
+    }
+    .new-books-mobile-shell {
+      display: block !important;
+    }
+    .new-books-mobile-nav {
+      display: flex !important;
+    }
+    .new-books-shelf-swiper .swiper-slide {
+      width: 280px !important;
+    }
+    .new-books-shelf-swiper .info-shelf-card {
+      min-width: 220px;
+      width: 220px;
+      max-width: 220px;
+      margin: 0 auto;
+    }
+    .new-books-mobile-shell .mobile-carousel-shell,
+    .collection-mobile-shell .mobile-carousel-shell {
+      max-width: 316px;
+    }
+    .collection-mobile-shell {
+      display: block !important;
+    }
+    .collection-mobile-nav {
+      display: flex !important;
+    }
+    .collection-shelf-swiper .swiper-slide {
+      width: 280px !important;
+    }
+    .collection-shelf-swiper .collection-shelf-card {
+      min-width: 220px;
+      width: 220px;
+      max-width: 220px;
+      margin: 0 auto;
+    }
+    .info-empty-slide {
+      width: min(100%, 320px);
+      flex: 0 0 auto;
+      scroll-snap-align: start;
     }
   }
 
@@ -1097,6 +1406,16 @@
     }
     .free-books-note {
       width: 100%;
+    }
+    .free-books-section .product-swiper {
+      max-width: 280px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .free-books-section .product-swiper .swiper-slide {
+      width: 280px !important;
+      display: flex;
+      justify-content: center;
     }
   }
 
@@ -1488,6 +1807,34 @@
     line-height: 1.6;
     color: #7d868d;
   }
+  .insta-swiper {
+    overflow: visible;
+  }
+  .instagram-mobile-nav {
+    display: none;
+  }
+  .instagram-mobile-nav .instagram-nav-btn {
+    border: 1px solid rgba(232, 214, 219, 0.95);
+    color: #b05f7f;
+  }
+  .instagram-mobile-nav .instagram-nav-btn:hover {
+    background: linear-gradient(135deg, #c57b93, #d19a66);
+    border-color: transparent;
+    color: white;
+  }
+  .instagram-mobile-nav .instagram-nav-btn.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .instagram-mobile-nav svg {
+    width: 18px;
+    height: 18px;
+  }
+  .instagram-mobile-nav i {
+    font-size: 16px;
+    line-height: 1;
+  }
   .insta-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
   .insta-item {
     position: relative;
@@ -1541,7 +1888,24 @@
       width: 100%;
     }
   }
-  @media (max-width: 768px) { .insta-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 991.98px) {
+    .instagram-mobile-nav {
+      display: flex !important;
+    }
+    .insta-swiper {
+      overflow: hidden;
+    }
+    .insta-grid {
+      display: flex;
+      gap: 0;
+    }
+    .insta-grid .swiper-slide {
+      width: auto;
+    }
+    .insta-item {
+      border-radius: 20px;
+    }
+  }
 
   /* Billboard */
   #billboard { border-radius: 0 !important; }
@@ -1776,7 +2140,7 @@
           </div>
         </div>
         <div class="info-shelves">
-          <div class="info-shelf">
+          <div class="info-shelf new-books-shelf">
             <div class="info-shelf-head">
               <div class="info-shelf-copy">
                 <div class="info-card-iconbox red">
@@ -1789,7 +2153,7 @@
               </div>
               <a href="{% url 'all_book_view'%}?k=11" class="info-shelf-link">Lihat Semua Buku Baru <i class="fa fa-arrow-right"></i></a>
             </div>
-            <div class="info-shelf-track">
+            <div class="info-shelf-track new-books-desktop-track">
               {% for book in books|slice:":4" %}
               <div class="info-shelf-card">
                 <div class="bs-card full-cover-card">
@@ -1853,9 +2217,92 @@
               </div>
               {% endfor %}
             </div>
+            <div class="new-books-mobile-shell">
+              <div class="mobile-carousel-shell">
+                <div class="new-books-mobile-nav mobile-carousel-nav">
+                  <div class="mobile-carousel-nav-group">
+                    <button type="button" class="new-books-nav-btn new-books-button-prev mobile-carousel-nav-button" aria-label="Buku baru sebelumnya">
+                      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="mobile-carousel-nav-label">Buku Baru</span>
+                    <button type="button" class="new-books-nav-btn new-books-button-next mobile-carousel-nav-button" aria-label="Buku baru berikutnya">
+                      <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="swiper new-books-shelf-swiper">
+                  <div class="swiper-wrapper">
+                  {% for book in books|slice:":4" %}
+                    <div class="swiper-slide">
+                      <div class="info-shelf-card">
+                        <div class="bs-card full-cover-card">
+                          <div class="bs-cover-wrap">
+                            <a href="{% url 'sinopsis_buku' book.id %}">
+                              <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" alt="{{ book.judul }}">
+                            </a>
+                            {% if book.onsalebook.is_active %}
+                            <span class="bs-discount-badge">-{{ book.onsalebook.discount }}%</span>
+                            {% endif %}
+                            {% if book.id in owned_book_ids %}
+                            <span class="bs-owned-badge"><i class="fa fa-check-circle"></i> Dimiliki</span>
+                            {% endif %}
+                            <div class="bs-overlay">
+                              {% if book.kategori.id == 3 %}
+                              <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                                <i class="fa fa-book"></i> Baca
+                              </a>
+                              {% elif book.id in owned_book_ids %}
+                              <a href="{% url 'baca_buku_koleksi' book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                                <i class="fa fa-book"></i> Baca
+                              </a>
+                              {% elif user.is_authenticated %}
+                              <a href="{% url 'add_cart_list' book.id %}" class="bs-action-btn" title="Keranjang">
+                                <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
+                              </a>
+                              {% endif %}
+                              {% if book.id not in owned_book_ids and book.kategori.id != 3 %}
+                              <a href="{% url 'sinopsis_buku' book.id %}" class="bs-action-btn" title="Detail buku">
+                                <i class="fa fa-search"></i>
+                              </a>
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="bs-info">
+                            <div class="bs-meta">
+                              <span class="bs-chip"><i class="fa fa-sparkles"></i> Baru</span>
+                              <small>{{ book.halaman }} hlm</small>
+                            </div>
+                            <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
+                            <div class="bs-author">{{ book.pengarang }}</div>
+                            {% if book.onsalebook.is_active %}
+                            <div class="bs-price-row">
+                              <span class="bs-price-orig">Rp.{{ book.price|intcomma }}</span>
+                              <span class="bs-price">Rp.{{ book.onsalebook.nett_price|intcomma }}</span>
+                            </div>
+                            {% else %}
+                              {% if book.kategori.id != 3 %}
+                              <div class="bs-price-row">
+                                <span class="bs-price">Rp.{{ book.price|intcomma }}.00</span>
+                              </div>
+                              {% else %}
+                              <div class="bs-price-row">
+                                <span class="bs-price" style="color:#11998e;">FREE BOOK</span>
+                              </div>
+                              {% endif %}
+                            {% endif %}
+                            <a href="{% url 'sinopsis_buku' book.id %}" class="bs-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="info-shelf">
+          <div class="info-shelf promo-shelf">
             <div class="info-shelf-head">
               <div class="info-shelf-copy">
                 <div class="info-card-iconbox blue">
@@ -1868,7 +2315,7 @@
               </div>
               <a href="{% url 'all_book_view'%}?k=12" class="info-shelf-link">Lihat Semua Promo <i class="fa fa-arrow-right"></i></a>
             </div>
-            <div class="info-shelf-track">
+            <div class="info-shelf-track promo-desktop-track">
               {% if books_on_sale %}
                 {% for books in books_on_sale %}
                 <div class="info-shelf-card">
@@ -1915,16 +2362,94 @@
                 </div>
                 {% endfor %}
               {% else %}
-              <div class="info-empty-card">
+              <div class="info-empty-slide">
+                <div class="info-empty-card">
                 <img src="{% static 'images/wait.png'%}" alt="Belum ada promo">
                 <p>Belum ada promo aktif saat ini. Nantikan penawaran menarik berikutnya dari kami.</p>
+                </div>
               </div>
               {% endif %}
+            </div>
+            <div class="promo-mobile-shell">
+              <div class="mobile-carousel-shell">
+                <div class="promo-mobile-nav mobile-carousel-nav">
+                  <div class="mobile-carousel-nav-group">
+                    <button type="button" class="promo-nav-btn promo-button-prev mobile-carousel-nav-button" aria-label="Promo sebelumnya">
+                      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="mobile-carousel-nav-label">Promo</span>
+                    <button type="button" class="promo-nav-btn promo-button-next mobile-carousel-nav-button" aria-label="Promo berikutnya">
+                      <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="swiper promo-shelf-swiper">
+                  <div class="swiper-wrapper">
+                  {% if books_on_sale %}
+                    {% for books in books_on_sale %}
+                    <div class="swiper-slide">
+                      <div class="info-shelf-card">
+                        <div class="bs-card full-cover-card">
+                          <div class="bs-cover-wrap">
+                            <a href="{% url 'sinopsis_buku' books.book.id %}">
+                              <img loading="lazy" src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" alt="{{ books.book.judul }}">
+                            </a>
+                            <span class="bs-discount-badge">-{{ books.discount }}%</span>
+                            {% if books.book.id in owned_book_ids %}
+                            <span class="bs-owned-badge"><i class="fa fa-check-circle"></i> Dimiliki</span>
+                            {% endif %}
+                            <div class="bs-overlay">
+                              {% if books.book.id in owned_book_ids %}
+                              <a href="{% url 'baca_buku_koleksi' books.book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                                <i class="fa fa-book"></i> Baca
+                              </a>
+                              {% elif user.is_authenticated %}
+                              <a href="{% url 'add_cart_list' books.book.id %}" class="bs-action-btn" title="Keranjang">
+                                <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
+                              </a>
+                              {% endif %}
+                              {% if books.book.id not in owned_book_ids %}
+                              <a href="{% url 'sinopsis_buku' books.book.id %}" class="bs-action-btn" title="Detail buku">
+                                <i class="fa fa-search"></i>
+                              </a>
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="bs-info">
+                            <div class="bs-meta">
+                              <span class="bs-chip"><i class="fa fa-tag"></i> Promo</span>
+                              <small>S.d. {{ books.end_date|date:"j M Y" }}</small>
+                            </div>
+                            <div class="bs-title" title="{{ books.book.judul }}">{{ books.book.judul }}</div>
+                            <div class="bs-author">{{ books.book.pengarang }}</div>
+                            <div class="bs-price-row">
+                              <span class="bs-price-orig">Rp.{{ books.book.price|intcomma }}</span>
+                              <span class="bs-price">Rp.{{ books.nett_price|intcomma }}</span>
+                            </div>
+                            <a href="{% url 'sinopsis_buku' books.book.id %}" class="bs-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                  <div class="swiper-slide">
+                    <div class="info-empty-slide">
+                      <div class="info-empty-card">
+                      <img src="{% static 'images/wait.png'%}" alt="Belum ada promo">
+                      <p>Belum ada promo aktif saat ini. Nantikan penawaran menarik berikutnya dari kami.</p>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {% if user.is_authenticated %}
-          <div class="info-shelf">
+          <div class="info-shelf collection-shelf">
             <div class="info-shelf-head">
               <div class="info-shelf-copy">
                 <div class="info-card-iconbox green">
@@ -1937,10 +2462,10 @@
               </div>
               <a href="{% url 'semua_buku_koleksi'%}" class="info-shelf-link">Lihat Semua Koleksi <i class="fa fa-arrow-right"></i></a>
             </div>
-            <div class="info-shelf-track">
+            <div class="info-shelf-track collection-desktop-track">
               {% if userbook %}
                 {% for book in userbook %}
-                <div class="info-shelf-card">
+                <div class="info-shelf-card collection-shelf-card">
                   <div class="bs-card collection-card">
                     <div class="bs-cover-wrap">
                       <a href="{% url 'sinopsis_buku' book.id_book.id %}">
@@ -1968,11 +2493,73 @@
                 </div>
                 {% endfor %}
               {% else %}
-              <div class="info-empty-card">
+              <div class="info-empty-slide collection-shelf-card">
+                <div class="info-empty-card">
                 <img src="{% static 'images/empty.jpg'%}" alt="Koleksi kosong">
                 <p>Koleksi Anda masih kosong. Segera checkout dari <a href="{% url 'cart_view'%}">keranjang belanja</a> untuk mulai membaca.</p>
+                </div>
               </div>
               {% endif %}
+            </div>
+            <div class="collection-mobile-shell">
+              <div class="mobile-carousel-shell">
+                <div class="collection-mobile-nav mobile-carousel-nav">
+                  <div class="mobile-carousel-nav-group">
+                    <button type="button" class="collection-nav-btn collection-button-prev mobile-carousel-nav-button" aria-label="Koleksi sebelumnya">
+                      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="mobile-carousel-nav-label">Koleksiku</span>
+                    <button type="button" class="collection-nav-btn collection-button-next mobile-carousel-nav-button" aria-label="Koleksi berikutnya">
+                      <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="swiper collection-shelf-swiper">
+                  <div class="swiper-wrapper">
+                  {% if userbook %}
+                    {% for book in userbook %}
+                    <div class="swiper-slide">
+                      <div class="info-shelf-card collection-shelf-card">
+                        <div class="bs-card collection-card">
+                          <div class="bs-cover-wrap">
+                            <a href="{% url 'sinopsis_buku' book.id_book.id %}">
+                              <img loading="lazy" src="/media/extract/pdf_full/{{book.id_book.id}}/1.jpg" alt="{{ book.id_book.judul }}">
+                            </a>
+                            <div class="bs-overlay">
+                              <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                                <i class="fa fa-book"></i> Baca
+                              </a>
+                            </div>
+                          </div>
+                          <div class="bs-info">
+                            <div class="bs-meta">
+                              <span class="bs-chip" style="background:#edfaf6;color:#11998e;"><i class="fa fa-check-circle"></i> Koleksi</span>
+                              <small>Siap dibaca</small>
+                            </div>
+                            <div class="bs-title" title="{{ book.id_book.judul }}">{{ book.id_book.judul }}</div>
+                            <div class="bs-author">{{ book.id_book.pengarang }}</div>
+                            <div class="bs-price-row">
+                              <span class="bs-price" style="color:#11998e;">Sudah Dimiliki</span>
+                            </div>
+                            <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="bs-footer-link">Baca sekarang <i class="fa fa-arrow-right"></i></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                  <div class="swiper-slide">
+                    <div class="info-empty-slide collection-shelf-card">
+                      <div class="info-empty-card">
+                      <img src="{% static 'images/empty.jpg'%}" alt="Koleksi kosong">
+                      <p>Koleksi Anda masih kosong. Segera checkout dari <a href="{% url 'cart_view'%}">keranjang belanja</a> untuk mulai membaca.</p>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           {% endif %}
@@ -2153,15 +2740,34 @@
             <span>Kunjungi feed kami untuk melihat highlight terbaru dan terhubung lebih dekat dengan komunitas pembaca Litanas.</span>
           </div>
         </div>
-        <div class="insta-grid">
+        <div class="instagram-mobile-nav mobile-carousel-nav">
+          <div class="mobile-carousel-nav-group">
+            <button type="button" class="instagram-nav-btn instagram-button-prev mobile-carousel-nav-button" aria-label="Instagram sebelumnya">
+              <svg viewBox="0 0 24 24">
+                <use xlink:href="#alt-arrow-left-outline"></use>
+              </svg>
+            </button>
+            <span class="mobile-carousel-nav-label">Instagram</span>
+            <button type="button" class="instagram-nav-btn instagram-button-next mobile-carousel-nav-button" aria-label="Instagram berikutnya">
+              <svg viewBox="0 0 24 24">
+                <use xlink:href="#alt-arrow-right-outline"></use>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="swiper insta-swiper">
+          <div class="insta-grid swiper-wrapper">
           {% for inst in instagram %}
-          <a href="{{ inst.link }}" class="insta-item" target="_blank" rel="noopener">
-            <img src="{{ inst.gambar.url }}" alt="Instagram Litanas">
-            <div class="insta-overlay">
-              <svg style="width:30px;height:30px;color:white;"><use xlink:href="#instagram"></use></svg>
-            </div>
-          </a>
+          <div class="swiper-slide">
+            <a href="{{ inst.link }}" class="insta-item" target="_blank" rel="noopener">
+              <img src="{{ inst.gambar.url }}" alt="Instagram Litanas">
+              <div class="insta-overlay">
+                <svg style="width:30px;height:30px;color:white;"><use xlink:href="#instagram"></use></svg>
+              </div>
+            </a>
+          </div>
           {% endfor %}
+          </div>
         </div>
         <div class="text-center mt-4">
           <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="insta-cta">

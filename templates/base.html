@@ -58,6 +58,10 @@
       .header-shell {
         gap: 16px;
         align-items: center;
+        min-width: 0;
+      }
+      .navbar-brand {
+        min-width: 0;
       }
       .navbar-brand img.logo {
         height: 60px !important;
@@ -75,6 +79,7 @@
         gap: 16px;
         flex: 1 1 auto;
         justify-content: space-between;
+        min-width: 0;
       }
       /* Nav links */
       #navbar {
@@ -398,10 +403,18 @@
       @media (max-width: 991.98px) {
         .offcanvas {
           max-width: 360px;
+          overflow-x: hidden;
         }
         .header-main {
           width: 100%;
           flex: 1 1 auto;
+          min-width: 0;
+          justify-content: space-between;
+        }
+        .navbar-brand img.logo {
+          max-width: calc(100vw - 108px);
+          height: auto !important;
+          max-height: 60px;
         }
         .offcanvas-body {
           display: block;
@@ -421,16 +434,26 @@
           padding: 12px 14px;
         }
         .header-actions {
-          width: 100%;
+          width: calc(100% - 32px);
           margin: 14px 16px 0;
           padding-top: 12px;
           border-top: 1px solid #f1f1f1;
           flex-wrap: wrap;
         }
+        .mobile-account-card {
+          width: calc(100% - 32px);
+          margin: 12px 16px 0;
+        }
         .nav-action-btn {
           min-width: 48px;
           justify-content: center;
           background: #f8f9fa;
+        }
+        #toast-container {
+          left: 12px;
+          right: 12px !important;
+          top: 72px !important;
+          max-width: none !important;
         }
       }
       @media (min-width: 992px) {
