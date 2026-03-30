@@ -1,205 +1,352 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+
+{% block styling_akuh %}
+<style>
+    .profile-page {
+        padding: 24px 0 40px;
+    }
+
+    .profile-shell {
+        max-width: 1080px;
+    }
+
+    .profile-header-card,
+    .profile-section-card,
+    .profile-collection-card {
+        background: #ffffff;
+        border: 1px solid #e9eef5;
+        border-radius: 24px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-header-card {
+        padding: 28px;
+        background: linear-gradient(135deg, #fff8f6 0%, #ffffff 58%, #f7fbff 100%);
+    }
+
+    .profile-avatar {
+        width: 148px;
+        height: 148px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 5px solid #ffffff;
+        box-shadow: 0 16px 40px rgba(248, 109, 114, 0.22);
+    }
+
+    .profile-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #fff0ed;
+        color: #d4645e;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .profile-name {
+        margin: 14px 0 8px;
+        color: #183b56;
+        font-size: clamp(1.9rem, 3vw, 2.6rem);
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .profile-subtitle {
+        margin-bottom: 0;
+        color: #5f6f81;
+        font-size: 1rem;
+    }
+
+    .profile-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .profile-stat-card {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid #edf2f7;
+    }
+
+    .profile-stat-label {
+        margin-bottom: 6px;
+        color: #7a8a9a;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .profile-stat-value {
+        margin: 0;
+        color: #183b56;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .profile-edit-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f86d72, #df595f);
+        color: #ffffff;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 14px 30px rgba(248, 109, 114, 0.28);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-edit-btn:hover {
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 18px 34px rgba(248, 109, 114, 0.34);
+    }
+
+    .profile-section-card,
+    .profile-collection-card {
+        padding: 28px;
+        margin-top: 24px;
+    }
+
+    .profile-section-title {
+        margin-bottom: 20px;
+        color: #183b56;
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .profile-detail-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .profile-detail-item {
+        display: grid;
+        grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
+        gap: 14px;
+        align-items: stretch;
+    }
+
+    .profile-detail-label,
+    .profile-detail-value {
+        border-radius: 18px;
+        min-height: 64px;
+        padding: 16px 18px;
+    }
+
+    .profile-detail-label {
+        background: #f8fbff;
+        border: 1px solid #d8e7f5;
+        color: #2b5c84;
+        font-weight: 800;
+    }
+
+    .profile-detail-value {
+        background: #ffffff;
+        border: 1px solid #e3ebf3;
+        color: #334155;
+        overflow-wrap: anywhere;
+        line-height: 1.65;
+    }
+
+    .profile-collection-list {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+
+    .profile-collection-list li + li {
+        margin-top: 12px;
+    }
+
+    .profile-collection-link {
+        color: #183b56;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .profile-collection-link:hover {
+        color: #f86d72;
+        text-decoration: underline;
+    }
+
+    .profile-empty-state {
+        margin: 0;
+        padding: 20px;
+        border-radius: 18px;
+        background: #fff8f3;
+        border: 1px dashed #f2c4ad;
+        color: #8a5a44;
+    }
+
+    @media (max-width: 991.98px) {
+        .profile-header-card,
+        .profile-section-card,
+        .profile-collection-card {
+            padding: 22px;
+        }
+
+        .profile-stat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-detail-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .profile-page {
+            padding-top: 18px;
+        }
+
+        .profile-header-card,
+        .profile-section-card,
+        .profile-collection-card {
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+        }
+
+        .profile-edit-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="p-2 text-center containerfw-bold h2 text-white bg-primary rounded container">
-    Detail Info Saya
-</div>
-<div class="container">
-    <div class="d-flex justify-content-start row ">
-        <div style="padding-right: 20px;" class="py-3 d-flex justify-content-center">
-            {% if user.userdetail.photo %}
-                <img src="{{user.userdetail.photo.url }}" class="p-2 shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 150px;height: 150px;">
-            {% else %}
-                <img src="{% static 'images/profile.jpeg'%}" class="p-2 shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 150px;height: 150px;">
-            {% endif %}
-        </div>
-        <div class="d-flex justify-content-center mb-3" >
-            <a href="{% url 'profile_update'%}" class="btn small fs-6" style="height: 40px !important; padding-left:10px !important;padding-right: 10px !important;padding-top:5px !important;padding-bottom: 5px !important; margin-bottom: 20px;">update profil</a>
-        </div>
-        <div class="w-100" style=" padding-left: 20px;">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                    <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.userdetail.nama_lengkap|title}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                    <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {% if user.userdetail.birthday %}
-                        {{user.userdetail.birthday|date:"j F Y"}}
+<section class="profile-page">
+    <div class="container profile-shell">
+        <div class="profile-header-card">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-3 text-center text-lg-start">
+                    {% if user.userdetail.photo %}
+                        <img src="{{ user.userdetail.photo.url }}" class="profile-avatar" alt="foto profil">
                     {% else %}
-                        -
+                        <img src="{% static 'images/profile.jpeg' %}" class="profile-avatar" alt="foto profil">
                     {% endif %}
                 </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6 pt-2 fw-bold">
-                    <p class="text-primary fw-bold fs-4">Email Terdaftar:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.username}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Tanggal Bergabung:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.date_joined|date:"j F Y"}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.userdetail.no_whatsapp}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.userdetail.pekerjaan}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                    <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {% if user.userdetail.alamat %}
-                        {{user.userdetail.alamat}}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left ">
-                    <p class="text-primary fw-bold fs-4">Review Litanas:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {% if user.pagereview.is_active %}
-                        {{user.pagereview.review}}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left ">
-                    <p class="text-primary fw-bold fs-4">Jumlah Koleksi:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                    {{user.userdetail.total_book}}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left ">
-                    <p class="text-primary fw-bold fs-4">Koleksiku:</p>
-                </div>
-                <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2  flex-wrap border rounded border-primary p-2" style="overflow-wrap: break-word;">
-                    <ol>
-                        {% for koleksi in koleksiku%}
-                            <li class="mt-3 fs-6">        
-                                <a  href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" title="klik untuk membaca: {{koleksi.id_book.judul}}" ><span class="fw-bold fs-6 text-dark" style="margin-right: 20px;margin-top:10px;">{{koleksi.id_book.judul}}</span></a>
-                            </li>
-                        {% endfor %}    
-                    </ol>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    
-    <!-- <div class="row">
-        <div class="col-lg-6 col-xl-6 col-md-12 col-sm-12 bg-primary rounded p-2">
-            <div class="d-flex justify-content-between align-items-center">
-                {% if user.userdetail.photo %}
-                <img src="{{user.userdetail.photo.url }}" class="rounded-circle border-white border" style="width: 100px;height: 100px;" alt="foto profile">
-                {% else %}
-                <img src="{% static 'images/profile.jpeg'%}" class="rounded-circle border-white border" style="width: 100px;height: 100px;" alt="foto profile">
-                {% endif %}
-                <div style="padding-left: 20px;" class="w-100 text-center">
-                    <p class="fs-4 fw-bold">{{user.userdetail.nama_lengkap|title}}</p>
-                    <hr>
-                    <p class="fs-6 fw-bold" >
-                        email: <i>{{user.username}}</i><br>
-                        tanggal bergabung: {{user.date_joined|date:"j F Y"}}
+                <div class="col-lg-6">
+                    <span class="profile-kicker">Akun Saya</span>
+                    <h1 class="profile-name">{{ user.userdetail.nama_lengkap|title }}</h1>
+                    <p class="profile-subtitle">
+                        {{ user.username }} · Bergabung sejak {{ user.date_joined|date:"j F Y" }}
                     </p>
+                    <div class="profile-stat-grid">
+                        <div class="profile-stat-card">
+                            <p class="profile-stat-label">Jumlah Koleksi</p>
+                            <p class="profile-stat-value">{{ user.userdetail.total_book|intcomma }}</p>
+                        </div>
+                        <div class="profile-stat-card">
+                            <p class="profile-stat-label">Whatsapp</p>
+                            <p class="profile-stat-value">{{ user.userdetail.no_whatsapp|default:"-" }}</p>
+                        </div>
+                        <div class="profile-stat-card">
+                            <p class="profile-stat-label">Pekerjaan</p>
+                            <p class="profile-stat-value">{{ user.userdetail.pekerjaan|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 text-lg-end">
+                    <a href="{% url 'profile_update' %}" class="profile-edit-btn">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        Update Profil
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6 col-xl-6 text-center col-md-12 col-sm-12 p-3 ">
-            <p class=" fs-3 fw-bold border-bottom border-grey">Informasiku</p>
-            <p class="fs-5 fw-bold">Jumlah Buku Koleksi: <span class="text-primary">{{user.userdetail.total_book|intcomma}}</span> buku</p>
-            <p class="fs-5 fw-bold">Login Terakhir: <span class="text-primary">{{user.last_login|date:"j F Y"}}</span></p>
-        </div>
-    </div>
-    <div class="p-3 mt-5 rounded border border-primary">
-        <div class="row  fw-bold mb-3 fs-5 bg-primary p-2 rounded text-center">
-            <p class="text-white fw-bold">Detail Profil</p>
-        </div>
-        <ul>
-            <li>
-                <div class="row my-2">
-                    <div class="col-3">Foto Profil:</div>
-                    <div class="col-2">
-                        {% if user.userdetail.photo %}
-                        <img src="{{user.userdetail.photo.url}}" class="w-100 rounded" alt="">
+
+        <div class="profile-section-card">
+            <h2 class="profile-section-title">Detail Informasi</h2>
+            <div class="profile-detail-list">
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Nama Lengkap</div>
+                    <div class="profile-detail-value">{{ user.userdetail.nama_lengkap|title }}</div>
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Tanggal Lahir</div>
+                    <div class="profile-detail-value">
+                        {% if user.userdetail.birthday %}
+                            {{ user.userdetail.birthday|date:"j F Y" }}
                         {% else %}
-                        <img src="{% static 'images/profile.jpeg' %}" class="w-100 rounded" alt="">
+                            -
                         {% endif %}
                     </div>
-                    <div class="col-4">
-                        <input type="file" name="foto"  id="" class="form-control" accept=".gif,.jpg,.jpeg,.png,.webp">
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Email Terdaftar</div>
+                    <div class="profile-detail-value">{{ user.username }}</div>
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Tanggal Bergabung</div>
+                    <div class="profile-detail-value">{{ user.date_joined|date:"j F Y" }}</div>
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Nomor Whatsapp</div>
+                    <div class="profile-detail-value">{{ user.userdetail.no_whatsapp|default:"-" }}</div>
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Pekerjaan</div>
+                    <div class="profile-detail-value">{{ user.userdetail.pekerjaan|default:"-" }}</div>
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Alamat Surat</div>
+                    <div class="profile-detail-value">
+                        {% if user.userdetail.alamat %}
+                            {{ user.userdetail.alamat }}
+                        {% else %}
+                            -
+                        {% endif %}
                     </div>
-                    <div class="col-3"><input type="submit" value="UPDATE" class="form-control rounded fs-6 p-2 btn" style="height: 30px;"></div>
-                </div>        
-            </li>
-            <li>
-                <div class="row my-2">
-                    <div class="col-3">Nama Lengkap:</div>
-                    <div class="col-6"><input type="text" class="form-control fs-6" name="nama_lengkap" style="height: 30px;" value="{{user.userdetail.nama_lengkap}}" placeholder="masukkan nama lengkap"></div>
-                    <div class="col-3"><input type="submit" value="UPDATE" class="form-control rounded fs-6 p-2 btn" style="height: 30px;"></div>
-                </div>        
-            </li>
-            <li>
-                <div class="row my-2">
-                    <div class="col-3">Tanggal Lahir:</div>
-                    <div class="col-6"><input type="date" class="form-control fs-6" name="tanggal_lahir" style="height: 30px;" value="{{user.userdetail.birthday}}" placeholder="masukkan nama lengkap"></div>
-                    <div class="col-3"><input type="submit" value="UPDATE" class="form-control rounded fs-6 p-2 btn" style="height: 30px;"></div>
-                </div>        
-            </li>
-            <li>
-                <div class="row my-2">
-                    <div class="col-3">No. Whatsapp:</div>
-                    <div class="col-6"><input type="number" class="form-control fs-6" name="nomor_whatsapp" style="height: 30px;" value="{{user.userdetail.no_whatsapp}}" placeholder="masukkan nomor whatsapp"></div>
-                    <div class="col-3"><input type="submit" value="UPDATE" class="form-control rounded fs-6 p-2 btn" style="height: 30px;"></div>
-                </div>        
-            </li>
-            <li>
-                <div class="row my-2">
-                    <div class="col-3">Pekerjaan:</div>
-                    <div class="col-6"><input type="text" class="form-control fs-6" name="pekerjaan" style="height: 30px;" value="{{user.userdetail.pekerjaan}}" placeholder="masukkan pekerjaan"></div>
-                    <div class="col-3"><input type="submit" value="UPDATE" class="form-control rounded fs-6 p-2 btn" style="height: 30px;"></div>
-                </div>        
-            </li>
-        </ul>
-    </div>
-     -->
+                </div>
+                <div class="profile-detail-item">
+                    <div class="profile-detail-label">Review Litanas</div>
+                    <div class="profile-detail-value">
+                        {% if user.pagereview.is_active %}
+                            {{ user.pagereview.review }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-     <div>
-        {{formupdate.as_div}}
-     </div>
-</div>
+        <div class="profile-collection-card">
+            <h2 class="profile-section-title">Koleksiku</h2>
+            {% if koleksiku %}
+                <ol class="profile-collection-list">
+                    {% for koleksi in koleksiku %}
+                        <li>
+                            <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" class="profile-collection-link" title="Klik untuk membaca: {{ koleksi.id_book.judul }}">
+                                {{ koleksi.id_book.judul }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p class="profile-empty-state">
+                    Kamu belum punya koleksi buku di akun ini. Saat ada buku yang sudah diambil atau dibeli, daftar koleksinya akan muncul di sini.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
 {% endblock %}

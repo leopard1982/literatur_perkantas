@@ -263,6 +263,16 @@
         gap: 10px;
         min-width: 0;
       }
+      .account-menu-main i,
+      .account-security-link i {
+        width: 18px;
+        text-align: center;
+        color: #d4645e;
+      }
+      .dropdown-item:hover .account-menu-main i,
+      .dropdown-item:hover.account-security-link i {
+        color: #c94f55;
+      }
       .account-menu-count {
         display: inline-flex;
         align-items: center;
@@ -722,34 +732,34 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
                     <a href="{% url 'profile_view' %}" class="dropdown-item account-menu-item">
-                      <span class="account-menu-main"><i class="fa fa-user-circle-o text-muted"></i> Profil</span>
+                      <span class="account-menu-main"><i class="fa fa-user-circle-o"></i> Profil</span>
                     </a>
                   </li>
                   <li>
                     <a href="{% url 'semua_buku_koleksi' %}" class="dropdown-item account-menu-item">
-                      <span class="account-menu-main"><i class="fa fa-book text-muted"></i> Koleksiku</span>
+                      <span class="account-menu-main"><i class="fa fa-book"></i> Koleksiku</span>
                       <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
                     </a>
                   </li>
                   <li>
                     <a href="{% url 'cart_view' %}" class="dropdown-item account-menu-item">
-                      <span class="account-menu-main"><i class="fa fa-shopping-basket text-muted"></i> Keranjang</span>
+                      <span class="account-menu-main"><i class="fa fa-shopping-basket"></i> Keranjang</span>
                       <span class="account-menu-count">{{ jml_mycart }}</span>
                     </a>
                   </li>
                   <li>
                     <a href="{% url 'list_inbox_message' %}" class="dropdown-item account-menu-item">
-                      <span class="account-menu-main"><i class="fa fa-bell-o text-muted"></i> Inbox</span>
+                      <span class="account-menu-main"><i class="fa fa-bell-o"></i> Inbox</span>
                       <span class="account-menu-count">{{ nav_jml_inbox_message }}</span>
                     </a>
                   </li>
                   <li>
                     <a href="{% url 'list_payment' %}" class="dropdown-item account-menu-item">
-                      <span class="account-menu-main"><i class="fa fa-credit-card text-muted"></i> Pembelian</span>
+                      <span class="account-menu-main"><i class="fa fa-credit-card"></i> Pembelian</span>
                       <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
                     </a>
                   </li>
-                  <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item"><i class="fa fa-lock me-2 text-muted"></i> Ganti Password</a></li>
+                  <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item account-security-link"><i class="fa fa-lock me-2"></i> Ganti Password</a></li>
                   <li><hr style="margin:6px 8px; border-color:#f0f0f0;"></li>
                   <li><a href="{% url 'logout_user' %}" class="dropdown-item" style="color:#e74c3c;"><i class="fa fa-sign-out me-2"></i> Logout</a></li>
                 </ul>
@@ -855,34 +865,34 @@
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
                       <a href="{% url 'profile_view' %}" class="dropdown-item account-menu-item">
-                        <span class="account-menu-main"><i class="fa fa-user-circle-o text-muted"></i> Profil</span>
+                        <span class="account-menu-main"><i class="fa fa-user-circle-o"></i> Profil</span>
                       </a>
                     </li>
                     <li>
                       <a href="{% url 'semua_buku_koleksi' %}" class="dropdown-item account-menu-item">
-                        <span class="account-menu-main"><i class="fa fa-book text-muted"></i> Koleksiku</span>
+                        <span class="account-menu-main"><i class="fa fa-book"></i> Koleksiku</span>
                         <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
                       </a>
                     </li>
                     <li>
                       <a href="{% url 'cart_view' %}" class="dropdown-item account-menu-item">
-                        <span class="account-menu-main"><i class="fa fa-shopping-basket text-muted"></i> Keranjang</span>
+                        <span class="account-menu-main"><i class="fa fa-shopping-basket"></i> Keranjang</span>
                         <span class="account-menu-count">{{ jml_mycart }}</span>
                       </a>
                     </li>
                     <li>
                       <a href="{% url 'list_inbox_message' %}" class="dropdown-item account-menu-item">
-                        <span class="account-menu-main"><i class="fa fa-bell-o text-muted"></i> Inbox</span>
+                        <span class="account-menu-main"><i class="fa fa-bell-o"></i> Inbox</span>
                         <span class="account-menu-count">{{ nav_jml_inbox_message }}</span>
                       </a>
                     </li>
                     <li>
                       <a href="{% url 'list_payment' %}" class="dropdown-item account-menu-item">
-                        <span class="account-menu-main"><i class="fa fa-credit-card text-muted"></i> Pembelian</span>
+                        <span class="account-menu-main"><i class="fa fa-credit-card"></i> Pembelian</span>
                         <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
                       </a>
                     </li>
-                    <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item"><i class="fa fa-lock me-2 text-muted"></i> Ganti Password</a></li>
+                    <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item account-security-link"><i class="fa fa-lock me-2"></i> Ganti Password</a></li>
                     <li><hr style="margin:6px 8px; border-color:#f0f0f0;"></li>
                     <li><a href="{% url 'logout_user' %}" class="dropdown-item" style="color:#e74c3c;"><i class="fa fa-sign-out me-2"></i> Logout</a></li>
                   </ul>
