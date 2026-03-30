@@ -336,6 +336,9 @@
         }
 
         var instagramSlideCount = getRealSlideCount(instagramElement);
+        var instagramSection = instagramElement.closest(".instagram-section");
+        var instagramPrevButton = instagramSection ? instagramSection.querySelector(".instagram-button-prev") : null;
+        var instagramNextButton = instagramSection ? instagramSection.querySelector(".instagram-button-next") : null;
 
         instagramSwiper = new Swiper(instagramElement, {
           slidesPerView: 1.2,
@@ -344,7 +347,12 @@
           loop: instagramSlideCount > 1,
           observer: true,
           observeParents: true,
+          watchOverflow: true,
           speed: 420,
+          navigation: {
+            prevEl: instagramPrevButton,
+            nextEl: instagramNextButton,
+          },
           breakpoints: {
             480: {
               slidesPerView: 2.2,

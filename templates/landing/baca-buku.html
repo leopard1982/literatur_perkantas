@@ -249,10 +249,10 @@
     <div class="page-nav-bottom">
       {% if page > 1 %}
       <a href="?id={{ book.id }}&p={{ prev }}" class="btn-nav-bottom">
-        <i class="fa fa-chevron-left"></i> Sebelumnya
+        <i class="fa fa-chevron-left"></i>
       </a>
       {% else %}
-      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i> Sebelumnya</span>
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i></span>
       {% endif %}
 
       <form action="" method="post" class="page-jump-form">
@@ -264,10 +264,10 @@
 
       {% if page < max_page %}
       <a href="?id={{ book.id }}&p={{ next }}" class="btn-nav-bottom">
-        Berikutnya <i class="fa fa-chevron-right"></i>
+        <i class="fa fa-chevron-right"></i>
       </a>
       {% else %}
-      <span class="btn-nav-bottom disabled">Berikutnya <i class="fa fa-chevron-right"></i></span>
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-right"></i></span>
       {% endif %}
     </div>
 

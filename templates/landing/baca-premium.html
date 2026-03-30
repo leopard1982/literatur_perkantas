@@ -185,9 +185,9 @@
 
     <div class="page-nav-bottom">
       {% if page > 1 %}
-      <a href="?p={{ prev }}" class="btn-nav-bottom"><i class="fa fa-chevron-left"></i> Sebelumnya</a>
+      <a href="?p={{ prev }}" class="btn-nav-bottom"><i class="fa fa-chevron-left"></i></a>
       {% else %}
-      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i> Sebelumnya</span>
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i></span>
       {% endif %}
 
       <form action="" method="post" style="display:flex;align-items:center;gap:8px;">
@@ -198,9 +198,9 @@
       </form>
 
       {% if page < book.halaman %}
-      <a href="?p={{ next }}" class="btn-nav-bottom">Berikutnya <i class="fa fa-chevron-right"></i></a>
+      <a href="?p={{ next }}" class="btn-nav-bottom"><i class="fa fa-chevron-right"></i></a>
       {% else %}
-      <span class="btn-nav-bottom disabled">Berikutnya <i class="fa fa-chevron-right"></i></span>
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-right"></i></span>
       {% endif %}
     </div>
 
