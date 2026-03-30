@@ -1,93 +1,304 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+
+{% block styling_akuh %}
+<style>
+    .profile-edit-page {
+        padding: 24px 0 40px;
+    }
+
+    .profile-edit-shell {
+        max-width: 1080px;
+    }
+
+    .profile-edit-hero,
+    .profile-edit-form-card {
+        background: #ffffff;
+        border: 1px solid #e9eef5;
+        border-radius: 24px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-edit-hero {
+        padding: 28px;
+        background: linear-gradient(135deg, #fff8f6 0%, #ffffff 58%, #f7fbff 100%);
+    }
+
+    .profile-edit-avatar {
+        width: 138px;
+        height: 138px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 5px solid #ffffff;
+        box-shadow: 0 16px 40px rgba(248, 109, 114, 0.22);
+    }
+
+    .profile-edit-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #fff0ed;
+        color: #d4645e;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .profile-edit-title {
+        margin: 14px 0 8px;
+        color: #183b56;
+        font-size: clamp(1.9rem, 3vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .profile-edit-subtitle {
+        margin: 0;
+        color: #5f6f81;
+        line-height: 1.7;
+    }
+
+    .profile-edit-form-card {
+        margin-top: 24px;
+        padding: 28px;
+    }
+
+    .profile-edit-section-title {
+        margin-bottom: 20px;
+        color: #183b56;
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .profile-edit-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .profile-edit-item {
+        display: grid;
+        grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .profile-edit-label,
+    .profile-edit-field {
+        border-radius: 18px;
+        min-height: 72px;
+        padding: 16px 18px;
+    }
+
+    .profile-edit-label {
+        background: #f8fbff;
+        border: 1px solid #d8e7f5;
+        color: #2b5c84;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-edit-field {
+        background: #ffffff;
+        border: 1px solid #e3ebf3;
+    }
+
+    .profile-edit-field p {
+        margin: 0;
+    }
+
+    .profile-edit-field input,
+    .profile-edit-field textarea,
+    .profile-edit-field select {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid #d8e1ec;
+        border-radius: 14px;
+        padding: 12px 14px;
+        color: #334155;
+        background: #fbfdff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-edit-field input:focus,
+    .profile-edit-field textarea:focus,
+    .profile-edit-field select:focus {
+        outline: none;
+        border-color: #f86d72;
+        box-shadow: 0 0 0 4px rgba(248, 109, 114, 0.14);
+        background: #ffffff;
+    }
+
+    .profile-edit-field input[type="file"] {
+        padding: 10px 12px;
+        background: #ffffff;
+    }
+
+    .profile-edit-field textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .profile-edit-note {
+        margin-top: 8px;
+        color: #7a8a9a;
+        font-size: 0.92rem;
+    }
+
+    .profile-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .profile-edit-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 230px;
+        min-height: 52px;
+        padding: 0 22px;
+        border: none;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f86d72, #df595f);
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 14px 30px rgba(248, 109, 114, 0.28);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-edit-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 34px rgba(248, 109, 114, 0.34);
+    }
+
+    @media (max-width: 991.98px) {
+        .profile-edit-hero,
+        .profile-edit-form-card {
+            padding: 22px;
+        }
+
+        .profile-edit-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .profile-edit-page {
+            padding-top: 18px;
+        }
+
+        .profile-edit-hero,
+        .profile-edit-form-card {
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .profile-edit-avatar {
+            width: 116px;
+            height: 116px;
+        }
+
+        .profile-edit-actions {
+            justify-content: stretch;
+        }
+
+        .profile-edit-submit {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="p-2 text-center containerfw-bold h2 text-white bg-primary rounded container mb-5">
-    Perbaharui Info Saya
-</div>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="container">
-        <div class="d-flex justify-content-start row ">
-            <div class="w-100" style=" padding-left: 20px;">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                        <p class="text-primary fw-bold fs-4">Foto Profil:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        <p>{{updateprofile.photo}}</p>
-                    </div>
+<section class="profile-edit-page">
+    <div class="container profile-edit-shell">
+        <div class="profile-edit-hero">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-3 text-center text-lg-start">
+                    {% if user.userdetail.photo %}
+                        <img src="{{ user.userdetail.photo.url }}" class="profile-edit-avatar" alt="foto profil">
+                    {% else %}
+                        <img src="{% static 'images/profile.jpeg' %}" class="profile-edit-avatar" alt="foto profil">
+                    {% endif %}
                 </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                        <p class="text-primary fw-bold fs-4">Nama Lengkap:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>{{updateprofile.nama_lengkap}}</p>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-5 col-sm-6 col-xs-6  fw-bold pt-2">
-                        <p class="text-primary fw-bold fs-4">Tanggal Lahir:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-6 col-sm-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>
-                            {{updateprofile.birthday}}
-                        </p>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                        <p class="text-primary fw-bold fs-4">Nomor Whatsapp:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>{{updateprofile.no_whatsapp}}</p>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                        <p class="text-primary fw-bold fs-4">Pekerjaan:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>{{updateprofile.pekerjaan}}</p>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                        <p class="text-primary fw-bold fs-4">Alamat Surat:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>
-                            {{updateprofile.alamat}}
-                        </p>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-5 col-xs-6  pt-2 fw-bold rounded-left">
-                        <p class="text-primary fw-bold fs-4">Review Sahabat Litanas:</p>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-6 col-xs-6 pt-2 border border-primary rounded flex-wrap" style="overflow-wrap: break-word;">
-                        
-                        <p>
-                            {% if user.pagereview.review %}
-                                <input type="text" name="review_litanas" placeholder="silakan masukkan review untuk sahabat litanas..." value="{{user.pagereview.review}}" id="" class="form-control fs-italic fs-6">
-                            {% else %}
-                                <input type="text" name="review_litanas" placeholder="silakan masukkan review untuk sahabat litanas..." id="" class="form-control fs-italic fs-6">
-                            {% endif %}
-                        </p>
-                    </div>
+                <div class="col-lg-9">
+                    <span class="profile-edit-kicker">Edit Profil</span>
+                    <h1 class="profile-edit-title">Perbaharui Info Saya</h1>
+                    <p class="profile-edit-subtitle">
+                        Lengkapi dan rapikan data profilmu di sini. Perubahan yang disimpan akan langsung dipakai di halaman profil akun.
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="text-center mt-4">
-            <input type="submit" value="Konfirmasi Pembaharuan" class="btn">
-        </div>
-    </div>
-</form>
 
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="profile-edit-form-card">
+                <h2 class="profile-edit-section-title">Form Pembaruan Profil</h2>
+
+                <div class="profile-edit-grid">
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Foto Profil</div>
+                        <div class="profile-edit-field">
+                            {{ updateprofile.photo }}
+                            <div class="profile-edit-note">Gunakan file gambar yang jelas agar tampilan akun terlihat lebih rapi.</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Nama Lengkap</div>
+                        <div class="profile-edit-field">{{ updateprofile.nama_lengkap }}</div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Tanggal Lahir</div>
+                        <div class="profile-edit-field">{{ updateprofile.birthday }}</div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Nomor Whatsapp</div>
+                        <div class="profile-edit-field">{{ updateprofile.no_whatsapp }}</div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Pekerjaan</div>
+                        <div class="profile-edit-field">{{ updateprofile.pekerjaan }}</div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Alamat Surat</div>
+                        <div class="profile-edit-field">{{ updateprofile.alamat }}</div>
+                    </div>
+
+                    <div class="profile-edit-item">
+                        <div class="profile-edit-label">Review Sahabat Litanas</div>
+                        <div class="profile-edit-field">
+                            {% if user.pagereview.review %}
+                                <input type="text" name="review_litanas" placeholder="Silakan masukkan review untuk Sahabat Litanas..." value="{{ user.pagereview.review }}" class="form-control fs-6">
+                            {% else %}
+                                <input type="text" name="review_litanas" placeholder="Silakan masukkan review untuk Sahabat Litanas..." class="form-control fs-6">
+                            {% endif %}
+                            <div class="profile-edit-note">Bagian ini opsional. Isi jika ingin menampilkan review singkat di akunmu.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-edit-actions">
+                    <button type="submit" class="profile-edit-submit">
+                        <i class="fa fa-save" aria-hidden="true"></i>
+                        Konfirmasi Pembaharuan
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}
