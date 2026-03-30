@@ -26,19 +26,420 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     {% block mystyling %} {%endblock%}
     <style>
-      .link-underline:hover {
-        background-color: rgba(255,0,0,0.5);
-        border-radius: 5px;
-        /* padding: 5px; */
-        color:white !important;
-        transition-duration: 0.3s;
-        /* font-size: 13.5px !important; */
+      /* ===== NAVBAR REDESIGN ===== */
+      #header {
+        background: white;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
       }
-      .link-submenu:hover {
-        border-bottom: 2px solid rgba(255,0,0,0.8);
-        transition-duration: 0.3s;
-        color: rgba(255,0,0,0.8);
-        font-weight: bold !important;
+      .announcement-bar {
+        background: linear-gradient(90deg, #F86D72, #e74c3c);
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 0;
+        overflow: hidden;
+      }
+      .announcement-bar marquee { color: white; }
+      #header-nav {
+        padding: 10px 0;
+        background: white !important;
+        box-shadow: none !important;
+      }
+      .header-main {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: auto;
+        flex: 0 0 auto;
+      }
+      .header-shell {
+        gap: 16px;
+        align-items: center;
+      }
+      .navbar-brand img.logo {
+        height: 60px !important;
+        width: auto !important;
+      }
+      .navbar-expand-lg .navbar-collapse {
+        flex-basis: auto;
+      }
+      .offcanvas.offcanvas-end {
+        flex: 1 1 auto;
+      }
+      .offcanvas-body {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1 1 auto;
+        justify-content: space-between;
+      }
+      /* Nav links */
+      #navbar {
+        flex-wrap: nowrap;
+      }
+      #navbar .nav-item .nav-link {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333 !important;
+        padding: 8px 14px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      #navbar .nav-item .nav-link:hover,
+      #navbar .nav-item .nav-link.active {
+        background: #fff0f0;
+        color: #F86D72 !important;
+      }
+      .link-underline:hover {
+        background: #fff0f0 !important;
+        color: #F86D72 !important;
+        border-radius: 8px;
+      }
+      /* User action icons */
+      .nav-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        color: #444;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      .nav-action-btn:hover { background: #f8f9fa; color: #F86D72; }
+      .nav-action-btn svg, .nav-action-btn i { font-size: 18px; }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        margin-left: 0;
+        flex: 0 0 auto;
+      }
+      .nav-badge {
+        background: #F86D72;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        margin-left: 1px;
+      }
+      .btn-login-nav {
+        background: linear-gradient(135deg, #F86D72, #e74c3c);
+        color: white !important;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 25px;
+        font-size: 13px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .btn-login-nav:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(248,109,114,0.35);
+        color: white !important;
+      }
+      /* Dropdown */
+      .user-avatar-small {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #F86D72;
+      }
+      .user-nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 25px;
+        border: 1.5px solid #e0e0e0;
+        background: white;
+        color: #333;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      .user-nav-btn:hover { border-color: #F86D72; color: #F86D72; }
+      .user-nav-btn::after {
+        margin-left: 2px;
+      }
+      .dropdown-menu {
+        border: none;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border-radius: 12px !important;
+        padding: 8px !important;
+        margin-top: 10px !important;
+      }
+      .dropdown-item {
+        border-radius: 8px;
+        font-size: 14px;
+        padding: 9px 14px;
+        color: #333;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .dropdown-item:hover, .link-submenu:hover {
+        background: #fff0f0;
+        color: #F86D72;
+      }
+      .account-menu-item {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .account-menu-main {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .account-menu-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 26px;
+        height: 26px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: #f8ece6;
+        color: #bf5b3d;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .notice-dropdown {
+        width: min(360px, calc(100vw - 32px));
+      }
+      .notice-list {
+        display: grid;
+        gap: 8px;
+        max-height: 320px;
+        overflow-y: auto;
+        padding: 4px 2px;
+      }
+      .notice-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #fff9f6;
+        border: 1px solid #f3e5dd;
+      }
+      .notice-card:hover {
+        background: #fff0f0;
+        color: inherit;
+      }
+      .notice-card .title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #24343d;
+        margin-bottom: 4px;
+      }
+      .notice-card .body {
+        font-size: 12px;
+        color: #6f7b83;
+        line-height: 1.5;
+        margin-bottom: 6px;
+      }
+      .notice-card .meta {
+        font-size: 11px;
+        color: #9a8f88;
+      }
+      .notice-empty {
+        padding: 18px 14px;
+        text-align: center;
+        font-size: 13px;
+        color: #7c8b95;
+      }
+      .mobile-account-card {
+        border: 1px solid #f0e4de;
+        border-radius: 16px;
+        padding: 16px;
+        background: linear-gradient(180deg, #fff, #fff7f4);
+        margin: 12px 16px 0;
+      }
+      .mobile-account-links {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .mobile-account-links a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.86);
+      }
+      .mobile-account-links a:hover {
+        background: #fff0f0;
+        color: #F86D72;
+      }
+      /* ===== FOOTER REDESIGN ===== */
+      #footer {
+        background: #1a1a2e !important;
+        color: #ccc;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        border-top: 3px solid #F86D72;
+        padding: 50px 0 0;
+      }
+      #footer h5, #footer h6 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+      #footer p, #footer li { color: #aaa; font-size: 14px; }
+      #footer a { color: #ccc; text-decoration: none; transition: color 0.2s; }
+      #footer a:hover { color: #F86D72; }
+      .footer-brand {
+        padding: 14px 18px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(246,248,252,0.92));
+        border: 1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 14px 28px rgba(7, 10, 24, 0.24);
+      }
+      .footer-brand img {
+        height: 60px;
+        width: auto;
+        display: block;
+        opacity: 1;
+        border-radius: 10px;
+      }
+      .footer-divider {
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin: 30px 0 0;
+        padding: 20px 0;
+        text-align: center;
+        color: #555;
+        font-size: 13px;
+      }
+      .footer-social-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #ccc;
+        transition: all 0.2s;
+        margin-right: 8px;
+      }
+      .footer-social-btn:hover {
+        background: #F86D72;
+        border-color: #F86D72;
+        color: white;
+      }
+      .footer-contact-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .footer-contact-row i {
+        color: #F86D72;
+        font-size: 16px;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+      .page-breadcrumbs {
+        border-top: 1px solid #f3f0eb;
+        background: linear-gradient(180deg, #fffaf7, #ffffff);
+      }
+      .page-breadcrumbs .container {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .breadcrumb {
+        margin: 0;
+        background: transparent;
+      }
+      .breadcrumb-item,
+      .breadcrumb-item a {
+        font-size: 12px;
+        font-weight: 700;
+        color: #8e7f74;
+        text-decoration: none;
+      }
+      .breadcrumb-item.active {
+        color: #bf5b3d;
+      }
+      .breadcrumb-item + .breadcrumb-item::before {
+        color: #c5b8ad;
+      }
+      @media (max-width: 991.98px) {
+        .offcanvas {
+          max-width: 360px;
+        }
+        .header-main {
+          width: 100%;
+          flex: 1 1 auto;
+        }
+        .offcanvas-body {
+          display: block;
+          padding: 0 0 20px;
+        }
+        #navbar {
+          margin: 0 !important;
+          padding: 8px 16px 0;
+          gap: 4px !important;
+          flex-wrap: wrap;
+        }
+        #navbar .nav-item {
+          width: 100%;
+        }
+        #navbar .nav-item .nav-link {
+          width: 100%;
+          padding: 12px 14px;
+        }
+        .header-actions {
+          width: 100%;
+          margin: 14px 16px 0;
+          padding-top: 12px;
+          border-top: 1px solid #f1f1f1;
+          flex-wrap: wrap;
+        }
+        .nav-action-btn {
+          min-width: 48px;
+          justify-content: center;
+          background: #f8f9fa;
+        }
+      }
+      @media (min-width: 992px) {
+        .mobile-account-card {
+          display: none;
+        }
+        .desktop-profile-only {
+          display: flex !important;
+        }
       }
     </style>
   </head>
@@ -150,13 +551,53 @@
       </symbol>
     </svg>
     {% if messages %}
+    <div id="toast-container" style="position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:380px;">
       {% for message in messages %}
-          <div class="alert text-center my-5 w-50 alert-success alert-dismissible fade show position-absolute" style="z-index: 30;margin-top:50px;left: 0;right: 0;margin:0 auto;" role="alert">
-            <strong>Pesan:</strong> {{message}}.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+      <div class="app-toast {% if message.tags %}toast-{{ message.tags }}{% endif %}"
+           style="background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px 20px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid var(--primary-color);animation:toastSlideIn 0.35s ease;position:relative;overflow:hidden;">
+        <div style="flex-shrink:0;width:32px;height:32px;background:linear-gradient(135deg,var(--primary-color),#c0392b);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">
+          <i class="fa fa-bell"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;font-weight:700;color:var(--primary-color);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Notifikasi</div>
+          <div style="font-size:13px;color:#333;line-height:1.5;">{{ message }}</div>
+        </div>
+        <button onclick="this.closest('.app-toast').remove()" style="background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">&times;</button>
+        <div class="toast-progress" style="position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary-color),#c0392b);border-radius:0 0 0 12px;animation:toastProgress 5s linear forwards;"></div>
+      </div>
       {% endfor %}
-    {% endif%}
+    </div>
+    <style>
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastProgress {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+    </style>
+    <script>
+    (function() {
+      function autoRemoveToasts() {
+        var toasts = document.querySelectorAll('.app-toast');
+        toasts.forEach(function(toast) {
+          setTimeout(function() {
+            toast.style.transition = 'opacity 0.4s, transform 0.4s';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(60px)';
+            setTimeout(function() { toast.remove(); }, 400);
+          }, 5000);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', autoRemoveToasts);
+      } else {
+        autoRemoveToasts();
+      }
+    })();
+    </script>
+    {% endif %}
 
     <div id="preloader" class="preloader-container">
       <div class="book">
@@ -211,437 +652,535 @@
 
     <header id="header" class="site-header w-100">
 
-      <div class="top d-none d-md-block ">
-        <div class="  rounded text-center  " >
-          <marquee  class="bg-success text-white " style="border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;">
+      <!-- Announcement Bar -->
+      <div class="announcement-bar d-none d-md-block">
+        <div class="container">
+          <marquee>
             {% if user.is_authenticated %}
-            <b>Shallom, {{user.userdetail|title}}! INFO: </b>{{pengumuman}}
+            &#128075; Shallom, <b>{{ user.userdetail|title }}</b>! &nbsp;&nbsp;|&nbsp;&nbsp; {{ pengumuman }}
             {% else %}
-            <b>INFO: </b>{{pengumuman}}
-            {% endif%}
+            &#128218; Selamat datang di Literatur Perkantas &nbsp;&nbsp;|&nbsp;&nbsp; {{ pengumuman }}
+            {% endif %}
           </marquee>
         </div>
       </div>
 
-      <nav id="header-nav" class="navbar navbar-expand-lg " >
-        <div class="container">
-          <a class="navbar-brand " href="/">
-            <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" style="width:230px;height: 90px;">
-          </a>
-          <button class="navbar-toggler d-flex  d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <svg class="navbar-icon">
-              <use xlink:href="#navbar-icon"></use>
-            </svg>
-          </button>
-          <div class="offcanvas offcanvas-end" tabindex="-1" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel" >
+      <nav id="header-nav" class="navbar navbar-expand-lg">
+        <div class="container header-shell">
+          <div class="header-main">
+            <!-- Logo -->
+            <a class="navbar-brand" href="/">
+              <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" alt="Literatur Perkantas">
+            </a>
+
+            <!-- Mobile toggle -->
+            <button class="navbar-toggler d-flex d-lg-none order-3 p-2 border-0" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
+              <svg class="navbar-icon" style="width:24px;height:24px;">
+                <use xlink:href="#navbar-icon"></use>
+              </svg>
+            </button>
+          </div>
+
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel">
             <div class="offcanvas-header px-4 pb-0">
               <a class="navbar-brand" href="/">
-                <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" style="width:230px;height: 80px;">
+                <img src="{% static 'images/literatur_perkantas.jpg'%}" class="logo" alt="Literatur Perkantas">
               </a>
-              <button type="button" class="btn-close btn-close-black" data-bs-dismiss="offcanvas" aria-label="Close"
-                data-bs-target="#bdNavbar"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#bdNavbar"></button>
             </div>
+
             <div class="offcanvas-body">
-              <ul id="navbar"
-                class="navbar-nav text-uppercase justify-content-start  mx-3 align-items-start align-items-lg-center flex-grow-1">
+              <!-- Main Nav Links -->
+              <ul id="navbar" class="navbar-nav justify-content-start mx-3 align-items-start align-items-lg-center flex-grow-1 gap-1">
                 <li class="nav-item">
-                  <a class="nav-link me-2 active link-underline " href="{% url 'main_page'%}">Home</a>
-                </li>                
-                
-                <li class="nav-item">
-                  <a class="nav-link me-2 link-underline" href="{% url 'all_book_view'%}?k=12">Promo</a>
-                </li>
-                <li class="nav-item">
-                  <div>
-                    <a class="nav-link me-2 link-underline" href="{% url 'all_blogs_view'%}">Coretan<span style="color:white">_</span>Pena</a>
-                  </div>
-                </li>
-                {% if user.is_authenticated%}
-                <li class="nav-item dropdown border-white " >
-                  <a class="nav-link me-2 dropdown-toggle link-underline" data-bs-toggle="dropdown" href="#" role="button"
-                    aria-expanded="false">
-                    Profil
+                  <a class="nav-link link-underline" href="{% url 'main_page' %}">
+                    <i class="fa fa-home me-1"></i> Beranda
                   </a>
-                  <ul class="dropdown-menu animate slide border" style="box-shadow: 5px 5px 5px lightgrey;border-radius: 0px !important;margin-top: 15px;">
-                    <li class="bg-primary" style="height: 60px; width: 300px;margin-top: -6px;">
-                      <div class="d-flex justify-content-center align-items-center">
-                        {% if user.userdetail.photo %}
-                            <img src="{{user.userdetail.photo.url }}" class="shadow rounded-circle  border border-primary" alt="foto profile"  style="width: 80px;height: 80px;margin-top: -15px;">
-                        {% else %}
-                            <img src="{% static 'images/profile.jpeg'%}" class="shadow rounded-circle  border-primary border"  alt="foto profile"  style="width: 80px;height: 80px;margin-top: -15px;">
-                        {% endif %}
-                        <p class="fs-6 fw-bold text-white pt-2" style="margin-left: 5px;">
-                          {{user.userdetail.nama_lengkap|truncatechars:18}}<br>
-                          <span style="font-size: 10px;font-style: italic;font-weight: normal;" class="text-lowercase">{{user.username}}</span>
-                        </p>
-                      </div>
-
-                    </li>
-                    <li class="mt-4">
-                      <a href="{% url 'profile_view'%}" class="dropdown-item fw-light link-submenu">Detail Info Saya</a>
-                    </li>
-                    <li>
-                      <a href="{% url 'cart_view'%}" class="dropdown-item fw-light link-submenu">Keranjang Belanja Saya </a>
-                    </li>
-                    <li>
-                      <a href="{% url 'list_payment'%}" class="dropdown-item fw-light link-submenu">Pembelian Buku Saya </a>
-                    </li>
-                    <li>
-                      <a href="{% url 'ganti_password_page'%}" class="dropdown-item fw-light link-submenu">Ganti Password </a>
-                    </li>
-                  </ul>
                 </li>
-                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link link-underline" href="{% url 'all_book_view' %}">
+                    <i class="fa fa-book me-1"></i> Buku
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link link-underline" href="{% url 'all_book_view' %}?k=12">
+                    <i class="fa fa-tag me-1"></i> Promo
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link link-underline" href="{% url 'all_blogs_view' %}">
+                    <i class="fa fa-pencil me-1"></i> Coretan Pena
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link link-underline" href="{% url 'tentang_kami' %}">
+                    <i class="fa fa-info-circle me-1"></i> Tentang
+                  </a>
+                </li>
               </ul>
-              <div class="user-items shadow bg-white d-flex mt-xs-5 mt-sm-5 mt-md-0 mt-lg-0 justify-content-evenly p-2 border border-primary rounded">
-                <ul class="d-flex justify-content-end list-unstyled mb-0 ">
-                  <li class="search-item pe-3 d-none d-lg-flex" style="margin-top: -2px;">
-                    <a href="#" class="search-button link-underline" title="pencarian">
-                      <svg class="search">
-                        <use xlink:href="#search"></use>
-                      </svg>
-                    </a>
-                  </li>
-                  {% if user.is_authenticated %}
-                  <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" title="daftar keinginan" style="margin-left:20px; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded justify-content-center d-flex " data-bs-target="#modalWishList">
-                      <svg class="wishlist link-underline">
-                        <use xlink:href="#heart"></use>
-                      </svg> (<span style="font-size: 15px;" class="text-primary">{{jumlahwishlist}}</span>)
-                    </a>
-                    <!-- Modal WishList-->
-                    <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalWishList" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWishListLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title fw-bold text-primary"  id="modalWishListLabel">Daftar Buku Disukai</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body p-3 w-100" >
-                            <!-- daftar wishlist -->
-                            <div style="border:1px solid lightcoral;background-color: whitesmoke;padding:10px;border-radius: 5px;height: 250px;overflow-y: auto;">
-                              {% if mywishlist %}
-                                {% for wish in mywishlist %}
-                                <div class="justify-content-start d-flex row">
-                                    <div style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;" class="col-3">
-                                      <img src="/media/extract/pdf_full/{{wish.book.id}}/1.jpg" class="rounded shadow w-100"  alt="">  
-                                    </div>
-                                    <div class="col-8" style="padding-bottom: 10px; padding-top: 5px;border-bottom: 1px solid lightgrey;">
-                                      <p class="h5">
-                                        <a href="{% url 'baca_buku'%}?id={{wish.book.id}}">{{wish.book.judul}}</a>
-                                      </p>
-                                      {% if wish.book.onsalebook.is_active %}
-                                        <p class="small">
-                                          {{wish.book.onsalebook.header}}<br>
-                                          Potongan: <span class="text-primary">{{wish.book.onsalebook.discount|intcomma}}</span> %
-                                        </p>  
-                                        <p>Harga: <span class="text-primary"><s><i>Rp. {{wish.book.price|intcomma}}.00</i></s></span> &rarr; <span class="text-primary">Rp. {{wish.book.onsalebook.nett_price|intcomma}}</span></p>
-                                      {% else %}
-                                        <p>Harga: <span class="text-primary">Rp. {{wish.book.price|intcomma}}.00</span></p>
-                                      {% endif %}
-                                      <div class="d-flex justify-content-start">
-                                        <a href="{% url 'add_cart_list' wish.book.id %}" title="Klik untuk Melihat Keranjang Belanja" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightcoral;border-radius: 5px;">
-                                          <svg class="cart" style="height: 30px;width: 30px;">
-                                            <use xlink:href="#cart"></use>
-                                          </svg>
-                                        </a>
-                                        <a href="{% url 'del_wish_list' wish.book.id %}" class="d-block fw-medium text-capitalize mt-2 p-2 bg-white shadow text-center" style="border:1px solid lightgreen;border-radius: 5px; margin-left: 20px; color: green;">
-                                          <img src="{% static 'images/trash.svg'%}" style="width: 30px;height: 30px;"></img>
-                                        </a>
-                                      </div>
-                                    </div>
-                                </div>
-                                
-                                {% endfor %}
-                                
-                              {% else %}
-                              <div class="text-center" >
-                                <p>Ups... belum ada buku dalam wishlist kamu...</p>
-                                <p>Yuks... cari buku yang kamu sukai...</p>
-                                <p>
-                                  <img src="{% static 'images/baca-buku.png'%}" style="width: 70px;height: 130px;" alt="">
-                                </p>
-                              </div>
-                              {% endif %}
-                            </div>
-                            {% if mywishlist %}
-                              <p style="margin-top: 20px;">
-                                  Jumlah Wishlist: <span class="text-primary">{{jumlahwishlist}}</span> Buku
-                              </p>
-                            {% endif %}
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  </li>
-                  <li class="cart-dropdown dropdown">
-                    <a href="{% url 'cart_view'%}" title="keranjang belanja" class="justify-content-start d-flex" style="margin-left: 20px;" >
-                      <svg class="cart link-underline">
-                        <use xlink:href="#cart"></use>
-                      </svg><span class="fs-6 fw-light" style="font-size: 15px;">(<span class="text-primary">{{jml_mycart}}</span>)</span>
-                    </a>
-                    
-                  </li>
-                  <li >
-                    <a href="{% url 'list_inbox_message'%}" title="pesan inbox" class="d-flex justify-content-start" style="margin-left: 25px;" >
-                      <i class="fa fa-inbox link-underline" aria-hidden="true" style="font-size: 25px;"></i> <span class="mx-1" style="font-size: 15px;">(<span class="text-primary">{{jml_inbox_message}}</span>)</span></span> 
-                    </a>
-                  </li>
-                  <li class="pe-3">
-                    <a href="{% url 'logout_user'%}" class="d-flex justify-content-start" title="logout"  style="margin-left: 20px;" >
-                      <i class="fa fa-sign-out link-underline" aria-hidden="true"  style="font-size: 25px;"></i> <sub style="margin-top:13px;font-style: italic;"></sub>
-                    </a>
-                  </li>
-                  {% else%}
-                  <li class="pe-3">
-                    <a href="#" data-bs-toggle="modal" style="background-color:coral !important; box-shadow: 5px 5px 5px lightcoral; " class="shadow rounded" data-bs-target="#exampleModal">
-                      <div class="justify-content-center d-flex" style="margin-left: 20px; margin-top: -2px;">
-                        <div style="margin-right: 5px;">
-                          <svg class="user">
-                            <use xlink:href="#user"></use>
-                          </svg>
-                        </div>
-                        <div>
-                          Login / Registrasi
-                        </div>
-                      </div>
-                    </a>
 
-                    <!-- Modal Reset Password -->
-                    <div class="modal fade shadow" style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalResetPassword" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="modalResetPasswordLabel">Reset Password</h5>
-                            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-label="Close"></button>
-                          </div>
-                          <form action="{% url 'reset_password'%}" method="post">
-                            {% csrf_token%}
-                            <div class="modal-body">
-                              <p>Silakan Masukkan Email Anda</p>
-                              <p><small>Link Reset Password akan dikirim ke email Anda setelah melakukan klik reset password</small></p>
-                              <p>
-                                <input type="email" name="resetEmail" id="resetEmail" required class="form-control shadow border border-1" placeholder="Silakan Masukkan Email Anda">
-                              </p>
-                            </div>
-                            <div class="modal-footer">
-                              <input type="submit" class="btn btn-primary" value="Reset Password"/>
-                            </div>    
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Modal Kebijakan Litanas -->
-                    <!-- Modal -->
-                    <div class="modal fade shadow border " style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="modalKebijakanLitanas" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">Kebijakan Litanas</h5>
-                          </div>
-                          <div class="modal-body overflow-auto" style="height: 400px;">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo, culpa. Nihil, dolore laborum. Minima soluta velit natus fugit cumque dolor voluptate, unde delectus esse omnis nesciunt explicabo dolorum autem sunt.</p>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim modi magnam rem, hic, ipsa autem error blanditiis iusto possimus necessitatibus porro, dolorem numquam. Harum reiciendis, maiores atque soluta incidunt dolor.</p>
-                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aperiam nihil, ea mollitia nisi vel sequi quibusdam minus similique sapiente eveniet debitis unde dolores itaque temporibus atque veniam? Quam, quisquam expedita.</p>
-                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti cupiditate amet nihil officia est quos consequuntur, accusantium reiciendis ipsum officiis illo sit a rem, repudiandae ducimus voluptates quisquam non aperiam!</p>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Saya Mengerti</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    
-
-                    <!-- Modal Registrasi -->
-                    <div class="modal fade shadow" style="border:1px solid grey;background-color: rgba(0,0,0,0.2);" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                      aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header border-bottom-0">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="tabs-listing">
-                              <nav>
-                                <div class="nav nav-tabs d-flex justify-content-center" id="nav-tab" role="tablist">
-                                  <button class="nav-link text-capitalize active" id="nav-sign-in-tab" data-bs-toggle="tab"
-                                    data-bs-target="#nav-sign-in" type="button" role="tab" aria-controls="nav-sign-in"
-                                    aria-selected="true">Login</button>
-                                  <button class="nav-link text-capitalize" id="nav-register-tab" data-bs-toggle="tab"
-                                    data-bs-target="#nav-register" type="button" role="tab" aria-controls="nav-register"
-                                    aria-selected="false">Registrasi Baru</button>
-                                </div>
-                              </nav>
-                              <div class="tab-content" id="nav-tabContent">
-                                  <div class="tab-pane fade active show" id="nav-sign-in" role="tabpanel"
-                                  aria-labelledby="nav-sign-in-tab">
-                                    <form method="post" action="{% url 'main_page'%}">
-                                      {% csrf_token %}
-                                        <div class="form-group py-3">
-                                          <label class="mb-2" for="sign-in">Alamat Email *</label>
-                                          <input type="email" minlength="2" name="username_login" placeholder="Masukkan Alamat Email"
-                                            class="form-control w-100 rounded-3 p-3" required>
-                                        </div>
-                                        <div class="form-group pb-3">
-                                          <label class="mb-2" for="sign-in">Password *</label>
-                                          <input type="password" minlength="2" name="password_login" placeholder="Masukkan Password"
-                                            class="form-control w-100 rounded-3 p-3" required>
-                                        </div>                                      
-                                        <!-- <label class="py-3">
-                                          <input type="checkbox" required="" class="d-inline">
-                                          <span class="label-body">Ingat Saya</span>
-                                        </label> -->
-                                        <button type="submit" name="submit" class="btn btn-primary w-100 my-3">Login</button>
-                                        <p class="label-body">Apakah <a href="#" class="fw-bold"  data-bs-toggle="modal" data-bs-target="#modalResetPassword">Lupa Password</a>? </p>
-                                    </form>
-                                  </div>
-                                  <div class="tab-pane fade" id="nav-register" role="tabpanel"
-                                    aria-labelledby="nav-register-tab">
-                                    <form action="" method="post"  action="{% url 'main_page'%}">
-                                      {% csrf_token %}
-                                      <div class="form-group py-1">
-                                        <label class="mb-2" for="register">Alamat Email *</label>
-                                        <input type="email" minlength="2" name="username_register" placeholder="Masukkan Alamat Email"
-                                          class="form-control w-100 rounded-3 p-3" required>
-                                      </div>
-                                      <div class="form-group pb-1">
-                                        <label class="mb-2" for="sign-in">Password *</label>
-                                        <input type="password" minlength="2" name="password_register1" placeholder="Masukkan Password"
-                                          class="form-control w-100 rounded-3 p-3" required>
-                                      </div>
-                                      <div class="form-group pb-1">
-                                        <label class="mb-2" for="sign-in">Konfirmasi Password *</label>
-                                        <input type="password" minlength="2" name="password_register2" placeholder="Konfirmasi Password"
-                                          class="form-control w-100 rounded-3 p-3" required>
-                                      </div>
-                                      <label class="py-1">
-                                        <input type="checkbox" required="" class="d-inline">
-                                        <span class="label-body">Saya Setuju Kepada <a href="#" class="fw-bold" data-bs-toggle="modal" data-bs-target="#modalKebijakanLitanas">Kebijakan Litanas</a></span>
-                                      </label>
-                                      <button type="submit" name="submit" class="btn btn-primary w-100 my-3">Register</button>
-                                    </form>
-                                  </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
+              {% if user.is_authenticated %}
+              <div class="mobile-account-card d-lg-none">
+                <div class="d-flex align-items-center gap-3">
+                  {% if user.userdetail.photo %}
+                    <img src="{{ user.userdetail.photo.url }}" class="user-avatar-small" alt="foto">
+                  {% else %}
+                    <img src="{% static 'images/profile.jpeg' %}" class="user-avatar-small" alt="foto">
                   {% endif %}
-                </ul>
+                  <div style="min-width:0;">
+                    <div style="font-size:14px;font-weight:800;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.userdetail.nama_lengkap|truncatechars:24 }}</div>
+                    <div style="font-size:12px;color:#888;">{{ user.username }}</div>
+                  </div>
+                </div>
+                <div class="mobile-account-links">
+                  <a href="{% url 'profile_view' %}"><i class="fa fa-id-card text-muted"></i> Profil Saya</a>
+                  <a href="{% url 'semua_buku_koleksi' %}"><i class="fa fa-book text-muted"></i> Koleksi Buku</a>
+                  <a href="{% url 'cart_view' %}"><i class="fa fa-shopping-cart text-muted"></i> Keranjang Belanja</a>
+                  <a href="{% url 'list_payment' %}"><i class="fa fa-receipt text-muted"></i> Riwayat Pembelian</a>
+                  <a href="{% url 'ganti_password_page' %}"><i class="fa fa-lock text-muted"></i> Ganti Password</a>
+                  <a href="{% url 'logout_user' %}" style="color:#e74c3c;"><i class="fa fa-sign-out"></i> Logout</a>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Right: Action Icons -->
+              <div class="header-actions mt-3 mt-lg-0">
+                {% if user.is_authenticated %}
+                <a href="#" class="nav-action-btn search-button d-lg-none" title="Cari">
+                  <svg class="search" style="width:20px;height:20px;"><use xlink:href="#search"></use></svg>
+                </a>
+                <div class="dropdown">
+                  <a href="#" class="nav-action-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notice">
+                    <i class="fa fa-bell" style="font-size:18px;"></i>
+                    {% if jml_inbox_message > 0 %}
+                    <span class="nav-badge">{{ jml_inbox_message }}</span>
+                    {% endif %}
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-end notice-dropdown">
+                    <div class="d-flex justify-content-between align-items-center px-3 pt-2 pb-1">
+                      <div>
+                        <div style="font-size:13px;font-weight:800;color:#24343d;">Notice</div>
+                        <div style="font-size:11px;color:#8a8f96;">Update terbaru akun Anda</div>
+                      </div>
+                    </div>
+                    <div class="notice-list px-2 pb-2">
+                      {% if inbox_message %}
+                        {% for notice in inbox_message|slice:":10" %}
+                        <a href="{% url 'list_inbox_message' %}" class="notice-card">
+                          <div class="title">{{ notice.header }}</div>
+                          <div class="body">{{ notice.body|truncatechars:88 }}</div>
+                          <div class="meta">{{ notice.created_at|date:"d M Y H:i" }} WIB</div>
+                        </a>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                    <div class="px-3 pb-3 pt-1 text-center">
+                      <a href="{% url 'list_inbox_message' %}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 16px;border-radius:999px;background:#fff3f2;border:1px solid #f3d7d4;color:#c97b78;font-size:12px;font-weight:800;text-decoration:none;">
+                        Lihat Semua <i class="fa fa-arrow-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown d-none d-lg-flex desktop-profile-only">
+                  <a href="#" class="user-nav-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user.userdetail.photo %}
+                      <img src="{{ user.userdetail.photo.url }}" class="user-avatar-small" alt="foto">
+                    {% else %}
+                      <i class="fa fa-user-circle" style="font-size:22px;color:#F86D72;"></i>
+                    {% endif %}
+                    <span>{{ user.userdetail.nama_lengkap|truncatechars:12 }}</span>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a href="{% url 'profile_view' %}" class="dropdown-item account-menu-item">
+                        <span class="account-menu-main"><i class="fa fa-user-circle-o text-muted"></i> Profil</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{% url 'semua_buku_koleksi' %}" class="dropdown-item account-menu-item">
+                        <span class="account-menu-main"><i class="fa fa-book text-muted"></i> Koleksiku</span>
+                        <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{% url 'cart_view' %}" class="dropdown-item account-menu-item">
+                        <span class="account-menu-main"><i class="fa fa-shopping-basket text-muted"></i> Keranjang</span>
+                        <span class="account-menu-count">{{ jml_mycart }}</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_inbox_message' %}" class="dropdown-item account-menu-item">
+                        <span class="account-menu-main"><i class="fa fa-bell-o text-muted"></i> Inbox</span>
+                        <span class="account-menu-count">{{ jml_inbox_message }}</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_payment' %}" class="dropdown-item account-menu-item">
+                        <span class="account-menu-main"><i class="fa fa-credit-card text-muted"></i> Pembelian</span>
+                        <span class="account-menu-count">{{ user.userdetail.total_book }}</span>
+                      </a>
+                    </li>
+                    <li><a href="{% url 'ganti_password_page' %}" class="dropdown-item"><i class="fa fa-lock me-2 text-muted"></i> Ganti Password</a></li>
+                    <li><hr style="margin:6px 8px; border-color:#f0f0f0;"></li>
+                    <li><a href="{% url 'logout_user' %}" class="dropdown-item" style="color:#e74c3c;"><i class="fa fa-sign-out me-2"></i> Logout</a></li>
+                  </ul>
+                </div>
+
+                {% else %}
+                <a href="#" class="nav-action-btn search-button d-lg-none" title="Cari">
+                  <svg class="search" style="width:20px;height:20px;"><use xlink:href="#search"></use></svg>
+                </a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn-login-nav d-none d-lg-inline-flex">
+                  <svg class="user" style="width:18px;height:18px;filter:invert(1);"><use xlink:href="#user"></use></svg>
+                  Login / Daftar
+                </a>
+                {% endif %}
               </div>
             </div>
           </div>
         </div>
       </nav>
-
+      {% if breadcrumbs %}
+      <div class="page-breadcrumbs">
+        <div class="container">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              {% for crumb in breadcrumbs %}
+              <li class="breadcrumb-item {% if crumb.active %}active{% endif %}" {% if crumb.active %}aria-current="page"{% endif %}>
+                {% if crumb.url and not crumb.active %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                {% else %}
+                {{ crumb.label }}
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ol>
+          </nav>
+        </div>
+      </div>
+      {% endif %}
     </header>
 
-    <div class="container-fluid">
-          {% block contents %}
-          {% endblock %}     
-    </div>
+    <!-- ===== MODALS (di level body, bukan dalam offcanvas) ===== -->
 
-    <hr>
-    <footer id="footer"  style="margin-bottom:-150px;margin-top:20px;background-color: white;" class="bg-light-gray" >
-      <div class="container">
-        <div class="row">
-          <div class="footer-top-area">
-            <div class="row d-flex flex-wrap justify-content-between">
-              
-              
-              <div class="col-lg-6 col-12 col-md-6 pb-3  p-2">
-                <div class="footer-menu bg-white p-2 border rounded shadow">
-                  <!-- <img src="{% static 'images/visi-logo-moto.png'%}" alt="visi-misi-moto" class="w-100"> -->
-                    <p>
-                      <span style="font-size: 25;font-weight: bold;color:rgba(255,0,0,0.8)">VISI:</span><br>
-                      <span style="font-size: 14px;">Menjadi penerbit buku berkualitas bagi pertumbuhan rohani dan pembentukan pola pikir bagi siswa, mahasiswa, dan alumni.</span>
-                    </p>
-                    <p >
-                      <span style="font-size: 25;font-weight: bold;color:rgba(0,0,255,0.8)">MISI:</span>
-                      <ul style="font-size: 14px;">
-                        <li>Menerbitkan bacaan berkualitas</li>
-                        <li>Menumbuhkan minat dan budaya baca siswa, mahasiswa dan alumni</li>
-                        <li>Melahirkan penulis-penulis Indonesia</li>
-                        <li>Mempercepat akses dan distribusi bacaan berkualitas bagi masyarakat Indonesia</li>
-                      </ul>
-                    </p>
-                    <p >
-                      <span style="font-size: 25;font-weight: bold;color:rgba(255,0,255,0.8)">MOTO:</span><br>
-                      <span style="font-size: 14px;">Sahabat Anda Bertumbuh</span>
-                    </p>
-                </div>
-                <div class="social-links justify-content-center d-flex p-2 rounded bg-white " style="margin-top:30px">
-                    <ul class="d-block list-unstyled justify-content-center" style="padding-top:10px;">
-                      <div class="text-center mb-3">
-                        <li >
-                          <span class="text-primary fs-4 fw-bold ">Link Media Kami: </span>
-                        </li>
-                      </div>
-                      <div class="d-flex justify-content-between border border-primary shadow p-2 rounded">
-                        <li>
-                          <a href="https://www.instagram.com/literaturperkantasnasional?igsh=MTA0eDJqcnh5emVweQ==" target="_blank">
-                            <img src="{% static 'images/instagram.png'%}" alt="logo instagram" style="width: 30px;height: 30px;">
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://open.spotify.com/show/7kKwmQfYhNDCTByjrGCbZI?si=hFXG8S2qSVabAoenRMjD-A" target="_blank">
-                            <img src="{% static 'images/spotify.png'%}" alt="logo spotify" style="width: 30px;height: 30px;">
-                          </a>
-                        </li>
-                        <li>
-                          <a href="https://literaturperkantas.net/" class="btn p-1 px-3" target="_blank">
-                            Beli Buku?
-                          </a>
-                        </li>
-                      </div>
-                      
-                    </ul>
-                </div>
-              </div>
-              <div class="col-lg-6 col-12 col-md-6 pb-3 pt-4 rounded" >
-                <div class="footer-menu contact-item text-center" style="font-size: 14px;">
-                  <a href="{% url 'tentang_kami' %}" class="btn px-3 pb-2">
-                    <h5 class="widget-title fw-bold text-white" style="font-size: 20px;"><i class="fa fa-hashtag" aria-hidden="true"></i>TentangKami</h5>
-                  </a><br>
-                  <a href="{% url 'melakukan_donasi' %}" class="btn px-3 p-2 my-2">
-                    <i class="fa fa-heart" aria-hidden="true"></i> Donasi <i class="fa fa-heart" aria-hidden="true"></i>
-                  </a>
-                  
-                  <div class="d-flex justify-content-center">
-                    <p style="background-color: white;margin-top: 10px;margin-bottom: 10px;padding: 20px !important; padding:10px;border: 1px solid lightgrey;border-radius: 5px;width: 300px;">
-                      <span style="font-size: 15px;font-weight: bold;margin-bottom: 10px;">Alamat Surat:</span>
-                      <br><b>Literatur Perkantas Nasional</b>
-                      <br>Jl. Kesejahteraan no.35
-                      <br>Keagungan, Tamansari
-                      <br>Jakarta Barat, 11130
-                    </p>
-                  </div>
-
-                  <p><b>Email:</b> <a class="text-decoration-underline" href="mailto:literatur.perkantas@gmail.com">literatur.perkantas@gmail.com</a></p>
-                  <p><b>Whatsapp Admin:</b> <a class="text-decoration-underline" href="https://wa.me/+6281291508616">+6281291508616</a></p>
-                  <p class=" fw-bold"><b>Dikembangkan Oleh:</b><br> 
-                    <a href="mailto:adhy.chandra@gmail.com">
-                      <img src="{% static 'images/leopard.png'%}" class="w-50 shadow rounded" alt="Leopard Software">
-                    </a>
-                  </p>
-                </div>
-              </div>
+    <!-- Modal Wishlist -->
+    {% if user.is_authenticated %}
+    <div class="modal fade" id="modalWishList" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+          <div class="modal-header border-0 pb-0">
+            <div class="d-flex align-items-center gap-2">
+              <svg style="width:22px;height:22px;color:#F86D72;"><use xlink:href="#heart"></use></svg>
+              <h5 class="modal-title fw-bold" style="color:#1a1a1a;">Wishlist Saya</h5>
+              <span class="nav-badge">{{ jumlahwishlist }}</span>
             </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-3">
+            {% if mywishlist %}
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                {% for wish in mywishlist %}
+                <div style="display:flex;gap:12px;padding:10px;border-radius:10px;background:#f8f9fa;align-items:center;">
+                  <img src="/media/extract/pdf_full/{{ wish.book.id }}/1.jpg"
+                       style="width:55px;height:75px;border-radius:6px;object-fit:cover;flex-shrink:0;" alt="">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:3px;">{{ wish.book.judul }}</div>
+                    {% if wish.book.onsalebook.is_active %}
+                      <div style="font-size:12px;color:#999;text-decoration:line-through;">Rp. {{ wish.book.price|intcomma }}.00</div>
+                      <div style="font-size:13px;font-weight:700;color:#F86D72;">Rp. {{ wish.book.onsalebook.nett_price|intcomma }}</div>
+                    {% else %}
+                      <div style="font-size:13px;font-weight:700;color:#F86D72;">Rp. {{ wish.book.price|intcomma }}.00</div>
+                    {% endif %}
+                    <div style="display:flex;gap:6px;margin-top:8px;">
+                      <a href="{% url 'add_cart_list' wish.book.id %}"
+                         style="background:#F86D72;color:white;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;text-decoration:none;">
+                        <svg style="width:14px;height:14px;"><use xlink:href="#cart"></use></svg> Beli
+                      </a>
+                      <a href="{% url 'del_wish_list' wish.book.id %}"
+                         style="background:#fff0f0;color:#e74c3c;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid #f9c0c0;">
+                        Hapus
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-4">
+                <div style="font-size:40px;">📚</div>
+                <p style="color:#888;font-size:14px;margin-top:8px;">Belum ada buku di wishlist kamu.<br>Yuk, temukan buku yang kamu suka!</p>
+                <a href="{% url 'all_book_view' %}" class="btn" style="font-size:13px;padding:8px 20px;" data-bs-dismiss="modal">Jelajahi Buku</a>
+              </div>
+            {% endif %}
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" style="border-radius:8px;padding:8px 20px;font-size:13px;" data-bs-dismiss="modal">Tutup</button>
           </div>
         </div>
-        <div class="row" style="background-color: rgba(150,150,150,0.2);margin-top:30px;text-align: center;margin-bottom: 30px;font-weight: bold;padding-top:10px;border-top:1px solid lightgrey;border-bottom: 1px solid lightgrey;margin-bottom: 20px;border-top-left-radius: 20px;border-bottom-right-radius: 20px;">
-          <p>Copyright &COPY; 2024<br>Literatur Perkantas Nasional</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Modal Login / Register -->
+    {% if not user.is_authenticated %}
+
+    <!-- Modal Reset Password -->
+    <div class="modal fade" id="modalResetPassword" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold">🔑 Reset Password</h5>
+            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#exampleModal"></button>
+          </div>
+          <form action="{% url 'reset_password' %}" method="post">
+            {% csrf_token %}
+            <div class="modal-body px-4">
+              <p style="font-size:14px;color:#666;">Masukkan email kamu dan kami akan mengirimkan link untuk reset password.</p>
+              <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Alamat Email</label>
+              <input type="email" name="resetEmail" id="resetEmail" required
+                     class="form-control" style="border-radius:8px;font-size:14px;padding:10px 14px;"
+                     placeholder="email@contoh.com">
+            </div>
+            <div class="modal-footer border-0 px-4">
+              <button type="button" class="btn btn-secondary" style="border-radius:8px;font-size:13px;padding:9px 18px;background:#f0f0f0;color:#555;border:none;" data-bs-toggle="modal" data-bs-target="#exampleModal">Batal</button>
+              <button type="submit" class="btn" style="border-radius:8px;font-size:13px;padding:9px 18px;">Kirim Link Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Kebijakan -->
+    <div class="modal fade" id="modalKebijakanLitanas" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold">📋 Kebijakan Litanas</h5>
+          </div>
+          <div class="modal-body overflow-auto px-4" style="max-height:350px;font-size:14px;color:#555;line-height:1.8;">
+            <p>Dengan mendaftar di platform Literatur Perkantas, Anda menyetujui penggunaan data pribadi sesuai kebijakan privasi kami.</p>
+            <p>Platform ini digunakan untuk menerbitkan, mendistribusikan, dan membaca buku-buku berkualitas dari Perkantas.</p>
+            <p>Seluruh konten dilindungi hak cipta. Pengguna tidak diperbolehkan mengunduh, menyalin, atau mendistribusikan konten tanpa izin.</p>
+            <p>Perkantas berhak mengubah kebijakan ini sewaktu-waktu dengan pemberitahuan kepada pengguna terdaftar.</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn" style="border-radius:8px;font-size:13px;padding:9px 20px;" data-bs-toggle="modal" data-bs-target="#exampleModal">Saya Mengerti</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Login / Register -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px;border:none;box-shadow:0 16px 50px rgba(0,0,0,0.15);overflow:hidden;">
+          <!-- Header with gradient -->
+          <div style="background:linear-gradient(135deg,#F86D72,#e74c3c);padding:28px 28px 20px;position:relative;">
+            <button type="button" class="btn-close btn-close-white position-absolute" style="top:16px;right:16px;" data-bs-dismiss="modal"></button>
+            <div style="text-align:center;">
+              <img src="{% static 'images/literatur_perkantas.jpg' %}" style="height:50px;border-radius:8px;margin-bottom:10px;" alt="Logo">
+              <h4 style="color:white;font-weight:800;margin:0;font-size:1.2rem;">Literatur Perkantas</h4>
+              <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:4px 0 0;">Platform Baca Buku Online</p>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div style="padding:0 28px;">
+            <div style="display:flex;border-bottom:2px solid #f0f0f0;margin-top:16px;">
+              <button id="tab-login-btn" onclick="switchTab('login')"
+                      style="flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:700;color:#F86D72;border-bottom:2px solid #F86D72;margin-bottom:-2px;cursor:pointer;">
+                Login
+              </button>
+              <button id="tab-register-btn" onclick="switchTab('register')"
+                      style="flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:600;color:#999;cursor:pointer;">
+                Daftar Baru
+              </button>
+            </div>
+          </div>
+
+          <div class="modal-body" style="padding:20px 28px 10px;">
+            <!-- Login Form -->
+            <div id="tab-login">
+              <form method="post" action="{% url 'main_page' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Alamat Email</label>
+                  <input type="email" name="username_login" placeholder="Masukkan email kamu"
+                         class="form-control" style="border-radius:10px;font-size:14px;padding:11px 14px;" required>
+                </div>
+                <div class="mb-3">
+                  <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Password</label>
+                  <input type="password" name="password_login" placeholder="Masukkan password"
+                         class="form-control" style="border-radius:10px;font-size:14px;padding:11px 14px;" required>
+                </div>
+                <button type="submit" name="submit"
+                        class="btn w-100" style="border-radius:10px;padding:12px;font-size:15px;font-weight:700;">
+                  Masuk
+                </button>
+                <p style="text-align:center;font-size:13px;margin-top:14px;color:#888;">
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#modalResetPassword" style="color:#F86D72;font-weight:600;">Lupa password?</a>
+                </p>
+              </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="tab-register" style="display:none;">
+              <form method="post" action="{% url 'main_page' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Alamat Email</label>
+                  <input type="email" name="username_register" placeholder="Masukkan email kamu"
+                         class="form-control" style="border-radius:10px;font-size:14px;padding:11px 14px;" required>
+                </div>
+                <div class="mb-2">
+                  <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Password</label>
+                  <input type="password" name="password_register1" placeholder="Buat password"
+                         class="form-control" style="border-radius:10px;font-size:14px;padding:11px 14px;" required>
+                </div>
+                <div class="mb-3">
+                  <label style="font-size:13px;font-weight:600;color:#333;" class="mb-1">Konfirmasi Password</label>
+                  <input type="password" name="password_register2" placeholder="Ulangi password"
+                         class="form-control" style="border-radius:10px;font-size:14px;padding:11px 14px;" required>
+                </div>
+                <div class="mb-3" style="font-size:13px;">
+                  <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;color:#555;">
+                    <input type="checkbox" required style="margin-top:2px;flex-shrink:0;">
+                    <span>Saya setuju dengan
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalKebijakanLitanas" style="color:#F86D72;font-weight:600;">Kebijakan Litanas</a>
+                    </span>
+                  </label>
+                </div>
+                <button type="submit" name="submit"
+                        class="btn w-100" style="border-radius:10px;padding:12px;font-size:15px;font-weight:700;">
+                  Daftar Sekarang
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div style="padding:12px 28px 24px;text-align:center;">
+            <p style="font-size:12px;color:#bbb;">
+              &copy; 2024 Literatur Perkantas Nasional
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <script>
+    function switchTab(tab) {
+      document.getElementById('tab-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('tab-register').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('tab-login-btn').style.cssText = tab === 'login'
+        ? 'flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:700;color:#F86D72;border-bottom:2px solid #F86D72;margin-bottom:-2px;cursor:pointer;'
+        : 'flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:600;color:#999;cursor:pointer;';
+      document.getElementById('tab-register-btn').style.cssText = tab === 'register'
+        ? 'flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:700;color:#F86D72;border-bottom:2px solid #F86D72;margin-bottom:-2px;cursor:pointer;'
+        : 'flex:1;border:none;background:none;padding:12px;font-size:14px;font-weight:600;color:#999;cursor:pointer;';
+    }
+    </script>
+
+    <!-- END MODALS -->
+
+    <div class="container-fluid px-0">
+      {% block contents %}
+      {% endblock %}
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+      <div class="container">
+        <div class="row g-5">
+
+          <!-- Col 1: Brand + Visi Misi -->
+          <div class="col-lg-4 col-md-6">
+            <a href="/" class="footer-brand d-inline-block mb-3">
+              <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Logo Literatur Perkantas">
+            </a>
+            <p style="font-size:14px; line-height:1.8; color:#999;">
+              Menjadi penerbit buku berkualitas bagi pertumbuhan rohani dan pembentukan pola pikir bagi siswa, mahasiswa, dan alumni.
+            </p>
+            <p style="font-size:13px; color:#777; font-style:italic; margin-top:12px;">
+              <i class="fa fa-quote-left me-1" style="color:#F86D72;"></i>
+              Sahabat Anda Bertumbuh
+            </p>
+
+            <!-- Social Links -->
+            <div class="mt-4">
+              <a href="https://www.instagram.com/literaturperkantasnasional" target="_blank" class="footer-social-btn" title="Instagram">
+                <svg style="width:18px;height:18px;"><use xlink:href="#instagram"></use></svg>
+              </a>
+              <a href="https://open.spotify.com/show/7kKwmQfYhNDCTByjrGCbZI" target="_blank" class="footer-social-btn" title="Spotify" style="font-size:16px;">
+                <i class="fa fa-music"></i>
+              </a>
+              <a href="https://literaturperkantas.net/" target="_blank" class="footer-social-btn" title="Website">
+                <i class="fa fa-globe" style="font-size:16px;"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Col 2: Navigasi -->
+          <div class="col-lg-2 col-md-6 col-6">
+            <h6>Navigasi</h6>
+            <ul class="list-unstyled" style="line-height:2;">
+              <li><a href="{% url 'main_page' %}">&#8250; Beranda</a></li>
+              <li><a href="{% url 'all_book_view' %}">&#8250; Semua Buku</a></li>
+              <li><a href="{% url 'all_book_view' %}?k=3">&#8250; Buku Gratis</a></li>
+              <li><a href="{% url 'all_book_view' %}?k=12">&#8250; Promo</a></li>
+              <li><a href="{% url 'all_blogs_view' %}">&#8250; Coretan Pena</a></li>
+              <li><a href="{% url 'tentang_kami' %}">&#8250; Tentang Kami</a></li>
+              <li><a href="{% url 'melakukan_donasi' %}">&#8250; Donasi</a></li>
+              <li><a href="/cms/login/">&#8250; Login Admin</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Misi -->
+          <div class="col-lg-3 col-md-6 col-6">
+            <h6>Misi Kami</h6>
+            <ul class="list-unstyled" style="font-size:13px; line-height:2; color:#888;">
+              <li>&#10003; Menerbitkan bacaan berkualitas</li>
+              <li>&#10003; Menumbuhkan budaya baca</li>
+              <li>&#10003; Melahirkan penulis Indonesia</li>
+              <li>&#10003; Mempercepat distribusi bacaan</li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Kontak -->
+          <div class="col-lg-3 col-md-6">
+            <h6>Kontak</h6>
+            <div class="footer-contact-row">
+              <i class="fa fa-map-marker"></i>
+              <span style="font-size:13px;">Jl. Kesejahteraan no.35, Keagungan, Tamansari, Jakarta Barat 11130</span>
+            </div>
+            <div class="footer-contact-row">
+              <i class="fa fa-envelope"></i>
+              <a href="mailto:literatur.perkantas@gmail.com" style="font-size:13px;">literatur.perkantas@gmail.com</a>
+            </div>
+            <div class="footer-contact-row">
+              <i class="fa fa-whatsapp"></i>
+              <a href="https://wa.me/+6281291508616" style="font-size:13px;" target="_blank">+62 812-9150-8616</a>
+            </div>
+            <div class="mt-4">
+              <a href="{% url 'melakukan_donasi' %}" style="background:#F86D72;color:white;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fa fa-heart"></i> Dukung Kami
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-divider">
+        <div class="container">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span>&copy; 2024 Literatur Perkantas Nasional. Semua hak cipta dilindungi.</span>
+            <span>Dikembangkan dengan <i class="fa fa-heart" style="color:#F86D72;"></i> oleh
+              <a href="mailto:adhy.chandra@gmail.com" style="color:#F86D72;">Leopard Software</a>
+            </span>
+          </div>
         </div>
       </div>
     </footer>

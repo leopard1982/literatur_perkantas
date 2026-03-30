@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}CMS{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5efe6;
+            --panel: rgba(255, 252, 246, 0.92);
+            --panel-solid: #fffdf8;
+            --ink: #24343d;
+            --muted: #66757f;
+            --stroke: rgba(219, 205, 189, 0.9);
+            --stroke-strong: #d3c1ac;
+            --shadow: 0 20px 50px rgba(63, 49, 35, 0.09);
+            --accent: #bf5b3d;
+            --accent-soft: #f4d6ca;
+            --navy: #355070;
+            --forest: #2d6a4f;
+            --warning: #c98328;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(191, 91, 61, 0.16), transparent 25%),
+                radial-gradient(circle at right 20%, rgba(45, 106, 79, 0.1), transparent 24%),
+                linear-gradient(180deg, #fbf7f1 0%, #f2eadf 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cms-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+            background: rgba(251, 247, 241, 0.8);
+            border-bottom: 1px solid rgba(211, 193, 172, 0.7);
+        }
+
+        .cms-nav {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent), #8f3f27);
+            color: white;
+            font-weight: 800;
+            box-shadow: 0 12px 24px rgba(191, 91, 61, 0.2);
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 15px;
+            letter-spacing: .02em;
+        }
+
+        .brand-text span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .cms-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 0 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid var(--stroke);
+            background: rgba(255,255,255,0.7);
+            color: var(--ink);
+        }
+
+        .nav-chip.primary {
+            background: linear-gradient(135deg, var(--accent), #9f4428);
+            color: white;
+            border: none;
+        }
+
+        .shell {
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 18px 42px;
+            flex: 1;
+        }
+
+        .hero-panel,
+        .surface-card,
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--stroke);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .alert-strip {
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #fff3cd;
+            border: 1px solid #f3d98c;
+        }
+
+        .cms-footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(211, 193, 172, 0.7);
+            background: rgba(36, 52, 61, 0.96);
+            color: rgba(255,255,255,0.76);
+        }
+        .cms-breadcrumbs {
+            border-top: 1px solid rgba(211, 193, 172, 0.55);
+            background: rgba(255, 250, 245, 0.82);
+        }
+        .cms-breadcrumbs-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 10px 18px;
+        }
+        .cms-breadcrumbs .breadcrumb {
+            margin: 0;
+        }
+        .cms-breadcrumbs .breadcrumb-item,
+        .cms-breadcrumbs .breadcrumb-item a {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8e7f74;
+            text-decoration: none;
+        }
+        .cms-breadcrumbs .breadcrumb-item.active {
+            color: var(--accent);
+        }
+        .cms-breadcrumbs .breadcrumb-item + .breadcrumb-item::before {
+            color: #c5b8ad;
+        }
+
+        .cms-footer-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 22px 18px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-title {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.86);
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .cms-nav,
+            .cms-footer-inner {
+                align-items: flex-start;
+            }
+        }
+    </style>
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    <header class="cms-header">
+        <div class="cms-nav">
+            <a class="brand" href="/cms/">
+                <div class="brand-mark">CMS</div>
+                <div class="brand-text">
+                    <strong>Literatur Perkantas CMS</strong>
+                    <span>Area operasional khusus superuser</span>
+                </div>
+            </a>
+
+            <div class="cms-actions">
+                {% block header_actions %}
+                    {% if request.user.is_authenticated and request.user.is_superuser %}
+                    <a class="nav-chip" href="/cms/">Dashboard</a>
+                    <a class="nav-chip" href="/cms/payments/">Payment</a>
+                    <a class="nav-chip primary" href="/cms/logout/">Logout CMS</a>
+                    {% else %}
+                    <a class="nav-chip primary" href="/cms/login/">Login CMS</a>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </div>
+        {% if breadcrumbs %}
+        <div class="cms-breadcrumbs">
+            <div class="cms-breadcrumbs-inner">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% for crumb in breadcrumbs %}
+                        <li class="breadcrumb-item {% if crumb.active %}active{% endif %}" {% if crumb.active %}aria-current="page"{% endif %}>
+                            {% if crumb.url and not crumb.active %}
+                            <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                            {% else %}
+                            {{ crumb.label }}
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </header>
+
+    <main class="shell">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert-strip">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="cms-footer">
+        <div class="cms-footer-inner">
+            <div>
+                <div class="footer-title">Literatur Perkantas CMS</div>
+                <div>Panel management internal untuk buku, payment, pengguna, konten, dan audit operasional.</div>
+            </div>
+            <div class="footer-links">
+                <a href="/cms/">Dashboard</a>
+                <a href="/cms/payments/">Verifikasi Payment</a>
+                {% if request.user.is_authenticated and request.user.is_superuser %}
+                <a href="/cms/logout/">Logout</a>
+                {% else %}
+                <a href="/cms/login/">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

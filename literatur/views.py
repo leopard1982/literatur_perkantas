@@ -160,9 +160,10 @@ def mainPage(request):
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
-        userbook = UserBook.objects.all().filter(id_user=user).order_by('-id')
-        jml_userbook=userbook.count()
-        userbook=userbook[:4]
+        userbook_qs = UserBook.objects.all().filter(id_user=user).order_by('-id')
+        jml_userbook=userbook_qs.count()
+        owned_book_ids = list(userbook_qs.values_list('id_book_id', flat=True))
+        userbook=userbook_qs[:4]
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
@@ -175,6 +176,7 @@ def mainPage(request):
         jml_wishlist=0
         jml_mycart=0
         jml_userbook=0
+        owned_book_ids = []
 
     blogs = Blogs.objects.all().filter(is_active=True).order_by('-created_at')[:4]
 
@@ -261,19 +263,19 @@ def mainPage(request):
             
         return HttpResponseRedirect('/')
 
-    page_review = PageReview.objects.all().filter(is_active=True).order_by('-updated_at')
+    page_review = PageReview.objects.filter(is_active=True).select_related('user__userdetail').order_by('-updated_at')
 
-    featured_book = FeaturedBook.objects.all().filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).order_by('-updated_at')[:4]
+    featured_book = FeaturedBook.objects.filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).select_related('book__kategori').order_by('-updated_at')[:4]
     category = Category.objects.all()
-    OnSaleBook.objects.all().filter(end_date__lt=datetime.datetime.now()).delete()
+    OnSaleBook.objects.filter(end_date__lt=datetime.datetime.now()).delete()
     #id category=3 adalah freebook
-    books_best_seller = Books.objects.all().filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).order_by('-updated_at')[:6]
-    books = Books.objects.all().order_by('-updated_at')[:4]
-    jml_on_sale = OnSaleBook.objects.all().count()
-    books_on_sale = OnSaleBook.objects.all().order_by('-updated_at')[:4]
-    
+    books_best_seller = Books.objects.filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).select_related('kategori', 'onsalebook').order_by('-updated_at')[:6]
+    books = Books.objects.select_related('kategori', 'onsalebook').order_by('-updated_at')[:4]
+    jml_on_sale = OnSaleBook.objects.count()
+    books_on_sale = OnSaleBook.objects.select_related('book__kategori').order_by('-updated_at')[:4]
+
     #category=3 free
-    free_book = Books.objects.all().filter(kategori__in=category.filter(id=3))
+    free_book = Books.objects.filter(kategori__in=category.filter(id=3)).select_related('kategori')
     print(books_on_sale)
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -303,6 +305,7 @@ def mainPage(request):
         'blogs':blogs,
         'jml_userbook':jml_userbook,
         'jml_on_sale':jml_on_sale,
+        'owned_book_ids': owned_book_ids,
     }
 
     # send_mail('Subject here Test', 'Here is the message. Test', 'adhy.chandra@live.co.uk', ['adhy.chandra@gmail.com'], fail_silently=False)
@@ -312,7 +315,7 @@ def bacaBuku(request):
     max_page=5
     try:
         id_buku = request.GET['id']
-        book = Books.objects.get(id=id_buku)
+        book = Books.objects.select_related('kategori').get(id=id_buku)
         print(book.kategori.id)
         if book.kategori.id == 3:
             max_page = book.halaman
@@ -432,36 +435,64 @@ def test123(request):
         return HttpResponse("Initial")
 
 def allBookView(request):
+    limit_options = [10, 25, 50, 100]
     try:
-        kategori=request.GET['k']
-        if int(kategori)>3 and int(kategori)<10:
-            kategori=0
+        kategori = int(request.GET['k'])
+        if kategori > 3 and kategori < 10:
+            kategori = 0
     except Exception as ex:
-        kategori=0
+        kategori = 0
         print(ex)
 
-    print(kategori)
     category = Category.objects.all()
-    if(kategori==0):
-        kategori_buku = Category.objects.all()
+    if kategori == 0:
+        kategori_buku = None
     else:
         try:
-            kategori_buku = Category.objects.get(id=int(kategori))
+            kategori_buku = Category.objects.get(id=kategori)
         except Exception as ex:
-            kategori_buku = Category.objects.all()
+            kategori_buku = None
     try:
-        print(kategori)
-        if(int(kategori)==10):
-            books = Books.objects.all().filter(is_best_seller=True)
-        elif(int(kategori)==11):
-            books = Books.objects.all().order_by('-created_at')
+        h = int(request.GET.get('h', 1))
+    except (ValueError, TypeError):
+        h = 1
+    try:
+        page_size = int(request.GET.get('limit', 10))
+        if page_size not in limit_options:
+            page_size = 10
+    except (ValueError, TypeError):
+        page_size = 10
+
+    base_books = Books.objects.select_related('kategori', 'onsalebook')
+
+    try:
+        if kategori == 10:
+            books = base_books.filter(is_best_seller=True).order_by('-updated_at')
+            tab_title = "Buku Best Seller"
+            tab_subtitle = "Judul-judul yang paling banyak dipilih pembaca dan layak masuk daftar baca berikutnya."
+        elif kategori == 11:
+            books = base_books.order_by('-created_at')
+            tab_title = "Buku Terbaru"
+            tab_subtitle = "Koleksi yang baru masuk ke katalog, disusun untuk memudahkan Anda menemukan rilisan terkini."
+        elif kategori == 12:
+            books = base_books.filter(onsalebook__is_active=True).order_by('-onsalebook__updated_at', '-updated_at')
+            tab_title = "Buku Promo"
+            tab_subtitle = "Penawaran aktif dengan harga terbaik yang sedang tersedia untuk dibawa pulang hari ini."
+        elif kategori_buku is not None:
+            books = base_books.filter(kategori=kategori_buku).order_by('-updated_at')
+            tab_title = kategori_buku.nama
+            tab_subtitle = f"Jelajahi pilihan buku dalam kategori {kategori_buku.nama.lower()} yang tersusun lebih rapi dan mudah dipindai."
         else:
-            books = Books.objects.all().filter(kategori=kategori_buku)
+            books = base_books.order_by('-updated_at')
+            tab_title = "Semua Buku"
+            tab_subtitle = "Seluruh koleksi Literatur Perkantas Nasional, dari buku gratis sampai judul premium pilihan."
     except Exception as ex:
         print(ex)
-        books = Books.objects.all()
-    
-    jumlah_promo = OnSaleBook.objects.all().filter(is_active=True).count()
+        books = base_books.order_by('-updated_at')
+        tab_title = "Semua Buku"
+        tab_subtitle = "Seluruh koleksi Literatur Perkantas Nasional, dari buku gratis sampai judul premium pilihan."
+
+    jumlah_promo = OnSaleBook.objects.filter(is_active=True).count()
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
@@ -470,14 +501,18 @@ def allBookView(request):
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         inbox_message = inboxMessage.objects.all().filter(user=user)
         jml_inbox_message = inbox_message.count()
+        owned_book_ids = list(
+            UserBook.objects.filter(id_user=user).values_list('id_book_id', flat=True)
+        )
     else:
         mywishlist = None
         jml_wishlist=0
         jml_mycart=0
         jml_inbox_message=0
+        owned_book_ids = []
 
 
-    page = Paginator(books,per_page=8)
+    page = Paginator(books, per_page=page_size)
     range_page = page.page_range
     
     try:
@@ -496,6 +531,15 @@ def allBookView(request):
     else:
             next_page=h
 
+    if page.num_pages <= 5:
+        page_numbers = list(page.page_range)
+    elif h <= 3:
+        page_numbers = [1, 2, 3, None, page.num_pages]
+    elif h >= page.num_pages - 2:
+        page_numbers = [1, None, page.num_pages - 2, page.num_pages - 1, page.num_pages]
+    else:
+        page_numbers = [1, None, h - 1, h, h + 1, None, page.num_pages]
+
     try:
         pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
     except:
@@ -506,7 +550,7 @@ def allBookView(request):
         'books':books,
         'mywishlist':mywishlist,
         'jumlahwishlist':jml_wishlist,
-        'kategori':int(kategori),
+        'kategori':kategori,
         'jumlah_promo':jumlah_promo,
         'pengumuman':pengumuman,
         'jml_mycart':jml_mycart,
@@ -514,8 +558,15 @@ def allBookView(request):
         'prev_page':prev_page,
         'next_page':next_page,
         'range_page':range_page,
+        'page_numbers':page_numbers,
         'halaman':halaman,
-        'current':int(h)
+        'current':int(h),
+        'owned_book_ids':owned_book_ids,
+        'tab_title':tab_title,
+        'tab_subtitle':tab_subtitle,
+        'total_books':books.count(),
+        'page_size':page_size,
+        'limit_options':limit_options,
     }
     return render(request,'landing/all-book.html',context)
 
@@ -532,17 +583,23 @@ def addCartList(request,id):
                 except:
                     # ternyata buku belum ada di koleksi, kita cek apakah sudah ada di dalam payment dengan status
                     # masih proses? jika di temukan status is_waiting=True
-                    is_waiting=False
-                    mypayment = MyPayment.objects.all().filter(Q(user=user) & Q(is_verified=False) & Q(is_canceled=False))
-                    for pay in mypayment:
-                        mypaymentdetail = MyPaymentDetail.objects.all().filter(payment=pay)
-                        for detail in mypaymentdetail:
-                            if detail.book == book:
-                                is_waiting=True
-                    
+                    is_waiting = MyPaymentDetail.objects.filter(
+                        payment__user=user,
+                        payment__is_verified=False,
+                        payment__is_canceled=False,
+                        book=book
+                    ).exists()
+
                     # pengecekan apakah is_waiting == True
                     if is_waiting:
-                        messages.add_message(request,messages.SUCCESS,f"Buku masih dalam proses verifikasi pembelian oleh admin dengan nomor invoice: {detail.payment.payment} jadi tidak bisa masuk keranjang.")
+                        pending = MyPaymentDetail.objects.filter(
+                            payment__user=user,
+                            payment__is_verified=False,
+                            payment__is_canceled=False,
+                            book=book
+                        ).select_related('payment').first()
+                        invoice = pending.payment.payment if pending else "-"
+                        messages.add_message(request,messages.SUCCESS,f"Buku masih dalam proses verifikasi pembelian oleh admin dengan nomor invoice: {invoice} jadi tidak bisa masuk keranjang.")
                     else:
                         try:
                             MyWishlist.objects.all().filter(Q(book=book) & Q(user=user)).delete()
@@ -571,16 +628,19 @@ def cartView(request):
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
+        mycart = MyCart.objects.filter(user=user).select_related('book__onsalebook')
         inbox_message = inboxMessage.objects.all().filter(user=user)
         jml_inbox_message = inbox_message.count()
         total_payment = 0
         for cart in mycart.filter(is_checked=True):
             try:
-                onsalebook = OnSaleBook.objects.get(Q(book=cart.book) & Q(is_active=True))
-                total_payment+=int(onsalebook.nett_price)
-            except:
-                total_payment+=int(cart.book.price)
+                onsalebook = cart.book.onsalebook
+                if onsalebook.is_active:
+                    total_payment += int(onsalebook.nett_price)
+                else:
+                    total_payment += int(cart.book.price)
+            except OnSaleBook.DoesNotExist:
+                total_payment += int(cart.book.price)
 
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
@@ -727,7 +787,7 @@ def sinopsisBuku(request,id):
             pengumuman = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 
     try:
-        book = Books.objects.get(id=id)
+        book = Books.objects.select_related('kategori', 'onsalebook').get(id=id)
         context = {
             'mywishlist':mywishlist,
             'jumlahwishlist':jml_wishlist,
@@ -877,19 +937,14 @@ def paymentProcess(request):
                 inboxmessage.save()
 
                 # simpan buku ke paymentdetail
-                mycart = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True))
+                mycart = MyCart.objects.filter(Q(user=user) & Q(is_checked=True)).select_related('book__onsalebook')
                 for cart in mycart:
                     try:
-                        book = Books.objects.get(id=cart.book.id)
-                        price=0
-                        # pengecekan harga buku
-                        # apakah merupakan buku on sale?
+                        book = cart.book
+                        # pengecekan harga buku: apakah merupakan buku on sale?
                         try:
-                            onsalebook = OnSaleBook.objects.get(book=book)
-                            # jika onsale maka dikasih harga nett nya
-                            price = onsalebook.nett_price
-                        except:
-                            # jika tidak dikasih harga asli
+                            price = cart.book.onsalebook.nett_price
+                        except OnSaleBook.DoesNotExist:
                             price = book.price
                         paymentdetail = MyPaymentDetail()
                         paymentdetail.payment=mypayment
@@ -912,7 +967,7 @@ def paymentProcess(request):
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
         jml_dibeli = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
-        mycart = MyCart.objects.all().filter(user=user)
+        mycart = MyCart.objects.filter(user=user).select_related('book__onsalebook')
         mycart_buy = mycart.filter(is_checked=True)
         jml_mcart_buy = mycart_buy.count()
         inbox_message = inboxMessage.objects.all().filter(user=user).order_by('-id')
@@ -920,7 +975,7 @@ def paymentProcess(request):
 
         if(mycart_buy.count()==0) :
             return HttpResponseRedirect("/cart/")
-    
+
         try:
             pengumuman = Pengumuman.objects.all().order_by('-id')[0].pengumuman
         except:
@@ -931,15 +986,14 @@ def paymentProcess(request):
         total_bayar = 0
 
         for cart in mycart_buy:
-            book = Books.objects.get(id=cart.book.id)
             try:
-                onsalebook = OnSaleBook.objects.get(book=book)
-                if(onsalebook.is_active==True):
-                    total_bayar+=onsalebook.nett_price
+                onsalebook = cart.book.onsalebook
+                if onsalebook.is_active:
+                    total_bayar += onsalebook.nett_price
                 else:
-                    total_bayar+=book.price
-            except:
-                total_bayar+=cart.book.price
+                    total_bayar += cart.book.price
+            except OnSaleBook.DoesNotExist:
+                total_bayar += cart.book.price
         total_bayar = f"{int(total_bayar)}.00"
         context = {
                 'mywishlist':mywishlist,
@@ -969,7 +1023,7 @@ def bacaBukuKoleksi(request,id):
         if request.user.is_authenticated:
             user= User.objects.get(username=request.user.username)
             try:
-                book = Books.objects.get(id=id)
+                book = Books.objects.select_related('kategori').get(id=id)
             except:
                 messages.add_message(request,messages.SUCCESS,'Buku yang kaka cari tidak ada...')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
@@ -1049,7 +1103,7 @@ def allKoleksiView(request):
 
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
-        koleksiku = UserBook.objects.all().filter(id_user=user)
+        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
@@ -1105,7 +1159,7 @@ def allKoleksiView(request):
 def profileView(request):
     if request.user.is_authenticated:
         user= User.objects.get(username=request.user.username)
-        koleksiku = UserBook.objects.all().filter(id_user=user)
+        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()
@@ -1140,7 +1194,7 @@ def profileUpdate(request):
                     # simpan file foto ke dalam uuid format
                     nama_file = str(uuid.uuid4())
                     #dapatkan extension file
-                    extension = request.FILES['photo'].name.split('.')[1]
+                    extension = os.path.splitext(request.FILES['photo'].name)[1].lstrip('.')
 
                     file = request.FILES['photo']
                     filename=default_storage.save(f"{nama_file}.{extension}",file)
@@ -1210,7 +1264,7 @@ def profileUpdate(request):
                 messages.add_message(request,messages.SUCCESS,"Info Saya Gagal Diperbaharui...")
             return HttpResponseRedirect('/profile/')
 
-        koleksiku = UserBook.objects.all().filter(id_user=user)
+        koleksiku = UserBook.objects.filter(id_user=user).select_related('id_book')
         mywishlist = MyWishlist.objects.all().filter(user=user)
         jml_wishlist=mywishlist.count()
         jml_mycart = MyCart.objects.all().filter(user=user).count()

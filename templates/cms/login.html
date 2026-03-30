@@ -1,0 +1,306 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}Login CMS{% endblock %}
+
+{% block header_actions %}
+<a class="nav-chip" href="/">Kembali ke Website</a>
+<a class="nav-chip primary" href="/cms/login/">Login CMS</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .cms-header,
+    .cms-footer {
+        display: none;
+    }
+
+    .shell {
+        max-width: 1320px;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        display: grid;
+        place-items: center;
+    }
+
+    .auth-shell {
+        width: min(1140px, 100%);
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
+        border-radius: 36px;
+        overflow: hidden;
+        border: 1px solid rgba(219, 205, 189, 0.8);
+        box-shadow: 0 30px 70px rgba(63, 49, 35, 0.14);
+        background: rgba(255, 252, 246, 0.82);
+        backdrop-filter: blur(12px);
+        position: relative;
+    }
+
+    .auth-shell::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top left, rgba(191, 91, 61, 0.08), transparent 28%),
+            radial-gradient(circle at bottom right, rgba(53, 80, 112, 0.08), transparent 26%);
+        pointer-events: none;
+    }
+
+    .auth-aside,
+    .auth-main {
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-aside {
+        padding: 52px 44px;
+        background:
+            radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 30%),
+            linear-gradient(160deg, #3f5f84 0%, #24343d 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.12);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        width: fit-content;
+    }
+
+    .aside-title {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.05;
+        font-weight: 800;
+        margin: 18px 0 14px;
+        max-width: 12ch;
+    }
+
+    .aside-copy {
+        color: rgba(255,255,255,0.78);
+        font-size: 15px;
+        line-height: 1.7;
+        max-width: 52ch;
+    }
+
+    .signal-grid {
+        display: grid;
+        gap: 14px;
+        margin-top: 26px;
+    }
+
+    .signal-card {
+        padding: 18px 18px 16px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .signal-card strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .signal-card span {
+        display: block;
+        color: rgba(255,255,255,0.74);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .aside-footer {
+        margin-top: 26px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.64);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .auth-main {
+        padding: 52px 44px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.74), rgba(250,244,237,0.92));
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-panel {
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .auth-kicker {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: #bf5b3d;
+        margin-bottom: 10px;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        line-height: 1.1;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .auth-copy {
+        color: var(--muted);
+        margin-bottom: 26px;
+        line-height: 1.7;
+    }
+
+    .auth-card {
+        padding: 24px;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.82);
+        border: 1px solid rgba(219, 205, 189, 0.8);
+        box-shadow: 0 16px 32px rgba(63, 49, 35, 0.06);
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #40515b;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        min-height: 56px;
+        border-radius: 18px;
+        border: 1px solid #d7c8b8;
+        padding: 0 18px;
+        background: rgba(255,255,255,0.95);
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #bf5b3d;
+        box-shadow: 0 0 0 0.22rem rgba(191, 91, 61, 0.14);
+    }
+
+    .btn-login {
+        min-height: 56px;
+        border: none;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #bf5b3d, #9f4428);
+        color: white;
+        font-weight: 800;
+        letter-spacing: .01em;
+        box-shadow: 0 14px 24px rgba(191, 91, 61, 0.2);
+    }
+
+    .btn-login:hover {
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .note-box {
+        margin-top: 18px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: #f8efe6;
+        color: var(--muted);
+        border: 1px solid rgba(219, 205, 189, 0.85);
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .portal-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        text-decoration: none;
+        color: #355070;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    @media (max-width: 960px) {
+        .auth-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-aside,
+        .auth-main {
+            padding: 34px 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <section class="auth-aside">
+        <div>
+            <span class="eyebrow">Internal Access Portal</span>
+            <h1 class="aside-title">Portal kontrol operasional Literatur Perkantas.</h1>
+            <p class="aside-copy">Area ini dirancang sebagai pintu masuk khusus untuk tim inti yang mengelola pembayaran, katalog, pengguna, konten, dan pelacakan operasional harian dalam satu workspace yang rapi.</p>
+
+            <div class="signal-grid">
+                <div class="signal-card">
+                    <strong>Kontrol yang terpusat</strong>
+                    <span>Semua area penting bermuara dari dashboard CMS dengan alur kerja yang lebih fokus dan lebih mudah diawasi.</span>
+                </div>
+                <div class="signal-card">
+                    <strong>Akses yang terbatas</strong>
+                    <span>Hanya akun dengan hak superuser yang dapat membuka panel ini untuk menjaga keamanan data dan keputusan operasional.</span>
+                </div>
+                <div class="signal-card">
+                    <strong>Siap dikembangkan</strong>
+                    <span>Tampilan ini disiapkan sebagai fondasi aplikasi admin internal yang terasa mandiri dan tidak bergantung pada kesan back office generik.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="aside-footer">
+            Literatur Perkantas CMS
+            <br>
+            Secure internal workspace for administration and payment operations.
+        </div>
+    </section>
+
+    <section class="auth-main">
+        <div class="auth-panel">
+            <div class="auth-kicker">CMS Login</div>
+            <h2 class="auth-title">Masuk ke panel superuser</h2>
+            <p class="auth-copy">Gunakan akun superuser untuk membuka area manajemen internal dan melanjutkan ke modul yang Anda butuhkan.</p>
+
+            <div class="auth-card">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next_url }}">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input class="form-control" type="text" name="username" placeholder="Masukkan username superuser" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input class="form-control" type="password" name="password" placeholder="Masukkan password" required>
+                    </div>
+                    <button class="btn btn-login w-100" type="submit">Masuk ke CMS</button>
+                </form>
+
+                <div class="note-box">
+                    Akses ini hanya untuk pengelola internal. Jika akun Anda tidak memiliki hak akses yang sesuai, sistem akan menolak proses masuk.
+                </div>
+            </div>
+
+            <a class="portal-link" href="/">Kembali ke website utama</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

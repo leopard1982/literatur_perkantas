@@ -1,49 +1,305 @@
 {% extends 'base.html'%}
 {% load static %}
+
+{% block mystyling %}
+<style>
+  .reader-wrapper {
+    background: #f5f3ef;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .reader-topbar {
+    background: white;
+    border-bottom: 1px solid #e8e4df;
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .reader-topbar .book-title {
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+  }
+  .reader-topbar .book-author {
+    color: #888;
+    font-size: 12px;
+  }
+  .page-badge {
+    background: #fff0f0;
+    color: #F86D72;
+    border: 1px solid #fcc;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .preview-banner {
+    background: linear-gradient(135deg, #F86D72, #e74c3c);
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .reader-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 15px;
+    position: relative;
+  }
+  .page-image-wrapper {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #e8e4df;
+  }
+  .page-image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #F86D72;
+    width: 46px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 50;
+    text-decoration: none;
+    font-size: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .nav-btn:hover {
+    background: #F86D72;
+    border-color: #F86D72;
+    color: white;
+    box-shadow: 0 4px 16px rgba(248,109,114,0.3);
+  }
+  .nav-btn.prev { left: 10px; }
+  .nav-btn.next { right: 10px; }
+  .nav-btn.disabled { opacity: 0.25; pointer-events: none; }
+  .page-nav-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .page-jump-form { display: flex; align-items: center; gap: 8px; }
+  .page-input {
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 70px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+  }
+  .page-input:focus { border-color: #F86D72; }
+  .btn-nav-bottom {
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #555;
+    padding: 8px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .btn-nav-bottom:hover {
+    background: #F86D72;
+    border-color: #F86D72;
+    color: white;
+  }
+  .btn-nav-bottom.disabled { opacity: 0.35; pointer-events: none; }
+  .go-btn {
+    background: #F86D72;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .go-btn:hover { background: #e74c3c; }
+  .keyboard-hint { color: #aaa; font-size: 12px; text-align: center; margin-top: 10px; }
+  .keyboard-hint kbd {
+    background: white;
+    border: 1px solid #e0dbd5;
+    color: #999;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+  .upgrade-card {
+    background: white;
+    border: 1px solid #fcc;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 24px;
+    box-shadow: 0 4px 16px rgba(248,109,114,0.08);
+  }
+  .upgrade-card h4 { color: #F86D72; font-weight: 700; margin-bottom: 10px; }
+  .upgrade-card p { color: #888; font-size: 14px; margin-bottom: 20px; }
+  .btn-upgrade {
+    background: linear-gradient(135deg, #F86D72, #e74c3c);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .btn-upgrade:hover { transform: scale(1.03); color: white; }
+  @media (max-width: 768px) { .nav-btn { display: none; } }
+</style>
+{% endblock %}
+
 {% block contents %}
+<div class="reader-wrapper">
 
-{% if max_page == 5%}
-    <div class=" container-fluid  bg-primary p-2" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
-            <div class="col-12 fs-5 fw-bold text-white rounded d-flex align-items-center justify-content-center">Preview Sampul</div>
-    </div>
-{% else %}
-    <div class=" container-fluid  bg-primary p-2" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
-            <div class="col-12 fs-5 fw-bold text-white rounded d-flex align-items-center justify-content-center">Buku Gratis Litanas</div>
-    </div>
-{% endif %}
-<div class="p-2" style="margin-bottom:20px;border: 1px solid lightgrey;border-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
-    <h3 style="text-align: center;">{{book.judul}}</h3>
-    <h4 style="text-align: center;">{{book.pengarang}}</h4>
-
-    {% if max_page == 5 %}
-        <h5 style="font-size: 15px; text-align: center;font-style: italic;">
-            Untuk Bisa Membaca Seluruh Buku Silakan Berlangganan Terlebih Dahulu <br>
-            Preview Sampul Maksimal 5 Halaman Pertama
-        </h5>
-    {% else %}
-        <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
+  <!-- Preview Banner -->
+  {% if max_page == 5 %}
+  <div class="preview-banner">
+    <i class="fa fa-lock me-2"></i>
+    Preview Gratis — Hanya 5 Halaman Pertama
+    {% if user.is_authenticated %}
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="{% url 'add_cart_list' book.id %}" style="color:white;font-weight:800;text-decoration:underline;">Beli untuk baca lengkap &rarr;</a>
     {% endif %}
-    
+  </div>
+  {% endif %}
 
-    <div class="justify-content-center d-flex my-3 p-2 rounded">
-        <a href="?id={{book.id}}&p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>
-        <div class="justify-content-center d-flex">
-            <form action="" method="post">
-                {% csrf_token %}
-                
-                <input style="text-align: center;" type="number" name="halaman" id="" min="1" max="{{book.halaman}}" value="{{page}}"  required>
-                
-            </form>
-        </div>
-        <a href="?id={{book.id}}&p={{next}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/right.jpeg'%}" style="margin-left:50px;width: 30px;height: 30px;" alt="" srcset=""></a>
+  <!-- Top Bar -->
+  <div class="reader-topbar">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div style="min-width:0;flex:1;">
+        <a href="{% url 'sinopsis_buku' book.id %}" class="text-decoration-none" style="color:#aaa;font-size:13px;display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;">
+          <i class="fa fa-arrow-left"></i> Kembali ke Sinopsis
+        </a>
+        <div class="book-title">{{ book.judul }}</div>
+        <div class="book-author">{{ book.pengarang }}</div>
+      </div>
+      <div class="flex-shrink-0">
+        {% if max_page != 5 %}
+        <span class="page-badge">Hal. {{ page }} / {{ book.halaman }}</span>
+        {% else %}
+        <span class="page-badge">Preview {{ page }} / {{ max_page }}</span>
+        {% endif %}
+      </div>
     </div>
-    
+  </div>
+
+  <!-- Fixed Side Nav -->
+  {% if page > 1 %}
+  <a href="?id={{ book.id }}&p={{ prev }}" class="nav-btn prev" title="Halaman sebelumnya">
+    <i class="fa fa-chevron-left"></i>
+  </a>
+  {% else %}
+  <span class="nav-btn prev disabled"><i class="fa fa-chevron-left"></i></span>
+  {% endif %}
+
+  {% if page < max_page %}
+  <a href="?id={{ book.id }}&p={{ next }}" class="nav-btn next" title="Halaman berikutnya">
+    <i class="fa fa-chevron-right"></i>
+  </a>
+  {% else %}
+  <span class="nav-btn next disabled"><i class="fa fa-chevron-right"></i></span>
+  {% endif %}
+
+  <!-- Book Page -->
+  <div class="reader-content">
+    <div class="page-image-wrapper">
+      <img src="/media/extract/pdf_full/{{ book.id }}/{{ page }}.jpg"
+           alt="Halaman {{ page }}">
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="page-nav-bottom">
+      {% if page > 1 %}
+      <a href="?id={{ book.id }}&p={{ prev }}" class="btn-nav-bottom">
+        <i class="fa fa-chevron-left"></i> Sebelumnya
+      </a>
+      {% else %}
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i> Sebelumnya</span>
+      {% endif %}
+
+      <form action="" method="post" class="page-jump-form">
+        {% csrf_token %}
+        <input type="number" name="halaman" class="page-input"
+               min="1" max="{{ max_page }}" value="{{ page }}" required>
+        <button type="submit" class="go-btn">Go</button>
+      </form>
+
+      {% if page < max_page %}
+      <a href="?id={{ book.id }}&p={{ next }}" class="btn-nav-bottom">
+        Berikutnya <i class="fa fa-chevron-right"></i>
+      </a>
+      {% else %}
+      <span class="btn-nav-bottom disabled">Berikutnya <i class="fa fa-chevron-right"></i></span>
+      {% endif %}
+    </div>
+
+    <div class="keyboard-hint">
+      <kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigasi keyboard
+    </div>
+
+    <!-- Upgrade Banner -->
+    {% if max_page == 5 and page == max_page %}
+    <div class="upgrade-card">
+      <div style="font-size:42px;margin-bottom:12px;">📖</div>
+      <h4>Mau baca seluruh buku ini?</h4>
+      <p>Kamu sudah membaca preview 5 halaman pertama. Daftar & beli untuk membaca seluruh isi buku!</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'add_cart_list' book.id %}" class="btn-upgrade">
+          <i class="fa fa-cart-plus me-2"></i> Beli Sekarang
+        </a>
+      {% else %}
+        <a href="#" class="btn-upgrade" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          <i class="fa fa-sign-in me-2"></i> Login & Beli
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
 </div>
 
-<div class=" p-3 border-1 border-black">
-    
-    <img src="/media/extract/pdf_full/{{book.id}}/{{page}}.jpg" class="w-100 rounded shadow" alt="">
-    
-</div>
-
-{% endblock%}
+<script>
+document.addEventListener('keydown', function(e) {
+  {% if page > 1 %}if (e.key === 'ArrowLeft') window.location.href = '?id={{ book.id }}&p={{ prev }}';{% endif %}
+  {% if page < max_page %}if (e.key === 'ArrowRight') window.location.href = '?id={{ book.id }}&p={{ next }}';{% endif %}
+});
+</script>
+{% endblock %}

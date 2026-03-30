@@ -2,41 +2,250 @@
 {% load static %}
 {% load humanize %}
 
+{% block mystyling %}
+<style>
+  .inbox-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .inbox-shell {
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .inbox-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .inbox-copy {
+    max-width: 660px;
+  }
+  .inbox-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .inbox-title {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .inbox-subtitle {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .inbox-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .inbox-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .inbox-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .inbox-list {
+    display: grid;
+    gap: 16px;
+  }
+  .inbox-card {
+    position: relative;
+    padding: 22px 24px 22px 72px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 14px 30px rgba(36, 52, 61, 0.05);
+  }
+  .inbox-card::before {
+    content: "";
+    position: absolute;
+    left: 30px;
+    top: 26px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #c97b78;
+    box-shadow: 0 0 0 6px rgba(201,123,120,0.12);
+  }
+  .inbox-card::after {
+    content: "";
+    position: absolute;
+    left: 35px;
+    top: 42px;
+    bottom: -18px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(201,123,120,0.24), rgba(201,123,120,0));
+  }
+  .inbox-card:last-child::after {
+    display: none;
+  }
+  .inbox-card-head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .inbox-card-title {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    font-weight: 800;
+    color: #18232b;
+    margin: 0;
+  }
+  .inbox-card-time {
+    color: #8a97a0;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .inbox-card-body {
+    color: #51606a;
+    font-size: 14px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .inbox-empty {
+    padding: 36px 28px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 14px 30px rgba(36, 52, 61, 0.04);
+    text-align: center;
+    color: #7b8790;
+    font-size: 15px;
+  }
+  .inbox-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+  }
+  .inbox-pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid rgba(224, 228, 233, 0.96);
+    color: #334047;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .inbox-pg-btn:hover,
+  .inbox-pg-btn.active {
+    background: #273744;
+    border-color: #273744;
+    color: white;
+  }
+  @media (max-width: 991px) {
+    .inbox-hero {
+      flex-direction: column;
+      align-items: start;
+      padding: 22px;
+    }
+    .inbox-note {
+      width: 100%;
+    }
+    .inbox-card {
+      padding: 20px 18px 20px 58px;
+    }
+    .inbox-card::before {
+      left: 22px;
+    }
+    .inbox-card::after {
+      left: 27px;
+    }
+    .inbox-card-head {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="container mt-3 p-2 border rounded border-primary">
-    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-inbox" aria-hidden="true"></i> Pesan Masuk - <span class="text-primary">{{user.userdetail.nama_lengkap}}</span> [<span class="text-primary">{{jml_inbox_message}}</span>]</p>
-    <hr class="border-primary">
-    {% if jml_inbox_message > 0 %}
-        {% for inbox in halaman %}
-            <div class="d-flex justify-content-start p-2">
-                <div class="col-1 align-items-center">
-                    {{forloop.counter}}
-                </div>
-                <div class="col-11" style="border-left: 2px solid lightgrey; padding-left:10px">
-                        
-                            <span class="h5 text-primary fw-bold">{{inbox.header|title}}</span>
-                        
-                    <br>
-                    <span style="font-size: 15px;font-style: italic;">dikirim: {{inbox.created_at}}</span>
-                    <br>
-                    <span>{{inbox.body}}</span>
-                </div>
-            </div>
-        {% endfor%}
-        <hr class="border border-primary">
-        <div class="text-center my-3">
-            <span class="mx-1 p-2"><a href="{% url 'list_inbox_message' %}?h={{prev_page}}">&larr;</a></span>
-            {% for page  in range_page %}
-                {% if page == current %}
-                <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'list_inbox_message' %}?h={{page}}" class="text-white">{{page}}</a></span>
-                {% else %}
-                <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'list_inbox_message' %}?h={{page}}" class="fw-bold">{{page}}</a></span>
-                {% endif%}
-            {% endfor %}
-            <span class="mx-2 p-2"><a href="{% url 'list_inbox_message' %}?h={{next_page}}">&rarr;</a></span>
+<div class="inbox-page">
+  <div class="container">
+    <div class="inbox-shell">
+      <div class="inbox-hero">
+        <div class="inbox-copy">
+          <span class="inbox-kicker"><i class="fa fa-bell"></i> Pusat Notifikasi</span>
+          <h1 class="inbox-title">Inbox {{ user.userdetail.nama_lengkap }}</h1>
+          <p class="inbox-subtitle">Semua pembaruan penting tentang akun, pembayaran, perubahan profil, dan notifikasi lain kami kumpulkan di sini agar mudah ditinjau kembali kapan saja.</p>
         </div>
-    {% else %}
-    <p style="font-style: italic;">Belum ada pesan masuk untuk {{user.userdetail.nama_lengkap|title}}...</p>
-    {% endif %}
+        <div class="inbox-note">
+          <strong>{{ jml_inbox_message }} notifikasi tersimpan</strong>
+          <span>Pesan terbaru selalu tampil di urutan atas agar Anda bisa cepat melihat update yang paling relevan.</span>
+        </div>
+      </div>
+
+      {% if jml_inbox_message > 0 %}
+      <div class="inbox-list">
+        {% for inbox in halaman %}
+        <article class="inbox-card">
+          <div class="inbox-card-head">
+            <h2 class="inbox-card-title">{{ inbox.header|title }}</h2>
+            <div class="inbox-card-time">{{ inbox.created_at|date:"j F Y, H:i" }} WIB</div>
+          </div>
+          <p class="inbox-card-body">{{ inbox.body }}</p>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="inbox-pagination">
+        <a href="{% url 'list_inbox_message' %}?h={{ prev_page }}" class="inbox-pg-btn">Prev</a>
+        {% for page in range_page %}
+          <a href="{% url 'list_inbox_message' %}?h={{ page }}" class="inbox-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
+        {% endfor %}
+        <a href="{% url 'list_inbox_message' %}?h={{ next_page }}" class="inbox-pg-btn">Next</a>
+      </div>
+      {% else %}
+      <div class="inbox-empty">
+        Belum ada pesan masuk untuk {{ user.userdetail.nama_lengkap|title }}.
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,477 @@
+{% extends 'cms/base.html' %}
+{% load humanize %}
+
+{% block title %}CMS Admin Pembayaran{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell {
+        max-width: 1480px;
+    }
+
+    .page-top {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap:wrap;
+        margin-bottom: 16px;
+    }
+
+    .page-top a {
+        display:inline-flex;
+        text-decoration:none;
+        color:#bf5b3d;
+        font-weight:800;
+    }
+
+    .hero-panel,
+    .surface-card {
+        border-radius: 24px;
+    }
+
+    .hero-panel {
+        padding: 26px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .hero-panel::after {
+        content: "";
+        position: absolute;
+        inset: auto -60px -80px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(191, 91, 61, 0.16), transparent 70%);
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .stat-card {
+        height: 100%;
+        padding: 18px 20px;
+        border-radius: 20px;
+        border: 1px solid var(--stroke);
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,241,232,0.92));
+    }
+
+    .stat-card .value {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .surface-card {
+        padding: 22px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .list-payment {
+        display: grid;
+        gap: 14px;
+    }
+
+    .payment-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 18px;
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        background: white;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .payment-card:hover,
+    .payment-card.is-active {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(69, 52, 34, 0.08);
+        border-color: rgba(191, 91, 61, 0.45);
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+    }
+
+    .status-menunggu {
+        background: rgba(201, 131, 40, 0.14);
+        color: var(--warning);
+    }
+
+    .status-verifikasi {
+        background: rgba(45, 106, 79, 0.14);
+        color: var(--forest);
+    }
+
+    .status-tolak {
+        background: rgba(178, 58, 72, 0.12);
+        color: #b23a48;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .mini-field {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        background: rgba(255,255,255,0.86);
+    }
+
+    .mini-field .label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .proof-image {
+        width: 100%;
+        max-height: 420px;
+        object-fit: contain;
+        border-radius: 22px;
+        border: 1px solid var(--stroke);
+        background: #fff;
+    }
+
+    .item-row,
+    .insight-row {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.84);
+    }
+
+    .check-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .check-list .item-row strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .toolbar .form-control,
+    .toolbar .form-select,
+    .toolbar .btn {
+        border-radius: 14px;
+        min-height: 48px;
+    }
+
+    .btn-approve {
+        background: var(--forest);
+        color: white;
+        border: none;
+    }
+
+    .btn-reject {
+        background: #b23a48;
+        color: white;
+        border: none;
+    }
+
+    .btn-outline-warm {
+        border: 1px solid rgba(191, 91, 61, 0.3);
+        color: var(--accent);
+        background: white;
+    }
+
+    @media (max-width: 991px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-top">
+    <a href="/cms/">Kembali ke CMS</a>
+</div>
+<div class="page-shell">
+    <section class="hero-panel surface-card mb-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <span class="eyebrow">CMS Admin Literatur</span>
+                <h1 class="mt-3 mb-2 fw-bold">Dashboard verifikasi pembayaran yang fokus ke input penting dan keputusan admin.</h1>
+                <p class="muted mb-0">Halaman ini disusun dari kebutuhan operasional yang memang ada di data sistem: identitas pembeli, invoice, bukti transfer, item buku, dan status final. Saya juga tampilkan gap data yang idealnya ditambah agar proses verifikasi makin aman.</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Menunggu Verifikasi</div>
+                            <div class="value">{{ stats.pending }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Disetujui</div>
+                            <div class="value">{{ stats.approved }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Ditolak</div>
+                            <div class="value">{{ stats.rejected }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Pending > 24 Jam</div>
+                            <div class="value">{{ stats.overdue }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-xl-4">
+            <section class="surface-card mb-4">
+                <div class="section-title">Analisa Kebutuhan Input</div>
+                <div class="check-list">
+                    <div class="item-row">
+                        <strong>Data yang sudah tersedia dan wajib dipakai admin</strong>
+                        <div class="muted small">Nomor invoice, waktu submit, total bayar, jumlah buku, bukti transfer, daftar item, email user, nama lengkap, WhatsApp, alamat, dan status verifikasi.</div>
+                    </div>
+                    <div class="item-row">
+                        <strong>Keputusan operasional yang dibutuhkan</strong>
+                        <div class="muted small">Admin perlu bisa memilih invoice, membandingkan nominal dan item, melihat bukti transfer, lalu memberi aksi setujui atau tolak.</div>
+                    </div>
+                    <div class="item-row">
+                        <strong>Gap yang ideal ditambahkan ke model berikutnya</strong>
+                        <div class="muted small">Nama pengirim rekening, bank atau e-wallet asal, nominal transfer versi user, dan catatan verifikasi admin agar audit trail lebih lengkap.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="surface-card">
+                <div>
+                    <div class="section-title mb-1">Antrean Pembayaran</div>
+                    <div class="muted small mb-3">{{ payments|length }} invoice tampil</div>
+                </div>
+
+                <form method="get" class="toolbar mb-3">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari invoice, email, nama, atau WhatsApp">
+                        </div>
+                        <div class="col-7">
+                            <select class="form-select" name="status">
+                                <option value="all" {% if current_status == 'all' %}selected{% endif %}>Semua Status</option>
+                                <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Menunggu</option>
+                                <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Disetujui</option>
+                                <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Ditolak</option>
+                            </select>
+                        </div>
+                        <div class="col-5">
+                            <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="list-payment">
+                    {% for payment in payments %}
+                    <a href="?status={{ current_status }}&q={{ current_query|urlencode }}&invoice={{ payment.payment }}" class="payment-card {% if selected_payment and payment.payment == selected_payment.payment %}is-active{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <div class="fw-bold">{{ payment.payment }}</div>
+                                <div class="muted small">{{ payment.user.userdetail.nama_lengkap|default:payment.user.username }}</div>
+                            </div>
+                            {% if payment.is_verified %}
+                            <span class="status-pill status-verifikasi">Disetujui</span>
+                            {% elif payment.is_canceled %}
+                            <span class="status-pill status-tolak">Ditolak</span>
+                            {% else %}
+                            <span class="status-pill status-menunggu">Menunggu</span>
+                            {% endif %}
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-6">
+                                <div class="muted">Total</div>
+                                <div class="fw-semibold">Rp {{ payment.total|intcomma }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="muted">Buku</div>
+                                <div class="fw-semibold">{{ payment.jumlah_buku }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="muted">Masuk</div>
+                                <div class="fw-semibold">{{ payment.created_at|date:"d M Y H:i" }} WIB</div>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="item-row">
+                        <strong>Belum ada invoice sesuai filter.</strong>
+                        <div class="muted small">Coba ganti kata kunci atau status untuk melihat antrean lain.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <div class="col-xl-8">
+            {% if selected_payment %}
+            <section class="surface-card mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <div class="section-title mb-1">Detail Invoice</div>
+                        <div class="muted">Fokus verifikasi untuk invoice <strong>{{ selected_payment.payment }}</strong></div>
+                    </div>
+                    <div>
+                        {% if selected_payment.is_verified %}
+                        <span class="status-pill status-verifikasi">Pembayaran Disetujui</span>
+                        {% elif selected_payment.is_canceled %}
+                        <span class="status-pill status-tolak">Pembayaran Ditolak</span>
+                        {% else %}
+                        <span class="status-pill status-menunggu">Masih Menunggu Tindakan</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="detail-grid mb-3">
+                    <div class="mini-field">
+                        <span class="label">Nama Pembeli</span>
+                        <strong>{{ selected_payment.user.userdetail.nama_lengkap|default:selected_payment.user.username }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Email Login</span>
+                        <strong>{{ selected_payment.user.email }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">WhatsApp</span>
+                        <strong>{{ selected_payment.user.userdetail.no_whatsapp|default:"Belum diisi" }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Alamat</span>
+                        <strong>{{ selected_payment.user.userdetail.alamat|default:"Belum diisi" }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Tanggal Upload Bukti</span>
+                        <strong>{{ selected_payment.created_at|date:"d F Y H:i" }} WIB</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Diproses Oleh</span>
+                        <strong>{{ selected_payment.pemroses|default:"Belum ada" }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Total Pembayaran</span>
+                        <strong>Rp {{ selected_payment.total|intcomma }}</strong>
+                    </div>
+                    <div class="mini-field">
+                        <span class="label">Jumlah Buku</span>
+                        <strong>{{ selected_payment.jumlah_buku }} buku</strong>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="section-title">Bukti Transfer</div>
+                        <img src="/media/{{ selected_payment.bukti }}" alt="Bukti transfer {{ selected_payment.payment }}" class="proof-image">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="section-title">Checklist Verifikasi</div>
+                        <div class="check-list mb-4">
+                            <div class="insight-row">
+                                <strong>1. Validasi identitas pembeli</strong>
+                                <div class="muted small">Pastikan email, nama, dan nomor WhatsApp cukup jelas bila admin perlu follow up.</div>
+                            </div>
+                            <div class="insight-row">
+                                <strong>2. Cocokkan nilai transfer</strong>
+                                <div class="muted small">Bandingkan nominal di invoice dengan mutasi bank atau sumber pembayaran yang diterima admin.</div>
+                            </div>
+                            <div class="insight-row">
+                                <strong>3. Cek item buku yang dibeli</strong>
+                                <div class="muted small">Pastikan jumlah buku dan harga per item sesuai sebelum akses koleksi diaktifkan.</div>
+                            </div>
+                            <div class="insight-row">
+                                <strong>4. Ambil keputusan final</strong>
+                                <div class="muted small">Aksi setujui akan mengaktifkan buku ke koleksi user, aksi tolak akan menandai invoice gagal verifikasi.</div>
+                            </div>
+                        </div>
+
+                        <form method="post" class="d-grid gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_id" value="{{ selected_payment.payment }}">
+                            {% if not selected_payment.is_verified and not selected_payment.is_canceled %}
+                            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Pembayaran</button>
+                            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Pembayaran</button>
+                            {% else %}
+                            <div class="item-row">
+                                <strong>Invoice ini sudah final.</strong>
+                                <div class="muted small">Status terakhir diperbarui pada {{ selected_payment.updated_at|date:"d F Y H:i" }} WIB.</div>
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section class="surface-card">
+                <div class="section-title">Rincian Buku Dalam Invoice</div>
+                <div class="d-grid gap-3">
+                    {% for detail in selected_details %}
+                    <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="fw-bold">{{ detail.book.judul }}</div>
+                            <div class="muted small">{{ detail.book.pengarang }}{% if detail.book.isbn %} • ISBN {{ detail.book.isbn }}{% endif %}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">Rp {{ detail.harga|intcomma }}</div>
+                            <div class="muted small">{% if detail.is_active %}Akses aktif{% else %}Belum aktif{% endif %}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="item-row">
+                        <strong>Belum ada detail item.</strong>
+                        <div class="muted small">Invoice ini tidak memiliki daftar buku terhubung.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% else %}
+            <section class="surface-card">
+                <div class="section-title">Belum ada invoice terpilih</div>
+                <div class="muted">Pilih salah satu pembayaran dari panel kiri untuk melihat detail dan melakukan verifikasi.</div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

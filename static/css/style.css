@@ -1351,3 +1351,159 @@ select#input-sort {
     margin-bottom: 10px;
   }
 }
+
+/*--------------------------------------------------------------
+/** 6. PLATFORM ENHANCEMENTS
+--------------------------------------------------------------*/
+
+/* --- General Card Improvements --- */
+.card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* --- Section Heading Style --- */
+.section-heading {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.section-heading::after {
+  content: '';
+  display: block;
+  width: 50%;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+/* --- Homepage: Best Seller Cards --- */
+#best-selling-items .card {
+  border-radius: 10px !important;
+  border: 1px solid #f0f0f0 !important;
+}
+#best-selling-items .card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12) !important;
+}
+#best-selling-items .card .card-concern {
+  bottom: -5px;
+  padding: 0 6px;
+}
+#best-selling-items .card .card-concern .btn {
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* --- Homepage: Book Info Section --- */
+#items-listing .featured,
+#items-listing .on-sale,
+#items-listing .latest-items {
+  border-radius: 14px !important;
+  border: none !important;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.07) !important;
+}
+#items-listing .item img {
+  border-radius: 6px;
+}
+
+/* --- Homepage: Blog Cards --- */
+#latest-posts .posts .bg-white {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  transition: transform 0.25s, box-shadow 0.25s;
+  overflow: hidden;
+}
+#latest-posts .posts:hover .bg-white {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+#latest-posts .posts img {
+  border-radius: 0 !important;
+  transition: transform 0.3s;
+  width: 100%;
+  object-fit: cover;
+}
+#latest-posts .posts:hover img {
+  transform: scale(1.03);
+}
+
+/* --- Testimonials --- */
+#customers-reviews .swiper-slide .card {
+  border-radius: 14px !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* --- Instagram Grid --- */
+#instagram .col-md-2 {
+  border-radius: 10px !important;
+  overflow: hidden;
+  padding: 0 !important;
+  transition: transform 0.25s;
+}
+#instagram .col-md-2:hover {
+  transform: scale(1.03);
+}
+#instagram .col-md-2 .instagram-item {
+  margin: 0;
+  border-radius: 0;
+}
+#instagram .col-md-2 img {
+  border-radius: 0 !important;
+}
+
+/* --- Navbar Polish --- */
+#header-nav {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* --- Scroll to Top Smooth --- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Alert Message Polish --- */
+.alert {
+  border-radius: 10px !important;
+  font-size: 15px;
+}
+
+/* --- Promo Banner (Hari Ini) --- */
+.promo-today {
+  background: linear-gradient(135deg, #fff5f5, #fff);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(248,109,114,0.1);
+  border: 1px solid rgba(248,109,114,0.1);
+  margin: 20px 0;
+}
+.promo-today h2 {
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+/* --- Footer Links --- */
+#footer {
+  border-top: 3px solid var(--primary-color);
+}
+
+/* --- Mobile Responsive Improvements --- */
+@media (max-width: 768px) {
+  #best-selling-items .card {
+    min-width: 140px !important;
+  }
+  #items-listing .col-md-6 {
+    margin-bottom: 20px;
+  }
+  #latest-posts .posts {
+    margin-bottom: 16px;
+  }
+}
+
+/* --- Loading indicator polish --- */
+.htmx-indicator {
+  width: 24px;
+  height: 24px;
+}

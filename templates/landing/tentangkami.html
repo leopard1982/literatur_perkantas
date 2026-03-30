@@ -1,69 +1,197 @@
 {% extends 'base.html'%}
 {% load static %}
 {% load humanize %}
+
+{% block mystyling %}
+<style>
+  .about-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .about-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .about-hero {
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .about-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .about-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+    max-width: 760px;
+  }
+  .about-subtitle {
+    max-width: 720px;
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.8fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .about-card,
+  .about-aside {
+    padding: 28px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .about-card h2,
+  .about-aside h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .about-body {
+    color: #43515b;
+    font-size: 16px;
+    line-height: 1.95;
+  }
+  .about-body p {
+    margin-bottom: 1.1em;
+  }
+  .about-highlight {
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+    margin-bottom: 16px;
+  }
+  .about-highlight strong {
+    display: block;
+    font-size: 13px;
+    color: #7b8790;
+    margin-bottom: 4px;
+  }
+  .about-highlight span {
+    display: block;
+    color: #18232b;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .about-aside p,
+  .about-aside li {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .about-aside ul {
+    margin: 0 0 14px 0;
+    padding-left: 20px;
+  }
+  .about-donate-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .about-donate-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+    .about-hero,
+    .about-card,
+    .about-aside {
+      padding: 22px;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="container mt-3  " style="background-color: whitesmoke;">
-    <div class="row d-flex justify-content-between">
-        <div class="col-12 p-3 col-lg-9 ">
-            <div class="p-3 bg-white rounded border">
-                <p >
-                    <a class="h1 text-primary fw-bold mb-5" href="#">#TentangKami</a>
-                </p>
-                <hr class="border border-primary">
-                <p>
-                    Sahabat terkasih, hari ini, 1 November 2021, genap sebelas tahun Literatur Perkantas Nasional disahkan menjadi PT Suluh Cendikia oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia.
-                </p>
-                <p>
-                    Sebelas tahun yang membuat kami makin percaya, melayankan Injil melalui media sungguh strategis dan relevan dalam pertumbuhan rohani siswa, mahasiswa, dan alumni.
-                </p>
-                <p>
-                    Sebelas tahun yang membuat kami makin percaya, para sahabat ternyata tak hanya berkenan membeli, melainkan juga memberi, buku. Karena itu kami berterima kasih untuk setiap sahabat yang sudah terlibat dalam penggalangan dana buku selama ini. Laporan penggalangan dana dapat dilihat melalui link berikut: Laporan Donasi Program Berbagi 
-                </p>                
-                <p>
-                    Sebelas tahun yang membuat kami makin percaya, kami tak pernah sendirian. Yesus Kristus—Sang Komunikator Agung—telah menjadi sahabat kami dalam melayankan Injil-Nya melalui media, khususnya di kala pandemi.
-                </p>
-                <p>
-                    Dia juga yang menggerakkan semua sahabat kami—pembaca, penulis, penerjemah, sukarelawan, percetakan, toko buku—berkenan menjadi sahabat kami bertumbuh selama ini.
-                </p>
-                <p>
-                    Di tengah kebahagiaan kami, kami juga menyelenggarakan flash sale hari ini. Kiranya program ini juga membahagiakan hati para sahabat.
-                </p>
-                <p>
-                    Akhirnya, doakanlah kami agar tetap setia menjalani panggilan sebagai ”suluh yang cendekia dan mencendekiakan”, agar mampu menjadi ”Sahabat Anda Bertumbuh!”
-                </p>
-            </div>
-            
+<div class="about-page">
+  <div class="container">
+    <div class="about-shell">
+      <div class="about-hero">
+        <span class="about-kicker"><i class="fa fa-book"></i> Tentang Litanas</span>
+        <h1 class="about-title">Literatur Perkantas Nasional hadir untuk melayani Injil melalui buku, media, dan komunitas yang menolong pembaca terus bertumbuh.</h1>
+        <p class="about-subtitle">Halaman ini merangkum perjalanan, keyakinan, dan semangat pelayanan Litanas dalam menemani siswa, mahasiswa, alumni, dan para sahabat melalui literatur yang membangun iman dan pola pikir.</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <h2>Cerita Perjalanan Kami</h2>
+          <div class="about-body">
+            <p>Sahabat terkasih, hari ini, 1 November 2021, genap sebelas tahun Literatur Perkantas Nasional disahkan menjadi PT Suluh Cendikia oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia.</p>
+            <p>Sebelas tahun yang membuat kami makin percaya, melayankan Injil melalui media sungguh strategis dan relevan dalam pertumbuhan rohani siswa, mahasiswa, dan alumni.</p>
+            <p>Sebelas tahun yang membuat kami makin percaya, para sahabat ternyata tak hanya berkenan membeli, melainkan juga memberi, buku. Karena itu kami berterima kasih untuk setiap sahabat yang sudah terlibat dalam penggalangan dana buku selama ini. Laporan penggalangan dana dapat dilihat melalui halaman donasi yang kami sediakan.</p>
+            <p>Sebelas tahun yang membuat kami makin percaya, kami tak pernah sendirian. Yesus Kristus, Sang Komunikator Agung, telah menjadi sahabat kami dalam melayankan Injil-Nya melalui media, khususnya di kala pandemi.</p>
+            <p>Dia juga yang menggerakkan semua sahabat kami, pembaca, penulis, penerjemah, sukarelawan, percetakan, dan toko buku, berkenan menjadi sahabat kami bertumbuh selama ini.</p>
+            <p>Di tengah kebahagiaan kami, kami juga menyelenggarakan flash sale sebagai bentuk sukacita yang ingin dibagikan kepada para sahabat. Kiranya setiap program yang kami hadirkan juga boleh membahagiakan hati para sahabat.</p>
+            <p>Akhirnya, doakanlah kami agar tetap setia menjalani panggilan sebagai “suluh yang cendekia dan mencendekiakan”, dan terus mampu menjadi “Sahabat Anda Bertumbuh!”.</p>
+          </div>
         </div>
-        <div class="col-12  col-lg-3 p-3">
-            <div class="p-3 bg-white border rounded">
-                <p class="text-white rounded p-2 fw-bold fs-5 text-center bg-primary">
-                    <i class="fa fa-heart" aria-hidden="true"></i> Donasi <i class="fa fa-heart" aria-hidden="true"></i>
-                </p>
-                <p class="fs-6">
-                    Terima kasih untuk dukungan bulan <span class="fs-6 text-primary fw-bold">{{bulan_now}}</span> yang telah terkumpul sebesar: Rp. <span class="fs-6 text-primary fw-bold">{{total_now|intcomma}}.00</span>, Tuhan memberkati!
-                </p>
-                <p class="fs-6">
-                    Litanas Online ini merupakan ide dari Literatur Perkantas Nasional yang didukung oleh para Sahabat-Sahabat sekalian.
-                </p>
-                <p class="fs-6">
-                    Untuk mendukung keberadaan litanas online ini dalam hal:
-                    <ul class="fs-6">
-                        <li>Pemeliharaan Server</li>
-                        <li>Sewa Domain dan Web Hosting</li>
-                        <li>Jasa Programmer</li>
-                        <li>Jasa Admin</li>
-                    </ul>
-                    <span class="fs-6">Sahabat bisa menjadi mitra dengan memberikan donasi setiap bulannya melalui transfer atau scan QRIS dengan klik pada link di bawah ini:</span>
-                </p>
-                
-                <p class="fs-6">
-                    Untuk Detail Donatur dapat dilihat dari link berikut: <a class="btn p-1 px-4" href="{% url 'melakukan_donasi' %}"><i class="fa fa-heart" aria-hidden="true"></i> Donasi <i class="fa fa-heart" aria-hidden="true"></i></a>
-                </p>
-            </div>
-            
-            
+
+        <div class="about-aside">
+          <h2>Dukungan Sahabat</h2>
+          <div class="about-highlight">
+            <strong>Periode dukungan</strong>
+            <span>{{ bulan_now }}</span>
+          </div>
+          <div class="about-highlight">
+            <strong>Total donasi terkumpul</strong>
+            <span>Rp.{{ total_now|intcomma }}.00</span>
+          </div>
+          <p>Litanas Online ini merupakan gagasan dari Literatur Perkantas Nasional yang terus bertumbuh karena dukungan para sahabat dari berbagai tempat.</p>
+          <p>Dukungan tersebut membantu kami dalam:</p>
+          <ul>
+            <li>Pemeliharaan server</li>
+            <li>Sewa domain dan web hosting</li>
+            <li>Pengembangan sistem dan layanan digital</li>
+            <li>Operasional admin dan pengelolaan konten</li>
+          </ul>
+          <p>Sahabat dapat menjadi mitra pelayanan dengan memberikan donasi melalui transfer bank atau scan QRIS. Detail donatur dan laporan bulan berjalan dapat dilihat pada halaman donasi.</p>
+          <a href="{% url 'melakukan_donasi' %}" class="about-donate-cta"><i class="fa fa-heart"></i> Lihat Halaman Donasi</a>
         </div>
+      </div>
     </div>
-    
+  </div>
 </div>
 {% endblock %}

@@ -4,113 +4,389 @@
 
 {% block mystyling %}
 <style>
-    .card-cart {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid lightgrey;
-        border-radius: 5px;
-        margin-top:10px;
-        margin-bottom:10px
+  .cart-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .cart-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .cart-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .cart-copy { max-width: 660px; }
+  .cart-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .cart-title {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .cart-subtitle {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .cart-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .cart-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .cart-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .cart-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .cart-list,
+  .cart-summary {
+    padding: 26px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .cart-items {
+    display: grid;
+    gap: 16px;
+  }
+  .cart-item {
+    display: grid;
+    grid-template-columns: auto 96px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(230, 234, 239, 0.96);
+    transition: all 0.2s;
+  }
+  .cart-item.selected {
+    border-color: rgba(108,167,158,0.36);
+    box-shadow: 0 12px 24px rgba(93,150,141,0.08);
+    background: linear-gradient(180deg, rgba(248,252,251,0.98), rgba(242,248,246,0.96));
+  }
+  .cart-item:hover {
+    box-shadow: 0 12px 24px rgba(36, 52, 61, 0.06);
+  }
+  .cart-check {
+    width: 18px;
+    height: 18px;
+    accent-color: #5d968d;
+    cursor: pointer;
+  }
+  .cart-cover {
+    width: 96px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(36, 52, 61, 0.10);
+  }
+  .cart-cover img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+  }
+  .cart-book-title {
+    font-size: 1.15rem;
+    line-height: 1.4;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 4px;
+  }
+  .cart-book-author {
+    color: #7f8b92;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .cart-price-block {
+    color: #51606a;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .cart-price-block strong {
+    color: #4f8c82;
+  }
+  .cart-price-old {
+    color: #9aa5ac;
+    text-decoration: line-through;
+  }
+  .cart-discount {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f8f1ee;
+    color: #b26c57;
+    font-size: 11px;
+    font-weight: 800;
+    margin-top: 8px;
+  }
+  .cart-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff4f3;
+    border: 1px solid #f2d8d5;
+  }
+  .cart-remove img {
+    width: 18px;
+    height: 18px;
+  }
+  .cart-summary h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .cart-summary p {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .cart-summary-grid {
+    display: grid;
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .cart-summary-card {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .cart-summary-card strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #7b8790;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .cart-summary-card span {
+    display: block;
+    color: #18232b;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .cart-pay-btn,
+  .cart-browse-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .cart-pay-btn {
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .cart-pay-btn:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  .cart-pay-btn.disabled {
+    background: #dbe2e8;
+    color: #95a1aa;
+    pointer-events: none;
+    box-shadow: none;
+  }
+  .cart-browse-btn {
+    margin-top: 10px;
+    background: white;
+    color: #31424f;
+    border: 1px solid rgba(224, 228, 233, 0.96);
+  }
+  .cart-empty {
+    padding: 42px 28px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+    text-align: center;
+  }
+  .cart-empty img {
+    width: 180px;
+    max-width: 100%;
+    margin-bottom: 18px;
+  }
+  .cart-empty h2 {
+    font-size: 1.8rem;
+    color: #18232b;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .cart-empty p {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 991px) {
+    .cart-hero {
+      flex-direction: column;
+      align-items: start;
+      padding: 22px;
     }
-
-    .card-cart-selected {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid violet;
-        border-radius: 5px;
-        margin-top:10px;
-        margin-bottom:10px
+    .cart-note {
+      width: 100%;
     }
-
-    .card-cart:hover,.card-cart-selected:hover {
-        box-shadow: 5px 5px 5px lightgrey;
-        transition-duration: 1s;
-        border: 1px solid grey;
+    .cart-layout {
+      grid-template-columns: 1fr;
     }
-
-    .header1 {
-        font-weight: bold;
+    .cart-list,
+    .cart-summary {
+      padding: 22px;
     }
-
-    .trash1 {
-        cursor: pointer;
+    .cart-item {
+      grid-template-columns: auto 78px minmax(0, 1fr);
     }
+    .cart-remove {
+      grid-column: 1 / -1;
+      justify-self: end;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block contents%}
-{% if jml_mycart == 0 %}
-    <div class="p-5">
-        <div class="header1 text-center text-primary">
-            
-            <p class="text-primary h2">Belum ada buku di dalam keranjang</p>
-            <p><img src="{% static 'images/shop.webp'%}" class="w-25" alt=""> </p>
+<div class="cart-page">
+  <div class="container">
+    <div class="cart-shell">
+      {% if jml_mycart == 0 %}
+      <div class="cart-empty">
+        <img src="{% static 'images/shop.webp' %}" alt="Keranjang kosong">
+        <h2>Keranjang Anda masih kosong</h2>
+        <p>Belum ada buku yang ditambahkan ke keranjang. Jelajahi katalog kami dan pilih bacaan yang ingin dibawa pulang.</p>
+        <a href="{% url 'all_book_view' %}" class="cart-pay-btn" style="width:auto;padding:0 24px;">Jelajahi Buku</a>
+      </div>
+      {% else %}
+      <div class="cart-hero">
+        <div class="cart-copy">
+          <span class="cart-kicker"><i class="fa fa-shopping-cart"></i> Keranjang Belanja</span>
+          <h1 class="cart-title">Pilih buku yang ingin diproses sebelum lanjut ke pembayaran.</h1>
+          <p class="cart-subtitle">Centang buku yang ingin dibeli, periksa total belanja Anda, lalu lanjutkan ke halaman konfirmasi pembayaran untuk mengunggah bukti transfer.</p>
         </div>
-    </div>
-{% else %}
-    <div class="p-5">
-        {% for cart in mycart%}
-            {% if cart.is_checked %}
-            <div class="card-cart-selected row p-2">
-            {% else %}
-            <div class="card-cart row p-2">
-            {% endif %}
-                <div class="col-1">
-                    {% if cart.is_checked %}
-                        <input checked type="checkbox"  name="" id="" onclick="gotos('{{cart.book.id}}')">
-                    {% else %}
-                        <input type="checkbox" name="" id="" onclick="gotos('{{cart.book.id}}')">
-                    {% endif %}
-                </div>
-                <div class="col-10 d-flex justify-content-start" >
-                    <div class="row">
-                        <div class="col-lg-2 col-md-3 ">
-                            <img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" class="w-100 p-2 rounded" alt="">
-                        </div>
-                        <div class="col-lg-10 col-md-9 p-2">
-                            <p class="text-primary fw-bold h2" >{{cart.book.judul}}</p>
-                            <p class="h4">{{cart.book.pengarang}}</p>
-                            {% if cart.book.onsalebook.is_active %}
-                            <p>Harga <span class="text-danger"><i><s>Rp. {{cart.book.price|intcomma}}.00</s></i></span></p>
-                            <p> Menjadi <span class="text-success fw-bold">Rp: {{cart.book.onsalebook.nett_price|intcomma}}</span></p>
-                            <p><i>Promo Potongan: <span class="text-info fw-bold">{{cart.book.onsalebook.discount|intcomma}}%</span></i> - {{cart.book.onsalebook.header}}</p>
-                            {% else %}
-                            <p>Harga <span class="text-success fw-bold">Rp: {{cart.book.price|intcomma}}.00</span></p>
-                            <p class="text-warning fw-bold h4">Best Price!</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-1">
-                    <a href="{% url 'del_cart_list' cart.book.id %}">
-                        <img src="{% static 'images/trash.svg'%}" class="trash1" style="width: 25px;height: 25px;"></img>
-                    </a>
-                </div>
-            </div>    
-        {% endfor %}
-        <div class="header1 text-center mt-4 h3" >
-            <i class="fa fa-book" aria-hidden="true"></i>
-            Jumlah Buku: <span class="text-primary">{{jml_dibeli|intcomma}}</span> item
+        <div class="cart-note">
+          <strong>{{ jml_mycart }} item di keranjang</strong>
+          <span>Status centang menentukan buku mana yang akan masuk ke invoice dan diproses pada tahap pembayaran.</span>
         </div>
-        <div class="header1 text-center mt-2 h3" >
-            <i class="fa fa-money" aria-hidden="true"></i>
-            Total Belanja: Rp.<span class="text-primary">{{total_payment|intcomma}}.00</span>
+      </div>
+
+      <div class="cart-layout">
+        <div class="cart-list">
+          <div class="cart-items">
+            {% for cart in mycart %}
+            <div class="cart-item {% if cart.is_checked %}selected{% endif %}">
+              <input {% if cart.is_checked %}checked{% endif %} type="checkbox" class="cart-check" onclick="gotos('{{ cart.book.id }}')">
+              <div class="cart-cover">
+                <img src="/media/extract/pdf_full/{{ cart.book.id }}/1.jpg" alt="{{ cart.book.judul }}">
+              </div>
+              <div>
+                <div class="cart-book-title">{{ cart.book.judul }}</div>
+                <div class="cart-book-author">{{ cart.book.pengarang }}</div>
+                <div class="cart-price-block">
+                  {% if cart.book.onsalebook.is_active %}
+                  <div>Harga awal: <span class="cart-price-old">Rp. {{ cart.book.price|intcomma }}.00</span></div>
+                  <div>Harga promo: <strong>Rp. {{ cart.book.onsalebook.nett_price|intcomma }}</strong></div>
+                  <div class="cart-discount"><i class="fa fa-tag"></i> Diskon {{ cart.book.onsalebook.discount|intcomma }}% - {{ cart.book.onsalebook.header }}</div>
+                  {% else %}
+                  <div>Harga: <strong>Rp. {{ cart.book.price|intcomma }}.00</strong></div>
+                  {% endif %}
+                </div>
+              </div>
+              <a href="{% url 'del_cart_list' cart.book.id %}" class="cart-remove" title="Hapus dari keranjang">
+                <img src="{% static 'images/trash.svg' %}" alt="Hapus">
+              </a>
+            </div>
+            {% endfor %}
+          </div>
         </div>
 
-        <div class="text-center">
-            {% if total_payment > 0 %}
-                <a href="{% url 'payment_process'%}" class="btn btn-primary">Proses Pembayaran</a>
-            {% else %}
-                <button href="#" class="btn btn-primary" disabled>Proses Pembayaran</button>
-            {% endif %}
-        </div>
+        <aside class="cart-summary">
+          <h2>Ringkasan Belanja</h2>
+          <p>Pastikan pilihan buku sudah sesuai sebelum lanjut ke pembayaran dan pengunggahan bukti transfer.</p>
+          <div class="cart-summary-grid">
+            <div class="cart-summary-card">
+              <strong>Jumlah buku dipilih</strong>
+              <span>{{ jml_dibeli|intcomma }} item</span>
+            </div>
+            <div class="cart-summary-card">
+              <strong>Total belanja</strong>
+              <span>Rp.{{ total_payment|intcomma }}.00</span>
+            </div>
+          </div>
+          {% if total_payment > 0 %}
+          <a href="{% url 'payment_process'%}" class="cart-pay-btn"><i class="fa fa-credit-card"></i> Proses Pembayaran</a>
+          {% else %}
+          <span class="cart-pay-btn disabled"><i class="fa fa-credit-card"></i> Proses Pembayaran</span>
+          {% endif %}
+          <a href="{% url 'all_book_view' %}" class="cart-browse-btn">Tambah Buku Lagi</a>
+        </aside>
+      </div>
+      {% endif %}
     </div>
-{% endif %}
+  </div>
+</div>
 
 <script>
-    function gotos(data) {
-        location.href="/cart/change/" + data +"/";
-    }
+  function gotos(data) {
+    location.href = "/cart/change/" + data + "/";
+  }
 </script>
-
 {% endblock %}

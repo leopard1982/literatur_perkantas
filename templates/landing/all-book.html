@@ -4,289 +4,563 @@
 
 {% block mystyling %}
 <style>
-    .card {
-
-        background-color: white;
-        min-width: 280px;
-        max-width: 280px;
-        /* min-height: 450px;
-        max-height: 450px; */
-        margin:20px;
-        font-size: 15px;
-        padding:5px;
-        /* border-radius: 5px; */
-        text-align: center;
-        display: block;
-        justify-content: center;
+  .books-page {
+    background:
+      radial-gradient(circle at top left, rgba(248,109,114,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(53,80,112,0.08), transparent 22%),
+      linear-gradient(180deg, #fbfcfe 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 24px 0 42px;
+  }
+  .books-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 24px 26px;
+    margin-bottom: 24px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 34px rgba(36, 52, 61, 0.06);
+  }
+  .books-hero-copy {
+    max-width: 660px;
+  }
+  .books-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(248,109,114,0.08);
+    color: var(--primary-color);
+    border: 1px solid rgba(248,109,114,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .books-hero h2 {
+    font-size: clamp(1.75rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .books-hero p {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .books-hero-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,252,255,0.95));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 24px rgba(36, 52, 61, 0.05);
+  }
+  .books-hero-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .books-hero-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .filter-bar {
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 12px 28px rgba(36, 52, 61, 0.06);
+    border: 1px solid rgba(231, 235, 240, 0.96);
+    margin-bottom: 24px;
+  }
+  .filter-bar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .filter-bar-label {
+    font-size: 12px;
+    color: #7f8b92;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .filter-bar-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6d7b84;
+  }
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 25px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin: 3px;
+    cursor: pointer;
+  }
+  .filter-pill:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(248,109,114,0.2);
+  }
+  .filter-pill.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 10px rgba(248,109,114,0.35);
+  }
+  .filter-pill img {
+    width: 18px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 20px;
+  }
+  .book-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: all 0.25s;
+    position: relative;
+    border: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+  }
+  .book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.13);
+  }
+  .book-cover-wrap {
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 3/4;
+  }
+  .book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .book-card:hover .book-cover { transform: scale(1.04); }
+  .book-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #ff4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    z-index: 2;
+  }
+  .book-badge.free { background: linear-gradient(135deg, #11998e, #38ef7d); }
+  .book-actions {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 30px 8px 8px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.25s;
+    z-index: 3;
+  }
+  .book-card:hover .book-actions { opacity: 1; }
+  .action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 4px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .action-btn.read-btn { background: rgba(102,126,234,0.9); color: white; }
+  .action-btn.cart-btn { background: rgba(248,109,114,0.9); color: white; }
+  .action-btn.wish-btn {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+  .action-btn:hover { filter: brightness(1.15); color: white; }
+  .book-info { padding: 12px; flex: 1; }
+  .book-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 36px;
+  }
+  .book-author {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .price-main { font-size: 14px; font-weight: 800; color: var(--primary-color); }
+  .price-original { font-size: 11px; text-decoration: line-through; color: #bbb; }
+  .price-free { font-size: 13px; font-weight: 800; color: #11998e; }
+  .discount-pill {
+    background: #fff0f0;
+    color: #e74c3c;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+  .empty-state img { width: 120px; margin-bottom: 16px; opacity: 0.5; }
+  .pagination-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    padding-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .pagination-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+  .page-size-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #6d7b84;
+    font-weight: 700;
+  }
+  .page-size-form select {
+    min-width: 96px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #d9e0e6;
+    background: white;
+    color: #18232b;
+    font-weight: 700;
+  }
+  .pagination-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .pg-btn.nav-btn {
+    min-width: 72px;
+  }
+  .pg-btn.dots {
+    border-color: transparent;
+    background: transparent;
+    color: #98a4ab;
+    pointer-events: none;
+    min-width: auto;
+    padding: 0 4px;
+  }
+  .pg-btn:hover, .pg-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+  @media (max-width: 991px) {
+    .books-hero {
+      flex-direction: column;
+      align-items: start;
     }
-
-    .card:hover {
-        border: 1px solid none;
-        box-shadow: 0px 0px 10px lightgrey;
-        cursor: pointer;
+    .books-hero-note {
+      width: 100%;
     }
-
-    .list {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content:center
+    .filter-bar-head {
+      flex-direction: column;
+      align-items: start;
     }
-
-    .filtering {
-        border: 1px solid lightgrey;
-        border-radius: 5px;
-        padding: 5px;
-        background-color: white;
-        min-width: 150px;
-        margin: 10px;
-        text-align: center;
-    }
-
-    .filtering:hover {
-        border: 1px solid  lightgrey;
-        box-shadow: 0 0 5px grey;
-        background-color: white;
-        cursor: pointer;
-    }
-
-    .filtering :hover {
-        cursor: pointer;
-    }
+  }
 </style>
-{% endblock%}
+{% endblock %}
 
-{% block contents%}
-<div class="d-flex align-items-center justify-content-center " style="flex-wrap: wrap;">
-    <div >Kategori: </div>
-    {% if kategori == 0 %}
-        <a href="{% url 'all_book_view'%}?k=0'"><div class="filtering"  style="min-width: 50px !important;background-color: rgb(255, 91, 91);color:white">Semua</div></a>
-    {% else %}
-        <a href="{% url 'all_book_view'%}?k=0"><div class="filtering"  style="min-width: 50px !important;">Semua</div></a>
-    {% endif %}
-    {% for cat in category%}
-        {% if cat.id == kategori %}
-        <a href="{% url 'all_book_view'%}?k={{cat.id}}">
-            <div class="filtering" style="background-color: rgb(255, 91, 91);color:white" >
-                <img loading="lazy" loading="lazy" src="{{cat.gambar.url}}" style="width: 20px;height: 20px;background-color: rgb(255, 91, 91);color:white" alt="category">
-                <span style="margin-left: 10px;">{{cat.nama}}</span>
-            </div>
-        </a>
+{% block contents %}
+<div class="books-page">
+  <div class="container">
 
-        {% else %}
-        <a href="{% url 'all_book_view'%}?k={{cat.id}}">
-            <div class="filtering" >
-                <img loading="lazy" src="{{cat.gambar.url}}" style="width: 20px;height: 20px;" alt="category">
-                <span style="margin-left: 10px;">{{cat.nama}}</span>
-            </div>
-        </a>
-        
-        {% endif %}
-    {% endfor %}
-    {% if kategori == 10 %}
-      <a href="{% url 'all_book_view'%}?k=10"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div></a>
-    {% else %}
-      <a href="{% url 'all_book_view'%}?k=10"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Best Seller</div></a>      
-    {% endif%}
-    {% if kategori == 11 %}
-      <a href="{% url 'all_book_view'%}?k=11"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Terbaru</div></a>
-    {% else %}
-      <a href="{% url 'all_book_view'%}?k=11"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Terbaru</div></a>      
-    {% endif%}
-    {% if kategori == 12 %}
-      <a href="{% url 'all_book_view'%}?k=12"><div class="filtering" style="background-color: rgb(255, 91, 91);color:white" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Promo</div></a>
-    {% else %}
-      <a href="{% url 'all_book_view'%}?k=12"><div class="filtering" > <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Promo</div></a>      
-    {% endif%}
-    </div>
-</div>
-<div class="list">
-  {% if kategori == 12 %}
-    {% if jumlah_promo == 0%}
-    
-            <div class="text-center py-3">
-              <p>Ups... Nantikan Promo Menarik Kami ya Kaka...</p>
-              <p><img loading="lazy" src="{% static 'images/wait.png'%}" class="w-25" alt=""></p>
-            </div>  
-    {% endif %}
-  {% endif %}
-  
-  {% if books %}
-    {% for book in halaman %}
-      {% if kategori == 12 %}
-        {% if jumlah_promo > 0 %}
-          {% if book.onsalebook.is_active %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
-                    <a href="{% url 'sinopsis_buku' book.id %}">
-                      <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 300px;border-radius: 5px;" alt="" >
-                    </a>
-                    <hr>
-                    <p class="fw-bold text-primary">
-                        {{book.judul}}
-                    </p>
-                    <hr>
-                    <p class=" fw-bold">
-                        {% if book.onsalebook.is_active %}
-                            Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
-                            <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
-                        {% else %}
-                            Harga: <span style="color:green">
-                                Rp.{{book.price|intcomma}}.00
-                            </span>
-                        {% endif%} 
-                    </p>
-                    <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                          {% if user.is_authenticated%}
-                          <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Tooltip on top">
-                            <svg class="cart">
-                              <use xlink:href="#cart"></use>
-                            </svg>
-                          </a>
-                          {% else %}
-                          <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
-                            data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
-                            <svg class="cart">
-                              <use xlink:href="#cart"></use>
-                            </svg>
-                          </a>
-                          {% endif%}
-                          {% if user.is_authenticated%}
-                          <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
-                            <span>
-                              <svg class="wishlist">
-                                <use xlink:href="#heart"></use>
-                              </svg>
-                            </span>
-                          </a>
-                          {% else %}
-                          <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            <span>
-                              <svg class="wishlist">
-                                <use xlink:href="#heart"></use>
-                              </svg>
-                            </span>
-                          </a>
-                          {% endif %}
-                          <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                            <span>
-                              <img loading="lazy" src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                            </span>
-                          </a>
-                    </div>
-            </div>
-          {% endif %}
-        {% endif%}
-      {% else %}
-        {% if book.kategori.id == 3 %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca buku">
-                <a href="{% url 'sinopsis_buku' book.id %}">
-                  <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 200px;height: 300px;border-radius: 5px;" alt="" >
-                </a>
-                <hr>
-                <p class="fw-bold text-primary" title="Silakan Klik Untuk melihat sinopsis buku">
-                    <a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a>
-                </p>
-                <hr>
-                <p class="fw-bold text-success">
-                    BUKU GRATIS
-                </p>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                      <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                        <span>
-                          <img loading="lazy" src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                        </span>
-                      </a>
-                </div>
-            </div>
-        {% else %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk melihat preview buku, dan klik membeli untuk melihat seluruh buku">
-                <a href="{% url 'sinopsis_buku' book.id %}">
-                  <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" style="width: 150px;height: 200px;border-radius: 5px;" alt="" >
-                </a>
-                <hr>
-                <p class="fw-bold text-primary" title="Silakan Klik Untuk melihat sinopsis buku">
-                    <a href="{% url 'sinopsis_buku' book.id %}">{{book.judul}}</a>
-                </p>
-                <hr>
-                <p class=" fw-bold">
-                    {% if book.onsalebook.is_active %}
-                        Harga: <span style="color: red;"><s>Rp.{{book.price|intcomma}},00</s></span> <span class="small text-success">-{{book.onsalebook.discount}}%</span>
-                        <p><span style="font-weight: bold;">Nett:</span> <span style="color:green;font-weight:bold;">Rp.{{book.onsalebook.nett_price|intcomma}}</span></p>
-                    {% else %}
-                        Harga: <span style="color:green">
-                            Rp.{{book.price|intcomma}}.00
-                        </span>
-                    {% endif%} 
-                </p>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                      {% if user.is_authenticated%}
-                      <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                        data-bs-title="Tooltip on top">
-                        <svg class="cart">
-                          <use xlink:href="#cart"></use>
-                        </svg>
-                      </a>
-                      {% else %}
-                      <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
-                        data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
-                        <svg class="cart">
-                          <use xlink:href="#cart"></use>
-                        </svg>
-                      </a>
-                      {% endif%}
-                      {% if user.is_authenticated%}
-                      <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
-                        <span>
-                          <svg class="wishlist">
-                            <use xlink:href="#heart"></use>
-                          </svg>
-                        </span>
-                      </a>
-                      {% else %}
-                      <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        <span>
-                          <svg class="wishlist">
-                            <use xlink:href="#heart"></use>
-                          </svg>
-                        </span>
-                      </a>
-                      {% endif %}
-                      <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                        <span>
-                          <img loading="lazy" src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                        </span>
-                      </a>
-                </div>
-            </div>
-        {% endif %}
-      {% endif %}
-    {% endfor%}
-    
-  {% else %}
-  <div class="text-center py-3">
-    <p>Ups... Maaf kategori yang kaka cari belum tersedia...</p>
-    <p>Kami Selalu akan menambahkan buku baru setiap minggunya</p>
-    <p><img src="{% static 'images/add.png'%}" class="w-25" alt=""></p>
-  </div>
-  {% endif %}
-</div>
-{% if books %}
-    <div class="justify-content-center d-flex">
-      <hr class="border border-primary w-50">
+    <!-- Header -->
+    <div class="books-hero">
+      <div class="books-hero-copy">
+        <span class="books-kicker"><i class="fa fa-book"></i> Katalog Literatur</span>
+        <h2>{{ tab_title }}</h2>
+        <p>{{ tab_subtitle }}</p>
+      </div>
+      <div class="books-hero-note">
+        <strong>{{ total_books }} judul tersedia</strong>
+        <span>Gunakan tab di bawah untuk berpindah antara semua buku, kategori, best seller, terbaru, dan promo aktif.</span>
+      </div>
     </div>
 
-    <div class="text-center">
-        <span class="mx-1 p-2"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{prev_page}}">&larr;</a></span>
-        {% for page  in range_page %}
-            {% if page == current %}
-            <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{page}}" class="text-white">{{page}}</a></span>
-            {% else %}
-            <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{page}}" class="fw-bold">{{page}}</a></span>
-            {% endif%}
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-bar-head">
+        <div class="filter-bar-label">Pilih Rak Buku</div>
+        <div class="filter-bar-count">Tab aktif: {{ tab_title }}</div>
+      </div>
+      <div class="d-flex align-items-center flex-wrap">
+        <a href="{% url 'all_book_view' %}?k=0&limit={{ page_size }}"
+           class="filter-pill {% if kategori == 0 %}active{% endif %}">
+          <i class="fa fa-th"></i> Semua
+        </a>
+        {% for cat in category %}
+        <a href="{% url 'all_book_view' %}?k={{ cat.id }}&limit={{ page_size }}"
+           class="filter-pill {% if cat.id == kategori %}active{% endif %}">
+          <img src="{{ cat.gambar.url }}" alt="{{ cat.nama }}"> {{ cat.nama }}
+        </a>
         {% endfor %}
-        <span class="mx-2 p-2"><a href="{% url 'all_book_view' %}?k={{kategori}}&h={{next_page}}">&rarr;</a></span>
+        <a href="{% url 'all_book_view' %}?k=10&limit={{ page_size }}"
+           class="filter-pill {% if kategori == 10 %}active{% endif %}">
+          <i class="fa fa-star"></i> Best Seller
+        </a>
+        <a href="{% url 'all_book_view' %}?k=11&limit={{ page_size }}"
+           class="filter-pill {% if kategori == 11 %}active{% endif %}">
+          <i class="fa fa-clock-o"></i> Terbaru
+        </a>
+        <a href="{% url 'all_book_view' %}?k=12&limit={{ page_size }}"
+           class="filter-pill {% if kategori == 12 %}active{% endif %}">
+          <i class="fa fa-tag"></i> Promo
+        </a>
+      </div>
     </div>
-{% endif %}
+
+    <!-- Empty Promo -->
+    {% if kategori == 12 and jumlah_promo == 0 %}
+    <div class="empty-state">
+      <img src="{% static 'images/wait.png' %}" alt="">
+      <h5 style="color: #555;">Belum Ada Promo</h5>
+      <p>Nantikan promo menarik dari kami!</p>
+      <a href="{% url 'all_book_view' %}?k=0&limit={{ page_size }}"
+         style="background: var(--primary-color); color: white; border-radius: 8px; padding: 8px 20px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        Lihat Semua Buku
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Book Grid -->
+    {% if books %}
+    <div class="book-grid">
+      {% for book in halaman %}
+
+        {% if kategori == 12 %}
+          {# Promo page: only show books with active sale #}
+          {% if book.onsalebook.is_active %}
+          <div class="book-card">
+            <a href="{% url 'sinopsis_buku' book.id %}" class="book-cover-wrap d-block">
+              <img loading="lazy" src="/media/extract/pdf_full/{{ book.id }}/1.jpg"
+                   class="book-cover" alt="{{ book.judul }}">
+              <span class="book-badge">-{{ book.onsalebook.discount }}%</span>
+              <div class="book-actions">
+                {% if book.id in owned_book_ids %}
+                <a href="{% url 'baca_buku_koleksi' book.id %}" class="action-btn read-btn" title="Baca buku">
+                  <i class="fa fa-book me-1"></i> Baca
+                </a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'add_cart_list' book.id %}" class="action-btn cart-btn" title="Tambah ke keranjang">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#cart"></use></svg>
+                </a>
+                <a href="{% url 'add_wish_list' book.id %}" class="action-btn wish-btn" title="Wishlist">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#heart"></use></svg>
+                </a>
+                {% else %}
+                <a href="#" class="action-btn cart-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" title="Login untuk beli">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#cart"></use></svg>
+                </a>
+                <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="action-btn read-btn" title="Baca preview">
+                  <i class="fa fa-book"></i>
+                </a>
+                {% endif %}
+              </div>
+            </a>
+            <div class="book-info">
+              <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
+              <div class="book-author">{{ book.pengarang }}</div>
+              <div class="d-flex align-items-center flex-wrap gap-1">
+                <span class="price-original">Rp.{{ book.price|intcomma }}</span>
+                <span class="discount-pill">-{{ book.onsalebook.discount }}%</span>
+              </div>
+              <div class="price-main">Rp.{{ book.onsalebook.nett_price|intcomma }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+        {% elif book.kategori.id == 3 %}
+          {# Free Book #}
+          <div class="book-card">
+            <a href="{% url 'sinopsis_buku' book.id %}" class="book-cover-wrap d-block">
+              <img loading="lazy" src="/media/extract/pdf_full/{{ book.id }}/1.jpg"
+                   class="book-cover" alt="{{ book.judul }}">
+              <span class="book-badge free">GRATIS</span>
+              <div class="book-actions">
+                <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="action-btn read-btn">
+                  <i class="fa fa-book me-1"></i> Baca
+                </a>
+              </div>
+            </a>
+            <div class="book-info">
+              <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
+              <div class="book-author">{{ book.pengarang }}</div>
+              <div class="price-free"><i class="fa fa-gift me-1"></i> Buku Gratis</div>
+            </div>
+          </div>
+
+        {% else %}
+          {# Regular Paid Book #}
+          <div class="book-card">
+            <a href="{% url 'sinopsis_buku' book.id %}" class="book-cover-wrap d-block">
+              <img loading="lazy" src="/media/extract/pdf_full/{{ book.id }}/1.jpg"
+                   class="book-cover" alt="{{ book.judul }}">
+              {% if book.onsalebook.is_active %}
+              <span class="book-badge">-{{ book.onsalebook.discount }}%</span>
+              {% endif %}
+              <div class="book-actions">
+                {% if book.id in owned_book_ids %}
+                <a href="{% url 'baca_buku_koleksi' book.id %}" class="action-btn read-btn" title="Baca buku">
+                  <i class="fa fa-book me-1"></i> Baca
+                </a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'add_cart_list' book.id %}" class="action-btn cart-btn" title="Keranjang">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#cart"></use></svg>
+                </a>
+                <a href="{% url 'add_wish_list' book.id %}" class="action-btn wish-btn" title="Wishlist">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#heart"></use></svg>
+                </a>
+                {% else %}
+                <a href="#" class="action-btn cart-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  <svg style="width:16px;height:16px;"><use xlink:href="#cart"></use></svg>
+                </a>
+                <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="action-btn read-btn">
+                  <i class="fa fa-book"></i>
+                </a>
+                {% endif %}
+              </div>
+            </a>
+            <div class="book-info">
+              <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
+              <div class="book-author">{{ book.pengarang }}</div>
+              {% if book.onsalebook.is_active %}
+              <div class="d-flex align-items-center flex-wrap gap-1">
+                <span class="price-original">Rp.{{ book.price|intcomma }}</span>
+                <span class="discount-pill">-{{ book.onsalebook.discount }}%</span>
+              </div>
+              <div class="price-main">Rp.{{ book.onsalebook.nett_price|intcomma }}</div>
+              {% else %}
+              <div class="price-main">Rp.{{ book.price|intcomma }}.00</div>
+              {% endif %}
+            </div>
+          </div>
+
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_numbers %}
+    <div class="pagination-toolbar">
+      <form method="get" class="page-size-form">
+        <input type="hidden" name="k" value="{{ kategori }}">
+        <label for="limit">Per halaman</label>
+        <select name="limit" id="limit" onchange="this.form.submit()">
+          {% for option in limit_options %}
+          <option value="{{ option }}" {% if option == page_size %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      <div class="pagination-wrap">
+        <div class="pagination-links">
+          <a href="{% url 'all_book_view' %}?k={{ kategori }}&h={{ prev_page }}&limit={{ page_size }}" class="pg-btn nav-btn">Prev</a>
+          {% for page in page_numbers %}
+            {% if page %}
+            <a href="{% url 'all_book_view' %}?k={{ kategori }}&h={{ page }}&limit={{ page_size }}"
+               class="pg-btn {% if page == current %}active{% endif %}">
+              {{ page }}
+            </a>
+            {% else %}
+            <span class="pg-btn dots">...</span>
+            {% endif %}
+          {% endfor %}
+          <a href="{% url 'all_book_view' %}?k={{ kategori }}&h={{ next_page }}&limit={{ page_size }}" class="pg-btn nav-btn">Next</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+      {% if not kategori == 12 %}
+      <div class="empty-state">
+        <h5 style="color: #555;">Buku Tidak Ditemukan</h5>
+        <p>Maaf, kategori yang kamu cari belum tersedia. Coba lihat semua koleksi kami!</p>
+        <a href="{% url 'all_book_view' %}?k=0&limit={{ page_size }}"
+           style="background: var(--primary-color); color: white; border-radius: 8px; padding: 8px 20px; text-decoration: none; font-weight: 600; font-size: 14px;">
+          Lihat Semua Buku
+        </a>
+      </div>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</div>
 {% endblock %}

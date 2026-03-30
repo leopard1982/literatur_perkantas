@@ -2,59 +2,266 @@
 {% load static %}
 {% load humanize %}
 
+{% block mystyling %}
+<style>
+  .payment-history-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .payment-history-shell {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .payment-history-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .payment-history-copy { max-width: 660px; }
+  .payment-history-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .payment-history-title {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .payment-history-subtitle {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .payment-history-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .payment-history-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .payment-history-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .payment-history-list {
+    display: grid;
+    gap: 18px;
+  }
+  .payment-history-card {
+    padding: 22px;
+    border-radius: 26px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .payment-history-grid {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .payment-proof img {
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(228, 232, 236, 0.95);
+    box-shadow: 0 12px 22px rgba(36, 52, 61, 0.06);
+  }
+  .payment-meta {
+    display: grid;
+    gap: 8px;
+    color: #51606a;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .payment-meta strong {
+    color: #18232b;
+  }
+  .payment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .payment-status.waiting {
+    background: #eef5fb;
+    color: #4f6f8a;
+  }
+  .payment-status.approved {
+    background: #eef7f4;
+    color: #4f8c82;
+  }
+  .payment-status.rejected {
+    background: #fff4f3;
+    color: #b26c57;
+  }
+  .payment-books {
+    margin-top: 10px;
+    padding-left: 18px;
+    color: #51606a;
+  }
+  .payment-books li {
+    margin-bottom: 6px;
+  }
+  .payment-admin-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: white;
+    border: 1px solid rgba(224, 228, 233, 0.96);
+    color: #31424f;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    margin-top: 10px;
+  }
+  .payment-empty {
+    padding: 42px 28px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+    text-align: center;
+    color: #66757f;
+  }
+  .payment-empty h2 {
+    color: #18232b;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 991px) {
+    .payment-history-hero {
+      flex-direction: column;
+      align-items: start;
+      padding: 22px;
+    }
+    .payment-history-note {
+      width: 100%;
+    }
+    .payment-history-card {
+      padding: 20px;
+    }
+    .payment-history-grid {
+      grid-template-columns: 1fr;
+    }
+    .payment-proof img {
+      max-width: 220px;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="container mt-3 p-2 border rounded border-primary">
-    <p class="h3 fw-bold p-2  shadow bg-white"><i class="fa fa-credit-card" aria-hidden="true"></i> Detail Pembelian - <span class="text-primary">{{user.userdetail.nama_lengkap}}</span> [<span class="text-primary">{{jml_mypayment}}</span>]</p>
-    <hr class="border-primary">
-    
-    {% if mypayment %}
-        <div class="row">
-            {% for payment in mypayment %}
-                <div class="col-1 text-end p-2">{{forloop.counter}}</div>
-                <div class="col-10 p-2 mx-1">
-                    <div class="row  rounded p-2" style="border: 1px solid grey;">
-                        <div class="col-3 p-2" style="border-right: 1px solid grey;">
-                            <p>Bukti Bayar:</p>
-                            <img src="/media/{{payment.bukti}}" alt="bukti bayar" class="w-100 rounded p-2 border shadow">
-                        </div>
-                        <div class="col-9">
-                            <p>Nomor Invoice : <b>{{payment.payment}}</b></p>
-                            <p>Tanggal : <b>{{payment.created_at|date:"d F Y"}}, {{payment.created_at|date:"h:i"}} WIB</b></p>
-                            <p>Jumlah Pembayaran: <b>Rp. {{payment.total|intcomma}}</b></p>
-                            <p>Jumlah Buku: <b>{{payment.jumlah_buku}}</b><br>
-                                <ol class="fs-6 " style="border-left: 1px solid grey; margin-left:20px">
-                                    {% for detail in mypaymentdetail%}
-                                        {% if detail.payment == payment%}
-                                            <li class="px-2"><b class="fs-6 text-success fw-bold">{{detail.book.judul}} - Rp.{{detail.harga|intcomma}}</b></li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ol>
-                            </p>
-                            <p>Status:
-                                {% if payment.is_verified == False  and payment.is_canceled == False %}
-                                    <span class="text-info fw-bold">Sedang Diproses</span>
-                                    <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
-                                {% endif %}
-                                {% if payment.is_verified  %}
-                                    <span class="text-success fw-bold">Disetujui</span><br>
-                                    <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
-                                {% endif %}
-                                {% if payment.is_canceled  %}
-                                    <span class="text-warning fw-bold">Ditolak</span><br>
-                                    <span class="fs-6 px-3">Waktu: <b>{{payment.updated_at|date:"d F Y"}}, {{payment.updated_at|date:"h:i"}} WIB</b></span>
-                                    <span style="padding-left: 10px;"><a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{payment.payment}}" target="_blank" class="fs-6 btn small py-1 px-2">Hubungi Admin</a></span>
-                                {% endif %}
-                            </p>
-                            {% if payment.is_verified %}
-                            
-                            {% endif %}
-                        </div>
-                    </div>
+<div class="payment-history-page">
+  <div class="container">
+    <div class="payment-history-shell">
+      <div class="payment-history-hero">
+        <div class="payment-history-copy">
+          <span class="payment-history-kicker"><i class="fa fa-credit-card"></i> Riwayat Pembelian</span>
+          <h1 class="payment-history-title">Detail pembelian dan status verifikasi pembayaran Anda.</h1>
+          <p class="payment-history-subtitle">Setiap invoice, bukti pembayaran, dan hasil verifikasi admin kami tampilkan di sini agar Anda bisa meninjau progres pembelian dengan lebih mudah.</p>
+        </div>
+        <div class="payment-history-note">
+          <strong>{{ jml_mypayment }} invoice tersimpan</strong>
+          <span>Status akan diperbarui setelah admin memverifikasi bukti transfer yang Anda kirimkan.</span>
+        </div>
+      </div>
+
+      {% if mypayment %}
+      <div class="payment-history-list">
+        {% for payment in mypayment %}
+        <article class="payment-history-card">
+          <div class="payment-history-grid">
+            <div class="payment-proof">
+              <img src="/media/{{ payment.bukti }}" alt="Bukti bayar {{ payment.payment }}">
+            </div>
+            <div>
+              <div class="payment-meta">
+                <div>Nomor Invoice: <strong>{{ payment.payment }}</strong></div>
+                <div>Tanggal: <strong>{{ payment.created_at|date:"d F Y" }}, {{ payment.created_at|date:"H:i" }} WIB</strong></div>
+                <div>Total Pembayaran: <strong>Rp. {{ payment.total|intcomma }}</strong></div>
+                <div>Jumlah Buku: <strong>{{ payment.jumlah_buku }}</strong></div>
+                <div>
+                  Status:
+                  {% if payment.is_verified == False and payment.is_canceled == False %}
+                  <span class="payment-status waiting"><i class="fa fa-clock-o"></i> Sedang Diproses</span>
+                  {% endif %}
+                  {% if payment.is_verified %}
+                  <span class="payment-status approved"><i class="fa fa-check-circle"></i> Disetujui</span>
+                  <div>Waktu verifikasi: <strong>{{ payment.updated_at|date:"d F Y" }}, {{ payment.updated_at|date:"H:i" }} WIB</strong></div>
+                  {% endif %}
+                  {% if payment.is_canceled %}
+                  <span class="payment-status rejected"><i class="fa fa-times-circle"></i> Ditolak</span>
+                  <div>Waktu update: <strong>{{ payment.updated_at|date:"d F Y" }}, {{ payment.updated_at|date:"H:i" }} WIB</strong></div>
+                  {% endif %}
                 </div>
-            {% endfor %}
-        </div>    
-    {% else %}
-    <p style="font-style: italic;">Kaka {{user.userdetail.nama_lengkap|title}} belum melakukan pembelian buku.. </p>
-    {% endif %}
+              </div>
+
+              <ol class="payment-books">
+                {% for detail in mypaymentdetail %}
+                  {% if detail.payment == payment %}
+                  <li><strong>{{ detail.book.judul }}</strong> - Rp.{{ detail.harga|intcomma }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ol>
+
+              {% if payment.is_verified == False and payment.is_canceled == False or payment.is_canceled %}
+              <a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{ payment.payment }}" target="_blank" class="payment-admin-link">Hubungi Admin <i class="fa fa-arrow-right"></i></a>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="payment-empty">
+        <h2>Belum ada pembelian</h2>
+        <p>Kaka {{ user.userdetail.nama_lengkap|title }} belum melakukan pembelian buku. Yuk, jelajahi katalog dan pilih buku yang ingin dibaca.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

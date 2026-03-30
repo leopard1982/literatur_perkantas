@@ -2,101 +2,369 @@
 {% load static %}
 {% load humanize %}
 
+{% block mystyling %}
+<style>
+  .payment-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(132,172,164,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .payment-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .payment-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .payment-copy { max-width: 680px; }
+  .payment-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .payment-title {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .payment-subtitle {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .payment-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .payment-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .payment-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .payment-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .payment-card {
+    padding: 26px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .payment-card h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 8px;
+  }
+  .payment-card p {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .payment-field {
+    margin-bottom: 16px;
+  }
+  .payment-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #31424f;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .payment-field input[type="text"],
+  .payment-field input[type="file"] {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #dbe3e8;
+    background: #fff;
+    color: #18232b;
+    font-size: 14px;
+  }
+  .payment-table-wrap {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+    margin-bottom: 18px;
+  }
+  .payment-table {
+    margin: 0;
+  }
+  .payment-table thead th {
+    background: #273744;
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 14px 16px;
+  }
+  .payment-table tbody td {
+    padding: 14px 16px;
+    border-color: #edf1f5;
+    color: #51606a;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  .payment-table tbody tr:nth-child(even) {
+    background: #fafbfd;
+  }
+  .payment-table img {
+    width: 52px;
+    height: 78px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .payment-summary-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .payment-summary-card {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .payment-summary-card strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #7b8790;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .payment-summary-card span {
+    display: block;
+    color: #18232b;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .payment-method {
+    display: grid;
+    gap: 14px;
+  }
+  .payment-qr {
+    text-align: center;
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .payment-qr img {
+    width: 100%;
+    max-width: 240px;
+    border-radius: 18px;
+    background: white;
+    border: 1px solid rgba(228, 232, 236, 0.95);
+    box-shadow: 0 12px 22px rgba(36, 52, 61, 0.06);
+  }
+  .payment-method-card {
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,251,253,0.96));
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .payment-method-card strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #18232b;
+    font-size: 14px;
+  }
+  .payment-method-card p {
+    margin: 0;
+  }
+  .payment-accent {
+    color: #b55f5c;
+    font-weight: 800;
+  }
+  .payment-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .payment-submit:hover {
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .payment-hero {
+      flex-direction: column;
+      align-items: start;
+      padding: 22px;
+    }
+    .payment-note {
+      width: 100%;
+    }
+    .payment-layout {
+      grid-template-columns: 1fr;
+    }
+    .payment-card {
+      padding: 22px;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class="container py-4">
-    <div class="p-4">
-        <form method='post' enctype="multipart/form-data">
-            {% csrf_token %}
-            <p class="h3 fw-bold mb-3">Konfirmasi Pembayaran Buku</p>
-            <div class="fw-bold my-4 row">
-                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">Nomor Invoice:</div>
-                <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold "><input name="nomor_invoice" type="text" readonly value="{{nomor_invoice}}" class="text-primary form-control fs-6 fw-bold"></div>
+<div class="payment-page">
+  <div class="container">
+    <div class="payment-shell">
+      <div class="payment-hero">
+        <div class="payment-copy">
+          <span class="payment-kicker"><i class="fa fa-credit-card"></i> Konfirmasi Pembayaran</span>
+          <h1 class="payment-title">Lengkapi pembayaran untuk buku yang sudah Anda pilih.</h1>
+          <p class="payment-subtitle">Periksa kembali invoice, total pembayaran, dan daftar buku Anda. Setelah transfer berhasil, unggah bukti pembayaran agar admin dapat memverifikasi pesanan maksimal dalam 1x24 jam.</p>
+        </div>
+        <div class="payment-note">
+          <strong>{{ jml_mycart_buy }} buku dalam invoice</strong>
+          <span>Status verifikasi pembayaran dan pembelian akan dikirimkan melalui inbox akun Anda setelah admin memproses pesanan.</span>
+        </div>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="payment-layout">
+          <div class="payment-card">
+            <h2>Rincian Invoice</h2>
+            <p>Pastikan seluruh item dan nominal pembayaran sudah sesuai sebelum mengunggah bukti transfer.</p>
+
+            <div class="payment-field">
+              <label for="nomor_invoice">Nomor Invoice</label>
+              <input id="nomor_invoice" name="nomor_invoice" type="text" readonly value="{{ nomor_invoice }}">
             </div>
-            <p class="fw-bold rounded">
-                <table class="table border border-dark">
-                    <thead>
-                        <th class="fw-bold">No.</th>
-                        <th class="fw-bold">Buku</th>
-                        <th class="fw-bold">Judul</th>
-                        <th class="fw-bold">Harga</th>
-                    </thead>
-                    {% for cart in mycart_buy %}
-                    <tr>
-                        <td class="fs-6">{{forloop.counter}}</td>
-                        <td><img src="/media/extract/pdf_full/{{cart.book.id}}/1.jpg" style="width: 50px;height: 80px;border-radius: 5px;" alt="{{cart.book.judul}}"></td>
-                        <td class="fs-6 fw-bold text-primary">{{cart.book.judul}}</td>
-                        <td class="fs-6 fw-bold text-success">
-                            {% if cart.book.onsalebook.is_active %}
-                                Rp.{{cart.book.onsalebook.nett_price|intcomma}}
-                            {% else %}
-                                Rp.{{cart.book.price|intcomma}}.00
-                            {% endif %}
-                        </td>
-                    </tr>            
-                    {% endfor%}
-                </table>
-                <div class="my-3 row">
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
-                        Jumlah Buku Dibeli:
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <input type="text" readonly value="{{jml_mycart_buy|intcomma}} Buku" class="text-primary form-control fs-6 fw-bold">                        
-                    </div>
-                </div>
-                <div class="my-3 row">
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
-                        Total Pembayaran:
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <input type="text" name="total_bayar" id="" class="text-primary fw-bold form-control fs-6" readonly value="{{total_bayar|intcomma}}">
-                    </div>
-                </div>
-                <div class="mt-1 mb-1 border border-success rounded d-flex justify-content-center row">
-                    <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 d-flex justify-content-center">
-                        <img src="{% static 'images/qris.jpg'%}" class="w-75" alt="">
-                    </div>
-                    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 p-4 text-wrap">
-                        Pembayaran dilakukan melalui: <br>
-                        <ol>
-                            <li>Scan QRIS</li>
-                            <li>
-                                Transfer ke rekening: <br>
-                                Nomor Rekening: <b>{{no_rekening}}</b> <br>
-                                Pemilik Rekening: <b>{{nama_pemilik}}</b> <br>
-                                Nama Bank: <b>{{nama_bank}}</b>
-                            </li>
-                        </ol>
-                        <p>
-                            Setelah transfer berhasil, silakan Upload foto bukti bayar dalam bentuk format gambar .gif, .png, .jpeg, atau .jpg 
-                            kemudian tunggu konfirmasi dari admin maksimal 1x24 jam. <br>
-                            Untuk update status pembelian akan kami kirimkan via <a href="{% url 'list_inbox_message'%}" target="_blank">inbox message <i class="fa fa-inbox" aria-hidden="true" style="font-size: 25px;"></i></a>
-                        </p>
-                        
-                    </div>
-                </div>
-                <div class="my-3 row">
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
-                        Foto Bukti Transfer:
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <input required  type="file" class="form-control fs-6" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp">
-                    </div>
-                </div>
-                
-                <div class="my-3 row">
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 fw-bold py-3">
-                        <input type="submit" value="Konfirmasi Pembayaran" class="btn ">
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-8 col-xl-9 text-primary fw-bold">
-                        <!-- <input type="file" class="form-control fs-6" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp"> -->
-                    </div>
-                </div>
-            </form>
-            
-        </p>
-        
-        
+
+            <div class="payment-table-wrap">
+              <table class="table payment-table">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Buku</th>
+                    <th>Judul</th>
+                    <th>Harga</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cart in mycart_buy %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><img src="/media/extract/pdf_full/{{ cart.book.id }}/1.jpg" alt="{{ cart.book.judul }}"></td>
+                    <td><strong>{{ cart.book.judul }}</strong></td>
+                    <td class="fw-bold text-success">
+                      {% if cart.book.onsalebook.is_active %}
+                        Rp.{{ cart.book.onsalebook.nett_price|intcomma }}
+                      {% else %}
+                        Rp.{{ cart.book.price|intcomma }}.00
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="payment-summary-grid">
+              <div class="payment-summary-card">
+                <strong>Jumlah buku dibeli</strong>
+                <span>{{ jml_mycart_buy|intcomma }} buku</span>
+              </div>
+              <div class="payment-summary-card">
+                <strong>Total pembayaran</strong>
+                <span>Rp.{{ total_bayar|intcomma }}</span>
+              </div>
+            </div>
+
+            <div class="payment-field">
+              <label for="total_bayar">Nominal Transfer</label>
+              <input type="text" name="total_bayar" id="total_bayar" readonly value="{{ total_bayar|intcomma }}">
+            </div>
+
+            <div class="payment-field">
+              <label for="bukti_bayar">Foto Bukti Transfer</label>
+              <input required type="file" id="bukti_bayar" name="bukti_bayar" accept=".gif,.jpg,.jpeg,.png,.webp">
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="submit" class="payment-submit"><i class="fa fa-check-circle"></i> Konfirmasi Pembayaran</button>
+            </div>
+          </div>
+
+          <aside class="payment-card">
+            <h2>Metode Pembayaran</h2>
+            <p>Anda dapat membayar melalui QRIS atau transfer bank ke rekening resmi Litanas berikut.</p>
+            <div class="payment-method">
+              <div class="payment-qr">
+                <img src="{% static 'images/qris.jpg' %}" alt="QRIS Pembayaran">
+              </div>
+              <div class="payment-method-card">
+                <strong>Transfer Bank</strong>
+                <p>Nomor Rekening: <span class="payment-accent">{{ no_rekening }}</span><br>Pemilik Rekening: <span class="payment-accent">{{ nama_pemilik }}</span><br>Bank: <span class="payment-accent">{{ nama_bank }}</span></p>
+              </div>
+              <div class="payment-method-card">
+                <strong>Setelah transfer berhasil</strong>
+                <p>Unggah bukti pembayaran dalam format gambar `.gif`, `.png`, `.jpeg`, atau `.jpg`, lalu tunggu verifikasi dari admin maksimal 1x24 jam.</p>
+              </div>
+              <div class="payment-method-card">
+                <strong>Update status pembelian</strong>
+                <p>Perkembangan pesanan akan kami kirimkan melalui <a href="{% url 'list_inbox_message'%}" target="_blank">inbox message</a> di akun Anda.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </form>
     </div>
-    
+  </div>
 </div>
 {% endblock %}

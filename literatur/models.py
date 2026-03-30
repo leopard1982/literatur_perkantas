@@ -10,6 +10,7 @@ import datetime
 from django.contrib import messages
 import re
 from django.core.mail import send_mail
+from django.utils import timezone
 
 colornya = [
 	('pink','pink'),
@@ -106,18 +107,18 @@ class Books(models.Model):
 	def save(self,*args,**kwargs):
 		if self.is_update_pdf and self.pdf_full!=None:
 			try:
-				OnSaleBook.objects.all().filter(book=Books.objects.get(id=self.id)).delete()
+				OnSaleBook.objects.filter(book=self).delete()
 			except:
 				pass
 			self.is_update_pdf=False
 			super(Books,self).save(*args,**kwargs)
-			
+
 			#road to path
 			#lokasi file pdf
 			lokasi_pdf = os.path.join(settings.BASE_DIR,"media",self.pdf_full.name)
 			#lokasi path extract image
 			lokasi_images = os.path.join(settings.BASE_DIR,"media","extract","pdf_full",str(self.id))
-			
+
 
 			#create direktori baru untuk simpan file extract jpg
 			print(f"create direktori start: {datetime.datetime.now()}")
@@ -127,29 +128,29 @@ class Books(models.Model):
 				#hapus list file yang lama
 				for f in os.listdir(lokasi_images):
 					os.remove(os.path.join(lokasi_images,f))
-			
-			#createppm baru			
+
+			#createppm baru
 			print(f"create ppm baru start: {datetime.datetime.now()}")
-			images = convert_from_bytes(open(lokasi_pdf,'rb').read(),output_folder=lokasi_images)
-			
+			with open(lokasi_pdf,'rb') as pdf_file:
+				images = convert_from_bytes(pdf_file.read(),output_folder=lokasi_images)
+
 			#simpan setiap file ppm jadi jpg
 			print(f"create jpg baru start: {datetime.datetime.now()}")
 			for nomor,image in enumerate(images):
 				#save as jpeg
 				image.save(os.path.join(lokasi_images,str(nomor+1)+".jpg"),"JPEG")
-			
+
 			#hapus file ppm
 			print(f"hapus ppm lama start: {datetime.datetime.now()}")
 			for f in os.listdir(lokasi_images):
-				# print(f)
-				if(f.split('.')[1]=="ppm"):
+				if os.path.splitext(f)[1]==".ppm":
 					os.remove(os.path.join(lokasi_images,f))
 			print(f"selesai proses: {datetime.datetime.now()}")
 
 			#hapus file pdfnya
 			os.remove(lokasi_pdf)
 		elif self.is_update_info:
-			OnSaleBook.objects.all().filter(book=Books.objects.get(id=self.id)).delete()
+			OnSaleBook.objects.filter(book=self).delete()
 			super(Books,self).save(*args,**kwargs)
 
 	def __str__(self):
@@ -193,7 +194,29 @@ class MyPayment(models.Model):
 		return f"{self.payment} - {self.user.username} - {self.total}"	
 	
 	def save(self,*args,**kwargs):
+		previous_status = None
+		if self.pk:
+			try:
+				previous_status = MyPayment.objects.get(pk=self.pk)
+			except MyPayment.DoesNotExist:
+				previous_status = None
+
+		status_changed = (
+			previous_status is None
+			or previous_status.is_verified != self.is_verified
+			or previous_status.is_canceled != self.is_canceled
+		)
+
 		super(MyPayment,self).save(*args,**kwargs)
+		if not status_changed:
+			return
+
+		pemroses = self.pemroses
+		if not pemroses and previous_status is not None:
+			pemroses = previous_status.pemroses
+		if not pemroses and self.user:
+			pemroses = self.user.username
+
 		#jika verified
 		if self.is_verified and not self.is_canceled:
 			#update status buku detail jadi aktif
@@ -229,8 +252,11 @@ class MyPayment(models.Model):
 			inboxmessage.save()
 
 			#simpan pemroses
-			self.pemroses=self.user.username
-			super(MyPayment,self).save(*args,**kwargs)
+			MyPayment.objects.filter(payment=self.payment).update(
+				pemroses=pemroses,
+				updated_at=timezone.now()
+			)
+			self.pemroses=pemroses
 		
 		# jika tidak verified
 		if not self.is_verified and self.is_canceled:
@@ -257,8 +283,11 @@ class MyPayment(models.Model):
 			inboxmessage.save()
 
 			#simpan pemroses
-			self.pemroses=self.user.username
-			super(MyPayment,self).save(*args,**kwargs)
+			MyPayment.objects.filter(payment=self.payment).update(
+				pemroses=pemroses,
+				updated_at=timezone.now()
+			)
+			self.pemroses=pemroses
 
 
 class MyPaymentDetail(models.Model):

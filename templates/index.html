@@ -4,33 +4,1547 @@
 
 {% block mystyling %}
 <style>
-  .newcard:hover {
-    border: 2px solid lightgrey !important;
-    box-shadow: 0px 5px 0px rgba(230, 100, 100,0.5) !important;
-    cursor: pointer;
+  /* ===== HOME PAGE CARD STYLES ===== */
+
+  /* === SECTION LAYOUT === */
+  .hp-section { padding: 56px 0; }
+  .sec-header { text-align: center; margin-bottom: 36px; }
+  .sec-header h2 { font-size: 1.55rem; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
+  .sec-header p { color: #aaa; font-size: 14px; margin: 0; }
+  .sec-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; padding: 3px 12px;
+    border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.6px;
   }
-  .newcard2:hover {
-    background-image: linear-gradient(to right,white,rgba(253, 222, 222, 0.4)) !important;
-    cursor: pointer;
-    border-radius: 5px;
-    transition-duration: 0.3s;
+  .sec-tag.red { background: #fff0f0; color: var(--primary-color); border: 1px solid #fcc; }
+  .sec-tag.green { background: #f0fff8; color: #11998e; border: 1px solid #b2dfdb; }
+  .sec-tag.blue { background: #f0f4ff; color: #2980b9; border: 1px solid #b3d1f8; }
+  .sec-tag.purple { background: #f7f0ff; color: #8e44ad; border: 1px solid #d8b4fe; }
+  .btn-see-all {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1.5px solid #e0e0e0; color: #555; background: white;
+    padding: 9px 22px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .btn-see-all:hover { border-color: var(--primary-color); color: var(--primary-color); }
+  .btn-see-all.green:hover { border-color: #11998e; color: #11998e; }
+
+  /* === SWIPER NAV === */
+  .swiper-wrap { position: relative; padding: 0 40px; }
+  .swiper-nav-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 36px; background: white; border: 1.5px solid #e0dbd5;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: #555; cursor: pointer; z-index: 10; transition: all 0.2s; font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .swiper-nav-btn:hover { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+  .swiper-nav-btn.left { left: 0; }
+  .swiper-nav-btn.right { right: 0; }
+
+  /* === BEST SELLER CARD === */
+  .best-seller-section {
+    position: relative;
+    padding: 42px 0 48px;
+    background:
+      radial-gradient(circle at top left, rgba(212,149,145,0.10), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 26%),
+      linear-gradient(180deg, #fcfdff 0%, #f4f8fb 100%);
+    border-radius: 28px;
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
+    overflow: hidden;
+  }
+  .best-seller-shell {
+    position: relative;
+    z-index: 1;
+  }
+  .best-seller-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .best-seller-copy {
+    max-width: 620px;
+  }
+  .best-seller-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .best-seller-title {
+    font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .best-seller-subtitle {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .best-seller-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(222, 229, 235, 0.92);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .best-seller-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .best-seller-note span {
+    display: block;
+    color: #7f8b92;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .bs-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(249,247,245,0.99));
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(230, 227, 223, 0.95);
+    transition: all 0.25s;
+    width: 220px;
+    box-shadow: 0 10px 24px rgba(36, 52, 61, 0.05);
+  }
+  .bs-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 30px rgba(167, 123, 120, 0.10) !important;
+    border-color: rgba(214, 196, 190, 0.9);
+  }
+  .bs-cover-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f6f6f6, #ececec);
+  }
+  .bs-cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .bs-card:hover .bs-cover-wrap img { transform: scale(1.04); }
+  .bs-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .bs-card:hover .bs-overlay { opacity: 1; }
+  .bs-action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #F86D72;
+    font-size: 15px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .bs-action-btn:hover { background: #F86D72; color: white; transform: scale(1.12); }
+  .bs-action-pill {
+    width: auto;
+    min-width: 86px;
+    padding: 0 16px;
+    border-radius: 999px;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .bs-discount-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, #d69490, #c97b78);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 999px;
+    z-index: 5;
+    box-shadow: 0 8px 16px rgba(201,123,120,0.20);
+  }
+  .bs-owned-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #6ca79e, #5d968d);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 999px;
+    z-index: 5;
+    box-shadow: 0 8px 16px rgba(93,150,141,0.18);
+  }
+  .bs-info { padding: 16px 16px 18px; }
+  .bs-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .bs-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f8f1ee;
+    color: #b26c57;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .bs-meta small {
+    color: #9da8af;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .bs-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 5px;
+    line-height: 1.45;
+    min-height: 40px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .bs-author {
+    font-size: 12px;
+    color: #86929a;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bs-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .bs-price { font-size: 15px; font-weight: 800; color: var(--primary-color); }
+  .bs-price-orig { font-size: 11px; color: #bbb; text-decoration: line-through; }
+  .bs-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    color: #355070;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .bs-footer-link:hover {
+    color: var(--primary-color);
+  }
+  .full-cover-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+    background: #13202a;
+  }
+  .full-cover-card .bs-cover-wrap {
+    aspect-ratio: 3 / 4;
+    height: 100%;
+    min-height: 0;
+    display: block;
+  }
+  .full-cover-card .bs-cover-wrap > a {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  .full-cover-card .bs-cover-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    object-fit: cover !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+  }
+  .full-cover-card .bs-cover-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12,18,24,0.04) 0%, rgba(12,18,24,0.08) 56%, rgba(12,18,24,0.16) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .full-cover-card .bs-overlay {
+    z-index: 3;
+    background: rgba(0,0,0,0.18);
+  }
+  .full-cover-card .bs-info {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2;
+    padding: 14px 16px 18px;
+    color: #18232b;
+    background: rgba(255,255,255,0.94);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 14px 28px rgba(17, 28, 37, 0.18);
+  }
+  .full-cover-card .bs-meta small,
+  .full-cover-card .bs-title,
+  .full-cover-card .bs-author,
+  .full-cover-card .bs-footer-link {
+    color: #18232b;
+  }
+  .full-cover-card .bs-author {
+    color: #66757f;
+  }
+  .full-cover-card .bs-price {
+    color: var(--primary-color);
+  }
+  .full-cover-card .bs-price-orig {
+    color: #8ea0ab;
+  }
+  .full-cover-card .bs-footer-link:hover {
+    color: var(--primary-color);
+  }
+  .collection-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+    background: #13202a;
+  }
+  .collection-card .bs-cover-wrap {
+    aspect-ratio: 3 / 4;
+    height: 100%;
+    min-height: 0;
+    display: block;
+  }
+  .collection-card .bs-cover-wrap > a {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  .collection-card .bs-cover-wrap img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    object-fit: cover !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+  }
+  .collection-card .bs-cover-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12,18,24,0.04) 0%, rgba(12,18,24,0.08) 56%, rgba(12,18,24,0.16) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .collection-card .bs-overlay {
+    z-index: 3;
+    background: rgba(0,0,0,0.18);
+  }
+  .collection-card .bs-info {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2;
+    padding: 14px 16px 18px;
+    color: #18232b;
+    background: rgba(255,255,255,0.94);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 14px 28px rgba(17, 28, 37, 0.18);
+  }
+  .collection-card .bs-meta small,
+  .collection-card .bs-title,
+  .collection-card .bs-author,
+  .collection-card .bs-footer-link {
+    color: #18232b;
+  }
+  .collection-card .bs-author {
+    color: #66757f;
+  }
+  .collection-card .bs-price {
+    color: #11998e;
+  }
+  .collection-card .bs-price-orig {
+    color: #8ea0ab;
+  }
+  .collection-card .bs-footer-link:hover {
+    color: var(--primary-color);
+  }
+  .collection-card .bs-footer-link {
+    margin-top: 10px;
+  }
+  .best-seller-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .best-seller-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .best-seller-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .best-seller-note {
+      width: 100%;
+    }
   }
 
-   .newcard3:hover {
-    /* background-image: linear-gradient(to top,white,rgba(235, 132, 132, 0.4)) !important; */
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0px 5px 10px lightgrey;
-    border: 2px solid grey;
-    transition-duration: 0.3s;
+  /* === PROMO SPOTLIGHT === */
+  .promo-spotlight-section {
+    padding: 20px 0 28px;
+  }
+  .promo-spotlight {
+    position: relative;
+    overflow: hidden;
+    padding: 28px;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at top right, rgba(207, 151, 128, 0.14), transparent 26%),
+      radial-gradient(circle at bottom left, rgba(136, 156, 171, 0.10), transparent 24%),
+      linear-gradient(135deg, #fff7f3 0%, #fffdfc 52%, #f4f7fb 100%);
+    border: 1px solid rgba(234, 224, 218, 0.96);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+  }
+  .promo-spotlight::before {
+    content: "";
+    position: absolute;
+    inset: auto -40px -60px auto;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(201, 125, 120, 0.07);
+  }
+  .promo-spotlight-copy {
+    position: relative;
+    z-index: 1;
+  }
+  .promo-spotlight-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.10);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .promo-spotlight-title {
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .promo-spotlight-body {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    max-width: 560px;
+  }
+  .promo-offer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .promo-offer-card {
+    min-width: 140px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(232, 225, 220, 0.96);
+    box-shadow: 0 8px 18px rgba(36, 52, 61, 0.04);
+  }
+  .promo-offer-card strong {
+    display: block;
+    font-size: 12px;
+    color: #7d868d;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .promo-offer-card span {
+    display: block;
+    color: #18232b;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .promo-offer-card span.muted {
+    color: #9aa5ac;
+    text-decoration: line-through;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .promo-offer-card span.sale {
+    color: #4f8c82;
+  }
+  .promo-offer-card span.discount {
+    color: #b55f5c;
+  }
+  .promo-spotlight-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .promo-main-cta,
+  .promo-secondary-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .promo-main-cta {
+    background: linear-gradient(135deg, #c97b78, #b26c57);
+    color: white;
+    box-shadow: 0 12px 22px rgba(178, 108, 87, 0.16);
+  }
+  .promo-main-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  .promo-secondary-cta {
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(230, 222, 216, 0.96);
+    color: #31424f;
+  }
+  .promo-secondary-cta:hover {
+    color: #31424f;
+    border-color: rgba(201,125,120,0.18);
+  }
+  .promo-book-card {
+    position: relative;
+    z-index: 1;
+    max-width: 280px;
+    margin-left: auto;
+    padding: 18px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(235, 227, 221, 0.96);
+    box-shadow: 0 16px 32px rgba(36, 52, 61, 0.08);
+  }
+  .promo-book-cover {
+    position: relative;
+    display: block;
+    border-radius: 18px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    box-shadow: 0 12px 24px rgba(36, 52, 61, 0.12);
+  }
+  .promo-book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .promo-book-discount {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #c97b78, #b26c57);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 8px 16px rgba(178,108,87,0.18);
+  }
+  .promo-book-meta {
+    padding-top: 16px;
+  }
+  .promo-book-meta h3 {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 4px;
+  }
+  .promo-book-meta p {
+    margin: 0 0 10px;
+    color: #7d868d;
+    font-size: 12px;
+  }
+  .promo-book-timing {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f7f1ee;
+    color: #7d6c65;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  @media (max-width: 991px) {
+    .promo-spotlight {
+      padding: 22px;
+    }
+    .promo-book-card {
+      margin: 0 auto;
+    }
   }
 
-   .newcard4:hover {
-    cursor: pointer;
-    box-shadow: 0px 0px 10px lightgrey;
-    transition-duration: 0.3s;
-    border-radius:5px
+  /* === INFO BUKU SECTION === */
+  .info-books-section {
+    padding: 44px 0 48px;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.10), transparent 26%),
+      radial-gradient(circle at bottom right, rgba(132,172,164,0.08), transparent 22%),
+      linear-gradient(180deg, #fffafa 0%, #f7f2ef 100%);
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
   }
+  .info-books-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+  .info-books-copy {
+    max-width: 620px;
+  }
+  .info-books-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .info-books-title {
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .info-books-subtitle {
+    color: #6d7b84;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .info-books-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(235, 225, 220, 0.92);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .info-books-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .info-books-note span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7d868d;
+  }
+  .info-shelves {
+    display: grid;
+    gap: 26px;
+  }
+  .info-shelf {
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(251,248,246,0.98));
+    border-radius: 24px;
+    padding: 22px;
+    border: 1px solid rgba(239, 225, 220, 0.96);
+    box-shadow: 0 12px 28px rgba(36, 52, 61, 0.045);
+  }
+  .info-shelf-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .info-shelf-copy {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .info-card-iconbox {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55);
+  }
+  .info-card-iconbox img {
+    max-width: 34px;
+    max-height: 34px;
+    object-fit: contain;
+  }
+  .info-card-iconbox.red { background: linear-gradient(135deg, #fbf1ef, #f6e6e1); }
+  .info-card-iconbox.blue { background: linear-gradient(135deg, #f1f6fa, #e6eef5); }
+  .info-card-iconbox.green { background: linear-gradient(135deg, #eef7f4, #e3f0eb); }
+  .info-shelf-head h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #18232b;
+    margin: 0 0 3px;
+  }
+  .info-shelf-head p {
+    margin: 0;
+    font-size: 12px;
+    color: #8d959b;
+  }
+  .info-shelf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: white;
+    border: 1px solid #e6ddd8;
+    color: #334047;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .info-shelf-link:hover {
+    color: var(--primary-color);
+    border-color: rgba(201,125,120,0.18);
+  }
+  .info-shelf-track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(248,109,114,0.32) rgba(255,255,255,0.35);
+  }
+  .info-shelf-track::-webkit-scrollbar {
+    height: 8px;
+  }
+  .info-shelf-track::-webkit-scrollbar-thumb {
+    background: rgba(248,109,114,0.28);
+    border-radius: 999px;
+  }
+  .info-shelf-card {
+    flex: 0 0 220px;
+  }
+  .info-empty-card {
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: rgba(255,255,255,0.84);
+    border-radius: 20px;
+    border: 1px dashed rgba(219, 205, 198, 0.96);
+    color: #7d868d;
+    padding: 24px;
+  }
+  .info-empty-card img {
+    width: 64px;
+    opacity: 0.55;
+    margin-bottom: 12px;
+  }
+  .info-empty-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .info-empty-card a {
+    color: var(--primary-color);
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .muted-strike {
+    color: #b8b2ac;
+    text-decoration: line-through;
+    font-weight: 700;
+    margin-right: 5px;
+  }
+  @media (max-width: 991px) {
+    .info-books-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .info-books-note {
+      width: 100%;
+    }
+    .info-shelf-head {
+      flex-direction: column;
+      align-items: start;
+    }
+  }
+
+  /* === FREE BOOK CARD === */
+  .free-books-section {
+    position: relative;
+    padding: 42px 0 48px;
+    background:
+      radial-gradient(circle at top left, rgba(112,169,157,0.10), transparent 26%),
+      radial-gradient(circle at bottom right, rgba(146,180,200,0.09), transparent 24%),
+      linear-gradient(180deg, #fbfffd 0%, #f1f8f5 100%);
+    border-radius: 28px;
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
+    overflow: hidden;
+  }
+  .free-books-shell {
+    position: relative;
+    z-index: 1;
+  }
+  .free-books-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .free-books-copy {
+    max-width: 620px;
+  }
+  .free-books-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(112,169,157,0.10);
+    color: #4f8c82;
+    border: 1px solid rgba(112,169,157,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .free-books-title {
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .free-books-subtitle {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .free-books-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(218, 233, 228, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .free-books-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .free-books-note span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7d868d;
+  }
+  .free-card {
+    width: 220px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(247,251,249,0.99));
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(220, 232, 228, 0.95);
+    transition: all 0.25s;
+    box-shadow: 0 10px 24px rgba(72, 122, 114, 0.07);
+  }
+  .free-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 30px rgba(72, 122, 114, 0.10);
+    border-color: rgba(178, 204, 196, 0.95);
+  }
+  .free-cover-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f6fdfb, #e9f7f3);
+  }
+  .free-cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .free-card:hover .free-cover-wrap img { transform: scale(1.04); }
+  .free-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, #6ca79e, #5d968d);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 999px;
+    z-index: 5;
+    box-shadow: 0 8px 16px rgba(93, 150, 141, 0.18);
+  }
+  .free-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .free-card:hover .free-overlay { opacity: 1; }
+  .free-read-btn {
+    background: white;
+    color: #11998e;
+    border: none;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s;
+  }
+  .free-read-btn:hover { transform: scale(1.05); color: #11998e; }
+  .free-info { padding: 16px 16px 18px; }
+  .free-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .free-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #eef7f4;
+    color: #4f8c82;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .free-meta small {
+    color: #8da19f;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .free-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 5px;
+    line-height: 1.45;
+    min-height: 40px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .free-author {
+    font-size: 12px;
+    color: #7f8f96;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .free-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #4f8c82;
+  }
+  .free-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    color: #355070;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .free-footer-link:hover {
+    color: #4f8c82;
+  }
+  .free-books-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #5f8f87, #527b74);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(82, 123, 116, 0.14);
+  }
+  .free-books-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .free-books-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .free-books-note {
+      width: 100%;
+    }
+  }
+
+  /* === BLOG SECTION === */
+  .blog-section {
+    position: relative;
+    padding: 42px 0 48px;
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fffefd 0%, #f5f8fb 100%);
+    border-radius: 28px;
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
+    overflow: hidden;
+  }
+  .blog-section-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .blog-section-copy {
+    max-width: 620px;
+  }
+  .blog-section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .blog-section-title {
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .blog-section-subtitle {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .blog-section-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .blog-section-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .blog-section-note span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7d868d;
+  }
+  .blog-grid {
+    row-gap: 20px;
+  }
+  .blog-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .blog-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .blog-section-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .blog-section-note {
+      width: 100%;
+    }
+  }
+
+  /* === INFO BUKU CARDS === */
+  .info-card { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; display: flex; flex-direction: column; height: 100%; }
+  .info-card-head { padding: 16px 18px 14px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; }
+  .info-card-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .info-card-icon.red { background: #fff0f0; }
+  .info-card-icon.blue { background: #f0f4ff; }
+  .info-card-icon.green { background: #f0fff8; }
+  .info-card-head-text h5 { font-size: 14px; font-weight: 800; color: #1a1a1a; margin: 0; }
+  .info-card-head-text span { font-size: 11px; color: #aaa; }
+  .info-book-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #f9f9f9; transition: background 0.15s; text-decoration: none; }
+  .info-book-row:hover { background: #fafafa; }
+  .info-book-thumb { width: 44px; height: 58px; border-radius: 5px; object-fit: cover; flex-shrink: 0; border: 1px solid #efefef; }
+  .info-book-title { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+  .info-book-author { font-size: 11px; color: #bbb; margin-bottom: 3px; }
+  .info-book-price { font-size: 12px; font-weight: 700; color: var(--primary-color); }
+  .info-book-price.green { color: #11998e; }
+  .info-book-price-orig { font-size: 10px; color: #ccc; text-decoration: line-through; margin-right: 3px; }
+  .info-card-foot { padding: 12px 16px; text-align: center; margin-top: auto; border-top: 1px solid #f5f5f5; }
+  .info-card-foot a { font-size: 12px; font-weight: 700; color: #888; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+  .info-card-foot a:hover { color: var(--primary-color); }
+  .info-empty { padding: 30px 16px; text-align: center; color: #aaa; font-size: 13px; }
+  .info-empty img { width: 70px; opacity: 0.4; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+
+  /* === BLOG CARDS === */
+  .blog-card { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; transition: all 0.25s; height: 100%; display: flex; flex-direction: column; }
+  .blog-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+  .blog-img-wrap { overflow: hidden; flex-shrink: 0; height: 160px; }
+  .blog-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; display: block; }
+  .blog-card:hover .blog-img-wrap img { transform: scale(1.05); }
+  .blog-body { padding: 14px 16px; display: flex; flex-direction: column; flex: 1; }
+  .blog-tag-pill { display: inline-block; background: #fff0f0; color: var(--primary-color); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .blog-title { font-size: 14px; font-weight: 700; color: #1a1a1a; line-height: 1.4; margin-bottom: 7px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .blog-title a { color: inherit; text-decoration: none; }
+  .blog-title a:hover { color: var(--primary-color); }
+  .blog-excerpt { font-size: 12px; color: #999; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: 1; margin-bottom: 12px; }
+  .blog-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #f5f5f5; margin-top: auto; }
+  .blog-author { font-size: 11px; color: #bbb; display: flex; align-items: center; gap: 4px; }
+  .blog-read-link { font-size: 12px; font-weight: 700; color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .blog-read-link:hover { text-decoration: underline; }
+
+  /* === REVIEW CARDS === */
+  .review-card { background: white; border-radius: 16px; padding: 30px 28px 24px; box-shadow: 0 4px 20px rgba(248,109,114,0.08); border: 1px solid #ffe8e8; position: relative; }
+  .review-quote-mark { font-size: 56px; line-height: 1; color: #fdd; font-family: Georgia, serif; position: absolute; top: 12px; left: 20px; user-select: none; }
+  .review-text { font-size: 14px; color: #555; line-height: 1.85; font-style: italic; padding-top: 24px; margin-bottom: 20px; }
+  .review-divider { border: none; border-top: 1px solid #f5f0f0; margin: 0 0 16px; }
+  .review-author { display: flex; align-items: center; gap: 12px; }
+  .review-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), #c0392b); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+  .review-name { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 1px; }
+  .review-date { font-size: 11px; color: #bbb; }
+  .reviews-section {
+    position: relative;
+    padding: 42px 0 48px;
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 26%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fffefd 0%, #f4f7fb 100%);
+    border-radius: 28px;
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
+    overflow: hidden;
+    margin-top: 24px;
+  }
+  .reviews-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .reviews-copy {
+    max-width: 620px;
+  }
+  .reviews-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .reviews-title {
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .reviews-subtitle {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .reviews-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .reviews-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .reviews-note span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7d868d;
+  }
+  .reviews-shell {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .reviews-shell .swiper-slide {
+    padding: 6px;
+  }
+  .reviews-shell .swiper-next,
+  .reviews-shell .swiper-prev {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid rgba(224, 224, 224, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 18px rgba(36, 52, 61, 0.08);
+    color: #444;
+  }
+  .reviews-shell .swiper-next svg,
+  .reviews-shell .swiper-prev svg {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+  }
+  .reviews-shell .swiper-next:hover,
+  .reviews-shell .swiper-prev:hover {
+    background: #c97b78;
+    border-color: #c97b78;
+    color: white;
+  }
+  .review-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(252,248,246,0.98));
+    border-radius: 24px;
+    padding: 34px 30px 26px;
+    box-shadow: 0 12px 28px rgba(36, 52, 61, 0.06);
+    border: 1px solid rgba(234, 228, 224, 0.96);
+    position: relative;
+    min-height: 290px;
+  }
+  .review-quote-mark {
+    font-size: 72px;
+    line-height: 1;
+    color: #f0d6d4;
+    top: 16px;
+    left: 22px;
+  }
+  .review-text {
+    font-size: 15px;
+    color: #55616a;
+    line-height: 1.9;
+    font-style: italic;
+    padding-top: 30px;
+    margin-bottom: 22px;
+  }
+  .review-divider {
+    border: none;
+    border-top: 1px solid rgba(239, 231, 225, 0.95);
+    margin: 0 0 16px;
+  }
+  .review-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+  .review-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .review-name small {
+    display: block;
+    margin-top: 3px;
+    color: #8b979e;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .review-date {
+    font-size: 11px;
+    color: #9aa5ac;
+  }
+  @media (max-width: 991px) {
+    .reviews-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .reviews-note {
+      width: 100%;
+    }
+    .reviews-shell {
+      max-width: 100%;
+      padding: 0 14px;
+    }
+  }
+
+  /* === INSTAGRAM === */
+  .instagram-section {
+    position: relative;
+    padding: 42px 0 48px;
+    background:
+      radial-gradient(circle at top left, rgba(210,120,150,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(224,170,104,0.09), transparent 24%),
+      linear-gradient(180deg, #fffdfc 0%, #faf4ef 100%);
+    border-radius: 28px;
+    box-shadow: 0 16px 38px rgba(36, 52, 61, 0.06);
+    overflow: hidden;
+  }
+  .instagram-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .instagram-copy {
+    max-width: 620px;
+  }
+  .instagram-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(190,108,136,0.09);
+    color: #b05f7f;
+    border: 1px solid rgba(190,108,136,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .instagram-title {
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .instagram-subtitle {
+    color: #66757f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  .instagram-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(237, 226, 229, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .instagram-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #18232b;
+  }
+  .instagram-note span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7d868d;
+  }
+  .insta-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .insta-item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 18px;
+    display: block;
+    background: white;
+    border: 1px solid rgba(239, 226, 222, 0.95);
+    box-shadow: 0 10px 20px rgba(36, 52, 61, 0.05);
+  }
+  .insta-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+  .insta-item:hover img { transform: scale(1.08); }
+  .insta-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(225,48,108,0.16), rgba(17,17,17,0.56));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+    border-radius: 18px;
+  }
+  .insta-item:hover .insta-overlay { opacity: 1; }
+  .insta-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #c57b93, #d19a66);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(197,123,147,0.14);
+  }
+  .insta-cta:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 991px) {
+    .instagram-header {
+      flex-direction: column;
+      align-items: start;
+    }
+    .instagram-note {
+      width: 100%;
+    }
+  }
+  @media (max-width: 768px) { .insta-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Billboard */
+  #billboard { border-radius: 0 !important; }
 </style>
 {% endblock %}
 
@@ -93,10 +1607,18 @@
     </section>
     {% endif %}  
 
-    <section id="best-selling-items" class="position-relative padding-small shadow rounded" style="background-color:#eefcff;z-index: 0;">
-      <div class="container rounded">
-        <div class="section-title  text-center   mt-2  align-items-center mb-4 p-2" >
-          <h2 class="text-center text-primary fw-bold ">Buku Best Seller</h2>
+    <section id="best-selling-items" class="best-seller-section position-relative">
+      <div class="container best-seller-shell">
+        <div class="best-seller-header">
+          <div class="best-seller-copy">
+            <span class="best-seller-kicker"><i class="fa fa-star"></i> Pilihan Pembaca</span>
+            <h2 class="best-seller-title">Buku best seller yang paling dicari, paling dibaca, dan paling sering dibeli.</h2>
+            <p class="best-seller-subtitle">Koleksi ini kami sorot khusus untuk memudahkan Anda menemukan judul-judul yang paling kuat resonansinya di kalangan pembaca Literatur Perkantas.</p>
+          </div>
+          <div class="best-seller-note">
+            <strong>Kurasi unggulan minggu ini</strong>
+            <span>Disusun dari minat baca dan pembelian terbanyak agar pilihan Anda terasa lebih cepat, tepat, dan relevan.</span>
+          </div>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
@@ -111,335 +1633,364 @@
         <div class="swiper product-swiper container-fluid">
           <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
-            {% if book.onsalebook %}  
-            <div class="swiper-slide shadow" style=" min-width: 150px;">
-              <div class="newcard card position-relative p-1 text-center " >
-                <div style="z-index: 30;text-align: center;display:flex;justify-content:center;font-weight: bold;">
-                  <p class="bg-primary rounded shadow text-white fs-6 " style="min-width: 150px;">
-                    disc: {{book.onsalebook.discount|intcomma}}%
-                  </p>
-                </div>
-                
-                <div style="margin-bottom:20px;margin-top:-30px;  " class="text-center">
-                  <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded border" style="width: 150px;height: 200px;"   alt="product item">
-                  </a>                  
-                </div>
-                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:18}}</a></h6>
-                <div class="review-content d-flex justify-content-center ">
-                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
-
-                  
-                </div>
-                <span style="min-height: 60px;" class="price text-success fw-bold mb-2 fs-5"><s class="text-primary fs-6"><i>Rp.{{book.price|intcomma}}.00</i></s> Rp.{{book.onsalebook.nett_price|intcomma}} </span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2"  >
-                  {% if user.is_authenticated%}
-                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
+          <div class="swiper-slide" style="width:220px;">
+            <div class="bs-card">
+              <div class="bs-cover-wrap">
+                <a href="{% url 'sinopsis_buku' book.id %}">
+                  <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" alt="{{ book.judul }}">
+                </a>
+                {% if book.onsalebook %}
+                <span class="bs-discount-badge">-{{ book.onsalebook.discount }}%</span>
+                {% endif %}
+                {% if book.id in owned_book_ids %}
+                <span class="bs-owned-badge"><i class="fa fa-check-circle"></i> Dimiliki</span>
+                {% endif %}
+                <div class="bs-overlay">
+                  {% if book.id in owned_book_ids %}
+                  <a href="{% url 'baca_buku_koleksi' book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                    <i class="fa fa-book"></i> Baca
+                  </a>
+                  {% elif user.is_authenticated %}
+                  <a href="{% url 'add_cart_list' book.id %}" class="bs-action-btn" title="Keranjang">
+                    <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
+                  </a>
+                  <a href="{% url 'add_wish_list' book.id %}" class="bs-action-btn" title="Wishlist">
+                    <svg width="16" height="16"><use xlink:href="#heart"></use></svg>
                   </a>
                   {% else %}
-                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
-                    data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </a>
-                  {% endif%}
-                  {% if user.is_authenticated%}
-                  <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                  {% else %}
-                  <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
+                  <a href="#" class="bs-action-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" title="Login untuk beli">
+                    <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
                   </a>
                   {% endif %}
-                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                    <span>
-                      <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            {% else %}
-            <div class="swiper-slide  " style=" min-width: 150px;">
-              <div class="newcard card position-relative p-1 text-center   shadow  " >
-                <div style="margin-bottom:30px;  " class="text-center">
-                  <a href="{% url 'sinopsis_buku' book.id %}">
-                    <img  src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="rounded border" style="width: 150px;height: 200px;"  alt="product item">
-                  </a>                  
-                </div>
-
-                <h6 class="mt-4 mb-0 fw-bold text-primary" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:18}}</a></h6>
-                <div class="review-content d-flex justify-content-center ">
-                  <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang|truncatechars:25}}</p>
-
-                  
-                </div>
-
-                <span style="height: 60px;" class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
-                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2" >
-                  {% if user.is_authenticated%}
-                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Tooltip on top">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </a>
-                  {% else %}
-                  <a type="button" href="{% url 'add_cart_list' book.id %}" class="btn btn-dark" data-bs-toggle="modal" data-bs-placement="top"
-                    data-bs-title="Tooltip on top" data-bs-target="#exampleModal">
-                    <svg class="cart">
-                      <use xlink:href="#cart"></use>
-                    </svg>
-                  </a>
-                  {% endif%}
-                  {% if user.is_authenticated%}
-                  <a href="{% url 'add_wish_list' book.id%}" class="btn btn-dark">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
-                  </a>
-                  {% else %}
-                  <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <span>
-                      <svg class="wishlist">
-                        <use xlink:href="#heart"></use>
-                      </svg>
-                    </span>
+                  {% if book.id not in owned_book_ids %}
+                  <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="bs-action-btn" title="Baca preview">
+                    <i class="fa fa-book"></i>
                   </a>
                   {% endif %}
-                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                    <span>
-                      <span>
-                        <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                      </span>
-                    </span>
-                  </a>
                 </div>
               </div>
+              <div class="bs-info">
+                <div class="bs-meta">
+                  <span class="bs-chip"><i class="fa fa-fire"></i> Best Seller</span>
+                  <small>{{ book.halaman }} hlm</small>
+                </div>
+                <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
+                <div class="bs-author">{{ book.pengarang }}</div>
+                {% if book.onsalebook %}
+                <div class="bs-price-row">
+                  <span class="bs-price-orig">Rp.{{ book.price|intcomma }}</span>
+                  <span class="bs-price">Rp.{{ book.onsalebook.nett_price|intcomma }}</span>
+                </div>
+                {% else %}
+                <div class="bs-price-row">
+                  <span class="bs-price">Rp.{{ book.price|intcomma }}.00</span>
+                </div>
+                {% endif %}
+                <a href="{% url 'sinopsis_buku' book.id %}" class="bs-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
+              </div>
             </div>
-            {% endif %}
+          </div>
           {% endfor %}
           </div>
         </div>
-        <div class="justify-content-center d-flex mt-3">
-          <a href="{% url 'all_book_view'%}?k=10" class="btn  small text-white fw-bold">lihat semua <i class="fa fa-sort-desc large" aria-hidden="true"></i></a>
+        <div class="justify-content-center d-flex mt-4">
+          <a href="{% url 'all_book_view'%}?k=10" class="best-seller-cta">Lihat Semua Best Seller <i class="fa fa-arrow-right"></i></a>
         </div>
       </div>
     </section>
 
     {% if books_on_sale %}
-    <div class=" py-3 bg-white">
+    <section class="promo-spotlight-section">
+      <div class="container">
         {% for book in books_on_sale %}
-          {% if forloop.first%}
-            <div class="row d-flex justify-content-center">
-              <div class="col-2">
-
+          {% if forloop.first %}
+          <div class="promo-spotlight">
+            <div class="row align-items-center g-4">
+              <div class="col-lg-7">
+                <div class="promo-spotlight-copy">
+                  <span class="promo-spotlight-kicker"><i class="fa fa-bolt"></i> Promo Hari Ini</span>
+                  <h2 class="promo-spotlight-title">{{ book.header }}</h2>
+                  <p class="promo-spotlight-body">{{ book.body }}</p>
+                  <div class="promo-offer-grid">
+                    <div class="promo-offer-card">
+                      <strong>Harga awal</strong>
+                      <span class="muted">Rp.{{ book.book.price|intcomma }}.00</span>
+                    </div>
+                    <div class="promo-offer-card">
+                      <strong>Diskon</strong>
+                      <span class="discount">-{{ book.discount }}%</span>
+                    </div>
+                    <div class="promo-offer-card">
+                      <strong>Harga sekarang</strong>
+                      <span class="sale">Rp.{{ book.nett_price|intcomma }}</span>
+                    </div>
+                    <div class="promo-offer-card">
+                      <strong>Berlaku sampai</strong>
+                      <span>{{ book.end_date|date:"j F Y" }}</span>
+                    </div>
+                  </div>
+                  <div class="promo-spotlight-actions">
+                    <a href="{% url 'all_book_view' %}?k=12" class="promo-main-cta">
+                      <i class="fa fa-fire"></i> Cek Semua Promo
+                    </a>
+                    <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-secondary-cta">
+                      Lihat Detail Buku <i class="fa fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div class="col-lg-3 col-md-3 col-sm-12 col-12">
-                  <div class=" px-2 d-flex justify-content-center"><img  src="/media/extract/pdf_full/{{book.book.id}}/1.jpg" class="d-block w-100 rounded border " style="height: 450px !important" alt="..."></div>
-              </div>
-              <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 p-2  text-lg-start text-md-start text-sm-center text-center text-xs-center">
-                <p>
-                  <h2 class="text-primary">Promo Hari Ini!</h2>
-                </p>
-                <h3><i>{{book.header}}</i></h3>
-                <h4>{{book.body}}</h4>
-                <p>
-                  Harga Awal: <s><span class="fw-bold">Rp.{{book.book.price|intcomma}}.00</span></s> 
-                </p>
-                <p>
-                  Discount: <span class="fw-bold text-success">{{book.discount}}%</span>
-                </p>
-                <p>
-                  Harga Sekarang: <span class="fw-bold text-success">Rp.{{book.nett_price|intcomma}}</span>
-                </p>
-                <p>
-                  Promo Sampai: <span class="fw-bold">{{book.end_date|date:"j F Y"}}</span>
-                </p>
-                <p>
-                  <a href="{% url 'all_book_view'%}?k=12" class="btn small fw-bold">Cek Promo Sekarang!</a>
-                </p>
-              </div>
-              <div class="col-2">
-
+              <div class="col-lg-5">
+                <div class="promo-book-card">
+                  <a href="{% url 'sinopsis_buku' book.book.id %}" class="promo-book-cover">
+                    <img src="/media/extract/pdf_full/{{ book.book.id }}/1.jpg" alt="{{ book.book.judul }}">
+                    <span class="promo-book-discount">Hemat {{ book.discount }}%</span>
+                  </a>
+                  <div class="promo-book-meta">
+                    <h3>{{ book.book.judul }}</h3>
+                    <p>{{ book.book.pengarang }}</p>
+                    <span class="promo-book-timing"><i class="fa fa-clock-o"></i> Promo aktif sampai {{ book.end_date|date:"j M Y" }}</span>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
           {% endif %}
         {% endfor %}
-    </div>
-
+      </div>
+    </section>
     {% endif %}
 
     
 
-    <section id="items-listing" class="padding-small rounded" style="background-color:#ffeeee">
-      <div class="container  p-3 rounded  text-dark">
-        <div class=" fw-bold  py-4 px-2 text-center text-primary" >
-          <h2>Info Buku</h2>
+    <section id="items-listing" class="info-books-section">
+      <div class="container text-dark">
+        <div class="info-books-header">
+          <div class="info-books-copy">
+            <span class="info-books-kicker"><i class="fa fa-book"></i> Rak Pilihan</span>
+            <h2 class="info-books-title">Info buku yang tersusun rapi untuk membantu Anda menemukan bacaan paling relevan.</h2>
+            <p class="info-books-subtitle">Kami kelompokkan buku baru, promo aktif, dan koleksi pribadi dalam tiga rak yang lebih mudah dipindai agar pencarian bacaan terasa cepat dan nyaman.</p>
+          </div>
+          <div class="info-books-note">
+            <strong>Tiga rak utama</strong>
+            <span>Fokus untuk judul terbaru, penawaran terbaik, dan akses baca yang sudah tersedia di akun Anda.</span>
+          </div>
         </div>
-        <div class="row d-flex justify-content-center">
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 ">
-            <div class="featured rounded-3 border p-2 bg-white shadow" >
-              <div class="section-title overflow-hidden d-flex justify-content-start align-items-center mt-2"  style="height: 70px;  ">
-                <img src="{% static 'images/new.jpeg'%}" alt="">
-                <h3 class="d-flex flex-column mb-0 text-dark" style="margin-left:-20px">Buku Baru </h3><hr>
+        <div class="info-shelves">
+          <div class="info-shelf">
+            <div class="info-shelf-head">
+              <div class="info-shelf-copy">
+                <div class="info-card-iconbox red">
+                  <img src="{% static 'images/new.jpeg'%}" alt="">
+                </div>
+                <div>
+                  <h3>Buku Baru</h3>
+                  <p>Judul terbaru yang baru masuk katalog dan siap Anda jelajahi.</p>
+                </div>
               </div>
-              <hr class="border border-primary">
-              <div class="items-lists mt-2">
-                {% for book in books%}
-                <div class="item d-flex newcard2">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="img-fluid  rounded border" style=" min-width: 70px;min-height: 100px;" alt="product item">
-                  <div class="item-content ms-3">
-                    {% if book.kategori.id == 3 %}
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id %}" style="height: 50px;">{{book.judul}}</a></h6>
-                    {% else %}
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id %}" style="height: 50px;">{{book.judul}}</a></h6>
-                    {% endif %}
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">{{book.pengarang}}</p>
-
-                      
-                    </div>
+              <a href="{% url 'all_book_view'%}?k=11" class="info-shelf-link">Lihat Semua Buku Baru <i class="fa fa-arrow-right"></i></a>
+            </div>
+            <div class="info-shelf-track">
+              {% for book in books|slice:":4" %}
+              <div class="info-shelf-card">
+                <div class="bs-card full-cover-card">
+                  <div class="bs-cover-wrap">
+                    <a href="{% url 'sinopsis_buku' book.id %}">
+                      <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" alt="{{ book.judul }}">
+                    </a>
                     {% if book.onsalebook.is_active %}
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50" style="font-size: 15px;">Rp.{{book.price|intcomma}}.00</s>
-                      Rp.{{book.onsalebook.nett_price|intcomma}}</span>
+                    <span class="bs-discount-badge">-{{ book.onsalebook.discount }}%</span>
+                    {% endif %}
+                    {% if book.id in owned_book_ids %}
+                    <span class="bs-owned-badge"><i class="fa fa-check-circle"></i> Dimiliki</span>
+                    {% endif %}
+                    <div class="bs-overlay">
+                      {% if book.kategori.id == 3 %}
+                      <a href="{% url 'baca_buku' %}?id={{ book.id }}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                        <i class="fa fa-book"></i> Baca
+                      </a>
+                      {% elif book.id in owned_book_ids %}
+                      <a href="{% url 'baca_buku_koleksi' book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                        <i class="fa fa-book"></i> Baca
+                      </a>
+                      {% elif user.is_authenticated %}
+                      <a href="{% url 'add_cart_list' book.id %}" class="bs-action-btn" title="Keranjang">
+                        <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
+                      </a>
+                      {% endif %}
+                      {% if book.id not in owned_book_ids and book.kategori.id != 3 %}
+                      <a href="{% url 'sinopsis_buku' book.id %}" class="bs-action-btn" title="Detail buku">
+                        <i class="fa fa-search"></i>
+                      </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="bs-info">
+                    <div class="bs-meta">
+                      <span class="bs-chip"><i class="fa fa-sparkles"></i> Baru</span>
+                      <small>{{ book.halaman }} hlm</small>
+                    </div>
+                    <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
+                    <div class="bs-author">{{ book.pengarang }}</div>
+                    {% if book.onsalebook.is_active %}
+                    <div class="bs-price-row">
+                      <span class="bs-price-orig">Rp.{{ book.price|intcomma }}</span>
+                      <span class="bs-price">Rp.{{ book.onsalebook.nett_price|intcomma }}</span>
+                    </div>
                     {% else %}
-                      {% if book.kategori.id != 3%}
-                        <span class="price text-primary fw-bold mb-2 fs-5">Rp.{{book.price|intcomma}}.00</span>
+                      {% if book.kategori.id != 3 %}
+                      <div class="bs-price-row">
+                        <span class="bs-price">Rp.{{ book.price|intcomma }}.00</span>
+                      </div>
                       {% else %}
-                        <span class="price text-primary fw-bold mb-2 fs-5">FREE BOOK</span>
+                      <div class="bs-price-row">
+                        <span class="bs-price" style="color:#11998e;">FREE BOOK</span>
+                      </div>
                       {% endif %}
                     {% endif %}
+                    <a href="{% url 'sinopsis_buku' book.id %}" class="bs-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
                   </div>
                 </div>
-                <hr class="gray-400">
-                {% endfor %}
               </div>
-              <div class="p-2 text-center">
-                <a href="{% url 'all_book_view'%}?k=11" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
-              </div>
+              {% endfor %}
             </div>
           </div>
-          
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 text-dark ">
-            <div class="on-sale border rounded-3 p-2   bg-white shadow">
-              <div class="section-title overflow-hidden d-flex justify-content-start align-items-center mt-2"  style="height: 70px;  ">
-                <img src="{% static 'images/discount.png'%}" style="height: 80px;" alt="">
-                <h3 class=" mb-0">Promo (<span class="text-primary">{{jml_on_sale}}</span>)</h3><hr>
+
+          <div class="info-shelf">
+            <div class="info-shelf-head">
+              <div class="info-shelf-copy">
+                <div class="info-card-iconbox blue">
+                  <img src="{% static 'images/discount.png'%}" alt="">
+                </div>
+                <div>
+                  <h3>Promo</h3>
+                  <p>{{ jml_on_sale }} judul sedang dalam harga terbaik untuk dibawa pulang hari ini.</p>
+                </div>
               </div>
-              <hr style="border: 1px solid lightblue; ">
-              <div class="items-lists mt-2">
-              {% if books_on_sale %}
-                {% for books in books_on_sale%}
-                <div class="item d-flex newcard2" >
-                  <img src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" class="img-fluid rounded border" alt="product item">
-                  <div class="item-content ms-3">
-                    <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' books.book.id %}" style="height: 50px;">{{books.book.judul}}</a></h6>
-                    <div class="review-content d-flex">
-                      <p class="my-2 me-2 fs-6 text-black-50">{{books.book.pengarang}}</p>
-                      <div class="rating text-warning d-flex align-items-center">
-                        
-                      </div>
-                    </div>
-                    <span class="price text-primary fw-bold mb-2 fs-5"><s class="text-black-50" style="font-size:15px">Rp.{{books.book.price|intcomma}}.00</s>
-                      Rp.{{books.nett_price|intcomma}}</span>
-                  </div>
-                </div>
-                <hr class="gray-400">
-                {% endfor %}
-              {% else %}
-                <div style="display: flex;justify-content: center;">
-                  <img src="{% static 'images/wait.png'%}" class="shadow w-25"  alt="wait for promo">
-                </div>
-                <p style="text-align: center;">Ups.. sepertinya belum ada promo. <br>Nantikan promo menarik dari kami kembali yah...</p>
-              {% endif%}
-              </div>
-              {% if books_on_sale %}
-                <div class="p-2 text-center">
-                  <a href="{% url 'all_book_view'%}?k=12" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
-                </div>
-              {% endif%}
+              <a href="{% url 'all_book_view'%}?k=12" class="info-shelf-link">Lihat Semua Promo <i class="fa fa-arrow-right"></i></a>
             </div>
-          </div>
-          {% if user.is_authenticated%}
-          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4  ">
-            <div class="latest-items  border rounded-3 p-2 bg-white " >
-              <div class="section-title d-flex justify-content-start align-items-center overflow-hidden mb-4"  style="height: 70px;">
-                <img src="{% static 'images/collection.png'%}" style="height: 80px;" alt="">
-                <h3 class="text-dark py-3">Koleksiku (<span class="text-primary">{{jml_userbook}}</span>)</h3><hr>
-              </div>
-              <hr style="border: 1px solid lightblue; ">
-              {% if userbook %}
-                <div class="items-lists mt-1">
-                  {% for book in userbook%}
-                  <div class="item d-flex newcard2" style="height: 150px;">
-                    <img src="/media/extract/pdf_full/{{book.id_book.id}}/1.jpg" class="img-fluid shadow-sm rounded" alt="product item" style="width: 100px;height: 180px;">
-                    <div class="item-content ms-3">
-                      <h6 class="mb-0 fw-bold"><a href="{% url 'sinopsis_buku' book.id_book.id %}" style="height: 50px;">{{book.id_book.judul}}</a></h6>
-                      <div class="review-content d-flex">
-                        <p class="my-2 me-2 fs-6 text-black-50">{{book.id_book.pengarang}}</p>
-                        
-                      </div>
-                      <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="btn btn-success" style="height: 40px;padding:5px;min-width: 150px;max-width: 150px;">
-                        <div class="d-flex justify-content-center align-items-center">
-                          <img src="{% static 'images/read_koleksi.jpeg'%}" class="rounded-circle" style="height: 30px;width: 30px;margin-right: 20px;">
-                          <span>Baca </span>
-                        </div>
-                        
+            <div class="info-shelf-track">
+              {% if books_on_sale %}
+                {% for books in books_on_sale %}
+                <div class="info-shelf-card">
+                  <div class="bs-card full-cover-card">
+                    <div class="bs-cover-wrap">
+                      <a href="{% url 'sinopsis_buku' books.book.id %}">
+                        <img loading="lazy" src="/media/extract/pdf_full/{{books.book.id}}/1.jpg" alt="{{ books.book.judul }}">
                       </a>
-                      
+                      <span class="bs-discount-badge">-{{ books.discount }}%</span>
+                      {% if books.book.id in owned_book_ids %}
+                      <span class="bs-owned-badge"><i class="fa fa-check-circle"></i> Dimiliki</span>
+                      {% endif %}
+                      <div class="bs-overlay">
+                        {% if books.book.id in owned_book_ids %}
+                        <a href="{% url 'baca_buku_koleksi' books.book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                          <i class="fa fa-book"></i> Baca
+                        </a>
+                        {% elif user.is_authenticated %}
+                        <a href="{% url 'add_cart_list' books.book.id %}" class="bs-action-btn" title="Keranjang">
+                          <svg width="16" height="16"><use xlink:href="#cart"></use></svg>
+                        </a>
+                        {% endif %}
+                        {% if books.book.id not in owned_book_ids %}
+                        <a href="{% url 'sinopsis_buku' books.book.id %}" class="bs-action-btn" title="Detail buku">
+                          <i class="fa fa-search"></i>
+                        </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="bs-info">
+                      <div class="bs-meta">
+                        <span class="bs-chip"><i class="fa fa-tag"></i> Promo</span>
+                        <small>S.d. {{ books.end_date|date:"j M Y" }}</small>
+                      </div>
+                      <div class="bs-title" title="{{ books.book.judul }}">{{ books.book.judul }}</div>
+                      <div class="bs-author">{{ books.book.pengarang }}</div>
+                      <div class="bs-price-row">
+                        <span class="bs-price-orig">Rp.{{ books.book.price|intcomma }}</span>
+                        <span class="bs-price">Rp.{{ books.nett_price|intcomma }}</span>
+                      </div>
+                      <a href="{% url 'sinopsis_buku' books.book.id %}" class="bs-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
                     </div>
                   </div>
-                  <hr class="gray-400">
-                  {% endfor %}
                 </div>
-                  <div class="p-2 text-center">
-                  <a href="{% url 'semua_buku_koleksi'%}" class="btn small">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
-                </div>
+                {% endfor %}
               {% else %}
-                <div style="text-align: center;">
-                  <p><img src="{% static 'images/empty.jpg'%}" class="w-25" alt=""></p>
-                  <p>Ups.. sepertinya kaka belum memiliki koleksi... </p>
-                  <p>Segera checkout 
-                    <a href="{% url 'cart_view'%}">
-                      <svg class="cart" style="height: 20px;width: 20px;">
-                                            <use xlink:href="#cart"></use>
-                      </svg>
-                      keranjang
-                    </a> 
-                    kaka ya...
-                  </p>
-                </div>
-              {% endif%}
+              <div class="info-empty-card">
+                <img src="{% static 'images/wait.png'%}" alt="Belum ada promo">
+                <p>Belum ada promo aktif saat ini. Nantikan penawaran menarik berikutnya dari kami.</p>
+              </div>
+              {% endif %}
             </div>
           </div>
-          {% else%}
+
+          {% if user.is_authenticated %}
+          <div class="info-shelf">
+            <div class="info-shelf-head">
+              <div class="info-shelf-copy">
+                <div class="info-card-iconbox green">
+                  <img src="{% static 'images/collection.png'%}" alt="">
+                </div>
+                <div>
+                  <h3>Koleksiku</h3>
+                  <p>{{ jml_userbook }} buku yang sudah bisa Anda akses dari akun pribadi.</p>
+                </div>
+              </div>
+              <a href="{% url 'semua_buku_koleksi'%}" class="info-shelf-link">Lihat Semua Koleksi <i class="fa fa-arrow-right"></i></a>
+            </div>
+            <div class="info-shelf-track">
+              {% if userbook %}
+                {% for book in userbook %}
+                <div class="info-shelf-card">
+                  <div class="bs-card collection-card">
+                    <div class="bs-cover-wrap">
+                      <a href="{% url 'sinopsis_buku' book.id_book.id %}">
+                        <img loading="lazy" src="/media/extract/pdf_full/{{book.id_book.id}}/1.jpg" alt="{{ book.id_book.judul }}">
+                      </a>
+                      <div class="bs-overlay">
+                        <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="bs-action-btn bs-action-pill" title="Baca sekarang">
+                          <i class="fa fa-book"></i> Baca
+                        </a>
+                      </div>
+                    </div>
+                    <div class="bs-info">
+                      <div class="bs-meta">
+                        <span class="bs-chip" style="background:#edfaf6;color:#11998e;"><i class="fa fa-check-circle"></i> Koleksi</span>
+                        <small>Siap dibaca</small>
+                      </div>
+                      <div class="bs-title" title="{{ book.id_book.judul }}">{{ book.id_book.judul }}</div>
+                      <div class="bs-author">{{ book.id_book.pengarang }}</div>
+                      <div class="bs-price-row">
+                        <span class="bs-price" style="color:#11998e;">Sudah Dimiliki</span>
+                      </div>
+                      <a href="{% url 'baca_buku_koleksi' book.id_book.id %}" class="bs-footer-link">Baca sekarang <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+              <div class="info-empty-card">
+                <img src="{% static 'images/empty.jpg'%}" alt="Koleksi kosong">
+                <p>Koleksi Anda masih kosong. Segera checkout dari <a href="{% url 'cart_view'%}">keranjang belanja</a> untuk mulai membaca.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-small bg-white rounded" style="z-index: 0;">
-      <div class="container p-3  rounded rounded-top ">
-        <div class="section-title  rounded mb-4   p-2">
-          <div class="text-center d-flex justify-content-center">
-            <p class=" text-primary fw-bold"><h2 class="text-primary">Buku Gratis Litanas </h2></p>
+    <section id="best-selling-items" class="free-books-section">
+      <div class="container free-books-shell">
+        <div class="free-books-header">
+          <div class="free-books-copy">
+            <span class="free-books-kicker"><i class="fa fa-gift"></i> Bacaan Gratis</span>
+            <h2 class="free-books-title">Buku Gratis Litanas yang bisa langsung dibaca tanpa proses pembelian.</h2>
+            <p class="free-books-subtitle">Kumpulan judul pilihan yang kami buka secara bebas untuk membantu pembaca menjelajahi literatur rohani, pembinaan, dan pengembangan diri dengan lebih mudah.</p>
+          </div>
+          <div class="free-books-note">
+            <strong>Akses instan</strong>
+            <span>Pilih judul yang menarik, buka detailnya, lalu mulai baca tanpa perlu checkout.</span>
           </div>
         </div>
         <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
@@ -453,26 +2004,30 @@
           </svg>
         </div>
         <div class="swiper product-swiper">
-          <div class="swiper-wrapper d-flex justify-content-center text-center">
+          <div class="swiper-wrapper text-start">
           {% for book in free_book %}
-            <div class="swiper-slide " >
-              <div class="card newcard3 position-relative p-4 border shadow   rounded-3 " style="background-image:linear-gradient(to bottom,rgba(100,100,0,0.2),white) ;min-width: 200px;border:1px solid rgba(0,255,0,0.1)">
-                <div  class="justify-content-center d-flex">
-                  <img src="/media/extract/pdf_full/{{book.id}}/1.jpg" class="w-100" style="border:1px solid lightgrey" alt="product item">
-                </div>
-
-                <h6 class="mt-4 mb-0 fw-bold text-center fs-5" ><a title="{{book.judul}}" href="{% url 'sinopsis_buku' book.id %}">{{book.judul|truncatechars:15}}</a></h6>
-                <div class="review-content ">
-                  <p class=" text-black text-center fs-6" title="oleh: {{book.pengarang}}">Oleh: {{book.pengarang|truncatechars:20}}</p>
-                </div>
-                <div class="card-concern position-absolute start-0 end-0 text-center gap-2" >
-                  <a href="{% url 'baca_buku'%}?id={{book.id}}" class="btn btn-dark">
-                    <span>
-                      <span>
-                        <img src="{% static 'images/read.png'%}" style="height: 30px;width: 30px;">
-                      </span>
-                    </span>
+            <div class="swiper-slide" style="width:220px;">
+              <div class="free-card">
+                <div class="free-cover-wrap">
+                  <a href="{% url 'sinopsis_buku' book.id %}">
+                    <img loading="lazy" src="/media/extract/pdf_full/{{book.id}}/1.jpg" alt="{{ book.judul }}">
                   </a>
+                  <span class="free-badge"><i class="fa fa-gift"></i> Gratis</span>
+                  <div class="free-overlay">
+                    <a href="{% url 'baca_buku'%}?id={{book.id}}" class="free-read-btn">
+                      <i class="fa fa-book"></i> Baca sekarang
+                    </a>
+                  </div>
+                </div>
+                <div class="free-info">
+                  <div class="free-meta">
+                    <span class="free-chip"><i class="fa fa-unlock-alt"></i> Free Access</span>
+                    <small>{{ book.halaman }} hlm</small>
+                  </div>
+                  <div class="free-title" title="{{ book.judul }}">{{ book.judul }}</div>
+                  <div class="free-author">{{ book.pengarang }}</div>
+                  <div class="free-label">Baca Gratis</div>
+                  <a href="{% url 'sinopsis_buku' book.id %}" class="free-footer-link">Lihat detail <i class="fa fa-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -480,124 +2035,140 @@
           </div>
         </div>
         <div class="d-flex justify-content-center mt-4">
-          <a href="{% url 'all_book_view'%}?k=3" class="btn  text-white fw-bold">lihat semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
+          <a href="{% url 'all_book_view'%}?k=3" class="free-books-cta">Lihat Semua Buku Gratis <i class="fa fa-arrow-right"></i></a>
         </div>
       </div>
     </section>
 
-    <section id="latest-posts" class="padding-large pt-4 rounded" style="background-color: rgba(32, 206, 46, 0.1);">
+    <section id="latest-posts" class="blog-section">
       <div class="container">
-        <div class="text-center pb-3">
-          <h2 class=" text-primary ">Coretan Pena</h2>
+        <div class="blog-section-header">
+          <div class="blog-section-copy">
+            <span class="blog-section-kicker"><i class="fa fa-pencil"></i> Artikel Pilihan</span>
+            <h2 class="blog-section-title">Coretan Pena yang merangkum renungan, cerita, dan percakapan yang layak dibaca perlahan.</h2>
+            <p class="blog-section-subtitle">Tulisan-tulisan dari komunitas Perkantas kami hadirkan dalam format yang lebih nyaman dipindai, supaya pembaca lebih mudah menemukan topik yang relevan untuk hari ini.</p>
+          </div>
+          <div class="blog-section-note">
+            <strong>Sudut refleksi</strong>
+            <span>Temukan artikel yang menguatkan iman, memperluas wawasan, dan menemani perjalanan pelayanan.</span>
+          </div>
         </div>
-        <div class="row">
+        <div class="row blog-grid">
           {% for blog in blogs %}
-            <div class="newcard4 col-md-3 posts mb-4  p-2" >
-              <div class="bg-white border p-2 rounded text-center">
+            <div class="col-lg-3 col-md-6 posts">
+              <div class="blog-card">
+                <div class="blog-img-wrap">
                 <a href="{% url 'detail_blog' blog.id %}">
-                  <img src="{{blog.image.url}}" alt="post image" class="rounded-3" style="height: 150px;width: 250px;">
+                  <img src="{{blog.image.url}}" alt="{{ blog.header }}">
                 </a>
-                <p class="my-2 fw-bold fs-6">{{blog.tipe}}</p>
-                <h4 class="card-title mb-2 text-capitalize text-dark"><a title="{{blog.header|title}}" href="{% url 'detail_blog' blog.id %}">{{blog.header|title|truncatechars:15}}</a></h4>
-                <a href="{% url 'detail_blog' blog.id %}" class="fs-6 fw-bold" style="font-style: italic;">Oleh: {{blog.author.username|title|truncatechars:15}}</a>
-                <br><i><span  style="font-size: 12px;">{{blog.updated_at}}</span></i>
-                
-                <p style="height: 150px;" class="my-2 fs-6 text-start">{{blog.body|linebreaksbr|truncatechars:100}}<span><a href="{% url 'detail_blog' blog.id %}"><i>...</i></a></span>
-                </p>
+                </div>
+                <div class="blog-body">
+                  <span class="blog-tag-pill">{{ blog.tipe }}</span>
+                  <div class="blog-title"><a title="{{ blog.header|title }}" href="{% url 'detail_blog' blog.id %}">{{ blog.header|title }}</a></div>
+                  <p class="blog-excerpt">{{ blog.body|striptags|truncatechars:120 }}</p>
+                  <div class="blog-footer">
+                    <div class="blog-author">
+                      <i class="fa fa-user-o"></i>
+                      <span>{{ blog.author.username|title|truncatechars:18 }}</span>
+                    </div>
+                    <a href="{% url 'detail_blog' blog.id %}" class="blog-read-link">Baca artikel <i class="fa fa-arrow-right"></i></a>
+                  </div>
+                </div>
               </div>
-              
             </div>
           {% endfor%}
-          <!-- <div class="newcard4 col-md-3 posts mb-4">
-            <img src="{% static 'images/post-item2.jpg'%}" alt="post image" class="img-fluid rounded-3">
-            <a href="#" class="fs-6 text-primary">Books</a>
-            <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">The Fascinating Realm of Science Fiction</a></h4>
-            <p class="mb-2">Explore the intersection of technology and sustainability in our latest blog post. Learn about
-              the innovative <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span> </p>
-          </div>
-          <div class="newcard4 col-md-3 posts mb-4">
-            <img src="{% static 'images/post-item3.jpg'%}" alt="post image" class="img-fluid rounded-3">
-            <a href="#" class="fs-6 text-primary">Books</a>
-            <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">Finding Love in the Pages of a Book</a></h4>
-            <p class="mb-2">Stay ahead of the curve with our insightful look into the rapidly evolving landscape of
-              wearable technology. <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
-            </p>
-          </div>
-          <div class="newcard4 col-md-3 posts mb-4">
-            <img src="{% static 'images/post-item4.jpg'%}" alt="post image" class="img-fluid rounded-3">
-            <a href="#" class="fs-6 text-primary">Books</a>
-            <h4 class="card-title mb-2 text-capitalize text-dark"><a href="single-post.html">Reading for Mental Health: How Books Can Heal and Inspire</a></h4>
-            <p class="mb-2">In today's remote work environment, productivity is key. Discover the top apps and tools that
-              can help you stay <span><a class="text-decoration-underline text-black-50" href="single-post.html">Read More</a></span>
-            </p>
-          </div> -->
         </div>
         <div class="text-center mt-4">
-          <a href="{% url 'all_blogs_view'%}" class="btn">Lihat Semua <i class="fa fa-sort-desc" aria-hidden="true"></i></a>
+          <a href="{% url 'all_blogs_view'%}" class="blog-cta">Lihat Semua Artikel <i class="fa fa-arrow-right"></i></a>
         </div>
       </div>
     </section>
 
-    <section id="customers-reviews" class="position-relative padding-large rounded"
-      style="background-image: url({% static 'images/banner-image-bg.jpg'%}); background-size: cover; background-repeat: no-repeat; background-position: center; height: 650px;margin-top:-50px;z-index: 0;">
-      <div class="container offset-md-3 col-md-6 ">
-        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
-          <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
-            <use xlink:href="#alt-arrow-right-outline"></use>
-          </svg>
-        </div>
-        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev testimonial-button-prev">
-          <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
-            <use xlink:href="#alt-arrow-left-outline"></use>
-          </svg>
-        </div>
-          <div class="section-title mb-4 text-center">
-            <h3 class="mb-4 text-primary fw-bold">Review Sahabat</h3>
+    <section id="customers-reviews" class="reviews-section">
+      <div class="container">
+        <div class="reviews-header">
+          <div class="reviews-copy">
+            <span class="reviews-kicker"><i class="fa fa-comments"></i> Testimoni Pembaca</span>
+            <h2 class="reviews-title">Review Sahabat yang menceritakan bagaimana buku-buku ini menemani pertumbuhan mereka.</h2>
+            <p class="reviews-subtitle">Kami kumpulkan kesan pembaca agar calon pembaca lain bisa melihat pengalaman nyata dari komunitas yang sudah lebih dulu membaca, membeli, dan bertumbuh bersama Litanas.</p>
           </div>
-          <div class="swiper testimonial-swiper ">
+          <div class="reviews-note">
+            <strong>Suara komunitas</strong>
+            <span>Setiap testimoni diambil dari akun pembaca yang aktif berbagi kesan setelah membaca koleksi Literatur Perkantas Nasional.</span>
+          </div>
+        </div>
+        <div class="reviews-shell">
+          <div class="position-absolute top-50 end-0 swiper-next testimonial-button-next">
+            <svg class="chevron-forward-circle" width="20" height="20">
+              <use xlink:href="#alt-arrow-right-outline"></use>
+            </svg>
+          </div>
+          <div class="position-absolute top-50 start-0 swiper-prev testimonial-button-prev">
+            <svg class="chevron-back-circle" width="20" height="20">
+              <use xlink:href="#alt-arrow-left-outline"></use>
+            </svg>
+          </div>
+          <div class="swiper testimonial-swiper">
             <div class="swiper-wrapper">
               {% for review in page_review %}
-                <div class="swiper-slide" style="border:1px solid lightgrey !important;">              
-                    <div class="card position-relative text-left p-5 border rounded-3">
-                      <blockquote class="lead">"{{review.review}}"</blockquote>
-                      <hr>
-                      <div class="d-flex justify-content-start align-items-start">
-                        <div>
-                          <h5 class="mt-1 fw-bold" style="font-size: 16px;">{{review.user.userdetail.nama_lengkap}} <br><span class="text-lowercase mt-3 mb-3" style="font-size: 14px;font-weight:normal;"><i>({{review.user.username}})</i></span></h5>
-                          <p style="font-size: 12px;font-style: italic;margin-top:-5px">{{review.updated_at|date:"j F Y"}}, {{review.updated_at|date:"H:i:s"}}</p>
-                        </div>
+              <div class="swiper-slide">
+                <div class="review-card">
+                  <div class="review-quote-mark">"</div>
+                  <div class="review-text">{{ review.review }}</div>
+                  <hr class="review-divider">
+                  <div class="review-author">
+                    <div class="review-avatar">{{ review.user.userdetail.nama_lengkap|slice:":1"|upper }}</div>
+                    <div class="review-meta">
+                      <div class="review-name">
+                        {{ review.user.userdetail.nama_lengkap }}
+                        <small>@{{ review.user.username }}</small>
                       </div>
-                      
+                      <div class="review-date">{{ review.updated_at|date:"j F Y" }}, {{ review.updated_at|date:"H:i" }}</div>
                     </div>
+                  </div>
                 </div>
+              </div>
               {% endfor %}
             </div>
+          </div>
         </div>
       </div>
     </section>
 
     
 
-    <section id="instagram" class="padding-small rounded" style="background-color: rgba(229, 255, 0, 0.1)">
+    <section id="instagram" class="instagram-section">
       <div class="container">
-        <div class="text-center mb-4">
-          <h2 class="text-primary">Instagram</h2>
-        </div>
-        <div class="row justify-content-between d-flex">
-          {% for inst in instagram%}
-          <div class="col-md-2 p-2 border shadow bg-white" >
-            <figure class="instagram-item position-relative rounded-3">
-              <a href="{{inst.link}}" class="image-link position-relative" target="_blank">
-                <div class="icon-overlay position-absolute d-flex justify-content-center">
-                  <svg class="instagram">
-                    <use xlink:href="#instagram"></use>
-                  </svg>
-                </div>
-                <img src="{{inst.gambar.url}}" alt="instagram" class="img-fluid  insta-image shadow" style="border-top-left-radius: 5px;border-top-right-radius: 5px;" >
-              </a>
-            </figure>
+        <div class="instagram-header">
+          <div class="instagram-copy">
+            <span class="instagram-kicker">
+              <svg style="width:16px;height:16px;"><use xlink:href="#instagram"></use></svg>
+              Social Feed
+            </span>
+            <h2 class="instagram-title">Instagram Litanas yang menampilkan kabar terbaru, rekomendasi bacaan, dan momen komunitas.</h2>
+            <p class="instagram-subtitle">Ikuti update visual dari Literatur Perkantas Nasional untuk melihat peluncuran buku, potongan renungan, promo pilihan, dan berbagai aktivitas yang sedang berjalan.</p>
           </div>
-          {% endfor%}
+          <div class="instagram-note">
+            <strong>Update harian</strong>
+            <span>Kunjungi feed kami untuk melihat highlight terbaru dan terhubung lebih dekat dengan komunitas pembaca Litanas.</span>
+          </div>
+        </div>
+        <div class="insta-grid">
+          {% for inst in instagram %}
+          <a href="{{ inst.link }}" class="insta-item" target="_blank" rel="noopener">
+            <img src="{{ inst.gambar.url }}" alt="Instagram Litanas">
+            <div class="insta-overlay">
+              <svg style="width:30px;height:30px;color:white;"><use xlink:href="#instagram"></use></svg>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="insta-cta">
+            <svg style="width:16px;height:16px;"><use xlink:href="#instagram"></use></svg>
+            Kunjungi Instagram
+          </a>
+        </div>
       </div>
     </section>
 {% endblock%}

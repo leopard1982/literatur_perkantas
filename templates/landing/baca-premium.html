@@ -1,37 +1,218 @@
 {% extends 'base.html'%}
 {% load static %}
+
+{% block mystyling %}
+<style>
+  .reader-wrapper { background: #f5f3ef; min-height: 100vh; padding-bottom: 40px; }
+  .reader-topbar {
+    background: white;
+    border-bottom: 1px solid #e8e4df;
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .premium-badge {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .book-title-bar { color: #1a1a1a; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 350px; }
+  .book-author-bar { color: #888; font-size: 12px; }
+  .page-badge {
+    background: #fff8e6;
+    color: #e67e22;
+    border: 1px solid #fcd08a;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .progress-bar-wrap { background: #f0ebe4; height: 5px; border-radius: 3px; margin-top: 8px; }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .reader-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 15px;
+  }
+  .page-image-wrapper {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #e8e4df;
+  }
+  .page-image-wrapper img { width: 100%; height: auto; display: block; }
+  .nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #e67e22;
+    width: 46px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 50;
+    text-decoration: none;
+    font-size: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .nav-btn:hover {
+    background: #f7971e;
+    border-color: #f7971e;
+    color: white;
+    box-shadow: 0 4px 16px rgba(247,151,30,0.3);
+  }
+  .nav-btn.prev { left: 10px; }
+  .nav-btn.next { right: 10px; }
+  .nav-btn.disabled { opacity: 0.25; pointer-events: none; }
+  .page-nav-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .page-input {
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 70px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+  }
+  .page-input:focus { border-color: #f7971e; }
+  .btn-nav-bottom {
+    background: white;
+    border: 1.5px solid #e0dbd5;
+    color: #555;
+    padding: 8px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .btn-nav-bottom:hover { background: #f7971e; border-color: #f7971e; color: white; }
+  .btn-nav-bottom.disabled { opacity: 0.35; pointer-events: none; }
+  .go-btn {
+    background: #f7971e;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .go-btn:hover { background: #e67e22; }
+  .keyboard-hint { color: #aaa; font-size: 12px; text-align: center; margin-top: 10px; }
+  .keyboard-hint kbd { background: white; border: 1px solid #e0dbd5; color: #999; border-radius: 4px; padding: 2px 6px; font-size: 11px; }
+  @media (max-width: 768px) { .nav-btn { display: none; } }
+</style>
+{% endblock %}
+
 {% block contents %}
-<div class=" container-fluid  bg-primary p-2" style="border-top-right-radius: 5px;border-top-left-radius: 5px;">
-    <div class="row  d-flex justify-content-between">
-        <div class="col-6 fs-5 fw-bold text-white rounded d-flex align-items-center justify-content-start">BUKU KOLEKSIKU</div>
-        <div class="col-6 d-flex align-items-center justify-content-end"><a href="{% url 'semua_buku_koleksi'%}" class="btn bg-white text-dark fs-6" style="height: 60px;">Koleksiku&rarr;</a></div>
-    </div>
-</div>
-<div class="p-3" style="margin-bottom:20px;border: 1px solid lightgrey;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;box-shadow: 5px 5px 5px lightgrey;">
-    <h3 style="text-align: center;">{{book.judul}}</h3>
-    <h4 style="text-align: center;">{{book.pengarang}}</h4>
-    <h5 style="text-align: center;">[ Halaman: {{page}} / {{book.halaman}} ]</h5>
-    
+<div class="reader-wrapper">
 
-    <div class="justify-content-center d-flex my-3 p-2 rounded ">
-        <a href="?p={{prev}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/left.jpg'%}" style="margin-right: 50px;width: 30px;height: 30px;"  alt="" srcset=""></a>
-        <div class="justify-content-center d-flex">
-            <form action="" method="post">
-                {% csrf_token %}
-                
-                <input style="text-align: center;" type="number" name="halaman" id="" min="1" max="{{book.halaman}}" value="{{page}}"  required>
-                
-            </form>
+  <!-- Top Bar -->
+  <div class="reader-topbar">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+      <div style="min-width:0;flex:1;">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <a href="{% url 'semua_buku_koleksi' %}" class="text-decoration-none" style="color:#aaa;font-size:13px;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa fa-arrow-left"></i> Koleksiku
+          </a>
+          <span class="premium-badge"><i class="fa fa-star"></i> PREMIUM</span>
         </div>
-        <a href="?p={{next}}" style="width:30px;display: flex;align-items: center;justify-content: center;"><img src="{% static 'images/right.jpeg'%}" style="margin-left:50px;width: 30px;height: 30px;" alt="" srcset=""></a>
+        <div class="book-title-bar">{{ book.judul }}</div>
+        <div class="book-author-bar">{{ book.pengarang }}</div>
+        <div class="progress-bar-wrap mt-2">
+          <div class="progress-bar-fill" style="width: {% widthratio page book.halaman 100 %}%"></div>
+        </div>
+      </div>
+      <div class="text-end flex-shrink-0">
+        <span class="page-badge">{{ page }} / {{ book.halaman }}</span>
+        <div style="font-size:11px;color:#aaa;margin-top:3px;">halaman</div>
+      </div>
     </div>
-    
+  </div>
+
+  <!-- Side Nav -->
+  {% if page > 1 %}
+  <a href="?p={{ prev }}" class="nav-btn prev"><i class="fa fa-chevron-left"></i></a>
+  {% else %}
+  <span class="nav-btn prev disabled"><i class="fa fa-chevron-left"></i></span>
+  {% endif %}
+
+  {% if page < book.halaman %}
+  <a href="?p={{ next }}" class="nav-btn next"><i class="fa fa-chevron-right"></i></a>
+  {% else %}
+  <span class="nav-btn next disabled"><i class="fa fa-chevron-right"></i></span>
+  {% endif %}
+
+  <!-- Book Page -->
+  <div class="reader-content">
+    <div class="page-image-wrapper">
+      <img src="/media/extract/pdf_full/{{ book.id }}/{{ page }}.jpg" alt="Halaman {{ page }}">
+    </div>
+
+    <div class="page-nav-bottom">
+      {% if page > 1 %}
+      <a href="?p={{ prev }}" class="btn-nav-bottom"><i class="fa fa-chevron-left"></i> Sebelumnya</a>
+      {% else %}
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i> Sebelumnya</span>
+      {% endif %}
+
+      <form action="" method="post" style="display:flex;align-items:center;gap:8px;">
+        {% csrf_token %}
+        <input type="number" name="halaman" class="page-input"
+               min="1" max="{{ book.halaman }}" value="{{ page }}" required>
+        <button type="submit" class="go-btn">Go</button>
+      </form>
+
+      {% if page < book.halaman %}
+      <a href="?p={{ next }}" class="btn-nav-bottom">Berikutnya <i class="fa fa-chevron-right"></i></a>
+      {% else %}
+      <span class="btn-nav-bottom disabled">Berikutnya <i class="fa fa-chevron-right"></i></span>
+      {% endif %}
+    </div>
+
+    <div class="keyboard-hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigasi keyboard</div>
+  </div>
+
 </div>
 
-<div class=" p-3 border-1 border-black">
-    
-    <img src="/media/extract/pdf_full/{{book.id}}/{{page}}.jpg" class="w-100 rounded shadow" alt="">
-    
-</div>
-
-{% endblock%}
+<script>
+document.addEventListener('keydown', function(e) {
+  {% if page > 1 %}if (e.key === 'ArrowLeft') window.location.href = '?p={{ prev }}';{% endif %}
+  {% if page < book.halaman %}if (e.key === 'ArrowRight') window.location.href = '?p={{ next }}';{% endif %}
+});
+</script>
+{% endblock %}

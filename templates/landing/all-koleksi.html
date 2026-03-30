@@ -4,107 +4,210 @@
 
 {% block mystyling %}
 <style>
-    .card {
-
-        background-color: white;
-        min-width: 280px;
-        max-width: 280px;
-        /* min-height: 450px;
-        max-height: 450px; */
-        margin:20px;
-        font-size: 15px;
-        padding:5px;
-        /* border-radius: 5px; */
-        text-align: center;
-        display: block;
-        justify-content: center;
-    }
-
-    .card:hover {
-        border: 1px solid none;
-        box-shadow: 0px 0px 10px lightgrey;
-        cursor: pointer;
-    }
-
-    .list {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content:center
-    }
-
-    .filtering {
-        border: 1px solid lightgrey;
-        border-radius: 5px;
-        padding: 5px;
-        background-color: white;
-        min-width: 150px;
-        margin: 10px;
-        text-align: center;
-    }
-
-    .filtering:hover {
-        border: 1px solid  lightgrey;
-        box-shadow: 0 0 5px grey;
-        background-color: white;
-        cursor: pointer;
-    }
-
-    .filtering :hover {
-        cursor: pointer;
-    }
+  .koleksi-header {
+    background: linear-gradient(135deg, var(--primary-color), #c0392b);
+    color: white;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 20px rgba(248,109,114,0.25);
+  }
+  .koleksi-header h2 { color: white; font-weight: 800; margin-bottom: 4px; }
+  .koleksi-header p { color: rgba(255,255,255,0.8); font-size: 14px; margin: 0; }
+  .book-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .koleksi-card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.25s;
+    border: 1px solid #f0f0f0;
+  }
+  .koleksi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+  }
+  .koleksi-cover-wrap {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+  }
+  .koleksi-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .koleksi-card:hover .koleksi-cover { transform: scale(1.04); }
+  .koleksi-read-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .koleksi-card:hover .koleksi-read-overlay { opacity: 1; }
+  .btn-read-overlay {
+    background: white;
+    color: var(--primary-color);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s;
+  }
+  .btn-read-overlay:hover { transform: scale(1.05); color: var(--primary-color); }
+  .koleksi-info { padding: 14px; }
+  .koleksi-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 40px;
+  }
+  .koleksi-author { font-size: 12px; color: #999; margin-bottom: 10px; }
+  .btn-baca {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), #c0392b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    width: 100%;
+    transition: filter 0.2s;
+  }
+  .btn-baca:hover { filter: brightness(1.1); color: white; }
+  .empty-koleksi {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888;
+  }
+  .empty-koleksi img { width: 100px; margin-bottom: 16px; opacity: 0.4; }
+  .pagination-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 40px;
+    padding-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .pg-btn:hover, .pg-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
 </style>
-{% endblock%}
+{% endblock %}
 
-{% block contents%}
-<div class="p-2 rounded fw-bold text-white bg-primary fs-3 container ">
-    Daftar Buku Koleksiku ({{jml_koleksiku}})
-</div>
-<div class="list">  
-    {% if koleksiku %}
-        {% for koleksi in halaman %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik untuk membaca">
-                    <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}">
-                      <img src="/media/extract/pdf_full/{{koleksi.id_book.id}}/1.jpg" style="width: 200px;height: 280px;border-radius: 5px;" alt="" >
-                    </a>
-                    <hr>
-                    <p class="fw-bold text-primary fs-5" >
-                        <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}">{{koleksi.id_book.judul}}</a>
-                    </p>
-                    <p class="fs-6">
-                        Pengarang: {{koleksi.id_book.pengarang}}
-                    </p>
-                    <hr>
-                    <p class=" p-2">
-                        {{koleksi.id_book.sinopsis|truncatechars:100}}
-                    </p>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="text-center py-3">
-            <p>Ups... Kaka Belum memiliki koleksi buku...</p>
-            <p>Kaka boleh melihat buku berbayar litanas dan melakukan pembelian..</p>
-            <p>Tuhan memberkati!</p>
-            <p><img src="{% static 'images/add.png'%}" class="w-25" alt=""></p>
+{% block contents %}
+<div style="background: #f8f9fa; min-height: 80vh; padding: 24px 0;">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="koleksi-header">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <h2><i class="fa fa-book me-2"></i> Koleksi Bukuku</h2>
+          <p>{{ jml_koleksiku }} buku dalam koleksimu</p>
         </div>
-    {% endif %}
-</div>
-{% if koleksiku %}
-    <div class="justify-content-center d-flex">
-      <hr class="border border-primary w-50">
+        <a href="{% url 'all_book_view' %}"
+           style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); padding:8px 18px; border-radius:8px; text-decoration:none; font-size:14px; font-weight:600;">
+          <i class="fa fa-search me-1"></i> Cari Buku Baru
+        </a>
+      </div>
     </div>
 
-    <div class="text-center">
-        <span class="mx-1 p-2"><a href="{% url 'semua_buku_koleksi' %}?h={{prev_page}}">&larr;</a></span>
-        {% for page  in range_page %}
-            {% if page == current %}
-            <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'semua_buku_koleksi' %}?h={{page}}" class="text-white">{{page}}</a></span>
-            {% else %}
-            <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'semua_buku_koleksi' %}?h={{page}}" class="fw-bold">{{page}}</a></span>
-            {% endif%}
-        {% endfor %}
-        <span class="mx-2 p-2"><a href="{% url 'semua_buku_koleksi' %}?h={{next_page}}">&rarr;</a></span>
+    {% if koleksiku %}
+    <div class="book-collection-grid">
+      {% for koleksi in halaman %}
+      <div class="koleksi-card">
+        <div class="koleksi-cover-wrap">
+          <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}">
+            <img src="/media/extract/pdf_full/{{ koleksi.id_book.id }}/1.jpg"
+                 class="koleksi-cover" alt="{{ koleksi.id_book.judul }}">
+            <div class="koleksi-read-overlay">
+              <span class="btn-read-overlay">
+                <i class="fa fa-book"></i> Baca Sekarang
+              </span>
+            </div>
+          </a>
+        </div>
+        <div class="koleksi-info">
+          <div class="koleksi-title" title="{{ koleksi.id_book.judul }}">{{ koleksi.id_book.judul }}</div>
+          <div class="koleksi-author"><i class="fa fa-pencil me-1"></i> {{ koleksi.id_book.pengarang }}</div>
+          <a href="{% url 'baca_buku_koleksi' koleksi.id_book.id %}" class="btn-baca">
+            <i class="fa fa-play-circle"></i> Lanjut Baca
+          </a>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-{% endif %}
+
+    <!-- Pagination -->
+    <div class="pagination-wrap">
+      <a href="{% url 'semua_buku_koleksi' %}?h={{ prev_page }}" class="pg-btn">&larr;</a>
+      {% for page in range_page %}
+      <a href="{% url 'semua_buku_koleksi' %}?h={{ page }}"
+         class="pg-btn {% if page == current %}active{% endif %}">
+        {{ page }}
+      </a>
+      {% endfor %}
+      <a href="{% url 'semua_buku_koleksi' %}?h={{ next_page }}" class="pg-btn">&rarr;</a>
+    </div>
+
+    {% else %}
+    <div class="empty-koleksi">
+      <img src="{% static 'images/empty.jpg' %}" alt="Empty">
+      <h5 style="color:#555;">Belum Ada Koleksi</h5>
+      <p>Kamu belum memiliki buku dalam koleksi. Yuk, mulai beli dan baca buku dari Literatur Perkantas!</p>
+      <div class="mt-3">
+        <a href="{% url 'all_book_view' %}"
+           style="background:var(--primary-color); color:white; border-radius:8px; padding:10px 24px; text-decoration:none; font-weight:600; font-size:14px; display:inline-block;">
+          <i class="fa fa-search me-2"></i> Jelajahi Buku
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
 {% endblock %}

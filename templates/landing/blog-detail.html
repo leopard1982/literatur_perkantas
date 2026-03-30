@@ -1,24 +1,172 @@
 {% extends 'base.html'%}
 {% load static %}
-{% block contents %}
-<div class="container mt-3 p-2 rounded border border-primary">
-    <div class="d-flex justify-content-center row">
-        <div class="col-xs-12 col-sm-7 col-md-5 col-lg-3 col-xl-3 px-2 mb-3 text-center">
-            <div class="container d-flex justify-content-center">
-                            <img src="{{blog.image.url}}" class="w-100 rounded border shadow p-2" alt="" srcset="">
-            </div>
 
+{% block mystyling %}
+<style>
+  .blog-detail-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .blog-detail-shell {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .blog-detail-hero {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 30px;
+    padding: 28px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .blog-detail-cover {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 16px 34px rgba(36, 52, 61, 0.10);
+    background: #eef1f5;
+    aspect-ratio: 4 / 5;
+  }
+  .blog-detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .blog-detail-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .blog-detail-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 14px;
+  }
+  .blog-detail-summary {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin-bottom: 18px;
+  }
+  .blog-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .blog-detail-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: #f7f9fb;
+    border: 1px solid rgba(225, 230, 235, 0.95);
+    color: #51606a;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .blog-detail-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #273744, #506678);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 22px rgba(39, 55, 68, 0.14);
+  }
+  .blog-detail-back:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+  .blog-detail-body {
+    padding: 30px 32px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .blog-detail-body-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    color: #43515b;
+    font-size: 16px;
+    line-height: 1.95;
+  }
+  .blog-detail-body-inner p {
+    margin-bottom: 1.15em;
+  }
+  .blog-detail-body-inner img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 18px;
+    margin: 18px 0;
+  }
+  @media (max-width: 991px) {
+    .blog-detail-hero {
+      grid-template-columns: 1fr;
+      padding: 22px;
+    }
+    .blog-detail-body {
+      padding: 24px 22px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="blog-detail-page">
+  <div class="container">
+    <div class="blog-detail-shell">
+      <div class="blog-detail-hero">
+        <div class="blog-detail-cover">
+          <img src="{{ blog.image.url }}" alt="{{ blog.header }}">
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-9 col-xl-9 ">
-            <p class="h4 fw-bold">{{blog.header|title}}</p>
-            <p class="h5">Oleh: {{blog.author.username|title}}</p>
-            <p class="fs-6"><i>{{blog.updated_at}}</i></p>
-            <hr>
-            <p>{{blog.body|linebreaksbr}}</p>
+        <div>
+          <span class="blog-detail-kicker"><i class="fa fa-pencil"></i> {{ blog.tipe }}</span>
+          <h1 class="blog-detail-title">{{ blog.header|title }}</h1>
+          <p class="blog-detail-summary">Tulisan ini kami hadirkan sebagai bagian dari ruang refleksi dan percakapan yang membantu pembaca bertumbuh lewat ide, pengalaman, dan renungan yang dibagikan komunitas Perkantas.</p>
+          <div class="blog-detail-meta">
+            <span><i class="fa fa-user-o"></i> {{ blog.author.username|title }}</span>
+            <span><i class="fa fa-calendar-o"></i> {{ blog.updated_at|date:"j F Y" }}</span>
+            <span><i class="fa fa-clock-o"></i> {{ blog.updated_at|date:"H:i" }} WIB</span>
+          </div>
+          <a href="{{ prev|default:'/blogs/' }}" class="blog-detail-back"><i class="fa fa-arrow-left"></i> Kembali</a>
         </div>
+      </div>
+
+      <div class="blog-detail-body">
+        <div class="blog-detail-body-inner">
+          {{ blog.body|linebreaksbr }}
+        </div>
+      </div>
     </div>
-    <div class="text-center my-3">
-        <a href="{{prev}}" class="btn">&larr; Kembali</a>
-    </div>
+  </div>
 </div>
 {% endblock %}

@@ -4,99 +4,271 @@
 
 {% block mystyling %}
 <style>
-    .card {
-
-        background-color: white;
-        min-width: 280px;
-        max-width: 280px;
-        /* min-height: 450px;
-        max-height: 450px; */
-        margin:20px;
-        font-size: 15px;
-        padding:5px;
-        /* border-radius: 5px; */
-        text-align: center;
-        display: block;
-        justify-content: center;
+  .blogs-page {
+    background:
+      radial-gradient(circle at top left, rgba(210,154,149,0.08), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(131,154,170,0.08), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%);
+    min-height: 80vh;
+    padding: 28px 0 42px;
+  }
+  .blogs-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .blogs-hero {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 30px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    margin-bottom: 24px;
+  }
+  .blogs-copy {
+    max-width: 680px;
+  }
+  .blogs-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(201,125,120,0.09);
+    color: #b55f5c;
+    border: 1px solid rgba(201,125,120,0.12);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .blogs-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 12px;
+  }
+  .blogs-subtitle {
+    color: #66757f;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+  }
+  .blogs-note {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(228, 225, 223, 0.95);
+    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+  }
+  .blogs-note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #18232b;
+    font-size: 13px;
+  }
+  .blogs-note span {
+    display: block;
+    color: #7b8790;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .blogs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+    gap: 22px;
+  }
+  .blogs-card {
+    background: rgba(255,255,255,0.96);
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 14px 30px rgba(36, 52, 61, 0.05);
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+  }
+  .blogs-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 34px rgba(36, 52, 61, 0.08);
+  }
+  .blogs-cover {
+    aspect-ratio: 16 / 10;
+    display: block;
+    overflow: hidden;
+    background: #eef1f5;
+  }
+  .blogs-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .blogs-card:hover .blogs-cover img {
+    transform: scale(1.04);
+  }
+  .blogs-body {
+    padding: 18px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .blogs-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f8f1ee;
+    color: #b26c57;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .blogs-card-title {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    font-weight: 800;
+    color: #18232b;
+    margin-bottom: 10px;
+  }
+  .blogs-card-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .blogs-card-title a:hover {
+    color: #b55f5c;
+  }
+  .blogs-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #7f8b92;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .blogs-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .blogs-excerpt {
+    color: #5b6872;
+    font-size: 14px;
+    line-height: 1.85;
+    margin-bottom: 14px;
+    flex: 1;
+  }
+  .blogs-read {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #355070;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .blogs-read:hover {
+    color: #b55f5c;
+  }
+  .blogs-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .blogs-pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid rgba(224, 228, 233, 0.96);
+    color: #334047;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .blogs-pg-btn:hover,
+  .blogs-pg-btn.active {
+    background: #273744;
+    border-color: #273744;
+    color: white;
+  }
+  @media (max-width: 991px) {
+    .blogs-hero {
+      flex-direction: column;
+      align-items: start;
+      padding: 22px;
     }
-
-    .card:hover {
-        border: 1px solid none;
-        box-shadow: 0px 0px 10px lightgrey;
-        cursor: pointer;
+    .blogs-note {
+      width: 100%;
     }
-
-    .list {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content:center
-    }
-
-    .filtering {
-        border: 1px solid lightgrey;
-        border-radius: 5px;
-        padding: 5px;
-        background-color: white;
-        min-width: 150px;
-        margin: 10px;
-        text-align: center;
-    }
-
-    .filtering:hover {
-        border: 1px solid  lightgrey;
-        box-shadow: 0 0 5px grey;
-        background-color: white;
-        cursor: pointer;
-    }
-
-    .filtering :hover {
-        cursor: pointer;
-    }
+  }
 </style>
-{% endblock%}
+{% endblock %}
 
-{% block contents%}
-<div class=" h1 text-center text-primary fw-bold p-3">
-    Coretan Pena
-</div>
-<div class="list">  
-    {% for blog in halaman %}
-            <div class="card" data-bs-toggle="tooltip" title="Silakan klik baca untuk membaca">
-                <a href="{% url 'detail_blog' blog.id %}">
-                  <img src="{{blog.image.url}}" class="w-100 rounded" >
-                </a>
-                <hr>
-                <p>
-                    {{blog.tipe}}
-                </p>
-                <p>
-                    <span class="fs-5 fw-bold text-primary">
-                        <a href="{% url 'detail_blog' blog.id %}">
-                            {{blog.header|title}}
-                        </a>
-                    </span><br>
-                    <span class="fs-6 fw-bold">Oleh: {{blog.author.username|title}}</span><br>
-                    <span style="font-size: 12px;"><i>{{blog.updated_at}}</i></span>
-                </p>
-                <hr>
-                <p class="text-start">
-                    {{blog.body|linebreaksbr|truncatechars:100}}
-                </p>
+{% block contents %}
+<div class="blogs-page">
+  <div class="container">
+    <div class="blogs-shell">
+      <div class="blogs-hero">
+        <div class="blogs-copy">
+          <span class="blogs-kicker"><i class="fa fa-pencil"></i> Artikel & Renungan</span>
+          <h1 class="blogs-title">Coretan Pena yang merangkum renungan, cerita, dan gagasan yang layak dibaca perlahan.</h1>
+          <p class="blogs-subtitle">Kumpulan tulisan dari komunitas Perkantas yang kami susun lebih rapi agar pembaca mudah menemukan artikel yang menguatkan iman, memperluas wawasan, dan menemani perjalanan pelayanan.</p>
+        </div>
+        <div class="blogs-note">
+          <strong>{{ blogs|length }} artikel tersedia</strong>
+          <span>Jelajahi tulisan terbaru, lalu buka artikel yang paling relevan dengan kebutuhan dan pergumulan hari ini.</span>
+        </div>
+      </div>
+
+      <div class="blogs-grid">
+        {% for blog in halaman %}
+        <article class="blogs-card">
+          <a href="{% url 'detail_blog' blog.id %}" class="blogs-cover">
+            <img src="{{ blog.image.url }}" alt="{{ blog.header }}">
+          </a>
+          <div class="blogs-body">
+            <span class="blogs-chip">{{ blog.tipe }}</span>
+            <h2 class="blogs-card-title">
+              <a href="{% url 'detail_blog' blog.id %}">{{ blog.header|title }}</a>
+            </h2>
+            <div class="blogs-meta">
+              <span><i class="fa fa-user-o"></i> {{ blog.author.username|title }}</span>
+              <span><i class="fa fa-calendar-o"></i> {{ blog.updated_at|date:"j M Y" }}</span>
             </div>
-        
-    {% endfor%}
-</div>
-<div class="text-center">
-    <span class="mx-1 p-2"><a href="{% url 'all_blogs_view' %}?h={{prev_page}}">&larr;</a></span>
-    {% for page  in range_page %}
-        {% if page == current %}
-        <span class="mx-1 p-2 border rounded border bg-primary text-white fw-bold"><a href="{% url 'all_blogs_view' %}?h={{page}}" class="text-white">{{page}}</a></span>
-        {% else %}
-        <span class="mx-1 p-2 border rounded border border-dark"><a href="{% url 'all_blogs_view' %}?h={{page}}" class="fw-bold">{{page}}</a></span>
-        {% endif%}
-    {% endfor %}
-    <span class="mx-2 p-2"><a href="{% url 'all_blogs_view' %}?h={{next_page}}">&rarr;</a></span>
+            <p class="blogs-excerpt">{{ blog.body|striptags|truncatechars:150 }}</p>
+            <a href="{% url 'detail_blog' blog.id %}" class="blogs-read">Baca artikel <i class="fa fa-arrow-right"></i></a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="blogs-pagination">
+        <a href="{% url 'all_blogs_view' %}?h={{ prev_page }}" class="blogs-pg-btn">Prev</a>
+        {% for page in range_page %}
+          <a href="{% url 'all_blogs_view' %}?h={{ page }}" class="blogs-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
+        {% endfor %}
+        <a href="{% url 'all_blogs_view' %}?h={{ next_page }}" class="blogs-pg-btn">Next</a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
