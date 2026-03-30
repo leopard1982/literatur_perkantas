@@ -17,19 +17,58 @@
     margin: 0 auto;
   }
   .inbox-hero {
+    position: relative;
     display: flex;
-    align-items: end;
+    align-items: center;
     justify-content: space-between;
-    gap: 18px;
-    padding: 28px 30px;
+    gap: 24px;
+    padding: 32px 34px;
     border-radius: 28px;
-    background: rgba(255,255,255,0.9);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.98), rgba(250,247,246,0.94)),
+      rgba(255,255,255,0.9);
     border: 1px solid rgba(231, 235, 240, 0.95);
-    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+    box-shadow: 0 18px 40px rgba(36, 52, 61, 0.08);
     margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .inbox-hero::after {
+    content: "";
+    position: absolute;
+    right: -60px;
+    top: -80px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,123,120,0.12), rgba(201,123,120,0));
+    pointer-events: none;
   }
   .inbox-copy {
+    position: relative;
+    z-index: 1;
     max-width: 660px;
+  }
+  .inbox-headline {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .inbox-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #d8928d, #c36d6a);
+    color: #fff;
+    font-size: 28px;
+    box-shadow: 0 16px 28px rgba(195,109,106,0.22);
+    flex-shrink: 0;
+  }
+  .inbox-heading-group {
+    min-width: 0;
   }
   .inbox-kicker {
     display: inline-flex;
@@ -44,34 +83,45 @@
     font-weight: 800;
     letter-spacing: .06em;
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .inbox-title {
-    font-size: clamp(2rem, 4vw, 2.9rem);
-    line-height: 1.08;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.02;
     font-weight: 800;
     color: #18232b;
-    margin-bottom: 12px;
+    margin: 0;
+  }
+  .inbox-user {
+    display: block;
+    margin-top: 8px;
+    color: #5b6972;
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: .01em;
   }
   .inbox-subtitle {
     color: #66757f;
     font-size: 15px;
-    line-height: 1.85;
+    line-height: 1.9;
     margin: 0;
+    max-width: 600px;
   }
   .inbox-note {
-    min-width: 220px;
-    padding: 16px 18px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.88);
-    border: 1px solid rgba(228, 225, 223, 0.95);
-    box-shadow: 0 10px 22px rgba(36, 52, 61, 0.04);
+    position: relative;
+    z-index: 1;
+    min-width: 260px;
+    padding: 20px 22px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(228, 225, 223, 0.96);
+    box-shadow: 0 14px 30px rgba(36, 52, 61, 0.06);
   }
   .inbox-note strong {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     color: #18232b;
-    font-size: 13px;
+    font-size: 14px;
   }
   .inbox-note span {
     display: block;
@@ -85,31 +135,42 @@
   }
   .inbox-card {
     position: relative;
-    padding: 22px 24px 22px 72px;
+    padding: 24px 24px 24px 78px;
     border-radius: 24px;
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(231, 235, 240, 0.95);
-    box-shadow: 0 14px 30px rgba(36, 52, 61, 0.05);
+    box-shadow: 0 14px 32px rgba(36, 52, 61, 0.06);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
   .inbox-card::before {
-    content: "";
+    content: "\f0e0";
+    font-family: FontAwesome;
     position: absolute;
-    left: 30px;
-    top: 26px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #c97b78;
-    box-shadow: 0 0 0 6px rgba(201,123,120,0.12);
+    left: 24px;
+    top: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(201,123,120,0.12);
+    color: #bf6d69;
+    font-size: 15px;
   }
   .inbox-card::after {
     content: "";
     position: absolute;
-    left: 35px;
-    top: 42px;
+    left: 41px;
+    top: 68px;
     bottom: -18px;
     width: 2px;
     background: linear-gradient(180deg, rgba(201,123,120,0.24), rgba(201,123,120,0));
+  }
+  .inbox-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(201,123,120,0.22);
+    box-shadow: 0 18px 36px rgba(36, 52, 61, 0.08);
   }
   .inbox-card:last-child::after {
     display: none;
@@ -188,14 +249,29 @@
     .inbox-note {
       width: 100%;
     }
+    .inbox-headline {
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .inbox-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      font-size: 24px;
+    }
     .inbox-card {
       padding: 20px 18px 20px 58px;
     }
     .inbox-card::before {
-      left: 22px;
+      left: 16px;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      font-size: 13px;
     }
     .inbox-card::after {
-      left: 27px;
+      left: 30px;
+      top: 58px;
     }
     .inbox-card-head {
       flex-direction: column;
@@ -210,8 +286,16 @@
     <div class="inbox-shell">
       <div class="inbox-hero">
         <div class="inbox-copy">
-          <span class="inbox-kicker"><i class="fa fa-bell"></i> Pusat Notifikasi</span>
-          <h1 class="inbox-title">Inbox {{ user.userdetail.nama_lengkap }}</h1>
+          <div class="inbox-headline">
+            <div class="inbox-icon">
+              <i class="fa fa-envelope-open-o"></i>
+            </div>
+            <div class="inbox-heading-group">
+              <span class="inbox-kicker"><i class="fa fa-bell"></i> Pusat Notifikasi</span>
+              <h1 class="inbox-title">Inbox</h1>
+              <span class="inbox-user">{{ user.userdetail.nama_lengkap }}</span>
+            </div>
+          </div>
           <p class="inbox-subtitle">Semua pembaruan penting tentang akun, pembayaran, perubahan profil, dan notifikasi lain kami kumpulkan di sini agar mudah ditinjau kembali kapan saja.</p>
         </div>
         <div class="inbox-note">
