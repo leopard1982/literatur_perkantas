@@ -182,6 +182,9 @@
     gap: 12px;
     margin-bottom: 10px;
   }
+  .inbox-card-main {
+    min-width: 0;
+  }
   .inbox-card-title {
     font-size: 1.05rem;
     line-height: 1.45;
@@ -189,11 +192,41 @@
     color: #18232b;
     margin: 0;
   }
+  .inbox-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
   .inbox-card-time {
     color: #8a97a0;
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
+  }
+  .inbox-delete-form {
+    margin: 0;
+  }
+  .inbox-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(213, 178, 176, 0.9);
+    background: #fff7f6;
+    color: #b96360;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .inbox-delete-btn:hover {
+    background: #c76f6c;
+    border-color: #c76f6c;
+    color: #fff;
   }
   .inbox-card-body {
     color: #51606a;
@@ -276,6 +309,11 @@
     .inbox-card-head {
       flex-direction: column;
     }
+    .inbox-card-actions {
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
   }
 </style>
 {% endblock %}
@@ -309,8 +347,19 @@
         {% for inbox in halaman %}
         <article class="inbox-card">
           <div class="inbox-card-head">
-            <h2 class="inbox-card-title">{{ inbox.header|title }}</h2>
-            <div class="inbox-card-time">{{ inbox.created_at|date:"j F Y, H:i" }} WIB</div>
+            <div class="inbox-card-main">
+              <h2 class="inbox-card-title">{{ inbox.header|title }}</h2>
+            </div>
+            <div class="inbox-card-actions">
+              <div class="inbox-card-time">{{ inbox.created_at|date:"j F Y, H:i" }} WIB</div>
+              <form method="post" action="{% url 'delete_inbox_message' inbox.id %}" class="inbox-delete-form" onsubmit="return confirm('Hapus notifikasi ini?');">
+                {% csrf_token %}
+                <input type="hidden" name="h" value="{{ current }}">
+                <button type="submit" class="inbox-delete-btn">
+                  <i class="fa fa-trash"></i> Hapus
+                </button>
+              </form>
+            </div>
           </div>
           <p class="inbox-card-body">{{ inbox.body }}</p>
         </article>

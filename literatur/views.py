@@ -761,6 +761,25 @@ def listInboxMessage(request):
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/')
+
+def deleteInboxMessage(request,id):
+    if request.user.is_authenticated:
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse('list_inbox_message'))
+
+        user = User.objects.get(username=request.user.username)
+        current_page = request.POST.get('h', '1')
+
+        deleted_count, _ = inboxMessage.objects.filter(id=id, user=user).delete()
+        if deleted_count > 0:
+            messages.add_message(request, messages.SUCCESS, "Notifikasi berhasil dihapus.")
+        else:
+            messages.add_message(request, messages.SUCCESS, "Notifikasi tidak ditemukan atau sudah dihapus.")
+
+        return HttpResponseRedirect(f"{reverse('list_inbox_message')}?h={current_page}")
+    else:
+        messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
+        return HttpResponseRedirect('/')
     
 def sinopsisBuku(request,id):
     if request.user.is_authenticated:

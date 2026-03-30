@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPassword
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
-from .views import listInboxMessage,sinopsisBuku,allBlogsView,detailBlog,paymentProcess
+from .views import listInboxMessage, deleteInboxMessage, sinopsisBuku,allBlogsView,detailBlog,paymentProcess
 from .views import bacaBukuKoleksi, allKoleksiView,profileView,profileUpdate,listPayment,gantiPasswordPage
 from .views import pencarianInfo, tentangKami, melakukanDonasi
 
@@ -23,6 +23,7 @@ urlpatterns = [
     path('cart/del/<str:id>/',delCartList,name="del_cart_list"),
     path('cart/change/<str:id>/',changeCartStatus,name="change_cart_status"),
     path('inbox/',listInboxMessage,name='list_inbox_message'),
+    path('inbox/delete/<int:id>/',deleteInboxMessage,name='delete_inbox_message'),
     path('blogs/',allBlogsView,name="all_blogs_view"),
     path('blogs/<str:id>/',detailBlog,name="detail_blog"),
     path('buy/', paymentProcess,name="payment_process"),
