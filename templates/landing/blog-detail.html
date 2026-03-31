@@ -128,6 +128,113 @@
     border-radius: 18px;
     margin: 18px 0;
   }
+  .blog-comments {
+    margin-top: 22px;
+    padding: 24px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(231, 235, 240, 0.95);
+    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.05);
+  }
+  .blog-comments-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .blog-comments-head h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #24333d;
+  }
+  .blog-comments-head span {
+    color: #8a97a0;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .blog-comment-form textarea {
+    width: 100%;
+    min-height: 95px;
+    border: 1.5px solid #e2e8ed;
+    border-radius: 10px;
+    outline: none;
+    padding: 10px 12px;
+    color: #43515b;
+    resize: vertical;
+  }
+  .blog-comment-form textarea:focus { border-color: #b55f5c; }
+  .blog-comment-form button {
+    margin-top: 10px;
+    border: none;
+    border-radius: 9px;
+    padding: 8px 14px;
+    background: #b55f5c;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .blog-comment-note {
+    background: #f7f9fb;
+    border: 1px solid #e5eaef;
+    border-radius: 8px;
+    color: #66757f;
+    font-size: 13px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .blog-comment-item {
+    border-top: 1px dashed rgba(220, 226, 233, 0.95);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  .blog-comment-item:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .blog-comment-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #8a97a0;
+  }
+  .blog-comment-meta-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .blog-btn-delete-comment {
+    border: 1px solid rgba(181,95,92,0.35);
+    background: rgba(181,95,92,0.08);
+    color: #b55f5c;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .blog-btn-delete-comment:hover { background: rgba(181,95,92,0.14); }
+  .blog-comment-item p { margin: 0; color: #43515b; font-size: 14px; }
+  .blog-comment-empty { margin: 0; color: #8a97a0; }
+  .blog-comment-pagination {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 13px;
+  }
+  .blog-comment-pagination a {
+    text-decoration: none;
+    font-weight: 700;
+    color: #b55f5c;
+  }
+  .blog-comment-pagination .disabled { color: #b8c1c8; }
   @media (max-width: 991px) {
     .blog-detail-hero {
       grid-template-columns: 1fr;
@@ -165,6 +272,70 @@
         <div class="blog-detail-body-inner">
           {{ blog.body|linebreaksbr }}
         </div>
+      </div>
+
+      <div id="blog-comments" class="blog-comments">
+        <div class="blog-comments-head">
+          <h3>Komentar Pembaca</h3>
+          <span>{{ blog_comments_page.paginator.count }} komentar</span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <form method="post" class="blog-comment-form">
+          {% csrf_token %}
+          <input type="hidden" name="comment_type" value="blog">
+          <textarea name="comment" maxlength="1000" placeholder="Tulis tanggapan kamu untuk tulisan ini..." required></textarea>
+          <button type="submit">Kirim Komentar</button>
+        </form>
+        {% else %}
+        <div class="blog-comment-note">Silakan login untuk menuliskan komentar.</div>
+        {% endif %}
+
+        <div class="my-3 d-flex align-items-center justify-content-center gap-2">
+          <span style="height:1px;flex:1;background:linear-gradient(to right,transparent,#d9e1e8);"></span>
+          <span style="font-size:11px;letter-spacing:.08em;color:#9aa8b3;text-transform:uppercase;">•••</span>
+          <span style="height:1px;flex:1;background:linear-gradient(to left,transparent,#d9e1e8);"></span>
+        </div>
+        <div class="mt-2">
+          {% for item in blog_comments_page %}
+          <article class="blog-comment-item">
+            <div class="blog-comment-meta">
+              <strong>{{ item.user.userdetail.nama_lengkap|default:item.user.username }}</strong>
+              <div class="blog-comment-meta-actions">
+                <span>{{ item.created_at|date:"j F Y H:i" }}</span>
+                {% if user.is_authenticated and item.user_id == user.id %}
+                <form method="post" action="{% url 'delete_blog_comment' item.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}#blog-comments">
+                  <button type="submit" class="blog-btn-delete-comment">Hapus</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+            <p>{{ item.comment|linebreaksbr }}</p>
+          </article>
+          {% empty %}
+          <p class="blog-comment-empty">Belum ada komentar. Kamu bisa jadi orang pertama yang menulis komentar.</p>
+          {% endfor %}
+        </div>
+
+        {% if blog_comments_page.paginator.num_pages > 1 %}
+        <div class="blog-comment-pagination">
+          {% if blog_comments_page.has_previous %}
+          <a href="?comment_page={{ blog_comments_page.previous_page_number }}#blog-comments">Prev</a>
+          {% else %}
+          <span class="disabled">Prev</span>
+          {% endif %}
+
+          <span>Halaman {{ blog_comments_page.number }} / {{ blog_comments_page.paginator.num_pages }}</span>
+
+          {% if blog_comments_page.has_next %}
+          <a href="?comment_page={{ blog_comments_page.next_page_number }}#blog-comments">Next</a>
+          {% else %}
+          <span class="disabled">Next</span>
+          {% endif %}
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>

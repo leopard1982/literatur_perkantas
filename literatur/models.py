@@ -470,6 +470,34 @@ class Blogs(models.Model):
 	def __str__(self):
 		return f"{self.author} - {self.header}"
 
+
+class BlogComment(models.Model):
+	id = models.UUIDField(auto_created=True, primary_key=True, editable=False, default=uuid.uuid4)
+	blog = models.ForeignKey(Blogs, on_delete=models.CASCADE, related_name='comments')
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	comment = models.TextField(max_length=1000)
+	is_active = models.BooleanField(default=True)
+	is_publish = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"{self.user.username} - {self.blog.header}"
+
+
+class BookComment(models.Model):
+	id = models.UUIDField(auto_created=True, primary_key=True, editable=False, default=uuid.uuid4)
+	book = models.ForeignKey(Books, on_delete=models.CASCADE, related_name='comments')
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	comment = models.TextField(max_length=1000)
+	is_active = models.BooleanField(default=True)
+	is_publish = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"{self.user.username} - {self.book.judul}"
+
 class DaftarPayment(models.Model):
 	user = models.ForeignKey(User,on_delete=models.RESTRICT)
 	payment = models.ForeignKey(MyPayment,on_delete=models.RESTRICT,related_name="Pembayaran")

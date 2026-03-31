@@ -91,6 +91,7 @@
     gap: 12px;
     margin-top: 24px;
   }
+  .page-jump-form { display: flex; align-items: center; gap: 8px; }
   .page-input {
     background: white;
     border: 1.5px solid #e0dbd5;
@@ -134,85 +135,143 @@
   .go-btn:hover { background: #e67e22; }
   .keyboard-hint { color: #aaa; font-size: 12px; text-align: center; margin-top: 10px; }
   .keyboard-hint kbd { background: white; border: 1px solid #e0dbd5; color: #999; border-radius: 4px; padding: 2px 6px; font-size: 11px; }
+  .book-comments-section {
+    margin-top: 28px;
+    background: white;
+    border: 1px solid #e8e4df;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .book-comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .book-comments-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2b2b2b;
+  }
+  .book-comments-header span {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+  }
+  .comment-form textarea {
+    width: 100%;
+    border: 1.5px solid #e0dbd5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+    font-size: 14px;
+  }
+  .comment-form textarea:focus { border-color: #f7971e; }
+  .comment-form button {
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #f7971e;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+  .comment-info-note {
+    margin-bottom: 12px;
+    background: #f8f8f8;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    color: #666;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .comment-list { margin-top: 14px; }
+  .comment-item {
+    border-top: 1px dashed #e8e4df;
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  .comment-item:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .comment-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #888;
+  }
+  .comment-item p { margin: 0; font-size: 14px; color: #4a4a4a; }
+  .comment-meta-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .btn-delete-comment {
+    border: 1px solid rgba(199,127,32,0.35);
+    background: rgba(199,127,32,0.08);
+    color: #c77f20;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .btn-delete-comment:hover { background: rgba(199,127,32,0.14); }
+
+  .comment-empty { color: #8d8d8d; margin: 0; }
+  .comment-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .comment-pagination a {
+    text-decoration: none;
+    color: #f7971e;
+    font-weight: 700;
+  }
+  .comment-pagination .disabled { color: #b9b9b9; }
   @media (max-width: 768px) { .nav-btn { display: none; } }
 </style>
 {% endblock %}
 
 {% block contents %}
 <div class="reader-wrapper">
+  {% include 'landing/partials/baca-buku-panel.html' %}
 
-  <!-- Top Bar -->
-  <div class="reader-topbar">
-    <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
-      <div style="min-width:0;flex:1;">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <a href="{% url 'semua_buku_koleksi' %}" class="text-decoration-none" style="color:#aaa;font-size:13px;display:inline-flex;align-items:center;gap:4px;">
-            <i class="fa fa-arrow-left"></i> Koleksiku
-          </a>
-          <span class="premium-badge"><i class="fa fa-star"></i> PREMIUM</span>
-        </div>
-        <div class="book-title-bar">{{ book.judul }}</div>
-        <div class="book-author-bar">{{ book.pengarang }}</div>
-        <div class="progress-bar-wrap mt-2">
-          <div class="progress-bar-fill" style="width: {% widthratio page book.halaman 100 %}%"></div>
-        </div>
-      </div>
-      <div class="text-end flex-shrink-0">
-        <span class="page-badge">{{ page }} / {{ book.halaman }}</span>
-        <div style="font-size:11px;color:#aaa;margin-top:3px;">halaman</div>
-      </div>
-    </div>
+  <div class="reader-content pt-0">
+    {% include 'landing/partials/book-comments.html' %}
   </div>
-
-  <!-- Side Nav -->
-  {% if page > 1 %}
-  <a href="?p={{ prev }}" class="nav-btn prev"><i class="fa fa-chevron-left"></i></a>
-  {% else %}
-  <span class="nav-btn prev disabled"><i class="fa fa-chevron-left"></i></span>
-  {% endif %}
-
-  {% if page < book.halaman %}
-  <a href="?p={{ next }}" class="nav-btn next"><i class="fa fa-chevron-right"></i></a>
-  {% else %}
-  <span class="nav-btn next disabled"><i class="fa fa-chevron-right"></i></span>
-  {% endif %}
-
-  <!-- Book Page -->
-  <div class="reader-content">
-    <div class="page-image-wrapper">
-      <img src="/media/extract/pdf_full/{{ book.id }}/{{ page }}.jpg" alt="Halaman {{ page }}">
-    </div>
-
-    <div class="page-nav-bottom">
-      {% if page > 1 %}
-      <a href="?p={{ prev }}" class="btn-nav-bottom"><i class="fa fa-chevron-left"></i></a>
-      {% else %}
-      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i></span>
-      {% endif %}
-
-      <form action="" method="post" style="display:flex;align-items:center;gap:8px;">
-        {% csrf_token %}
-        <input type="number" name="halaman" class="page-input"
-               min="1" max="{{ book.halaman }}" value="{{ page }}" required>
-        <button type="submit" class="go-btn">Go</button>
-      </form>
-
-      {% if page < book.halaman %}
-      <a href="?p={{ next }}" class="btn-nav-bottom"><i class="fa fa-chevron-right"></i></a>
-      {% else %}
-      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-right"></i></span>
-      {% endif %}
-    </div>
-
-    <div class="keyboard-hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigasi keyboard</div>
-  </div>
-
 </div>
 
 <script>
 document.addEventListener('keydown', function(e) {
-  {% if page > 1 %}if (e.key === 'ArrowLeft') window.location.href = '?p={{ prev }}';{% endif %}
-  {% if page < book.halaman %}if (e.key === 'ArrowRight') window.location.href = '?p={{ next }}';{% endif %}
+  var panel = document.getElementById('reader-panel');
+  if (!panel) return;
+  if (e.key === 'ArrowLeft') {
+    var prevUrl = panel.getAttribute('data-prev-url');
+    if (prevUrl && !panel.querySelector('.nav-btn.prev.disabled')) {
+      var prevBtn = panel.querySelector(".nav-btn.prev:not(.disabled)"); if (prevBtn) { prevBtn.click(); e.preventDefault(); }
+    }
+  }
+  if (e.key === 'ArrowRight') {
+    var nextUrl = panel.getAttribute('data-next-url');
+    if (nextUrl && !panel.querySelector('.nav-btn.next.disabled')) {
+      var nextBtn = panel.querySelector(".nav-btn.next:not(.disabled)"); if (nextBtn) { nextBtn.click(); e.preventDefault(); }
+    }
+  }
 });
 </script>
 {% endblock %}

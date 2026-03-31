@@ -1,0 +1,150 @@
+<div id="reader-panel"
+     data-prev-url="{{ book_reader_page_base }}{{ prev }}"
+     data-next-url="{{ book_reader_page_base }}{{ next }}">
+  {% if is_preview_reader and max_page == 5 %}
+  <div class="preview-banner">
+    <i class="fa fa-lock me-2"></i>
+    Preview Gratis — Hanya 5 Halaman Pertama
+    {% if user.is_authenticated %}
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="{% url 'add_cart_list' book.id %}" style="color:white;font-weight:800;text-decoration:underline;">Beli untuk baca lengkap &rarr;</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="reader-topbar">
+    {% if is_preview_reader %}
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div style="min-width:0;flex:1;">
+        <a href="{% url 'sinopsis_buku' book.id %}" class="text-decoration-none" style="color:#aaa;font-size:13px;display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;">
+          <i class="fa fa-arrow-left"></i> Kembali ke Sinopsis
+        </a>
+        <div class="book-title">{{ book.judul }}</div>
+        <div class="book-author">{{ book.pengarang }}</div>
+      </div>
+      <div class="flex-shrink-0">
+        {% if max_page != 5 %}
+        <span class="page-badge">Hal. {{ page }} / {{ book.halaman }}</span>
+        {% else %}
+        <span class="page-badge">Preview {{ page }} / {{ max_page }}</span>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+      <div style="min-width:0;flex:1;">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <a href="{% url 'semua_buku_koleksi' %}" class="text-decoration-none" style="color:#aaa;font-size:13px;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa fa-arrow-left"></i> Koleksiku
+          </a>
+          <span class="premium-badge"><i class="fa fa-star"></i> PREMIUM</span>
+        </div>
+        <div class="book-title-bar">{{ book.judul }}</div>
+        <div class="book-author-bar">{{ book.pengarang }}</div>
+        <div class="progress-bar-wrap mt-2">
+          <div class="progress-bar-fill" style="width: {% widthratio page book.halaman 100 %}%"></div>
+        </div>
+      </div>
+      <div class="text-end flex-shrink-0">
+        <span class="page-badge">{{ page }} / {{ book.halaman }}</span>
+        <div style="font-size:11px;color:#aaa;margin-top:3px;">halaman</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if page > 1 %}
+  <a href="{{ book_reader_page_base }}{{ prev }}"
+     class="nav-btn prev"
+     hx-get="{{ book_reader_page_base }}{{ prev }}"
+     hx-target="#reader-panel"
+     hx-swap="outerHTML"
+     hx-push-url="true">
+    <i class="fa fa-chevron-left"></i>
+  </a>
+  {% else %}
+  <span class="nav-btn prev disabled"><i class="fa fa-chevron-left"></i></span>
+  {% endif %}
+
+  {% if page < max_page %}
+  <a href="{{ book_reader_page_base }}{{ next }}"
+     class="nav-btn next"
+     hx-get="{{ book_reader_page_base }}{{ next }}"
+     hx-target="#reader-panel"
+     hx-swap="outerHTML"
+     hx-push-url="true">
+    <i class="fa fa-chevron-right"></i>
+  </a>
+  {% else %}
+  <span class="nav-btn next disabled"><i class="fa fa-chevron-right"></i></span>
+  {% endif %}
+
+  <div class="reader-content">
+    <div class="page-image-wrapper">
+      <img src="{{ current_page_image }}"
+           alt="Halaman {{ page }}"
+           width="2000"
+           height="1500"
+           fetchpriority="high"
+           decoding="async">
+    </div>
+
+    <div class="page-nav-bottom">
+      {% if page > 1 %}
+      <a href="{{ book_reader_page_base }}{{ prev }}"
+         class="btn-nav-bottom"
+         hx-get="{{ book_reader_page_base }}{{ prev }}"
+         hx-target="#reader-panel"
+         hx-swap="outerHTML"
+         hx-push-url="true">
+        <i class="fa fa-chevron-left"></i>
+      </a>
+      {% else %}
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-left"></i></span>
+      {% endif %}
+
+      <form action="" method="get" class="page-jump-form">
+        {% if is_preview_reader %}
+        <input type="hidden" name="id" value="{{ book.id }}">
+        {% endif %}
+        <input type="number" name="p" class="page-input"
+               min="1" max="{{ max_page }}" value="{{ page }}" required>
+        <button type="submit" class="go-btn">Go</button>
+      </form>
+
+      {% if page < max_page %}
+      <a href="{{ book_reader_page_base }}{{ next }}"
+         class="btn-nav-bottom"
+         hx-get="{{ book_reader_page_base }}{{ next }}"
+         hx-target="#reader-panel"
+         hx-swap="outerHTML"
+         hx-push-url="true">
+        <i class="fa fa-chevron-right"></i>
+      </a>
+      {% else %}
+      <span class="btn-nav-bottom disabled"><i class="fa fa-chevron-right"></i></span>
+      {% endif %}
+    </div>
+
+    <div class="keyboard-hint">
+      <kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigasi keyboard
+    </div>
+
+    {% if is_preview_reader and max_page == 5 and page == max_page %}
+    <div class="upgrade-card">
+      <div style="font-size:42px;margin-bottom:12px;">📖</div>
+      <h4>Mau baca seluruh buku ini?</h4>
+      <p>Kamu sudah membaca preview 5 halaman pertama. Daftar & beli untuk membaca seluruh isi buku!</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'add_cart_list' book.id %}" class="btn-upgrade">
+          <i class="fa fa-cart-plus me-2"></i> Beli Sekarang
+        </a>
+      {% else %}
+        <a href="#" class="btn-upgrade" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          <i class="fa fa-sign-in me-2"></i> Login & Beli
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>

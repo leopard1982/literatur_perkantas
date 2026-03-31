@@ -6,6 +6,7 @@ from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation
+from .models import BlogComment, BookComment
 from django.db.models import Avg,Q,Sum,Prefetch
 import datetime
 from django.contrib import messages
@@ -143,6 +144,22 @@ def build_pagination_context(page_obj, current_page):
         'halaman': page_obj,
         'current': current_page,
     }
+
+
+def can_user_comment_book(user, book):
+    if user is None:
+        return False
+    if book.kategori_id == 3:
+        return True
+    return UserBook.objects.filter(id_user=user, id_book=book).exists()
+
+
+def get_comment_page(comment_qs, requested_page):
+    paginator = Paginator(comment_qs, per_page=10)
+    try:
+        return paginator.page(requested_page)
+    except Exception:
+        return paginator.page(1)
 
 
 def bulanTeks(bulan):
@@ -415,63 +432,92 @@ def mainPage(request):
     return render(request,'index.html',context)
 
 def bacaBuku(request):
-    max_page=5
+    max_page = 5
     try:
         id_buku = request.GET['id']
         book = Books.objects.select_related('kategori').get(id=id_buku)
-        print(book.kategori.id)
         if book.kategori.id == 3:
             max_page = book.halaman
-    except:
+    except Exception:
         return HttpResponseRedirect(reverse('main_page'))
-    
-    user_context = build_user_view_context(get_authenticated_user(request))
+
+    user = get_authenticated_user(request)
+    can_comment = can_user_comment_book(user, book)
+
+    if request.method == "POST" and request.POST.get('comment_type') == "book":
+        comment_value = request.POST.get('comment', '').strip()
+        if user is None:
+            messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
+        elif not can_comment:
+            messages.add_message(request, messages.SUCCESS, "Komentar hanya tersedia untuk buku gratis atau buku yang sudah ada di koleksi.")
+        elif comment_value == "":
+            messages.add_message(request, messages.SUCCESS, "Komentar tidak boleh kosong.")
+        else:
+            existing_comments = BookComment.objects.filter(book=book, user=user).order_by('-updated_at')
+            existing_comment = existing_comments.first()
+            if existing_comment:
+                existing_comment.comment = comment_value
+                existing_comment.is_active = True
+                existing_comment.is_publish = True
+                existing_comment.save()
+                existing_comments.exclude(id=existing_comment.id).delete()
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+            else:
+                BookComment.objects.create(book=book, user=user, comment=comment_value)
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+        p = request.GET.get('p', '1')
+        return HttpResponseRedirect(f"{reverse('baca_buku')}?id={book.id}&p={p}#book-comments")
+
+    user_context = build_user_view_context(user)
 
     try:
-        if request.method=="POST":
-            page=int(request.POST['halaman'])
-            if(page>max_page):
-                page=5
-        else:
-            page=int(request.GET['p'])
-            
-            if int(page)>max_page:
-                page=max_page
-            
-            if page<1:
-                page=1
+        page = int(request.GET.get('p', 1))
+    except Exception:
+        page = 1
 
-    except:
-        page=1
+    if page > max_page:
+        page = max_page
+    if page < 1:
+        page = 1
 
-    if page==1:
-        prev=1
-    else:
-        prev=page-1
+    prev = page - 1 if page > 1 else 1
+    next = page + 1
+    if next > max_page:
+        next = max_page
 
-    if max_page==5 and page==5:
-        messages.add_message(request,messages.SUCCESS,"Maksimal Hanya 5 Halaman Saja, Karena Preview Sample")
-    
-    next=page+1
+    if max_page == 5 and page == 5:
+        messages.add_message(request, messages.SUCCESS, "Maksimal Hanya 5 Halaman Saja, Karena Preview Sample")
+
+    comments_qs = BookComment.objects.filter(book=book, is_active=True, is_publish=True).select_related('user__userdetail').order_by('-created_at')
+    comment_page = request.GET.get('comment_page', 1)
+    comments_page_obj = get_comment_page(comments_qs, comment_page)
 
     try:
         pengumuman = get_pengumuman_text()
-    except:
+    except Exception:
         pengumuman = DEFAULT_PENGUMUMAN
 
     context = {
-        'pengumuman':pengumuman,
-        'book':book,
-        'next':next,
-        'prev':prev,
-        'page':page,
-        'max_page':max_page,
+        'pengumuman': pengumuman,
+        'book': book,
+        'next': next,
+        'prev': prev,
+        'page': page,
+        'max_page': max_page,
         'current_page_image': f"/media/extract/pdf_full/{book.id}/{page}.jpg",
         'prev_page_image': f"/media/extract/pdf_full/{book.id}/{prev}.jpg" if page > 1 else None,
         'next_page_image': f"/media/extract/pdf_full/{book.id}/{next}.jpg" if page < max_page else None,
+        'comments_page_obj': comments_page_obj,
+        'can_comment_book': can_comment,
+        'is_preview_reader': True,
+        'book_reader_page_base': f"{reverse('baca_buku')}?id={book.id}&p=",
     }
     context.update(user_context)
-    return render(request,'landing/baca-buku.html',context)
+
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'landing/partials/baca-buku-panel.html', context)
+
+    return render(request, 'landing/baca-buku.html', context)
 
 def addWishList(request,id):
     if request.user.is_authenticated:
@@ -810,6 +856,53 @@ def deleteInboxMessage(request,id):
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/')
+
+
+def _safe_next_url(request, fallback_url):
+    next_url = request.POST.get('next', '').strip()
+    if next_url.startswith('/'):
+        return next_url
+    return fallback_url
+
+
+def deleteBlogComment(request, id):
+    if request.method != "POST":
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('all_blogs_view')))
+
+    user = get_authenticated_user(request)
+    if user is None:
+        messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menghapus komentar.")
+        return HttpResponseRedirect('/')
+
+    comment = BlogComment.objects.filter(id=id, user=user).first()
+    if comment is None:
+        messages.add_message(request, messages.SUCCESS, "Komentar tidak ditemukan atau bukan milik kamu.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('all_blogs_view')))
+
+    blog_id = comment.blog_id
+    comment.delete()
+    messages.add_message(request, messages.SUCCESS, "Komentar berhasil dihapus.")
+    return HttpResponseRedirect(_safe_next_url(request, f"{reverse('detail_blog', args=[blog_id])}#blog-comments"))
+
+
+def deleteBookComment(request, id):
+    if request.method != "POST":
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('main_page')))
+
+    user = get_authenticated_user(request)
+    if user is None:
+        messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menghapus komentar.")
+        return HttpResponseRedirect('/')
+
+    comment = BookComment.objects.filter(id=id, user=user).first()
+    if comment is None:
+        messages.add_message(request, messages.SUCCESS, "Komentar tidak ditemukan atau bukan milik kamu.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('main_page')))
+
+    book_id = comment.book_id
+    comment.delete()
+    messages.add_message(request, messages.SUCCESS, "Komentar berhasil dihapus.")
+    return HttpResponseRedirect(_safe_next_url(request, f"{reverse('sinopsis_buku', args=[book_id])}#book-comments"))
     
 def sinopsisBuku(request,id):
     user_context = build_user_view_context(
@@ -869,12 +962,35 @@ def allBlogsView(request):
 def detailBlog(request,id):
     try:
         blog = Blogs.objects.select_related('author').get(id=id)
-    except:
-        messages.add_message(request,messages.success,"Maaf, blogs yang kaka cari tidak ada...")
+    except Exception:
+        messages.add_message(request,messages.SUCCESS,"Maaf, blogs yang kaka cari tidak ada...")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    user = get_authenticated_user(request)
+
+    if request.method == "POST" and request.POST.get('comment_type') == "blog":
+        comment_value = request.POST.get('comment', '').strip()
+        if user is None:
+            messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
+        elif comment_value == "":
+            messages.add_message(request, messages.SUCCESS, "Komentar tidak boleh kosong.")
+        else:
+            existing_comments = BlogComment.objects.filter(blog=blog, user=user).order_by('-updated_at')
+            existing_comment = existing_comments.first()
+            if existing_comment:
+                existing_comment.comment = comment_value
+                existing_comment.is_active = True
+                existing_comment.is_publish = True
+                existing_comment.save()
+                existing_comments.exclude(id=existing_comment.id).delete()
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+            else:
+                BlogComment.objects.create(blog=blog, user=user, comment=comment_value)
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+        return HttpResponseRedirect(f"{reverse('detail_blog', args=[blog.id])}#blog-comments")
     
     user_context = build_user_view_context(
-        get_authenticated_user(request),
+        user,
         include_cart=True,
         include_checked_cart=True,
         include_inbox=True,
@@ -886,11 +1002,14 @@ def detailBlog(request,id):
             pengumuman = DEFAULT_PENGUMUMAN
 
     prev = request.META.get('HTTP_REFERER')
+    blog_comments = BlogComment.objects.filter(blog=blog, is_active=True, is_publish=True).select_related('user__userdetail').order_by('-created_at')
+    blog_comments_page = get_comment_page(blog_comments, request.GET.get('comment_page', 1))
 
     context = {
             'pengumuman':pengumuman,
             'blog':blog,
             'prev':prev,
+            'blog_comments_page': blog_comments_page,
         }
     context.update(user_context)
     return render(request,'landing/blog-detail.html',context)
@@ -1014,12 +1133,31 @@ def bacaBukuKoleksi(request,id):
                 messages.add_message(request,messages.SUCCESS,'Karena ini buku berbayar, dan kaka belum memiliki di koleksi, kaka hanya bisa melihat preview sampul saja yah...')
                 return HttpResponseRedirect(f'/book/?id={book.id}')
 
-            try:
-                if request.method=="POST":
-                    page = int(request.POST['halaman'])
+            if request.method == "POST" and request.POST.get('comment_type') == "book":
+                comment_value = request.POST.get('comment', '').strip()
+                if comment_value == "":
+                    messages.add_message(request, messages.SUCCESS, "Komentar tidak boleh kosong.")
                 else:
-                    page=int(request.GET['p'])
-                
+                    existing_comments = BookComment.objects.filter(book=book, user=user).order_by('-updated_at')
+                    existing_comment = existing_comments.first()
+                    if existing_comment:
+                        existing_comment.comment = comment_value
+                        existing_comment.is_active = True
+                        existing_comment.is_publish = True
+                        existing_comment.save()
+                        existing_comments.exclude(id=existing_comment.id).delete()
+                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+                    else:
+                        BookComment.objects.create(book=book, user=user, comment=comment_value)
+                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+                p = request.GET.get('p', '1')
+                return HttpResponseRedirect(f"{reverse('baca_buku_koleksi', args=[book.id])}?p={p}#book-comments")
+
+            try:
+                page = int(request.GET.get('p', userbook.last_page or 1))
+
+                if page < 1:
+                    page = 1
                 if page>book.halaman:
                     page=book.halaman
                 userbook.last_page=int(page)
@@ -1054,8 +1192,22 @@ def bacaBukuKoleksi(request,id):
                 'prev':prev,
                 'page':page,
                 'max_page':max_page,
+                'current_page_image': f"/media/extract/pdf_full/{book.id}/{page}.jpg",
+                'prev_page_image': f"/media/extract/pdf_full/{book.id}/{prev}.jpg" if page > 1 else None,
+                'next_page_image': f"/media/extract/pdf_full/{book.id}/{next}.jpg" if page < max_page else None,
+                'comments_page_obj': get_comment_page(
+                    BookComment.objects.filter(book=book, is_active=True, is_publish=True).select_related('user__userdetail').order_by('-created_at'),
+                    request.GET.get('comment_page', 1),
+                ),
+                'can_comment_book': True,
+                'is_preview_reader': False,
+                'book_reader_page_base': f"{reverse('baca_buku_koleksi', args=[book.id])}?p=",
             }
             context.update(user_context)
+
+            if request.headers.get('HX-Request') == 'true':
+                return render(request, 'landing/partials/baca-buku-panel.html', context)
+
             return render(request,'landing/baca-premium.html',context)
         else:
             messages.add_message(request,messages.SUCCESS,'Ups sepertinya Kaka sudah login di device lain? Untuk bisa membaca buku ini kaka harus login terlebih dahulu dan memiliki buku ini di koleksi kaka..')
