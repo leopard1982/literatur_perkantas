@@ -134,6 +134,110 @@
   .breadcrumb-link:hover {
     text-decoration: underline;
   }
+  .book-comments-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .book-comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .book-comments-header h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #222;
+  }
+  .book-comments-header span {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+  }
+  .comment-form textarea {
+    width: 100%;
+    border: 1.5px solid #e0dbd5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+    font-size: 14px;
+  }
+  .comment-form textarea:focus { border-color: var(--primary-color); }
+  .comment-form button {
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+  .comment-info-note {
+    margin-bottom: 12px;
+    background: #f8f8f8;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    color: #666;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  .comment-item {
+    border-top: 1px dashed #e8e4df;
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  .comment-item:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .comment-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #888;
+  }
+  .comment-meta-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .btn-delete-comment {
+    border: 1px solid rgba(194,96,93,0.35);
+    background: rgba(194,96,93,0.08);
+    color: #c2605d;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .btn-delete-comment:hover { background: rgba(194,96,93,0.14); }
+  .comment-item p { margin: 0; font-size: 14px; color: #4a4a4a; }
+  .comment-empty { color: #8d8d8d; margin: 0; }
+  .comment-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .comment-pagination a {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+  .comment-pagination .disabled { color: #b9b9b9; }
 </style>
 {% endblock %}
 
@@ -288,6 +392,77 @@
         <div class="section-card">
           <h5>Sinopsis</h5>
           <p class="synopsis-text">{{ book.sinopsis|linebreaksbr }}</p>
+        </div>
+
+        <div id="book-comments" class="book-comments-section">
+          <div class="book-comments-header">
+            <h4>Komentar Pembaca</h4>
+            <span>{{ comments_page_obj.paginator.count }} komentar</span>
+          </div>
+
+          {% if user.is_authenticated and can_comment_book %}
+          <form method="post" class="comment-form">
+            {% csrf_token %}
+            <input type="hidden" name="comment_type" value="book">
+            <textarea name="comment" rows="3" maxlength="1000" placeholder="Tulis komentar kamu tentang buku ini..." required></textarea>
+            <button type="submit">Kirim Komentar</button>
+          </form>
+          {% elif user.is_authenticated %}
+          <div class="comment-info-note">
+            Komentar hanya tersedia untuk buku gratis atau buku yang sudah ada di koleksi kamu.
+          </div>
+          {% else %}
+          <div class="comment-info-note">
+            Silakan login untuk menuliskan komentar.
+          </div>
+          {% endif %}
+
+          <div class="my-3 d-flex align-items-center justify-content-center gap-2">
+            <span style="height:1px;flex:1;background:linear-gradient(to right,transparent,#e5dfd8);"></span>
+            <span style="font-size:11px;letter-spacing:.08em;color:#b0a69d;text-transform:uppercase;">•••</span>
+            <span style="height:1px;flex:1;background:linear-gradient(to left,transparent,#e5dfd8);"></span>
+          </div>
+
+          <div class="comment-list mt-2">
+            {% for item in comments_page_obj %}
+            <article class="comment-item">
+              <div class="comment-meta">
+                <strong>{{ item.user.userdetail.nama_lengkap|default:item.user.username }}</strong>
+                <div class="comment-meta-actions">
+                  <span>{{ item.created_at|date:"j F Y H:i" }}</span>
+                  {% if user.is_authenticated and item.user_id == user.id %}
+                  <form method="post" action="{% url 'delete_book_comment' item.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}#book-comments">
+                    <button type="submit" class="btn-delete-comment">Hapus</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+              <p>{{ item.comment|linebreaksbr }}</p>
+            </article>
+            {% empty %}
+            <p class="comment-empty">Belum ada komentar. Jadilah yang pertama membagikan kesanmu.</p>
+            {% endfor %}
+          </div>
+
+          {% if comments_page_obj.paginator.num_pages > 1 %}
+          <div class="comment-pagination">
+            {% if comments_page_obj.has_previous %}
+            <a href="?comment_page={{ comments_page_obj.previous_page_number }}#book-comments">Prev</a>
+            {% else %}
+            <span class="disabled">Prev</span>
+            {% endif %}
+
+            <span>Halaman {{ comments_page_obj.number }} / {{ comments_page_obj.paginator.num_pages }}</span>
+
+            {% if comments_page_obj.has_next %}
+            <a href="?comment_page={{ comments_page_obj.next_page_number }}#book-comments">Next</a>
+            {% else %}
+            <span class="disabled">Next</span>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
 
       </div>

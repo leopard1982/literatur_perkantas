@@ -905,8 +905,9 @@ def deleteBookComment(request, id):
     return HttpResponseRedirect(_safe_next_url(request, f"{reverse('sinopsis_buku', args=[book_id])}#book-comments"))
     
 def sinopsisBuku(request,id):
+    user = get_authenticated_user(request)
     user_context = build_user_view_context(
-        get_authenticated_user(request),
+        user,
         include_cart=True,
         include_checked_cart=True,
         include_inbox=True,
@@ -919,9 +920,42 @@ def sinopsisBuku(request,id):
 
     try:
         book = Books.objects.select_related('kategori', 'onsalebook').get(id=id)
+        can_comment = can_user_comment_book(user, book)
+
+        if request.method == "POST" and request.POST.get('comment_type') == "book":
+            comment_value = request.POST.get('comment', '').strip()
+            if user is None:
+                messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
+            elif not can_comment:
+                messages.add_message(request, messages.SUCCESS, "Komentar hanya tersedia untuk buku gratis atau buku yang sudah ada di koleksi.")
+            elif comment_value == "":
+                messages.add_message(request, messages.SUCCESS, "Komentar tidak boleh kosong.")
+            else:
+                existing_comments = BookComment.objects.filter(book=book, user=user).order_by('-updated_at')
+                existing_comment = existing_comments.first()
+                if existing_comment:
+                    existing_comment.comment = comment_value
+                    existing_comment.is_active = True
+                    existing_comment.is_publish = True
+                    existing_comment.save()
+                    existing_comments.exclude(id=existing_comment.id).delete()
+                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+                else:
+                    BookComment.objects.create(book=book, user=user, comment=comment_value)
+                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+            return HttpResponseRedirect(f"{reverse('sinopsis_buku', args=[book.id])}#book-comments")
+
+        comments_qs = BookComment.objects.filter(
+            book=book,
+            is_active=True,
+            is_publish=True,
+        ).select_related('user__userdetail').order_by('-created_at')
+
         context = {
             'pengumuman':pengumuman,
-            'book':book
+            'book':book,
+            'comments_page_obj': get_comment_page(comments_qs, request.GET.get('comment_page', 1)),
+            'can_comment_book': can_comment,
         }
         context.update(user_context)
         return render(request,'landing/sinopsis.html',context)
