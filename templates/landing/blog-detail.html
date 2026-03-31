@@ -253,7 +253,11 @@
     <div class="blog-detail-shell">
       <div class="blog-detail-hero">
         <div class="blog-detail-cover">
+          {% if blog.image %}
           <img src="{{ blog.image.url }}" alt="{{ blog.header }}">
+          {% else %}
+          <img src="{% static 'images/post-item1.jpg' %}" alt="{{ blog.header }}">
+          {% endif %}
         </div>
         <div>
           <span class="blog-detail-kicker"><i class="fa fa-pencil"></i> {{ blog.tipe }}</span>

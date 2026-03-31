@@ -449,6 +449,9 @@
     color: white;
     transform: translateY(-1px);
   }
+  .best-seller-mobile-nav {
+    display: none;
+  }
   @media (max-width: 991px) {
     .best-seller-header {
       flex-direction: column;
@@ -467,11 +470,29 @@
       display: flex;
       justify-content: center;
     }
+    .best-seller-mobile-nav {
+      display: flex !important;
+    }
+    .best-seller-section > .container > .swiper-next,
+    .best-seller-section > .container > .swiper-prev {
+      display: none !important;
+    }
   }
 
   /* === PROMO SPOTLIGHT === */
   .promo-spotlight-section {
-    padding: 20px 0 14px;
+    padding: 28px 0 22px;
+  }
+  .promo-spotlight-shell {
+    position: relative;
+    padding: 18px 24px;
+    border-radius: 34px;
+    background:
+      radial-gradient(circle at top left, rgba(255, 201, 149, 0.28), transparent 24%),
+      radial-gradient(circle at right center, rgba(197, 123, 120, 0.16), transparent 24%),
+      linear-gradient(135deg, #fff2ea 0%, #fffaf7 44%, #f4f8fc 100%);
+    border: 1px solid rgba(233, 214, 205, 0.95);
+    box-shadow: 0 22px 48px rgba(36, 52, 61, 0.10);
   }
   .promo-spotlight-swiper {
     overflow: hidden;
@@ -479,17 +500,51 @@
   .promo-spotlight-swiper .swiper-slide {
     height: auto;
   }
+  .promo-spotlight-nav {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    width: 52px;
+    height: 52px;
+    margin-top: -26px;
+    border: 1px solid rgba(198, 156, 139, 0.35);
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,245,240,0.96));
+    color: #9e564c;
+    box-shadow: 0 14px 28px rgba(178, 108, 87, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .promo-spotlight-nav:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 18px 32px rgba(178, 108, 87, 0.24);
+    color: #b55f5c;
+    background: linear-gradient(135deg, #fffdfd, #fff0ea);
+  }
+  .promo-spotlight-nav svg {
+    width: 22px;
+    height: 22px;
+  }
+  .promo-spotlight-button-prev {
+    left: -10px;
+  }
+  .promo-spotlight-button-next {
+    right: -10px;
+  }
   .promo-spotlight {
     position: relative;
     overflow: hidden;
-    padding: 28px;
-    border-radius: 28px;
+    padding: 34px;
+    border-radius: 30px;
     background:
-      radial-gradient(circle at top right, rgba(207, 151, 128, 0.14), transparent 26%),
-      radial-gradient(circle at bottom left, rgba(136, 156, 171, 0.10), transparent 24%),
-      linear-gradient(135deg, #fff7f3 0%, #fffdfc 52%, #f4f7fb 100%);
-    border: 1px solid rgba(234, 224, 218, 0.96);
-    box-shadow: 0 16px 36px rgba(36, 52, 61, 0.06);
+      radial-gradient(circle at top right, rgba(210, 124, 107, 0.18), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(136, 156, 171, 0.14), transparent 24%),
+      linear-gradient(135deg, #fff8f3 0%, #fffefc 48%, #f3f8fc 100%);
+    border: 1px solid rgba(233, 214, 205, 0.92);
+    box-shadow: 0 22px 44px rgba(36, 52, 61, 0.09);
   }
   .promo-spotlight::before {
     content: "";
@@ -498,7 +553,14 @@
     width: 180px;
     height: 180px;
     border-radius: 50%;
-    background: rgba(201, 125, 120, 0.07);
+    background: rgba(201, 125, 120, 0.12);
+  }
+  .promo-spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent 42%);
+    pointer-events: none;
   }
   .promo-spotlight-copy {
     position: relative;
@@ -510,42 +572,44 @@
     gap: 8px;
     padding: 7px 14px;
     border-radius: 999px;
-    background: rgba(201,125,120,0.10);
-    color: #b55f5c;
-    border: 1px solid rgba(201,125,120,0.12);
+    background: linear-gradient(135deg, rgba(201,125,120,0.18), rgba(255,255,255,0.82));
+    color: #a5534f;
+    border: 1px solid rgba(201,125,120,0.18);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: .06em;
     text-transform: uppercase;
     margin-bottom: 14px;
+    box-shadow: 0 10px 20px rgba(201,125,120,0.10);
   }
   .promo-spotlight-title {
-    font-size: clamp(1.75rem, 3vw, 2.4rem);
-    line-height: 1.08;
+    font-size: clamp(2rem, 3.4vw, 2.9rem);
+    line-height: 1.02;
     font-weight: 800;
     color: #18232b;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    max-width: 11ch;
   }
   .promo-spotlight-body {
-    color: #66757f;
-    font-size: 14px;
-    line-height: 1.8;
-    margin-bottom: 20px;
-    max-width: 560px;
+    color: #5f6d77;
+    font-size: 15px;
+    line-height: 1.85;
+    margin-bottom: 22px;
+    max-width: 620px;
   }
   .promo-offer-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 14px;
+    margin-bottom: 24px;
   }
   .promo-offer-card {
     min-width: 140px;
-    padding: 12px 14px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.88);
-    border: 1px solid rgba(232, 225, 220, 0.96);
-    box-shadow: 0 8px 18px rgba(36, 52, 61, 0.04);
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(232, 214, 206, 0.96);
+    box-shadow: 0 12px 24px rgba(36, 52, 61, 0.06);
   }
   .promo-offer-card strong {
     display: block;
@@ -594,11 +658,11 @@
   .promo-main-cta {
     background: linear-gradient(135deg, #c97b78, #b26c57);
     color: white;
-    box-shadow: 0 12px 22px rgba(178, 108, 87, 0.16);
+    box-shadow: 0 16px 30px rgba(178, 108, 87, 0.24);
   }
   .promo-main-cta:hover {
     color: white;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   .promo-secondary-cta {
     background: rgba(255,255,255,0.88);
@@ -612,13 +676,14 @@
   .promo-book-card {
     position: relative;
     z-index: 1;
-    max-width: 280px;
+    max-width: 320px;
     margin-left: auto;
-    padding: 18px;
-    border-radius: 24px;
-    background: rgba(255,255,255,0.88);
-    border: 1px solid rgba(235, 227, 221, 0.96);
-    box-shadow: 0 16px 32px rgba(36, 52, 61, 0.08);
+    padding: 20px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,248,244,0.94));
+    border: 1px solid rgba(226, 198, 187, 0.94);
+    box-shadow: 0 26px 42px rgba(36, 52, 61, 0.14);
+    transform: translateY(-8px) rotate(1.2deg);
   }
   .promo-book-cover {
     position: relative;
@@ -626,7 +691,7 @@
     border-radius: 18px;
     overflow: hidden;
     aspect-ratio: 3 / 4;
-    box-shadow: 0 12px 24px rgba(36, 52, 61, 0.12);
+    box-shadow: 0 18px 32px rgba(36, 52, 61, 0.18);
   }
   .promo-book-cover img {
     width: 100%;
@@ -636,25 +701,25 @@
   }
   .promo-book-discount {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 6px 10px;
+    top: 14px;
+    left: 14px;
+    padding: 7px 12px;
     border-radius: 999px;
     background: linear-gradient(135deg, #c97b78, #b26c57);
     color: white;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    box-shadow: 0 8px 16px rgba(178,108,87,0.18);
+    box-shadow: 0 12px 22px rgba(178,108,87,0.24);
   }
   .promo-book-meta {
-    padding-top: 16px;
+    padding-top: 18px;
   }
   .promo-book-meta h3 {
-    font-size: 1.05rem;
-    line-height: 1.45;
+    font-size: 1.15rem;
+    line-height: 1.38;
     font-weight: 800;
     color: #18232b;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .promo-book-meta p {
     margin: 0 0 10px;
@@ -667,20 +732,40 @@
     gap: 8px;
     padding: 6px 12px;
     border-radius: 999px;
-    background: #f7f1ee;
-    color: #7d6c65;
+    background: #f8eee8;
+    color: #8b6458;
     font-size: 11px;
     font-weight: 700;
   }
   @media (max-width: 991px) {
+    .promo-spotlight-shell {
+      padding: 12px;
+      border-radius: 28px;
+    }
+    .promo-spotlight-nav {
+      width: 44px;
+      height: 44px;
+      margin-top: -22px;
+    }
+    .promo-spotlight-button-prev {
+      left: 0;
+    }
+    .promo-spotlight-button-next {
+      right: 0;
+    }
+  }
+  @media (max-width: 991px) {
     .promo-spotlight {
-      padding: 22px;
+      padding: 24px 22px;
     }
     .promo-spotlight-title {
-      font-size: clamp(1.45rem, 5vw, 2rem);
+      font-size: clamp(1.6rem, 5.4vw, 2.2rem);
+      max-width: none;
     }
     .promo-book-card {
       margin: 0 auto;
+      max-width: 280px;
+      transform: translateY(0) rotate(0.6deg);
     }
   }
 
@@ -2004,17 +2089,28 @@
             <span>Disusun dari minat baca dan pembelian terbanyak agar pilihan Anda terasa lebih cepat, tepat, dan relevan.</span>
           </div>
         </div>
-        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
+        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next best-seller-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
             <use xlink:href="#alt-arrow-right-outline"></use>
           </svg>
         </div>
-        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev product-slider-button-prev">
+        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev best-seller-slider-button-prev">
           <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
             <use xlink:href="#alt-arrow-left-outline"></use>
           </svg>
         </div>
-        <div class="swiper product-swiper container-fluid">
+        <div class="best-seller-mobile-nav mobile-carousel-nav">
+          <div class="mobile-carousel-nav-group">
+            <button type="button" class="best-seller-nav-btn best-seller-button-prev mobile-carousel-nav-button" aria-label="Best seller sebelumnya">
+              <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <span class="mobile-carousel-nav-label">Best Seller</span>
+            <button type="button" class="best-seller-nav-btn best-seller-button-next mobile-carousel-nav-button" aria-label="Best seller berikutnya">
+              <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="swiper product-swiper best-seller-swiper container-fluid">
           <div class="swiper-wrapper  ">
           {% for book in books_best_seller %}
           <div class="swiper-slide" style="width:220px;">
@@ -2087,6 +2183,17 @@
     {% if books_on_sale %}
     <section class="promo-spotlight-section">
       <div class="container">
+        <div class="promo-spotlight-shell">
+          <button type="button" class="promo-spotlight-nav promo-spotlight-button-prev" aria-label="Promo sebelumnya">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <use xlink:href="#alt-arrow-left-outline"></use>
+            </svg>
+          </button>
+          <button type="button" class="promo-spotlight-nav promo-spotlight-button-next" aria-label="Promo berikutnya">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <use xlink:href="#alt-arrow-right-outline"></use>
+            </svg>
+          </button>
         <div class="swiper promo-spotlight-swiper">
           <div class="swiper-wrapper">
             {% for book in books_on_sale %}
@@ -2148,6 +2255,7 @@
             </div>
             {% endfor %}
           </div>
+        </div>
         </div>
       </div>
     </section>
@@ -2613,17 +2721,17 @@
             <span>Pilih judul yang menarik, buka detailnya, lalu mulai baca tanpa perlu checkout.</span>
           </div>
         </div>
-        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
+        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next free-books-slider-button-next">
           <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
             <use xlink:href="#alt-arrow-right-outline"></use>
           </svg>
         </div>
-        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev product-slider-button-prev">
+        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev free-books-slider-button-prev">
           <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
             <use xlink:href="#alt-arrow-left-outline"></use>
           </svg>
         </div>
-        <div class="swiper product-swiper">
+        <div class="swiper product-swiper free-books-swiper">
           <div class="swiper-wrapper text-start">
           {% for book in free_book %}
             <div class="swiper-slide" style="width:220px;">
@@ -2679,7 +2787,11 @@
               <div class="blog-card">
                 <div class="blog-img-wrap">
                 <a href="{% url 'detail_blog' blog.id %}">
-                  <img loading="lazy" decoding="async" src="{{blog.image.url}}" alt="{{ blog.header }}">
+                  {% if blog.image %}
+                  <img loading="lazy" decoding="async" src="{{ blog.image.url }}" alt="{{ blog.header }}">
+                  {% else %}
+                  <img loading="lazy" decoding="async" src="{% static 'images/post-item1.jpg' %}" alt="{{ blog.header }}">
+                  {% endif %}
                 </a>
                 </div>
                 <div class="blog-body">

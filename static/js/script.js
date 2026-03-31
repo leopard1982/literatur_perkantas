@@ -125,53 +125,58 @@
         },
       });
 
-      var productSwiper = new Swiper(".product-swiper", {
-        spaceBetween: 20,        
-        navigation: {
-          nextEl: ".product-slider-button-next",
-          prevEl: ".product-slider-button-prev",
-        },
-        breakpoints: {
-          0: {
-            slidesPerView: 1,
-          },
-          660: {
-            slidesPerView: 3,
-          },
-          980: {
-            slidesPerView: 4,
-          },
-          1500: {
-            slidesPerView: 5,
-          }
-        },
-      });      
+      function createProductSwiper(selector, prevSelector, nextSelector) {
+        var element = document.querySelector(selector);
+        if (!element) {
+          return null;
+        }
 
-      var promoSpotlightElement = document.querySelector(".promo-spotlight-swiper");
-      if (promoSpotlightElement) {
-        var promoSpotlightSlideCount = promoSpotlightElement.querySelector(".swiper-wrapper")
-          ? promoSpotlightElement.querySelector(".swiper-wrapper").children.length
+        var slideCount = element.querySelector(".swiper-wrapper")
+          ? element.querySelector(".swiper-wrapper").children.length
           : 0;
 
-        new Swiper(promoSpotlightElement, {
-          slidesPerView: 1,
-          spaceBetween: 18,
-          autoHeight: true,
-          speed: 1200,
-          allowTouchMove: true,
-          loop: promoSpotlightSlideCount > 1,
-          autoplay: promoSpotlightSlideCount > 1 ? {
-            delay: 5200,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          } : false,
+        return new Swiper(element, {
+          spaceBetween: 20,
+          loop: slideCount > 1,
+          watchOverflow: true,
+          navigation: {
+            nextEl: nextSelector,
+            prevEl: prevSelector,
+          },
+          breakpoints: {
+            0: {
+              slidesPerView: 1,
+            },
+            660: {
+              slidesPerView: 3,
+            },
+            980: {
+              slidesPerView: 4,
+            },
+            1500: {
+              slidesPerView: 5,
+            }
+          },
         });
       }
 
+      var bestSellerSwiper = createProductSwiper(
+        ".best-seller-swiper",
+        ".best-seller-slider-button-prev",
+        ".best-seller-slider-button-next"
+      );
+      var freeBooksSwiper = createProductSwiper(
+        ".free-books-swiper",
+        ".free-books-slider-button-prev",
+        ".free-books-slider-button-next"
+      );
+
+      var promoSpotlightSwiper = null;
       var instagramSwiper = null;
       var collectionShelfSwiper = null;
       var newBooksShelfSwiper = null;
       var promoShelfSwiper = null;
+      var bestSellerManualNavBound = false;
 
       function syncManualNavState(swiperInstance, prevButton, nextButton) {
         if (!prevButton || !nextButton) {
@@ -234,12 +239,73 @@
         }
       }
 
+      function bindBestSellerMobileNav() {
+        if (bestSellerManualNavBound || !bestSellerSwiper) {
+          return;
+        }
+
+        bindManualNav(bestSellerSwiper, ".best-seller-button-prev", ".best-seller-button-next");
+        bestSellerManualNavBound = true;
+      }
+
       function getRealSlideCount(swiperElement) {
         var wrapper = swiperElement ? swiperElement.querySelector(".swiper-wrapper") : null;
         if (!wrapper) {
           return 0;
         }
         return wrapper.children.length;
+      }
+
+      function initPromoSpotlightSwiper() {
+        if (promoSpotlightSwiper && !promoSpotlightSwiper.destroyed) {
+          promoSpotlightSwiper.destroy(true, true);
+          promoSpotlightSwiper = null;
+        }
+
+        var promoSpotlightElement = document.querySelector(".promo-spotlight-swiper");
+        if (!promoSpotlightElement) {
+          return;
+        }
+
+        var promoSpotlightSlideCount = getRealSlideCount(promoSpotlightElement);
+        var promoSpotlightShell = promoSpotlightElement.closest(".promo-spotlight-shell");
+        var promoSpotlightPrevButton = promoSpotlightShell ? promoSpotlightShell.querySelector(".promo-spotlight-button-prev") : null;
+        var promoSpotlightNextButton = promoSpotlightShell ? promoSpotlightShell.querySelector(".promo-spotlight-button-next") : null;
+
+        promoSpotlightSwiper = new Swiper(promoSpotlightElement, {
+          slidesPerView: 1,
+          spaceBetween: 18,
+          autoHeight: true,
+          speed: 1200,
+          allowTouchMove: true,
+          observer: true,
+          observeParents: true,
+          watchOverflow: true,
+          loop: promoSpotlightSlideCount > 1,
+          navigation: {
+            prevEl: promoSpotlightPrevButton,
+            nextEl: promoSpotlightNextButton,
+          },
+          autoplay: promoSpotlightSlideCount > 1 ? {
+            delay: 5200,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+          } : false,
+        });
+
+        if (promoSpotlightPrevButton) {
+          promoSpotlightPrevButton.onclick = function(event) {
+            event.preventDefault();
+            promoSpotlightSwiper.slidePrev(420);
+          };
+        }
+
+        if (promoSpotlightNextButton) {
+          promoSpotlightNextButton.onclick = function(event) {
+            event.preventDefault();
+            promoSpotlightSwiper.slideNext(420);
+          };
+        }
       }
 
       function initNewBooksShelfSwiper() {
@@ -393,11 +459,16 @@
       initPromoShelfSwiper();
       window.addEventListener("resize", initPromoShelfSwiper);
 
+      initPromoSpotlightSwiper();
+      window.addEventListener("resize", initPromoSpotlightSwiper);
+
       initCollectionShelfSwiper();
       window.addEventListener("resize", initCollectionShelfSwiper);
 
       initInstagramSwiper();
       window.addEventListener("resize", initInstagramSwiper);
+
+      bindBestSellerMobileNav();
 
       var testimonialElement = document.querySelector(".testimonial-swiper");
       if (testimonialElement) {

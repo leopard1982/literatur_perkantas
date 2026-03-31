@@ -243,7 +243,11 @@
         {% for blog in halaman %}
         <article class="blogs-card">
           <a href="{% url 'detail_blog' blog.id %}" class="blogs-cover">
+            {% if blog.image %}
             <img src="{{ blog.image.url }}" alt="{{ blog.header }}">
+            {% else %}
+            <img src="{% static 'images/post-item1.jpg' %}" alt="{{ blog.header }}">
+            {% endif %}
           </a>
           <div class="blogs-body">
             <span class="blogs-chip">{{ blog.tipe }}</span>
