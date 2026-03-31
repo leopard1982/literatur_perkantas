@@ -616,7 +616,9 @@ def allBookView(request):
     except (ValueError, TypeError):
         page_size = 10
 
-    base_books = Books.objects.select_related('kategori', 'onsalebook')
+    base_books = Books.objects.select_related('kategori', 'onsalebook').annotate(
+        jumlah_dibeli=Count('userbook', distinct=True)
+    )
 
     try:
         if kategori == 10:

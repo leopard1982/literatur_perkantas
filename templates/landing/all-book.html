@@ -236,6 +236,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .book-purchase-count {
+    font-size: 11px;
+    color: #7a8790;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
   .price-main { font-size: 14px; font-weight: 800; color: var(--primary-color); }
   .price-original { font-size: 11px; text-decoration: line-through; color: #bbb; }
   .price-free { font-size: 13px; font-weight: 800; color: #11998e; }
@@ -438,6 +444,7 @@
             <div class="book-info">
               <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
               <div class="book-author">{{ book.pengarang }}</div>
+              <div class="book-purchase-count"><i class="fa fa-shopping-bag me-1"></i>{{ book.jumlah_dibeli|default:0 }} dibeli</div>
               <div class="d-flex align-items-center flex-wrap gap-1">
                 <span class="price-original">Rp.{{ book.price|intcomma }}</span>
                 <span class="discount-pill">-{{ book.onsalebook.discount }}%</span>
@@ -463,6 +470,7 @@
             <div class="book-info">
               <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
               <div class="book-author">{{ book.pengarang }}</div>
+              <div class="book-purchase-count"><i class="fa fa-shopping-bag me-1"></i>{{ book.jumlah_dibeli|default:0 }} dibeli</div>
               <div class="price-free"><i class="fa fa-gift me-1"></i> Buku Gratis</div>
             </div>
           </div>
@@ -501,6 +509,7 @@
             <div class="book-info">
               <div class="book-title" title="{{ book.judul }}">{{ book.judul }}</div>
               <div class="book-author">{{ book.pengarang }}</div>
+              <div class="book-purchase-count"><i class="fa fa-shopping-bag me-1"></i>{{ book.jumlah_dibeli|default:0 }} dibeli</div>
               {% if book.onsalebook.is_active %}
               <div class="d-flex align-items-center flex-wrap gap-1">
                 <span class="price-original">Rp.{{ book.price|intcomma }}</span>
