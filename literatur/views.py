@@ -395,13 +395,31 @@ def mainPage(request):
     category = Category.objects.all()
     OnSaleBook.objects.filter(end_date__lt=datetime.datetime.now()).delete()
     #id category=3 adalah freebook
-    books_best_seller = Books.objects.filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3))).select_related('kategori', 'onsalebook').order_by('-updated_at')[:6]
-    books = Books.objects.select_related('kategori', 'onsalebook').order_by('-updated_at')[:4]
+    books_best_seller = (
+        Books.objects.filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3)))
+        .select_related('kategori', 'onsalebook')
+        .annotate(jumlah_dibeli=Count('userbook', distinct=True))
+        .order_by('-updated_at')[:6]
+    )
+    books = (
+        Books.objects.select_related('kategori', 'onsalebook')
+        .annotate(jumlah_dibeli=Count('userbook', distinct=True))
+        .order_by('-updated_at')[:4]
+    )
     jml_on_sale = OnSaleBook.objects.count()
-    books_on_sale = OnSaleBook.objects.select_related('book__kategori').order_by('-updated_at')[:4]
+    books_on_sale = (
+        OnSaleBook.objects.select_related('book__kategori')
+        .annotate(jumlah_dibeli=Count('book__userbook', distinct=True))
+        .order_by('-updated_at')[:4]
+    )
 
     #category=3 free
-    free_book = Books.objects.filter(kategori__in=category.filter(id=3)).select_related('kategori').order_by('-updated_at')[:12]
+    free_book = (
+        Books.objects.filter(kategori__in=category.filter(id=3))
+        .select_related('kategori')
+        .annotate(jumlah_dibeli=Count('userbook', distinct=True))
+        .order_by('-updated_at')[:12]
+    )
     print(books_on_sale)
     try:
         pengumuman = get_pengumuman_text()

@@ -2057,6 +2057,7 @@
                 <div class="bs-meta">
                   <span class="bs-chip"><i class="fa fa-fire"></i> Best Seller</span>
                   <small>{{ book.halaman }} hlm</small>
+                  <small><i class="fa fa-shopping-bag"></i> {{ book.jumlah_dibeli|default:0 }} dibeli</small>
                 </div>
                 <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
                 <div class="bs-author">{{ book.pengarang }}</div>
@@ -2113,6 +2114,10 @@
                         <div class="promo-offer-card">
                           <strong>Berlaku sampai</strong>
                           <span>{{ book.end_date|date:"j F Y" }}</span>
+                        </div>
+                        <div class="promo-offer-card">
+                          <strong>Sudah dibeli</strong>
+                          <span>{{ book.jumlah_dibeli|default:0 }} kali</span>
                         </div>
                       </div>
                       <div class="promo-spotlight-actions">
@@ -2216,6 +2221,7 @@
                     <div class="bs-meta">
                       <span class="bs-chip"><i class="fa fa-sparkles"></i> Baru</span>
                       <small>{{ book.halaman }} hlm</small>
+                      <small><i class="fa fa-shopping-bag"></i> {{ book.jumlah_dibeli|default:0 }} dibeli</small>
                     </div>
                     <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
                     <div class="bs-author">{{ book.pengarang }}</div>
@@ -2295,6 +2301,7 @@
                             <div class="bs-meta">
                               <span class="bs-chip"><i class="fa fa-sparkles"></i> Baru</span>
                               <small>{{ book.halaman }} hlm</small>
+                              <small><i class="fa fa-shopping-bag"></i> {{ book.jumlah_dibeli|default:0 }} dibeli</small>
                             </div>
                             <div class="bs-title" title="{{ book.judul }}">{{ book.judul }}</div>
                             <div class="bs-author">{{ book.pengarang }}</div>
@@ -2373,6 +2380,7 @@
                       <div class="bs-meta">
                         <span class="bs-chip"><i class="fa fa-tag"></i> Promo</span>
                         <small>S.d. {{ books.end_date|date:"j M Y" }}</small>
+                        <small><i class="fa fa-shopping-bag"></i> {{ books.jumlah_dibeli|default:0 }} dibeli</small>
                       </div>
                       <div class="bs-title" title="{{ books.book.judul }}">{{ books.book.judul }}</div>
                       <div class="bs-author">{{ books.book.pengarang }}</div>
@@ -2443,6 +2451,7 @@
                             <div class="bs-meta">
                               <span class="bs-chip"><i class="fa fa-tag"></i> Promo</span>
                               <small>S.d. {{ books.end_date|date:"j M Y" }}</small>
+                              <small><i class="fa fa-shopping-bag"></i> {{ books.jumlah_dibeli|default:0 }} dibeli</small>
                             </div>
                             <div class="bs-title" title="{{ books.book.judul }}">{{ books.book.judul }}</div>
                             <div class="bs-author">{{ books.book.pengarang }}</div>
