@@ -400,24 +400,7 @@
             <span>{{ comments_page_obj.paginator.count }} komentar</span>
           </div>
 
-          {% if user.is_authenticated and can_comment_book %}
-          <form method="post" class="comment-form">
-            {% csrf_token %}
-            <input type="hidden" name="comment_type" value="book">
-            <textarea name="comment" rows="3" maxlength="1000" placeholder="Tulis komentar kamu tentang buku ini..." required></textarea>
-            <button type="submit">Kirim Komentar</button>
-          </form>
-          {% elif user.is_authenticated %}
-          <div class="comment-info-note">
-            Komentar hanya tersedia untuk buku gratis atau buku yang sudah ada di koleksi kamu.
-          </div>
-          {% else %}
-          <div class="comment-info-note">
-            Silakan login untuk menuliskan komentar.
-          </div>
-          {% endif %}
-
-          <div class="my-3 d-flex align-items-center justify-content-center gap-2">
+          <div class="my-2 d-flex align-items-center justify-content-center gap-2">
             <span style="height:1px;flex:1;background:linear-gradient(to right,transparent,#e5dfd8);"></span>
             <span style="font-size:11px;letter-spacing:.08em;color:#b0a69d;text-transform:uppercase;">•••</span>
             <span style="height:1px;flex:1;background:linear-gradient(to left,transparent,#e5dfd8);"></span>
@@ -430,13 +413,6 @@
                 <strong>{{ item.user.userdetail.nama_lengkap|default:item.user.username }}</strong>
                 <div class="comment-meta-actions">
                   <span>{{ item.created_at|date:"j F Y H:i" }}</span>
-                  {% if user.is_authenticated and item.user_id == user.id %}
-                  <form method="post" action="{% url 'delete_book_comment' item.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}#book-comments">
-                    <button type="submit" class="btn-delete-comment">Hapus</button>
-                  </form>
-                  {% endif %}
                 </div>
               </div>
               <p>{{ item.comment|linebreaksbr }}</p>
