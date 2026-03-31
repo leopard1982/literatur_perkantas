@@ -7,7 +7,7 @@ from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumu
 from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation
 from .models import BlogComment, BookComment
-from django.db.models import Avg,Q,Sum,Prefetch
+from django.db.models import Avg,Q,Sum,Prefetch,Count
 import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
