@@ -108,14 +108,17 @@
           $videoSrc = $(this).data( "src" );
         });
 
+      if ($('#myModal').length && $('#video').length) {
         $('#myModal').on('shown.bs.modal', function (e) {
+          if ($videoSrc) {
+            $("#video").attr('src', $videoSrc + "?autoplay=1&amp;modestbranding=1&amp;showinfo=0");
+          }
+        })
 
-        $("#video").attr('src',$videoSrc + "?autoplay=1&amp;modestbranding=1&amp;showinfo=0" ); 
-      })
-
-      $('#myModal').on('hide.bs.modal', function (e) {
-        $("#video").attr('src',$videoSrc); 
-      })
+        $('#myModal').on('hide.bs.modal', function (e) {
+          $("#video").attr('src', $videoSrc || "");
+        })
+      }
 
       var mainSwiper = new Swiper(".main-swiper", {
         speed: 500,
@@ -124,6 +127,36 @@
           prevEl: ".main-slider-button-prev",
         },
       });
+
+      function getLoopThreshold(swiperOptions) {
+        var maxSlidesPerView = Number(swiperOptions.slidesPerView) || 1;
+        var maxSlidesPerGroup = Number(swiperOptions.slidesPerGroup) || 1;
+        var breakpoints = swiperOptions.breakpoints || {};
+
+        Object.keys(breakpoints).forEach(function(key) {
+          var breakpoint = breakpoints[key] || {};
+          var breakpointSlidesPerView = Number(breakpoint.slidesPerView);
+          var breakpointSlidesPerGroup = Number(breakpoint.slidesPerGroup);
+
+          if (!Number.isNaN(breakpointSlidesPerView)) {
+            maxSlidesPerView = Math.max(maxSlidesPerView, breakpointSlidesPerView);
+          }
+
+          if (!Number.isNaN(breakpointSlidesPerGroup)) {
+            maxSlidesPerGroup = Math.max(maxSlidesPerGroup, breakpointSlidesPerGroup);
+          }
+        });
+
+        return Math.ceil(maxSlidesPerView) + maxSlidesPerGroup - 1;
+      }
+
+      function shouldEnableLoop(slideCount, swiperOptions) {
+        if (slideCount <= 1) {
+          return false;
+        }
+
+        return slideCount > getLoopThreshold(swiperOptions);
+      }
 
       function createProductSwiper(selector, prevSelector, nextSelector) {
         var element = document.querySelector(selector);
@@ -135,9 +168,8 @@
           ? element.querySelector(".swiper-wrapper").children.length
           : 0;
 
-        return new Swiper(element, {
+        var swiperOptions = {
           spaceBetween: 20,
-          loop: slideCount > 1,
           watchOverflow: true,
           navigation: {
             nextEl: nextSelector,
@@ -157,7 +189,11 @@
               slidesPerView: 5,
             }
           },
-        });
+        };
+
+        swiperOptions.loop = shouldEnableLoop(slideCount, swiperOptions);
+
+        return new Swiper(element, swiperOptions);
       }
 
       var bestSellerSwiper = createProductSwiper(
@@ -272,7 +308,7 @@
         var promoSpotlightPrevButton = promoSpotlightShell ? promoSpotlightShell.querySelector(".promo-spotlight-button-prev") : null;
         var promoSpotlightNextButton = promoSpotlightShell ? promoSpotlightShell.querySelector(".promo-spotlight-button-next") : null;
 
-        promoSpotlightSwiper = new Swiper(promoSpotlightElement, {
+        var promoSpotlightOptions = {
           slidesPerView: 1,
           spaceBetween: 18,
           autoHeight: true,
@@ -281,7 +317,6 @@
           observer: true,
           observeParents: true,
           watchOverflow: true,
-          loop: promoSpotlightSlideCount > 1,
           navigation: {
             prevEl: promoSpotlightPrevButton,
             nextEl: promoSpotlightNextButton,
@@ -291,7 +326,11 @@
             disableOnInteraction: false,
             pauseOnMouseEnter: false,
           } : false,
-        });
+        };
+
+        promoSpotlightOptions.loop = shouldEnableLoop(promoSpotlightSlideCount, promoSpotlightOptions);
+
+        promoSpotlightSwiper = new Swiper(promoSpotlightElement, promoSpotlightOptions);
 
         if (promoSpotlightPrevButton) {
           promoSpotlightPrevButton.onclick = function(event) {
@@ -325,18 +364,21 @@
 
         var newBooksSlideCount = getRealSlideCount(newBooksElement);
 
-        newBooksShelfSwiper = new Swiper(newBooksElement, {
+        var newBooksOptions = {
           slidesPerView: 1,
           spaceBetween: 18,
           grabCursor: true,
           autoHeight: true,
           centeredSlides: true,
-          loop: newBooksSlideCount > 1,
           observer: true,
           observeParents: true,
           speed: 440,
           watchSlidesProgress: true,
-        });
+        };
+
+        newBooksOptions.loop = shouldEnableLoop(newBooksSlideCount, newBooksOptions);
+
+        newBooksShelfSwiper = new Swiper(newBooksElement, newBooksOptions);
 
         bindManualNav(newBooksShelfSwiper, ".new-books-button-prev", ".new-books-button-next");
       }
@@ -358,18 +400,21 @@
 
         var promoSlideCount = getRealSlideCount(promoElement);
 
-        promoShelfSwiper = new Swiper(promoElement, {
+        var promoShelfOptions = {
           slidesPerView: 1,
           spaceBetween: 18,
           grabCursor: true,
           autoHeight: true,
           centeredSlides: true,
-          loop: promoSlideCount > 1,
           observer: true,
           observeParents: true,
           speed: 440,
           watchSlidesProgress: true,
-        });
+        };
+
+        promoShelfOptions.loop = shouldEnableLoop(promoSlideCount, promoShelfOptions);
+
+        promoShelfSwiper = new Swiper(promoElement, promoShelfOptions);
 
         bindManualNav(promoShelfSwiper, ".promo-button-prev", ".promo-button-next");
       }
@@ -391,18 +436,21 @@
 
         var collectionSlideCount = getRealSlideCount(collectionElement);
 
-        collectionShelfSwiper = new Swiper(collectionElement, {
+        var collectionOptions = {
           slidesPerView: 1,
           spaceBetween: 18,
           grabCursor: true,
           autoHeight: true,
           centeredSlides: true,
-          loop: collectionSlideCount > 1,
           observer: true,
           observeParents: true,
           speed: 440,
           watchSlidesProgress: true,
-        });
+        };
+
+        collectionOptions.loop = shouldEnableLoop(collectionSlideCount, collectionOptions);
+
+        collectionShelfSwiper = new Swiper(collectionElement, collectionOptions);
 
         bindManualNav(collectionShelfSwiper, ".collection-button-prev", ".collection-button-next");
       }
@@ -427,11 +475,10 @@
         var instagramPrevButton = instagramSection ? instagramSection.querySelector(".instagram-button-prev") : null;
         var instagramNextButton = instagramSection ? instagramSection.querySelector(".instagram-button-next") : null;
 
-        instagramSwiper = new Swiper(instagramElement, {
+        var instagramOptions = {
           slidesPerView: 1.2,
           spaceBetween: 14,
           grabCursor: true,
-          loop: instagramSlideCount > 1,
           observer: true,
           observeParents: true,
           watchOverflow: true,
@@ -448,7 +495,11 @@
               slidesPerView: 3.2,
             },
           },
-        });
+        };
+
+        instagramOptions.loop = shouldEnableLoop(instagramSlideCount, instagramOptions);
+
+        instagramSwiper = new Swiper(instagramElement, instagramOptions);
 
         bindManualNav(instagramSwiper, ".instagram-button-prev", ".instagram-button-next");
       }
@@ -473,37 +524,46 @@
       var testimonialElement = document.querySelector(".testimonial-swiper");
       if (testimonialElement) {
         var testimonialSlideCount = getRealSlideCount(testimonialElement);
-        var testimonialSwiper = new Swiper(testimonialElement, {
+        var testimonialOptions = {
           slidesPerView: 1,
           spaceBetween: 20,
-          loop: testimonialSlideCount > 1,
           autoHeight: true,
           speed: 440,
           navigation: {
             nextEl: ".testimonial-button-next",
             prevEl: ".testimonial-button-prev",
           },
-        });
+        };
+
+        testimonialOptions.loop = shouldEnableLoop(testimonialSlideCount, testimonialOptions);
+
+        var testimonialSwiper = new Swiper(testimonialElement, testimonialOptions);
 
         bindManualNav(testimonialSwiper, ".testimonial-button-prev", ".testimonial-button-next");
       }
 
-      var thumb_slider = new Swiper(".thumb-swiper", {
-        slidesPerView: 1,
-      });
-      var large_slider = new Swiper(".large-swiper", {
-        spaceBetween: 10,
-        effect: 'fade',
-        thumbs: {
-          swiper: thumb_slider,
-        },
-      });
+      var thumbSliderElement = document.querySelector(".thumb-swiper");
+      var largeSliderElement = document.querySelector(".large-swiper");
+      if (thumbSliderElement && largeSliderElement) {
+        var thumb_slider = new Swiper(thumbSliderElement, {
+          slidesPerView: 1,
+        });
+        var large_slider = new Swiper(largeSliderElement, {
+          spaceBetween: 10,
+          effect: 'fade',
+          thumbs: {
+            swiper: thumb_slider,
+          },
+        });
+      }
 
     }); // End of a document ready
 
     window.addEventListener("load", function () {
       const preloader = document.getElementById("preloader");
-      preloader.classList.add("hide-preloader");
+      if (preloader) {
+        preloader.classList.add("hide-preloader");
+      }
     });
 
 })(jQuery);
