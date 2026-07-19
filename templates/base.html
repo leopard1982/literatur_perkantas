@@ -548,6 +548,22 @@
           display: flex !important;
         }
       }
+      .grecaptcha-badge {
+        visibility: hidden;
+      }
+      .recaptcha-notice {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #55606b;
+        margin: 10px 0 0;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .recaptcha-notice a {
+        color: #F86D72;
+        font-weight: 700;
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body  oncontextmenu="return false;">
@@ -1073,9 +1089,12 @@
                      placeholder="email@contoh.com">
               {{ recaptcha_reset_form.recaptcha }}
             </div>
-            <div class="modal-footer border-0" style="padding:16px 28px 26px;">
-              <button type="button" style="border-radius:999px;font-size:13px;font-weight:700;padding:11px 20px;background:#f0f0f0;color:#555;border:none;" data-bs-toggle="modal" data-bs-target="#exampleModal">Batal</button>
-              <button type="submit" class="btn" style="border-radius:999px;font-size:13px;font-weight:700;padding:11px 20px;">Kirim Link Reset</button>
+            <div class="modal-footer border-0 d-block" style="padding:16px 28px 26px;">
+              <div class="d-flex gap-2">
+                <button type="button" style="border-radius:999px;font-size:13px;font-weight:700;padding:11px 20px;background:#f0f0f0;color:#555;border:none;" data-bs-toggle="modal" data-bs-target="#exampleModal">Batal</button>
+                <button type="submit" class="btn" style="border-radius:999px;font-size:13px;font-weight:700;padding:11px 20px;">Kirim Link Reset</button>
+              </div>
+              <p class="recaptcha-notice">Formulir ini dilindungi reCAPTCHA. Berlaku <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> dan <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Ketentuan Layanan</a> Google.</p>
             </div>
           </form>
         </div>
@@ -1150,6 +1169,7 @@
                         class="btn w-100" style="border-radius:999px;padding:12px;font-size:15px;font-weight:700;">
                   Masuk
                 </button>
+                <p class="recaptcha-notice">Formulir ini dilindungi reCAPTCHA. Berlaku <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> dan <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Ketentuan Layanan</a> Google.</p>
                 <p style="text-align:center;font-size:13px;margin-top:14px;color:#888;">
                   <a href="#" data-bs-toggle="modal" data-bs-target="#modalResetPassword" style="color:#F86D72;font-weight:600;">Lupa password?</a>
                 </p>
@@ -1179,6 +1199,7 @@
                         class="btn w-100" style="border-radius:999px;padding:12px;font-size:15px;font-weight:700;">
                   Kirim Link Pendaftaran
                 </button>
+                <p class="recaptcha-notice">Formulir ini dilindungi reCAPTCHA. Berlaku <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> dan <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Ketentuan Layanan</a> Google.</p>
                 <p style="text-align:center;font-size:13px;margin-top:14px;color:#888;">
                   <a href="#" onclick="switchTab('login');return false;" style="color:#F86D72;font-weight:600;">Sudah punya akun? Masuk di sini</a>
                 </p>
@@ -1334,7 +1355,7 @@
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <span>&copy; 2024 Literatur Perkantas Nasional. Semua hak cipta dilindungi.</span>
             <span>Dikembangkan dengan <i class="fa fa-heart" style="color:#F86D72;"></i> oleh
-              <a href="mailto:adhy.chandra@gmail.com" style="color:#F86D72;">Leopard Software</a>
+              <a href="https://leopardos.tech" target="_blank" rel="noopener" style="color:#F86D72;">CV Leopardos Oke Satu</a>
             </span>
           </div>
         </div>
