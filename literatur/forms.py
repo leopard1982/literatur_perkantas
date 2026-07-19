@@ -1,5 +1,23 @@
 from django import forms
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 from .models import UserDetail, MyDonation
+
+
+class FormLoginRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='login'))
+
+
+class FormRegisterRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='register'))
+
+
+class FormResetPasswordRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='forgot_password'))
+
+
+class FormBuatPasswordRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='buat_password'))
 
 class FormUpdateProfile(forms.ModelForm):
     class Meta:
@@ -50,6 +68,8 @@ class FormUpdateProfile(forms.ModelForm):
         }
 
 class FormMyDonation(forms.ModelForm):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='donasi'))
+
     class Meta:
         model = MyDonation
         fields = [

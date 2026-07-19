@@ -1,0 +1,29 @@
+{% comment %}
+Override of django_recaptcha's default template: the vendored version uses a global
+`element` variable and a global `recaptchaFormSubmit` function name. When more than one
+reCAPTCHA v3 widget is rendered on the same page (e.g. Login + Register + Reset Password
+modals), each widget's script overwrites those globals, so whichever widget's script runs
+last "wins" and hijacks every other form's submit handler. Wrapping in an IIFE keeps each
+widget's state and handler scoped to itself.
+{% endcomment %}
+<script src="https://{{ recaptcha_domain }}/recaptcha/api.js?render={{ public_key }}{% if api_params %}&{{ api_params }}{% endif %}"></script>
+<script type="text/javascript">
+(function() {
+    var element;
+    grecaptcha.ready(function() {
+        element = document.querySelector('.g-recaptcha[data-widget-uuid="{{ widget_uuid }}"]');
+        element.form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            {% if action %}
+            grecaptcha.execute('{{ public_key }}', {action: '{{ action|escape }}'})
+            {% else %}
+            grecaptcha.execute('{{ public_key }}', {})
+            {% endif %}
+            .then(function(token) {
+                element.value = token;
+                element.form.submit();
+            });
+        });
+    });
+})();
+</script>

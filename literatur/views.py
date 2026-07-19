@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
-from .models import UserBook, LupaPassword, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
+from .models import UserBook, LupaPassword, PendaftaranBaru, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation
 from .models import BlogComment, BookComment
 from django.db.models import Avg,Q,Sum,Prefetch,Count
@@ -21,6 +21,7 @@ from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
 from django.template import loader
 from .forms import FormMyDonation
+from .forms import FormLoginRecaptcha, FormRegisterRecaptcha, FormResetPasswordRecaptcha, FormBuatPasswordRecaptcha
 # test untuk delete session user
 from django.contrib.sessions.models import Session
 
@@ -190,6 +191,9 @@ def bulanTeks(bulan):
     
 def resetPassword(request):
     if( request.method == "POST"):
+        if not FormResetPasswordRecaptcha(request.POST).is_valid():
+            messages.add_message(request,messages.SUCCESS,"Verifikasi reCAPTCHA gagal, silakan coba lagi.")
+            return HttpResponseRedirect('/')
         try:
             email=request.POST['resetEmail']
             user = User.objects.get(email=email)
@@ -199,7 +203,9 @@ def resetPassword(request):
 
             #send email again
             subject = "Reset Password"
-            message = f"\nUntuk Reset Password silakan klik pada link:. \n\nhttps://literatur.pythonanywhere.com/forgot/{lupapassword.id}/ \n\n\nLink ini hanya berlaku 1 jam \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+            reset_link = request.build_absolute_uri(reverse('verify_link_lupa_password',kwargs={'id':lupapassword.id}))
+            site_link = request.build_absolute_uri(reverse('main_page'))
+            message = f"\nUntuk Reset Password silakan klik pada link:. \n\n{reset_link} \n\n\nLink ini hanya berlaku 1 jam \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: {site_link}"
             from_email = settings.DEFAULT_FROM_EMAIL
             try:
                 send_mail(
@@ -246,7 +252,8 @@ def verifyLinkLupaPassword(request,id):
                 
                 #send email again
                 subject = "Password Baru"
-                message = f"\nHallo Ka selamat untuk email {resetemail.email} memiliki password baru: {password} \n\nPassword bisa kaka ganti sesuai keinginan kaka setelah berhasil login. \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                site_link = request.build_absolute_uri(reverse('main_page'))
+                message = f"\nHallo Ka selamat untuk email {resetemail.email} memiliki password baru: {password} \n\nPassword bisa kaka ganti sesuai keinginan kaka setelah berhasil login. \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: {site_link}"
                 from_email = settings.DEFAULT_FROM_EMAIL
                 try:
                     send_mail(
@@ -280,6 +287,66 @@ def verifyLinkLupaPassword(request,id):
         messages.add_message(request,messages.SUCCESS,'Link Konfirmasi Sudah Kadaluarsa... Silakan Klik Lupa Password Kembali yah...')
     return HttpResponseRedirect('/')
 
+def verifyLinkPendaftaran(request,id):
+    try:
+        pendaftaran = PendaftaranBaru.objects.get(Q(id=id) & Q(is_used=False))
+    except Exception as ex:
+        print(ex)
+        messages.add_message(request,messages.SUCCESS,'Link Pendaftaran Sudah Kadaluarsa Atau Tidak Valid... Silakan Daftar Kembali yah...')
+        return HttpResponseRedirect('/')
+
+    if pendaftaran.expired.timestamp() <= datetime.datetime.now().timestamp():
+        messages.add_message(request,messages.SUCCESS,'Link Pendaftaran Sudah Kadaluarsa... Silakan Daftar Kembali yah...')
+        return HttpResponseRedirect('/')
+
+    if request.method == "POST":
+        if not FormBuatPasswordRecaptcha(request.POST).is_valid():
+            messages.add_message(request,messages.SUCCESS,"Verifikasi reCAPTCHA gagal, silakan coba lagi.")
+            return HttpResponseRedirect(request.path)
+
+        nama_lengkap = request.POST.get('nama_lengkap','').strip()
+        password1 = request.POST['password_baru']
+        password2 = request.POST['password_konfirmasi']
+
+        if not nama_lengkap:
+            messages.add_message(request,messages.SUCCESS,'Nama Lengkap wajib diisi! Silakan ulangi kembali...')
+            return HttpResponseRedirect(request.path)
+
+        if password1 != password2:
+            messages.add_message(request,messages.SUCCESS,'Password Dan Konfirmasi Harus Sama! Silakan Ulangi Kembali...')
+            return HttpResponseRedirect(request.path)
+
+        if User.objects.filter(email=pendaftaran.email).exists():
+            messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, silakan login ya kaka...')
+            pendaftaran.is_used = True
+            pendaftaran.save()
+            return HttpResponseRedirect('/')
+
+        user = User.objects.create(
+            username=pendaftaran.email,
+            email=pendaftaran.email,
+        )
+        user.set_password(password1)
+        user.save()
+
+        # tambahkan userdetail dengan nama lengkap yang diisi pengguna
+        userdetail = UserDetail()
+        userdetail.user = user
+        userdetail.nama_lengkap = nama_lengkap
+        userdetail.save()
+
+        pendaftaran.is_used = True
+        pendaftaran.save()
+
+        messages.add_message(request,messages.SUCCESS,f'Selamat Kaka {nama_lengkap} berhasil terdaftar! Silakan login untuk melanjutkan yah...')
+        return HttpResponseRedirect('/')
+
+    context = {
+        'email': pendaftaran.email,
+        'recaptcha_form': FormBuatPasswordRecaptcha(),
+    }
+    return render(request,'landing/buat_password_pendaftaran.html',context)
+
 def logoutUser(request):
     logout(request)
     messages.add_message(request,messages.SUCCESS,"Kaka sudah logout.. silakan login untuk bisa membaca buku koleksi...")
@@ -308,58 +375,43 @@ def mainPage(request):
 
     if request.method=="POST":
         if 'username_register' in request.POST:
-            email = request.POST['username_register']
-            password1 = request.POST['password_register1']
-            password2 = request.POST['password_register2']
-            if(password1!=password2):
-                messages.add_message(request,messages.SUCCESS,"Password Dan Konfirmasi Harus Sama! Silakan Ulangi Registrasi Kembali...")
+            if not FormRegisterRecaptcha(request.POST).is_valid():
+                messages.add_message(request,messages.SUCCESS,"Verifikasi reCAPTCHA gagal, silakan coba lagi.")
                 return HttpResponseRedirect('/')
-            try:
-                reg=User.objects.get(email=email)
+            email = request.POST['username_register']
+
+            if User.objects.filter(email=email).exists():
                 messages.add_message(request,messages.SUCCESS,"Email sudah terdaftar, silakan login ya kaka...")
                 return HttpResponseRedirect('/')
-            except:
-                pass
-                
-            try:
-                # print(password)
-                user = User.objects.create(
-                    username=email,
-                    password=password1,
-                    email=email
-                )
-                user.set_password(password1)
-                user.save()
 
-                 # tambahkan userdetail untuk nama lengkap saja
-                userdetail = UserDetail()
-                userdetail.user=user
-                userdetail.nama_lengkap=user.username
-                userdetail.save()
-                
-                #send email again
-                subject = "Initial Email dan Password"
-                message = f"\nHallo Ka, selamat untuk email {email} sudah terdaftar di Litanas Perkantas Nasional!. \n\nTerlampir Username dan Password yang bisa kaka pakai: \n\n\n******\nUsername: {email}\nPassword: {password1} \n******\n\nMohon Username dan Password disimpan dan jangan diberikan kepada pihak manapun karena bersifat rahasia.\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
-                from_email = settings.DEFAULT_FROM_EMAIL
-                try:
-                    send_mail(
-                    subject,
-                    message,
-                    from_email,
-                    [f"{email}"],
-                    fail_silently=False
-                    )
-                    messages.add_message(request,messages.SUCCESS,f"Selamat Kaka sudah terdaftar! Silakan cek email untuk melihat username dan password kaka yah....")
-                except Exception as ex:
-                    messages.add_message(request,messages.SUCCESS,"maaf, proses registrasi terhenti.. silakan coba lagi nanti...")
-                    print(ex)
-                
+            pendaftaran = PendaftaranBaru()
+            pendaftaran.email = email
+            pendaftaran.save()
+
+            #send email pendaftaran
+            subject = "Konfirmasi Pendaftaran"
+            verify_link = request.build_absolute_uri(reverse('verify_link_pendaftaran',kwargs={'id':pendaftaran.id}))
+            site_link = request.build_absolute_uri(reverse('main_page'))
+            message = f"\nHallo Ka, terima kasih sudah mendaftar di Literatur Perkantas Nasional dengan email {email}. \n\nSilakan klik link berikut untuk melanjutkan pendaftaran dan membuat password: \n\n{verify_link} \n\nLink ini hanya berlaku selama {settings.EXPIRED_MINUTES} menit. \n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: {site_link}"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            try:
+                send_mail(
+                subject,
+                message,
+                from_email,
+                [f"{email}"],
+                fail_silently=False
+                )
+                messages.add_message(request,messages.SUCCESS,f"Terima kasih! Silakan cek email {email} untuk link konfirmasi pendaftaran yah, link berlaku selama 1 jam....")
             except Exception as ex:
+                messages.add_message(request,messages.SUCCESS,"maaf, proses pendaftaran terhenti.. silakan coba lagi nanti...")
                 print(ex)
-                messages.add_message(request,messages.SUCCESS,'Email sudah terdaftar, Apabila kaka lupa password boleh klik link lupa password yah...')
             return HttpResponseRedirect('/')
 
         if 'username_login' in request.POST:
+            if not FormLoginRecaptcha(request.POST).is_valid():
+                messages.add_message(request,messages.SUCCESS,"Verifikasi reCAPTCHA gagal, silakan coba lagi.")
+                return HttpResponseRedirect('/')
             username = request.POST['username_login']
             password = request.POST['password_login']
             user = authenticate(username=username,password=password)
@@ -1504,7 +1556,8 @@ def gantiPasswordPage(request):
                     # kirimkan email
                     #send email again
                     subject = "Penggantian Password Berhasil"
-                    message = f"Hallo Ka {user.userdetail.nama_lengkap} selamat untuk password berhasil diubah. \n\n********\nPassword Baru: {password_baru}\n********\n\nHarap password tidak diberikan kepada siapapun karena bersifat rahasia. Terima kasih dan Tuhan memberkati\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+                    site_link = request.build_absolute_uri(reverse('main_page'))
+                    message = f"Hallo Ka {user.userdetail.nama_lengkap} selamat untuk password berhasil diubah. \n\n********\nPassword Baru: {password_baru}\n********\n\nHarap password tidak diberikan kepada siapapun karena bersifat rahasia. Terima kasih dan Tuhan memberkati\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: {site_link}"
                     from_email = settings.DEFAULT_FROM_EMAIL
                     try:
                         send_mail(

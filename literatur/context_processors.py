@@ -1,5 +1,6 @@
 from django.urls import reverse
 
+from .forms import FormLoginRecaptcha, FormRegisterRecaptcha, FormResetPasswordRecaptcha
 from .models import inboxMessage
 
 
@@ -130,4 +131,15 @@ def nav_notifications(request):
     return {
         'nav_inbox_message': notice_qs[:10],
         'nav_jml_inbox_message': notice_qs.count(),
+    }
+
+
+def recaptcha_forms(request):
+    if request.user.is_authenticated:
+        return {}
+
+    return {
+        'recaptcha_login_form': FormLoginRecaptcha(),
+        'recaptcha_register_form': FormRegisterRecaptcha(),
+        'recaptcha_reset_form': FormResetPasswordRecaptcha(),
     }
