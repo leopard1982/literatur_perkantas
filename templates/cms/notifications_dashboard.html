@@ -1,0 +1,108 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Notifikasi{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1100px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel { padding: 26px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f4d6ca;
+        color: #bf5b3d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 16px 18px;
+        background: white;
+        margin-bottom: 14px;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .item-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(69, 52, 34, 0.08);
+        border-color: rgba(191, 91, 61, 0.3);
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .status-urgent { background: rgba(201, 131, 40, 0.14); color: var(--warning); }
+    .status-info { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <span class="eyebrow">Notifikasi</span>
+        <h1 class="mt-3 mb-2 fw-bold">Semua notifikasi Anda</h1>
+        <p class="muted mb-0">{{ total_notifications }} notifikasi sesuai peran akun Anda saat ini.</p>
+    </section>
+
+    <section class="surface-card">
+        {% for notif in page_obj %}
+        <a href="{{ notif.url }}" class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="fw-bold">{{ notif.title }}</div>
+                <div class="muted small">{{ notif.message }}</div>
+                <div class="muted small">{{ notif.created_at|date:"d M Y H:i" }}</div>
+            </div>
+            <span class="status-pill {% if notif.urgent %}status-urgent{% else %}status-info{% endif %}">{% if notif.urgent %}Perlu Tindakan{% else %}Info{% endif %}</span>
+        </a>
+        {% empty %}
+        <div class="item-row">
+            <strong>Tidak ada notifikasi.</strong>
+            <div class="muted small">Semua sudah beres untuk saat ini.</div>
+        </div>
+        {% endfor %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Role & User{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1360px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel { padding: 26px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f3e6c4;
+        color: #9a7a1f;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .form-label { font-weight: 700; font-size: 13px; color: #40515b; margin-bottom: 6px; }
+
+    .btn-save {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        min-height: 50px;
+        font-weight: 800;
+    }
+
+    .errorlist { list-style: none; padding: 0; margin: 4px 0 0; color: #b23a48; font-size: 12px; font-weight: 700; }
+
+    .role-badge {
+        display: inline-flex;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: #f3e6c4;
+        color: #9a7a1f;
+        font-size: 12px;
+        font-weight: 800;
+        margin-right: 4px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .status-active { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+    .status-inactive { background: rgba(178, 58, 72, 0.12); color: #b23a48; }
+
+    .btn-toggle-on { background: var(--forest); color: white; border: none; }
+    .btn-toggle-off { background: #efe7dc; color: #5b4d40; border: none; }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 16px 18px;
+        background: white;
+    }
+
+    .role-select {
+        min-width: 140px;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <span class="eyebrow">Role & User CMS</span>
+        <h1 class="mt-3 mb-2 fw-bold">Kelola akun staff dan peran akses CMS</h1>
+        <p class="muted mb-0">Buat akun baru untuk tim Keuangan, Admin, atau Penulis, lalu atur peran akses masing-masing.</p>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <section class="surface-card">
+                <div class="fw-bold mb-3">Buat Akun Staff Baru</div>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_user">
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {{ form.username.errors }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.nama_lengkap.label }}</label>
+                        {{ form.nama_lengkap }}
+                        {{ form.nama_lengkap.errors }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.password.label }}</label>
+                        {{ form.password }}
+                        {{ form.password.errors }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.role.label }}</label>
+                        {{ form.role }}
+                        {{ form.role.errors }}
+                    </div>
+                    <button class="btn btn-save w-100" type="submit">Buat Akun Staff</button>
+                </form>
+            </section>
+        </div>
+
+        <div class="col-lg-8">
+            <section class="surface-card mb-4">
+                <div class="fw-bold mb-3">Akun Staff Berperan ({{ page_obj.paginator.count }})</div>
+
+                {% for row in staff_rows %}
+                <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <div class="fw-bold">{{ row.user.username }}</div>
+                        <div class="muted small">{{ row.user.email|default:"-" }}{% if row.user.first_name %} &bull; {{ row.user.first_name }}{% endif %}</div>
+                        <span class="status-pill mt-2 d-inline-flex {% if row.user.is_active %}status-active{% else %}status-inactive{% endif %}">{% if row.user.is_active %}Aktif{% else %}Nonaktif{% endif %}</span>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <form method="post" class="d-flex flex-wrap gap-2 align-items-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="change_role">
+                            <input type="hidden" name="user_id" value="{{ row.user.id }}">
+                            <select name="role" class="form-select form-select-sm role-select">
+                                {% for value, label in role_choices %}
+                                <option value="{{ value }}" {% if value in row.roles %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-sm btn-outline-warm" type="submit">Ubah</button>
+                        </form>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_active">
+                            <input type="hidden" name="user_id" value="{{ row.user.id }}">
+                            <button class="btn btn-sm {% if row.user.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if row.user.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="item-row">Belum ada akun staff berperan.</div>
+                {% endfor %}
+
+                {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </section>
+
+            {% if superuser_accounts %}
+            <section class="surface-card">
+                <div class="fw-bold mb-3">Akun Superuser (akses penuh)</div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for su in superuser_accounts %}
+                    <span class="role-badge">{{ su.username }}</span>
+                    {% endfor %}
+                </div>
+                <div class="muted small mt-2">Akun superuser dikelola langsung dari Django admin, bukan dari halaman ini.</div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

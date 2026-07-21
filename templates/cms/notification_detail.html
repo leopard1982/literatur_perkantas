@@ -1,0 +1,186 @@
+{% extends 'cms/base.html' %}
+{% load humanize %}
+
+{% block title %}Detail Notifikasi - CMS{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 900px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+    .surface-card { border-radius: 24px; padding: 28px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f4d6ca;
+        color: #bf5b3d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin: 20px 0;
+    }
+
+    .mini-field {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        background: rgba(255,255,255,0.86);
+    }
+
+    .mini-field .label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .proof-image {
+        width: 100%;
+        max-height: 380px;
+        object-fit: contain;
+        border-radius: 22px;
+        border: 1px solid var(--stroke);
+        background: #fff;
+        margin-bottom: 20px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .status-active { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+    .status-inactive { background: rgba(178, 58, 72, 0.12); color: #b23a48; }
+    .status-pending { background: rgba(201, 131, 40, 0.14); color: var(--warning); }
+
+    .btn-approve { background: var(--forest); color: white; border: none; }
+    .btn-reject { background: #b23a48; color: white; border: none; }
+    .btn-toggle-on { background: var(--forest); color: white; border: none; }
+    .btn-toggle-off { background: #efe7dc; color: #5b4d40; border: none; }
+
+    .body-text {
+        white-space: pre-line;
+        line-height: 1.7;
+        padding: 16px 18px;
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        background: rgba(255,255,255,0.86);
+        margin: 12px 0 20px;
+    }
+
+    @media (max-width: 700px) {
+        .detail-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/notifications/">Kembali ke Notifikasi</a>
+    </div>
+
+    <section class="surface-card">
+        <span class="eyebrow">Detail Notifikasi</span>
+
+        {% if kind == 'payment' %}
+        <h1 class="mt-3 mb-2 fw-bold">Verifikasi Pembayaran {{ payment.payment }}</h1>
+        <div class="detail-grid">
+            <div class="mini-field"><span class="label">Pembeli</span><strong>{{ payment.user.userdetail.nama_lengkap|default:payment.user.username }}</strong></div>
+            <div class="mini-field"><span class="label">Email</span><strong>{{ payment.user.email }}</strong></div>
+            <div class="mini-field"><span class="label">Total</span><strong>Rp {{ payment.total|intcomma }}</strong></div>
+            <div class="mini-field"><span class="label">Jumlah Buku</span><strong>{{ payment.jumlah_buku }}</strong></div>
+            <div class="mini-field"><span class="label">Masuk</span><strong>{{ payment.created_at|date:"d F Y H:i" }} WIB</strong></div>
+            <div class="mini-field"><span class="label">Status</span>
+                {% if payment.is_verified %}<span class="status-pill status-active">Disetujui</span>
+                {% elif payment.is_canceled %}<span class="status-pill status-inactive">Ditolak</span>
+                {% else %}<span class="status-pill status-pending">Menunggu</span>{% endif %}
+            </div>
+        </div>
+        {% if payment.bukti %}<img src="/media/{{ payment.bukti }}" alt="Bukti transfer" class="proof-image">{% endif %}
+        <div class="fw-bold mb-2">Rincian Buku</div>
+        {% for detail in payment_details %}
+        <div class="mini-field mb-2 d-flex justify-content-between">
+            <span>{{ detail.book.judul }}</span><strong>Rp {{ detail.harga|intcomma }}</strong>
+        </div>
+        {% endfor %}
+        {% if not payment.is_verified and not payment.is_canceled %}
+        <form method="post" class="d-grid gap-2 mt-4">
+            {% csrf_token %}
+            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Pembayaran</button>
+            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Pembayaran</button>
+        </form>
+        {% endif %}
+
+        {% elif kind == 'donation' %}
+        <h1 class="mt-3 mb-2 fw-bold">Verifikasi Donasi dari {{ donation.initial }}</h1>
+        <div class="detail-grid">
+            <div class="mini-field"><span class="label">Email</span><strong>{{ donation.email }}</strong></div>
+            <div class="mini-field"><span class="label">Nilai</span><strong>Rp {{ donation.nilai|intcomma }}</strong></div>
+            <div class="mini-field"><span class="label">Keterangan</span><strong>{{ donation.keterangan|default:"-" }}</strong></div>
+            <div class="mini-field"><span class="label">Masuk</span><strong>{{ donation.created_at|date:"d F Y H:i" }} WIB</strong></div>
+        </div>
+        {% if donation.bukti %}<img src="{{ donation.bukti.url }}" alt="Bukti donasi" class="proof-image">{% endif %}
+        {% if not donation.is_verified and not donation.is_canceled %}
+        <form method="post" class="d-grid gap-2 mt-2">
+            {% csrf_token %}
+            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Donasi</button>
+            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Donasi</button>
+        </form>
+        {% endif %}
+
+        {% elif kind == 'coretan_moderation' %}
+        <h1 class="mt-3 mb-2 fw-bold">{{ blog.header }}</h1>
+        <div class="muted small mb-2">Oleh {{ blog.author.username }} &bull; {{ blog.created_at|date:"d F Y H:i" }}</div>
+        <span class="status-pill {% if blog.is_active %}status-active{% else %}status-pending{% endif %}">{% if blog.is_active %}Tayang{% else %}Menunggu Moderasi{% endif %}</span>
+        <div class="body-text">{{ blog.body }}</div>
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn {% if blog.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %} w-100" type="submit">{% if blog.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
+        </form>
+
+        {% elif kind == 'review_sahabat' %}
+        <h1 class="mt-3 mb-2 fw-bold">Review dari {{ review_sahabat.user.userdetail.nama_lengkap|default:review_sahabat.user.username }}</h1>
+        <div class="muted small mb-2">{{ review_sahabat.created_at|date:"d F Y H:i" }}</div>
+        <span class="status-pill {% if review_sahabat.is_active %}status-active{% else %}status-pending{% endif %}">{% if review_sahabat.is_active %}Tampil{% else %}Disembunyikan{% endif %}</span>
+        <div class="body-text">{{ review_sahabat.review }}</div>
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn {% if review_sahabat.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %} w-100" type="submit">{% if review_sahabat.is_active %}Sembunyikan{% else %}Tampilkan{% endif %}</button>
+        </form>
+
+        {% elif kind == 'review_buku' %}
+        <h1 class="mt-3 mb-2 fw-bold">{{ review_buku.id_buku.judul }}</h1>
+        <div class="muted small mb-2">Oleh {{ review_buku.id_customer.nama_lengkap }} &bull; {{ review_buku.updated_review|date:"d F Y" }}</div>
+        <span class="status-pill {% if review_buku.is_published %}status-active{% else %}status-pending{% endif %}">{% if review_buku.is_published %}Terbit{% else %}Menunggu Moderasi{% endif %}</span>
+        <div class="body-text">{{ review_buku.review }}</div>
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn {% if review_buku.is_published %}btn-toggle-off{% else %}btn-toggle-on{% endif %} w-100" type="submit">{% if review_buku.is_published %}Sembunyikan{% else %}Terbitkan{% endif %}</button>
+        </form>
+
+        {% elif kind == 'coretan_status' %}
+        <h1 class="mt-3 mb-2 fw-bold">{{ blog.header }}</h1>
+        <div class="muted small mb-2">Diperbarui {{ blog.updated_at|date:"d F Y H:i" }}</div>
+        <span class="status-pill {% if blog.is_active %}status-active{% else %}status-pending{% endif %}">{% if blog.is_active %}Sudah Tayang{% else %}Menunggu Moderasi Admin{% endif %}</span>
+        <div class="body-text">{{ blog.body }}</div>
+        <a class="btn btn-outline-warm w-100" href="/cms/coretan-pena/{{ blog.id }}/edit/">Edit Tulisan Ini</a>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

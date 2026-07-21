@@ -28,7 +28,7 @@
     }
 
     .summary-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         margin-top: 22px;
     }
 
@@ -70,6 +70,20 @@
     .tone-plum { border-top: 5px solid #7b4c70; }
     .tone-navy { border-top: 5px solid #355070; }
     .tone-charcoal { border-top: 5px solid #495057; }
+    .tone-gold { border-top: 5px solid #9a7a1f; }
+    .tone-teal { border-top: 5px solid #1f7a6c; }
+
+    .role-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.7);
+        border: 1px solid var(--stroke);
+        font-size: 12px;
+        font-weight: 800;
+        margin-right: 6px;
+    }
 
     .module-badge {
         display: inline-flex;
@@ -125,24 +139,25 @@
 
 {% block content %}
 <section class="hero hero-panel">
-    <span class="eyebrow">Superuser CMS</span>
+    <span class="eyebrow">CMS Literatur Perkantas</span>
     <h1 class="mt-3 mb-2 fw-bold">Pusat management operasional Literatur Perkantas</h1>
-    <p class="muted mb-0">Semua area penting bermuara dari sini. Modul payment sudah aktif, sementara modul lain saya siapkan sebagai landing section agar struktur CMS rapi dan mudah dikembangkan berikutnya.</p>
-
-    <div class="summary-grid">
-        <div class="summary-box">
-            <div class="muted small">Payment Pending</div>
-            <div class="value">{{ summary.pending }}</div>
-        </div>
-        <div class="summary-box">
-            <div class="muted small">Payment Disetujui</div>
-            <div class="value">{{ summary.approved }}</div>
-        </div>
-        <div class="summary-box">
-            <div class="muted small">Payment Ditolak</div>
-            <div class="value">{{ summary.rejected }}</div>
-        </div>
+    <p class="muted mb-3">Modul yang tampil menyesuaikan peran akun Anda saat ini.</p>
+    <div>
+        {% for role in roles %}
+        <span class="role-chip">{{ role }}</span>
+        {% endfor %}
     </div>
+
+    {% if summary_tiles %}
+    <div class="summary-grid">
+        {% for tile in summary_tiles %}
+        <div class="summary-box">
+            <div class="muted small">{{ tile.label }}</div>
+            <div class="value">{{ tile.value }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </section>
 
 <section class="module-grid">

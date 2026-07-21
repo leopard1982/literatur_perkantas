@@ -467,7 +467,8 @@ class inboxMessage(models.Model):
 
 TIPE_BLOGS = [
 	('Renungan','Renungan'),
-	('Kisah Buku','Kisah Buku')
+	('Kisah Buku','Kisah Buku'),
+	('Coretan Pena','Coretan Pena')
 ]
 
 class Blogs(models.Model):
@@ -530,16 +531,37 @@ class MyDonation(models.Model):
 	bukti = models.ImageField(upload_to='donation')
 	keterangan = models.CharField(max_length=200,default="")
 	is_verified = models.BooleanField(default=False)
+	is_canceled = models.BooleanField(default=False)
 	pemroses = models.CharField(max_length=100,null=True,blank=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def save(self,*args,**kwargs):
+		previous_status = None
+		if self.pk:
+			try:
+				previous_status = MyDonation.objects.get(pk=self.pk)
+			except MyDonation.DoesNotExist:
+				previous_status = None
+
+		status_changed = (
+			previous_status is None
+			or previous_status.is_verified != self.is_verified
+			or previous_status.is_canceled != self.is_canceled
+		)
+
+		super(MyDonation,self).save(*args,**kwargs)
+
+		if not status_changed:
+			return
+
 		status=""
 		is_ok=False
-		if self.is_verified:
+		if self.is_verified and not self.is_canceled:
 			is_ok=True
 			status=" sudah berhasil diverifikasi oleh admin. "
+		elif self.is_canceled:
+			status=" tidak dapat diverifikasi oleh admin, karena bukti transfer tidak sesuai. "
 		else:
 			status =" sedang dalam verifikasi admin, mohon menunggu. "
 
@@ -551,7 +573,7 @@ class MyDonation(models.Model):
 		else:
 			message = f"Hallo kaka {self.initial} Terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}.\n\nUntuk status donasi kaka {status}\n\nApabila admin sudah selesai melakukan verifikasi, akan diberikan konfirmasi via email kembali.\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.\n\nTuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
 		from_email = settings.DEFAULT_FROM_EMAIL
-		
+
 		try:
 			send_mail(
 					subject,
@@ -561,8 +583,7 @@ class MyDonation(models.Model):
 					fail_silently=False
 				)
 		except Exception as ex:
-			print(ex)        
-		super(MyDonation,self).save(*args,**kwargs)
+			print(ex)
 
 	def __str__(self):
 		return f"{self.initial} - {self.email} - {self.nilai}"

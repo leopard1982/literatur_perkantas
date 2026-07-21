@@ -1,0 +1,177 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Moderasi Konten{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1360px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel { padding: 26px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #dde6f2;
+        color: #355070;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .tab-row { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+
+    .tab-link {
+        padding: 12px 20px;
+        border-radius: 14px;
+        border: 1px solid var(--stroke);
+        background: white;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .tab-link.active {
+        background: linear-gradient(135deg, var(--navy), #24384f);
+        color: white;
+        border-color: transparent;
+    }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 16px 18px;
+        background: white;
+        margin-bottom: 14px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .status-active { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+    .status-inactive { background: rgba(178, 58, 72, 0.12); color: #b23a48; }
+
+    .btn-toggle-on { background: var(--forest); color: white; border: none; }
+    .btn-toggle-off { background: #efe7dc; color: #5b4d40; border: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <span class="eyebrow">Moderasi Konten</span>
+        <h1 class="mt-3 mb-2 fw-bold">Jaga kualitas konten yang tayang ke publik</h1>
+        <p class="muted mb-0">Moderasi coretan pena penulis, review sahabat, dan review buku sebelum tampil di halaman utama.</p>
+    </section>
+
+    <div class="tab-row">
+        <a class="tab-link {% if active_tab == 'coretan' %}active{% endif %}" href="?tab=coretan">Coretan Pena</a>
+        <a class="tab-link {% if active_tab == 'sahabat' %}active{% endif %}" href="?tab=sahabat">Review Sahabat</a>
+        <a class="tab-link {% if active_tab == 'buku' %}active{% endif %}" href="?tab=buku">Review Buku</a>
+    </div>
+
+    <section class="surface-card">
+        {% if active_tab == 'coretan' %}
+            {% for blog in page_obj %}
+            <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="fw-bold">{{ blog.header }}</div>
+                    <div class="muted small">Oleh {{ blog.author.username }} &bull; {{ blog.created_at|date:"d M Y H:i" }}</div>
+                    <div class="muted small">{{ blog.body|truncatewords:24 }}</div>
+                </div>
+                <div class="text-end">
+                    <span class="status-pill {% if blog.is_active %}status-active{% else %}status-inactive{% endif %}">{% if blog.is_active %}Tayang{% else %}Menunggu Moderasi{% endif %}</span>
+                    <form method="post" class="mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_coretan">
+                        <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                        <button class="btn btn-sm {% if blog.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if blog.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="item-row"><strong>Belum ada coretan pena.</strong></div>
+            {% endfor %}
+
+        {% elif active_tab == 'sahabat' %}
+            {% for review in page_obj %}
+            <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="fw-bold">{{ review.user.userdetail.nama_lengkap|default:review.user.username }}</div>
+                    <div class="muted small">{{ review.created_at|date:"d M Y H:i" }}</div>
+                    <div class="muted small">{{ review.review }}</div>
+                </div>
+                <div class="text-end">
+                    <span class="status-pill {% if review.is_active %}status-active{% else %}status-inactive{% endif %}">{% if review.is_active %}Tampil{% else %}Disembunyikan{% endif %}</span>
+                    <form method="post" class="mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_sahabat">
+                        <input type="hidden" name="review_id" value="{{ review.id }}">
+                        <button class="btn btn-sm {% if review.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if review.is_active %}Sembunyikan{% else %}Tampilkan{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="item-row"><strong>Belum ada review sahabat.</strong></div>
+            {% endfor %}
+
+        {% else %}
+            {% for review in page_obj %}
+            <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="fw-bold">{{ review.id_buku.judul }}</div>
+                    <div class="muted small">Oleh {{ review.id_customer.nama_lengkap }} &bull; {{ review.updated_review|date:"d M Y" }}</div>
+                    <div class="muted small">{{ review.review }}</div>
+                </div>
+                <div class="text-end">
+                    <span class="status-pill {% if review.is_published %}status-active{% else %}status-inactive{% endif %}">{% if review.is_published %}Terbit{% else %}Menunggu Moderasi{% endif %}</span>
+                    <form method="post" class="mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_buku">
+                        <input type="hidden" name="review_id" value="{{ review.id }}">
+                        <button class="btn btn-sm {% if review.is_published %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if review.is_published %}Sembunyikan{% else %}Terbitkan{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="item-row"><strong>Belum ada review buku.</strong></div>
+            {% endfor %}
+        {% endif %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?tab={{ active_tab }}&page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

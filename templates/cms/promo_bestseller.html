@@ -1,0 +1,267 @@
+{% extends 'cms/base.html' %}
+{% load humanize %}
+
+{% block title %}CMS Promo & Best Seller{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1480px; }
+
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel {
+        padding: 26px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f6e6c9;
+        color: #c98328;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .tab-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    .tab-link {
+        padding: 12px 20px;
+        border-radius: 14px;
+        border: 1px solid var(--stroke);
+        background: white;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .tab-link.active {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border-color: transparent;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        font-weight: 800;
+        border-radius: 14px;
+        padding: 12px 20px;
+        text-decoration: none;
+    }
+    .btn-add:hover { color: white; }
+
+    .toolbar .form-control,
+    .toolbar .form-select,
+    .toolbar .btn {
+        border-radius: 14px;
+        min-height: 48px;
+    }
+
+    .promo-card, .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 16px 18px;
+        background: white;
+        margin-bottom: 14px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .status-active { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+    .status-inactive { background: rgba(178, 58, 72, 0.12); color: #b23a48; }
+
+    .best-seller-table th, .best-seller-table td {
+        vertical-align: middle;
+    }
+
+    .btn-toggle-on { background: var(--forest); color: white; border: none; }
+    .btn-toggle-off { background: #efe7dc; color: #5b4d40; border: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <div>
+            <span class="eyebrow">Promo & Best Seller</span>
+            <h1 class="mt-3 mb-2 fw-bold">Kurasi promo dan buku best seller Litanas</h1>
+            <p class="muted mb-0">Kelola diskon aktif dan pilih buku yang tampil sebagai best seller di halaman utama.</p>
+        </div>
+        {% if active_tab == 'promo' %}
+        <a class="btn-add" href="/cms/promo/add/">+ Tambah Promo</a>
+        {% endif %}
+    </section>
+
+    <div class="tab-row">
+        <a class="tab-link {% if active_tab == 'promo' %}active{% endif %}" href="?tab=promo">Promo ({{ promo_active_count|default:0 }} aktif)</a>
+        <a class="tab-link {% if active_tab == 'bestseller' %}active{% endif %}" href="?tab=bestseller">Best Seller ({{ best_seller_count|default:0 }})</a>
+    </div>
+
+    {% if active_tab == 'promo' %}
+    <section class="surface-card">
+        {% for promo in promo_page_obj %}
+        <div class="promo-card d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="fw-bold">{{ promo.header }}</div>
+                <div class="muted small">{{ promo.book.judul }} &bull; {{ promo.book.pengarang }}</div>
+                <div class="muted small">{{ promo.body }}</div>
+                <div class="muted small">{{ promo.start_date|date:"d M Y" }} &ndash; {{ promo.end_date|date:"d M Y" }}</div>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold text-success mb-1">Diskon {{ promo.discount }}% &bull; Rp {{ promo.nett_price|intcomma }}</div>
+                <span class="status-pill {% if promo.is_active %}status-active{% else %}status-inactive{% endif %}">{% if promo.is_active %}Aktif{% else %}Nonaktif{% endif %}</span>
+                <div class="d-flex gap-2 mt-2 justify-content-end">
+                    <a class="btn btn-sm btn-outline-warm" href="/cms/promo/{{ promo.id }}/edit/">Edit</a>
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_promo">
+                        <input type="hidden" name="promo_id" value="{{ promo.id }}">
+                        <button class="btn btn-sm {% if promo.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if promo.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
+                    </form>
+                    <form method="post" class="d-inline" onsubmit="return confirm('Hapus promo ini?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_promo">
+                        <input type="hidden" name="promo_id" value="{{ promo.id }}">
+                        <button class="btn btn-sm btn-reject" style="background:#b23a48;color:white;border:none;" type="submit">Hapus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="item-row">
+            <strong>Belum ada promo aktif.</strong>
+            <div class="muted small">Tambahkan promo baru untuk memberi diskon pada buku pilihan.</div>
+        </div>
+        {% endfor %}
+
+        {% if promo_page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if promo_page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?tab=promo&page={{ promo_page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in promo_page_obj.paginator.page_range %}
+                <li class="page-item {% if promo_page_obj.number == num %}active{% endif %}"><a class="page-link" href="?tab=promo&page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if promo_page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?tab=promo&page={{ promo_page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+    {% else %}
+    <section class="surface-card">
+        <form method="get" class="toolbar mb-3">
+            <input type="hidden" name="tab" value="bestseller">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari judul atau pengarang">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="kategori">
+                        <option value="">Semua Kategori</option>
+                        {% for kategori in categories %}
+                        <option value="{{ kategori.id }}" {% if current_kategori == kategori.id|stringformat:"s" %}selected{% endif %}>{{ kategori.nama }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table best-seller-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ book.judul }}</div>
+                            <div class="muted small">{{ book.pengarang }}</div>
+                        </td>
+                        <td>{{ book.kategori.nama }}</td>
+                        <td>Rp {{ book.price|intcomma }}</td>
+                        <td>
+                            <span class="status-pill {% if book.is_best_seller %}status-active{% else %}status-inactive{% endif %}">{% if book.is_best_seller %}Best Seller{% else %}Reguler{% endif %}</span>
+                        </td>
+                        <td class="text-end">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_bestseller">
+                                <input type="hidden" name="book_id" value="{{ book.id }}">
+                                <input type="hidden" name="q" value="{{ current_query }}">
+                                <input type="hidden" name="kategori" value="{{ current_kategori }}">
+                                <button class="btn btn-sm {% if book.is_best_seller %}btn-toggle-off{% else %}btn-toggle-on{% endif %}" type="submit">{% if book.is_best_seller %}Hapus dari Best Seller{% else %}Jadikan Best Seller{% endif %}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center muted py-4">Belum ada buku sesuai filter.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?tab=bestseller&q={{ current_query }}&kategori={{ current_kategori }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?tab=bestseller&q={{ current_query }}&kategori={{ current_kategori }}&page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?tab=bestseller&q={{ current_query }}&kategori={{ current_kategori }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

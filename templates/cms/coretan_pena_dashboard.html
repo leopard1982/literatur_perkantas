@@ -1,0 +1,139 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Coretan Pena{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1200px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel {
+        padding: 26px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #e2d8ef;
+        color: #1f7a6c;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .btn-add {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        font-weight: 800;
+        border-radius: 14px;
+        padding: 12px 20px;
+        text-decoration: none;
+    }
+    .btn-add:hover { color: white; }
+
+    .stat-card {
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--stroke);
+        background: white;
+    }
+    .stat-card .value { font-size: 28px; font-weight: 800; }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 16px 18px;
+        background: white;
+        margin-bottom: 14px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .status-active { background: rgba(45, 106, 79, 0.14); color: var(--forest); }
+    .status-inactive { background: rgba(201, 131, 40, 0.14); color: var(--warning); }
+
+    .edit-link { text-decoration: none; font-weight: 800; color: var(--accent); font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <div>
+            <span class="eyebrow">Coretan Pena</span>
+            <h1 class="mt-3 mb-2 fw-bold">Ruang tulisan pribadi Anda</h1>
+            <p class="muted mb-0">Tulisan baru menunggu moderasi admin sebelum tayang. Hanya Anda yang bisa mengubah atau menghapus tulisan milik Anda.</p>
+        </div>
+        <a class="btn-add" href="/cms/coretan-pena/add/">+ Tulis Baru</a>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="muted small">Total Tulisan</div>
+                <div class="value">{{ total_posts }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="muted small">Sudah Tayang</div>
+                <div class="value">{{ active_posts }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="muted small">Menunggu Moderasi</div>
+                <div class="value">{{ pending_posts }}</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="surface-card">
+        {% for post in posts %}
+        <div class="item-row d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="fw-bold">{{ post.header }}</div>
+                <div class="muted small">{{ post.created_at|date:"d M Y H:i" }}</div>
+                <div class="muted small">{{ post.body|truncatewords:24 }}</div>
+            </div>
+            <div class="text-end">
+                <span class="status-pill {% if post.is_active %}status-active{% else %}status-inactive{% endif %}">{% if post.is_active %}Tayang{% else %}Menunggu Moderasi{% endif %}</span>
+                <div class="mt-2">
+                    <a class="edit-link" href="/cms/coretan-pena/{{ post.id }}/edit/">Edit &rarr;</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="item-row">
+            <strong>Anda belum menulis coretan pena.</strong>
+            <div class="muted small">Klik "Tulis Baru" untuk mulai berbagi tulisan.</div>
+        </div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}
