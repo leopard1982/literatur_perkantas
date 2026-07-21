@@ -2,6 +2,7 @@ db.sqlite3
 .env
 /perkantas_literatur/settings.py
 /literatur/migrations/
+/media/pdf_full/
 /media/extract/
 /staticfolder
 .codex
