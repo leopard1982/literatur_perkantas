@@ -244,7 +244,7 @@ class MyPayment(models.Model):
 			jml_userbook = UserBook.objects.all().filter(id_user=self.user).count()
 
 			#update jumlah buku
-			userdetail = UserDetail.objects.get(user=self.user)
+			userdetail,_ = UserDetail.objects.get_or_create(user=self.user)
 			userdetail.total_book =jml_userbook
 			userdetail.save()
 
@@ -255,13 +255,25 @@ class MyPayment(models.Model):
 			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca. Terima kasih, Tuhan memberkati!"
 			inboxmessage.save()
 
+			if self.user and self.user.email:
+				try:
+					send_mail(
+						"Pembayaran Disetujui - Litanas",
+						f"Selamat kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
+						settings.DEFAULT_FROM_EMAIL,
+						[self.user.email],
+						fail_silently=False
+					)
+				except Exception as ex:
+					print(ex)
+
 			#simpan pemroses
 			MyPayment.objects.filter(payment=self.payment).update(
 				pemroses=pemroses,
 				updated_at=timezone.now()
 			)
 			self.pemroses=pemroses
-		
+
 		# jika tidak verified
 		if not self.is_verified and self.is_canceled:
 			#update status buku detail jadi aktif
@@ -275,7 +287,7 @@ class MyPayment(models.Model):
 			jml_userbook = UserBook.objects.all().filter(id_user=self.user).count()
 
 			#update jumlah buku
-			userdetail = UserDetail.objects.get(user=self.user)
+			userdetail,_ = UserDetail.objects.get_or_create(user=self.user)
 			userdetail.total_book =jml_userbook
 			userdetail.save()
 
@@ -285,6 +297,18 @@ class MyPayment(models.Model):
 			inboxmessage.header="Pembayaran Gagal Dikonfirmasi"
 			inboxmessage.body=f"Maaf kaka, untuk pembayaran sebesar {self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. Boleh kaka kembali kirimkan foto yang sesuai ke nomor whatsapp admin Litanas di nomor: +6281291508616. Terima kasih, Tuhan memberkati!"
 			inboxmessage.save()
+
+			if self.user and self.user.email:
+				try:
+					send_mail(
+						"Pembayaran Ditolak - Litanas",
+						f"Maaf kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai.\n\nBoleh kaka kembali kirimkan foto yang sesuai ke nomor whatsapp admin Litanas di nomor: +6281291508616.\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
+						settings.DEFAULT_FROM_EMAIL,
+						[self.user.email],
+						fail_silently=False
+					)
+				except Exception as ex:
+					print(ex)
 
 			#simpan pemroses
 			MyPayment.objects.filter(payment=self.payment).update(
@@ -591,3 +615,16 @@ class MyDonation(models.Model):
 
 	def __str__(self):
 		return f"{self.initial} - {self.email} - {self.nilai}"
+
+class CmsActivityLog(models.Model):
+	user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
+	module = models.CharField(max_length=50,default="",blank=True)
+	action = models.CharField(max_length=255,default="")
+	ip_address = models.GenericIPAddressField(null=True,blank=True)
+	created_at = models.DateTimeField(auto_now_add=True,db_index=True)
+
+	class Meta:
+		ordering = ['-created_at']
+
+	def __str__(self):
+		return f"{self.action}"

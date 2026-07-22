@@ -2,14 +2,15 @@ CMS_ROLE_GROUPS = ['Keuangan', 'Admin', 'Superadmin', 'Penulis']
 CMS_ROLE_CHOICES = [(role, role) for role in CMS_ROLE_GROUPS]
 
 ROLE_ACCESS = {
-    'payments': {'Keuangan'},
-    'donations': {'Keuangan'},
+    'payments': {'Keuangan', 'Admin', 'Superadmin'},
+    'donations': {'Keuangan', 'Admin', 'Superadmin'},
     'books': {'Admin', 'Superadmin'},
     'categories': {'Admin', 'Superadmin'},
     'promo_bestseller': {'Admin', 'Superadmin'},
     'customers': {'Admin', 'Superadmin'},
     'content_moderation': {'Admin', 'Superadmin'},
     'roles': {'Superadmin'},
+    'activity_log': {'Superadmin'},
     'coretan_pena': {'Penulis'},
 }
 

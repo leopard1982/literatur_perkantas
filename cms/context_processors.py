@@ -11,6 +11,7 @@ NAV_CATALOG = [
     {'module': 'content_moderation', 'label': 'Moderasi Konten', 'href': '/cms/content/'},
     {'module': 'roles', 'label': 'Role & User', 'href': '/cms/roles/'},
     {'module': 'coretan_pena', 'label': 'Coretan Pena', 'href': '/cms/coretan-pena/'},
+    {'module': 'activity_log', 'label': 'Log Transaksi', 'href': '/cms/logs/'},
 ]
 
 

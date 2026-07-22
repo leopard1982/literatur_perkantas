@@ -1,16 +1,23 @@
 import datetime
+import io
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
-from django.http import HttpResponseRedirect
+from django.db.models import Count, Q, Sum
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from openpyxl import Workbook
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from literatur.models import (
-    Blogs, BookReview, Books, Category, MyDonation, MyPayment, MyPaymentDetail,
+    Blogs, BookReview, Books, Category, CmsActivityLog, MyDonation, MyPayment, MyPaymentDetail,
     OnSaleBook, PageReview, UserDetail,
 )
 
@@ -87,6 +94,173 @@ CARD_CATALOG = [
 ]
 
 
+MONTH_CHOICES = [
+    (1, 'Januari'), (2, 'Februari'), (3, 'Maret'), (4, 'April'),
+    (5, 'Mei'), (6, 'Juni'), (7, 'Juli'), (8, 'Agustus'),
+    (9, 'September'), (10, 'Oktober'), (11, 'November'), (12, 'Desember'),
+]
+
+
+def _report_period(request):
+    now = timezone.now()
+    try:
+        month = int(request.GET.get('month', now.month))
+    except (TypeError, ValueError):
+        month = now.month
+    try:
+        year = int(request.GET.get('year', now.year))
+    except (TypeError, ValueError):
+        year = now.year
+    if month < 1 or month > 12:
+        month = now.month
+    return month, year
+
+
+def _xlsx_response(filename, header, rows):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(header)
+    for row in rows:
+        sheet.append(row)
+    for column_cells in sheet.columns:
+        column_letter = column_cells[0].column_letter
+        longest = max((len(str(cell.value)) for cell in column_cells if cell.value is not None), default=8)
+        sheet.column_dimensions[column_letter].width = min(longest + 2, 40)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    workbook.save(response)
+    return response
+
+
+def _year_choices():
+    current_year = timezone.now().year
+    return list(range(current_year, current_year - 5, -1))
+
+
+def _signature_table(available_width):
+    signature_table = Table(
+        [
+            ['Dibuat Oleh,', 'Disetujui Oleh,'],
+            ['', ''],
+            ['', ''],
+            ['', ''],
+            ['_____________________', '_____________________'],
+            ['Bendahara', ''],
+        ],
+        colWidths=[available_width / 2, available_width / 2],
+    )
+    signature_table.setStyle(TableStyle([
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+    ]))
+    return signature_table
+
+
+def _build_report_pdf(filename, title, period_label, summary_rows, table_header, table_rows, col_ratios=None):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=1.6 * cm, rightMargin=1.6 * cm, topMargin=1.6 * cm, bottomMargin=1.6 * cm,
+    )
+    styles = getSampleStyleSheet()
+    cell_style = styles['Normal'].clone('cell')
+    cell_style.fontSize = 8
+    cell_style.leading = 10
+    header_style = cell_style.clone('cell-header')
+    header_style.textColor = colors.white
+    header_style.fontName = 'Helvetica-Bold'
+
+    elements = [
+        Paragraph(title, styles['Title']),
+        Paragraph(period_label, styles['Normal']),
+        Spacer(1, 0.5 * cm),
+    ]
+
+    summary_table = Table(summary_rows, hAlign='LEFT', colWidths=[6 * cm, 6 * cm])
+    summary_table.setStyle(TableStyle([
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+    ]))
+    elements.append(summary_table)
+    elements.append(Spacer(1, 0.7 * cm))
+
+    col_count = len(table_header)
+    available_width = A4[0] - 3.2 * cm
+    if col_ratios and len(col_ratios) == col_count:
+        ratio_sum = sum(col_ratios)
+        col_widths = [available_width * ratio / ratio_sum for ratio in col_ratios]
+    else:
+        col_widths = [available_width / col_count] * col_count
+
+    data = [[Paragraph(str(cell), header_style) for cell in table_header]]
+    for row in table_rows:
+        data.append([Paragraph(str(cell), cell_style) for cell in row])
+
+    transaction_table = Table(data, colWidths=col_widths, repeatRows=1)
+    transaction_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#bf5b3d')),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d3c1ac')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5efe6')]),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(transaction_table)
+    elements.append(Spacer(1, 1.5 * cm))
+
+    elements.append(_signature_table(available_width))
+
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+def _build_receipt_pdf(filename, title, fields):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=2 * cm, rightMargin=2 * cm, topMargin=2 * cm, bottomMargin=2 * cm,
+    )
+    styles = getSampleStyleSheet()
+
+    elements = [
+        Paragraph(title, styles['Title']),
+        Spacer(1, 0.8 * cm),
+    ]
+
+    available_width = A4[0] - 4 * cm
+    field_table = Table(fields, colWidths=[available_width * 0.35, available_width * 0.65])
+    field_table.setStyle(TableStyle([
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d3c1ac')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    elements.append(field_table)
+    elements.append(Spacer(1, 1.5 * cm))
+
+    elements.append(_signature_table(available_width))
+
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
 def _breadcrumbs(*items):
     crumbs = []
     total = len(items)
@@ -100,6 +274,26 @@ def _user_cms_roles(user):
     if not user.is_authenticated:
         return set()
     return set(user.groups.values_list('name', flat=True)) & set(CMS_ROLE_GROUPS)
+
+
+def _client_ip(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def _log_activity(request, module, action):
+    CmsActivityLog.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        module=module,
+        action=action,
+        ip_address=_client_ip(request),
+    )
+
+
+def _can_process_finance(request):
+    return 'Keuangan' in _user_cms_roles(request.user)
 
 
 def _ensure_cms_access(request, module=None):
@@ -267,11 +461,16 @@ def payment_dashboard(request):
 
     status_filter = request.GET.get('status', 'all').strip() or 'all'
     query = request.GET.get('q', '').strip()
-    selected_invoice = request.GET.get('invoice', '').strip()
+
+    can_process = _can_process_finance(request)
 
     if request.method == 'POST':
         payment_id = request.POST.get('payment_id', '').strip()
         decision = request.POST.get('decision', '').strip()
+
+        if not can_process:
+            messages.add_message(request, messages.SUCCESS, 'Hanya akun dengan peran Keuangan yang dapat memproses persetujuan pembayaran.')
+            return HttpResponseRedirect(f"/cms/payments/?status={status_filter}&q={query}")
 
         try:
             payment = MyPayment.objects.get(payment=payment_id)
@@ -284,19 +483,19 @@ def payment_dashboard(request):
                 payment.pemroses = request.user.username
                 payment.save()
                 messages.add_message(request, messages.SUCCESS, f'Pembayaran {payment.payment} berhasil disetujui.')
+                _log_activity(request, 'payments', f'Menyetujui pembayaran {payment.payment}.')
             elif decision == 'reject':
                 payment.is_verified = False
                 payment.is_canceled = True
                 payment.pemroses = request.user.username
                 payment.save()
                 messages.add_message(request, messages.SUCCESS, f'Pembayaran {payment.payment} berhasil ditolak.')
+                _log_activity(request, 'payments', f'Menolak pembayaran {payment.payment}.')
         except Exception as ex:
             print(ex)
             messages.add_message(request, messages.SUCCESS, 'Terjadi kendala saat memproses status pembayaran.')
 
-        return HttpResponseRedirect(
-            f"/cms/payments/?status={status_filter}&q={query}&invoice={payment_id}"
-        )
+        return HttpResponseRedirect(f"/cms/payments/?status={status_filter}&q={query}")
 
     payments = MyPayment.objects.select_related('user', 'user__userdetail').order_by('-created_at')
 
@@ -319,16 +518,16 @@ def payment_dashboard(request):
     paginator = Paginator(payments, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    selected_payment = None
-    if selected_invoice:
-        selected_payment = MyPayment.objects.select_related('user', 'user__userdetail').filter(payment=selected_invoice).first()
-
-    if selected_payment is None and page_obj.object_list:
-        selected_payment = page_obj.object_list[0]
-
-    selected_details = []
-    if selected_payment is not None:
-        selected_details = MyPaymentDetail.objects.select_related('book').filter(payment=selected_payment)
+    payments_on_page = list(page_obj.object_list)
+    details_by_payment = {}
+    if payments_on_page:
+        detail_qs = MyPaymentDetail.objects.select_related('book').filter(
+            payment__in=[p.payment for p in payments_on_page]
+        )
+        for detail in detail_qs:
+            details_by_payment.setdefault(detail.payment_id, []).append(detail)
+    for payment in payments_on_page:
+        payment.details = details_by_payment.get(payment.payment, [])
 
     now = timezone.now()
     stats = {
@@ -342,13 +541,29 @@ def payment_dashboard(request):
         ).count(),
     }
 
+    report_month, report_year = _report_period(request)
+    period_payments = MyPayment.objects.filter(created_at__year=report_year, created_at__month=report_month)
+    report = {
+        'total_count': period_payments.count(),
+        'approved_count': period_payments.filter(is_verified=True).count(),
+        'approved_amount': period_payments.filter(is_verified=True).aggregate(total=Sum('total'))['total'] or 0,
+        'rejected_count': period_payments.filter(is_verified=False, is_canceled=True).count(),
+        'pending_count': period_payments.filter(is_verified=False, is_canceled=False).count(),
+    }
+    period_transactions = period_payments.select_related('user', 'user__userdetail').order_by('created_at')
+
     context = {
         'page_obj': page_obj,
-        'selected_payment': selected_payment,
-        'selected_details': selected_details,
         'current_status': status_filter,
         'current_query': query,
         'stats': stats,
+        'can_process': can_process,
+        'report_month': report_month,
+        'report_year': report_year,
+        'report': report,
+        'period_transactions': period_transactions,
+        'month_choices': MONTH_CHOICES,
+        'year_choices': _year_choices(),
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Management Payment', None)),
     }
     return render(request, 'cms/payment_dashboard.html', context)
@@ -361,11 +576,16 @@ def donation_dashboard(request):
 
     status_filter = request.GET.get('status', 'all').strip() or 'all'
     query = request.GET.get('q', '').strip()
-    selected_id = request.GET.get('donation', '').strip()
+
+    can_process = _can_process_finance(request)
 
     if request.method == 'POST':
         donation_id = request.POST.get('donation_id', '').strip()
         decision = request.POST.get('decision', '').strip()
+
+        if not can_process:
+            messages.add_message(request, messages.SUCCESS, 'Hanya akun dengan peran Keuangan yang dapat memproses persetujuan donasi.')
+            return HttpResponseRedirect(f"/cms/donations/?status={status_filter}&q={query}")
 
         try:
             donation = MyDonation.objects.get(donation=donation_id)
@@ -378,19 +598,19 @@ def donation_dashboard(request):
                 donation.pemroses = request.user.username
                 donation.save()
                 messages.add_message(request, messages.SUCCESS, f'Donasi dari {donation.initial} berhasil disetujui.')
+                _log_activity(request, 'donations', f'Menyetujui donasi dari {donation.initial}.')
             elif decision == 'reject':
                 donation.is_verified = False
                 donation.is_canceled = True
                 donation.pemroses = request.user.username
                 donation.save()
                 messages.add_message(request, messages.SUCCESS, f'Donasi dari {donation.initial} berhasil ditolak.')
+                _log_activity(request, 'donations', f'Menolak donasi dari {donation.initial}.')
         except Exception as ex:
             print(ex)
             messages.add_message(request, messages.SUCCESS, 'Terjadi kendala saat memproses status donasi.')
 
-        return HttpResponseRedirect(
-            f"/cms/donations/?status={status_filter}&q={query}&donation={donation_id}"
-        )
+        return HttpResponseRedirect(f"/cms/donations/?status={status_filter}&q={query}")
 
     donations = MyDonation.objects.order_by('-created_at')
 
@@ -411,13 +631,6 @@ def donation_dashboard(request):
     paginator = Paginator(donations, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    selected_donation = None
-    if selected_id:
-        selected_donation = MyDonation.objects.filter(donation=selected_id).first()
-
-    if selected_donation is None and page_obj.object_list:
-        selected_donation = page_obj.object_list[0]
-
     now = timezone.now()
     stats = {
         'pending': MyDonation.objects.filter(is_verified=False, is_canceled=False).count(),
@@ -430,15 +643,273 @@ def donation_dashboard(request):
         ).count(),
     }
 
+    report_month, report_year = _report_period(request)
+    period_donations = MyDonation.objects.filter(created_at__year=report_year, created_at__month=report_month)
+    report = {
+        'total_count': period_donations.count(),
+        'approved_count': period_donations.filter(is_verified=True).count(),
+        'approved_amount': period_donations.filter(is_verified=True).aggregate(total=Sum('nilai'))['total'] or 0,
+        'rejected_count': period_donations.filter(is_verified=False, is_canceled=True).count(),
+        'pending_count': period_donations.filter(is_verified=False, is_canceled=False).count(),
+    }
+    period_transactions = period_donations.order_by('created_at')
+
     context = {
         'page_obj': page_obj,
-        'selected_donation': selected_donation,
         'current_status': status_filter,
         'current_query': query,
         'stats': stats,
+        'can_process': can_process,
+        'report_month': report_month,
+        'report_year': report_year,
+        'report': report,
+        'period_transactions': period_transactions,
+        'month_choices': MONTH_CHOICES,
+        'year_choices': _year_choices(),
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Management Donasi', None)),
     }
     return render(request, 'cms/donation_dashboard.html', context)
+
+
+def payment_export(request):
+    blocked = _ensure_cms_access(request, 'payments')
+    if blocked:
+        return blocked
+
+    month, year = _report_period(request)
+    payments = MyPayment.objects.select_related('user', 'user__userdetail').filter(
+        created_at__year=year, created_at__month=month
+    ).order_by('created_at')
+
+    month_label = dict(MONTH_CHOICES).get(month, month)
+
+    rows = []
+    for payment in payments:
+        if payment.is_verified:
+            status = 'Disetujui'
+        elif payment.is_canceled:
+            status = 'Ditolak'
+        else:
+            status = 'Menunggu'
+        rows.append([
+            payment.payment,
+            payment.user.userdetail.nama_lengkap if hasattr(payment.user, 'userdetail') else payment.user.username,
+            payment.user.email,
+            float(payment.total),
+            payment.jumlah_buku,
+            status,
+            payment.pemroses or '-',
+            payment.created_at.strftime('%d-%m-%Y %H:%M'),
+        ])
+
+    response = _xlsx_response(
+        f'pembayaran-{year}-{month:02d}.xlsx',
+        ['Invoice', 'Nama Pembeli', 'Email', 'Total', 'Jumlah Buku', 'Status', 'Diproses Oleh', 'Tanggal Masuk'],
+        rows,
+    )
+    _log_activity(request, 'payments', f'Mengunduh laporan transaksi pembayaran periode {month_label} {year}.')
+    return response
+
+
+def donation_export(request):
+    blocked = _ensure_cms_access(request, 'donations')
+    if blocked:
+        return blocked
+
+    month, year = _report_period(request)
+    donations = MyDonation.objects.filter(created_at__year=year, created_at__month=month).order_by('created_at')
+
+    month_label = dict(MONTH_CHOICES).get(month, month)
+
+    rows = []
+    for donation in donations:
+        if donation.is_verified:
+            status = 'Disetujui'
+        elif donation.is_canceled:
+            status = 'Ditolak'
+        else:
+            status = 'Menunggu'
+        rows.append([
+            donation.initial,
+            donation.email,
+            float(donation.nilai),
+            donation.keterangan or '-',
+            status,
+            donation.pemroses or '-',
+            donation.created_at.strftime('%d-%m-%Y %H:%M'),
+        ])
+
+    response = _xlsx_response(
+        f'donasi-{year}-{month:02d}.xlsx',
+        ['Nama Donatur', 'Email', 'Nilai', 'Keterangan', 'Status', 'Diproses Oleh', 'Tanggal Masuk'],
+        rows,
+    )
+    _log_activity(request, 'donations', f'Mengunduh laporan transaksi donasi periode {month_label} {year}.')
+    return response
+
+
+def payment_report_pdf(request):
+    blocked = _ensure_cms_access(request, 'payments')
+    if blocked:
+        return blocked
+
+    month, year = _report_period(request)
+    month_label = dict(MONTH_CHOICES).get(month, month)
+    payments = MyPayment.objects.select_related('user', 'user__userdetail').filter(
+        created_at__year=year, created_at__month=month
+    ).order_by('created_at')
+
+    table_rows = []
+    for index, payment in enumerate(payments, start=1):
+        if payment.is_verified:
+            status = 'Disetujui'
+        elif payment.is_canceled:
+            status = 'Ditolak'
+        else:
+            status = 'Menunggu'
+        table_rows.append([
+            str(index),
+            payment.payment,
+            payment.user.userdetail.nama_lengkap if hasattr(payment.user, 'userdetail') else payment.user.username,
+            f'Rp {payment.total:,.0f}',
+            status,
+            payment.pemroses or '-',
+            payment.created_at.strftime('%d-%m-%Y'),
+        ])
+
+    approved_amount = payments.filter(is_verified=True).aggregate(total=Sum('total'))['total'] or 0
+    summary_rows = [
+        ['Total Transaksi', str(payments.count())],
+        ['Disetujui', str(payments.filter(is_verified=True).count())],
+        ['Ditolak', str(payments.filter(is_verified=False, is_canceled=True).count())],
+        ['Menunggu', str(payments.filter(is_verified=False, is_canceled=False).count())],
+        ['Total Nilai Disetujui', f'Rp {approved_amount:,.0f}'],
+    ]
+
+    response = _build_report_pdf(
+        f'laporan-pembayaran-{year}-{month:02d}.pdf',
+        'Laporan Transaksi Pembayaran',
+        f'Periode: {month_label} {year}',
+        summary_rows,
+        ['No', 'Invoice', 'Nama Pembeli', 'Total', 'Status', 'Disetujui Oleh', 'Tanggal'],
+        table_rows,
+        col_ratios=[0.4, 2.2, 1.5, 1, 0.9, 1.2, 1],
+    )
+    _log_activity(request, 'payments', f'Mengunduh laporan PDF pembayaran periode {month_label} {year}.')
+    return response
+
+
+def donation_report_pdf(request):
+    blocked = _ensure_cms_access(request, 'donations')
+    if blocked:
+        return blocked
+
+    month, year = _report_period(request)
+    month_label = dict(MONTH_CHOICES).get(month, month)
+    donations = MyDonation.objects.filter(created_at__year=year, created_at__month=month).order_by('created_at')
+
+    table_rows = []
+    for index, donation in enumerate(donations, start=1):
+        if donation.is_verified:
+            status = 'Disetujui'
+        elif donation.is_canceled:
+            status = 'Ditolak'
+        else:
+            status = 'Menunggu'
+        table_rows.append([
+            str(index),
+            donation.initial,
+            f'Rp {donation.nilai:,.0f}',
+            status,
+            donation.pemroses or '-',
+            donation.created_at.strftime('%d-%m-%Y'),
+        ])
+
+    approved_amount = donations.filter(is_verified=True).aggregate(total=Sum('nilai'))['total'] or 0
+    summary_rows = [
+        ['Total Transaksi', str(donations.count())],
+        ['Disetujui', str(donations.filter(is_verified=True).count())],
+        ['Ditolak', str(donations.filter(is_verified=False, is_canceled=True).count())],
+        ['Menunggu', str(donations.filter(is_verified=False, is_canceled=False).count())],
+        ['Total Nilai Disetujui', f'Rp {approved_amount:,.0f}'],
+    ]
+
+    response = _build_report_pdf(
+        f'laporan-donasi-{year}-{month:02d}.pdf',
+        'Laporan Transaksi Donasi',
+        f'Periode: {month_label} {year}',
+        summary_rows,
+        ['No', 'Nama Donatur', 'Nilai', 'Status', 'Disetujui Oleh', 'Tanggal'],
+        table_rows,
+        col_ratios=[0.4, 1.8, 1.2, 0.9, 1.2, 1],
+    )
+    _log_activity(request, 'donations', f'Mengunduh laporan PDF donasi periode {month_label} {year}.')
+    return response
+
+
+def payment_receipt_pdf(request, payment_id):
+    blocked = _ensure_cms_access(request, 'payments')
+    if blocked:
+        return blocked
+
+    payment = get_object_or_404(MyPayment, pk=payment_id)
+    if payment.is_verified:
+        status = 'Disetujui'
+    elif payment.is_canceled:
+        status = 'Ditolak'
+    else:
+        status = 'Menunggu'
+
+    fields = [
+        ['Invoice', payment.payment],
+        ['Nama Pembeli', payment.user.userdetail.nama_lengkap if hasattr(payment.user, 'userdetail') else payment.user.username],
+        ['Email', payment.user.email],
+        ['Total Pembayaran', f'Rp {payment.total:,.0f}'],
+        ['Jumlah Buku', str(payment.jumlah_buku)],
+        ['Status', status],
+        ['Disetujui Oleh', payment.pemroses or '-'],
+        ['Tanggal Masuk', payment.created_at.strftime('%d %B %Y %H:%M WIB')],
+    ]
+
+    response = _build_receipt_pdf(
+        f'bukti-pembayaran-{payment.payment}.pdf',
+        'Bukti Pembayaran',
+        fields,
+    )
+    _log_activity(request, 'payments', f'Mengunduh bukti pembayaran {payment.payment}.')
+    return response
+
+
+def donation_receipt_pdf(request, donation_id):
+    blocked = _ensure_cms_access(request, 'donations')
+    if blocked:
+        return blocked
+
+    donation = get_object_or_404(MyDonation, pk=donation_id)
+    if donation.is_verified:
+        status = 'Disetujui'
+    elif donation.is_canceled:
+        status = 'Ditolak'
+    else:
+        status = 'Menunggu'
+
+    fields = [
+        ['Nama Donatur', donation.initial],
+        ['Email', donation.email],
+        ['Nilai Donasi', f'Rp {donation.nilai:,.0f}'],
+        ['Keterangan', donation.keterangan or '-'],
+        ['Status', status],
+        ['Disetujui Oleh', donation.pemroses or '-'],
+        ['Tanggal Masuk', donation.created_at.strftime('%d %B %Y %H:%M WIB')],
+    ]
+
+    response = _build_receipt_pdf(
+        f'bukti-donasi-{donation.donation}.pdf',
+        'Bukti Donasi',
+        fields,
+    )
+    _log_activity(request, 'donations', f'Mengunduh bukti donasi dari {donation.initial}.')
+    return response
 
 
 def _persist_book(book, new_pdf_uploaded):
@@ -496,9 +967,12 @@ def book_form(request, book_id=None):
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             new_pdf_uploaded = bool(request.FILES.get('pdf_full'))
+            is_new_book = book is None
             instance = form.save(commit=False)
             _persist_book(instance, new_pdf_uploaded)
             messages.add_message(request, messages.SUCCESS, f'Buku "{instance.judul}" berhasil disimpan.')
+            action = 'Menambahkan' if is_new_book else 'Mengubah'
+            _log_activity(request, 'books', f'{action} buku "{instance.judul}".')
             return HttpResponseRedirect('/cms/books/')
         messages.add_message(request, messages.SUCCESS, 'Data buku gagal disimpan, periksa kembali form.')
     else:
@@ -549,14 +1023,19 @@ def category_form(request, category_id=None):
             if category.books_set.exists():
                 messages.add_message(request, messages.SUCCESS, f'Kategori "{category.nama}" masih dipakai oleh buku dan tidak dapat dihapus.')
                 return HttpResponseRedirect(f"/cms/categories/{category_id}/edit/")
+            category_name = category.nama
             category.delete()
             messages.add_message(request, messages.SUCCESS, 'Kategori berhasil dihapus.')
+            _log_activity(request, 'categories', f'Menghapus kategori "{category_name}".')
             return HttpResponseRedirect('/cms/categories/')
 
+        is_new_category = category is None
         form = CategoryQuickForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             instance = form.save()
             messages.add_message(request, messages.SUCCESS, f'Kategori "{instance.nama}" berhasil disimpan.')
+            action = 'Menambahkan' if is_new_category else 'Mengubah'
+            _log_activity(request, 'categories', f'{action} kategori "{instance.nama}".')
             return HttpResponseRedirect('/cms/categories/')
         messages.add_message(request, messages.SUCCESS, 'Kategori gagal disimpan, periksa kembali form.')
     else:
@@ -594,14 +1073,18 @@ def promo_bestseller_dashboard(request):
                 promo.save()
                 status_text = 'diaktifkan' if promo.is_active else 'dinonaktifkan'
                 messages.add_message(request, messages.SUCCESS, f'Promo "{promo.header}" berhasil {status_text}.')
+                _log_activity(request, 'promo_bestseller', f'Mengubah promo "{promo.header}" menjadi {status_text}.')
             except OnSaleBook.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Promo tidak ditemukan.')
             return HttpResponseRedirect('/cms/promo/?tab=promo')
 
         if action == 'delete_promo':
             promo_id = request.POST.get('promo_id', '').strip()
+            promo = OnSaleBook.objects.filter(pk=promo_id).first()
+            promo_header = promo.header if promo else promo_id
             OnSaleBook.objects.filter(pk=promo_id).delete()
             messages.add_message(request, messages.SUCCESS, 'Promo berhasil dihapus.')
+            _log_activity(request, 'promo_bestseller', f'Menghapus promo "{promo_header}".')
             return HttpResponseRedirect('/cms/promo/?tab=promo')
 
         if action == 'toggle_bestseller':
@@ -614,6 +1097,7 @@ def promo_bestseller_dashboard(request):
                 _persist_book(book, new_pdf_uploaded=False)
                 status_text = 'ditambahkan ke' if book.is_best_seller else 'dihapus dari'
                 messages.add_message(request, messages.SUCCESS, f'"{book.judul}" berhasil {status_text} daftar best seller.')
+                _log_activity(request, 'promo_bestseller', f'"{book.judul}" {status_text} daftar best seller.')
             except Books.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Buku tidak ditemukan.')
             return HttpResponseRedirect(f"/cms/promo/?tab=bestseller&q={query}&kategori={kategori_filter}")
@@ -662,10 +1146,13 @@ def onsale_form(request, promo_id=None):
         promo = get_object_or_404(OnSaleBook, pk=promo_id)
 
     if request.method == 'POST':
+        is_new_promo = promo is None
         form = OnSaleForm(request.POST, instance=promo)
         if form.is_valid():
             instance = form.save()
             messages.add_message(request, messages.SUCCESS, f'Promo "{instance.header}" berhasil disimpan.')
+            action = 'Menambahkan' if is_new_promo else 'Mengubah'
+            _log_activity(request, 'promo_bestseller', f'{action} promo "{instance.header}".')
             return HttpResponseRedirect('/cms/promo/?tab=promo')
         messages.add_message(request, messages.SUCCESS, 'Promo gagal disimpan, periksa kembali form.')
     else:
@@ -698,6 +1185,7 @@ def customers_dashboard(request):
             customer.save()
             status_text = 'diaktifkan' if customer.is_active else 'dinonaktifkan'
             messages.add_message(request, messages.SUCCESS, f'Akun "{customer.username}" berhasil {status_text}.')
+            _log_activity(request, 'customers', f'Akun pelanggan "{customer.username}" {status_text}.')
         except User.DoesNotExist:
             messages.add_message(request, messages.SUCCESS, 'Pelanggan tidak ditemukan.')
         return HttpResponseRedirect(f"/cms/customers/?q={query}&page={page}")
@@ -747,6 +1235,7 @@ def content_moderation_dashboard(request):
                 blog.save()
                 status_text = 'diaktifkan' if blog.is_active else 'dinonaktifkan'
                 messages.add_message(request, messages.SUCCESS, f'Coretan pena "{blog.header}" berhasil {status_text}.')
+                _log_activity(request, 'content_moderation', f'Coretan pena "{blog.header}" {status_text}.')
             except Blogs.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Coretan pena tidak ditemukan.')
             return HttpResponseRedirect('/cms/content/?tab=coretan')
@@ -759,6 +1248,7 @@ def content_moderation_dashboard(request):
                 review.save()
                 status_text = 'ditampilkan' if review.is_active else 'disembunyikan'
                 messages.add_message(request, messages.SUCCESS, f'Review sahabat berhasil {status_text}.')
+                _log_activity(request, 'content_moderation', f'Review sahabat #{review.pk} {status_text}.')
             except PageReview.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Review tidak ditemukan.')
             return HttpResponseRedirect('/cms/content/?tab=sahabat')
@@ -771,6 +1261,7 @@ def content_moderation_dashboard(request):
                 review.save()
                 status_text = 'dipublikasikan' if review.is_published else 'disembunyikan'
                 messages.add_message(request, messages.SUCCESS, f'Review buku berhasil {status_text}.')
+                _log_activity(request, 'content_moderation', f'Review buku #{review.pk} {status_text}.')
             except BookReview.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Review tidak ditemukan.')
             return HttpResponseRedirect('/cms/content/?tab=buku')
@@ -821,6 +1312,7 @@ def roles_dashboard(request):
                     request, messages.SUCCESS,
                     f'Akun staff "{new_user.username}" berhasil dibuat dengan peran {data["role"]}.'
                 )
+                _log_activity(request, 'roles', f'Membuat akun staff "{new_user.username}" dengan peran {data["role"]}.')
                 return HttpResponseRedirect('/cms/roles/')
             messages.add_message(request, messages.SUCCESS, 'Akun staff gagal dibuat, periksa kembali form.')
 
@@ -833,6 +1325,7 @@ def roles_dashboard(request):
                     group = Group.objects.get(name=new_role)
                     staff_user.groups.set([group])
                     messages.add_message(request, messages.SUCCESS, f'Peran "{staff_user.username}" berhasil diubah menjadi {new_role}.')
+                    _log_activity(request, 'roles', f'Mengubah peran "{staff_user.username}" menjadi {new_role}.')
             except User.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Akun staff tidak ditemukan.')
             return HttpResponseRedirect('/cms/roles/')
@@ -845,6 +1338,7 @@ def roles_dashboard(request):
                 staff_user.save()
                 status_text = 'diaktifkan' if staff_user.is_active else 'dinonaktifkan'
                 messages.add_message(request, messages.SUCCESS, f'Akun staff "{staff_user.username}" berhasil {status_text}.')
+                _log_activity(request, 'roles', f'Akun staff "{staff_user.username}" {status_text}.')
             except User.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Akun staff tidak ditemukan.')
             return HttpResponseRedirect('/cms/roles/')
@@ -900,10 +1394,13 @@ def coretan_pena_form(request, blog_id=None):
 
     if request.method == 'POST':
         if request.POST.get('action') == 'delete' and blog is not None:
+            blog_header = blog.header
             blog.delete()
             messages.add_message(request, messages.SUCCESS, 'Coretan pena berhasil dihapus.')
+            _log_activity(request, 'coretan_pena', f'Menghapus coretan pena "{blog_header}".')
             return HttpResponseRedirect('/cms/coretan-pena/')
 
+        is_new_post = blog is None
         form = CoretanPenaForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
             instance = form.save(commit=False)
@@ -915,6 +1412,8 @@ def coretan_pena_form(request, blog_id=None):
                 request, messages.SUCCESS,
                 f'Coretan pena "{instance.header}" berhasil disimpan dan menunggu moderasi admin sebelum tampil.'
             )
+            action = 'Menambahkan' if is_new_post else 'Mengubah'
+            _log_activity(request, 'coretan_pena', f'{action} coretan pena "{instance.header}".')
             return HttpResponseRedirect('/cms/coretan-pena/')
         messages.add_message(request, messages.SUCCESS, 'Coretan pena gagal disimpan, periksa kembali form.')
     else:
@@ -965,14 +1464,20 @@ def notification_detail(request, kind, pk):
         messages.add_message(request, messages.SUCCESS, 'Anda tidak memiliki akses ke notifikasi ini.')
         return HttpResponseRedirect('/cms/notifications/')
 
+    can_process = _can_process_finance(request)
+
     context = {
         'kind': kind,
+        'can_process': can_process,
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Notifikasi', '/cms/notifications/'), ('Detail Notifikasi', None)),
     }
 
     if kind == 'payment':
         payment = get_object_or_404(MyPayment, pk=pk)
         if request.method == 'POST' and not payment.is_verified and not payment.is_canceled:
+            if not can_process:
+                messages.add_message(request, messages.SUCCESS, 'Hanya akun dengan peran Keuangan yang dapat memproses persetujuan pembayaran.')
+                return HttpResponseRedirect('/cms/notifications/')
             decision = request.POST.get('decision', '').strip()
             if decision == 'approve':
                 payment.is_verified = True
@@ -980,12 +1485,14 @@ def notification_detail(request, kind, pk):
                 payment.pemroses = request.user.username
                 payment.save()
                 messages.add_message(request, messages.SUCCESS, f'Pembayaran {payment.payment} berhasil disetujui.')
+                _log_activity(request, 'payments', f'Menyetujui pembayaran {payment.payment}.')
             elif decision == 'reject':
                 payment.is_verified = False
                 payment.is_canceled = True
                 payment.pemroses = request.user.username
                 payment.save()
                 messages.add_message(request, messages.SUCCESS, f'Pembayaran {payment.payment} berhasil ditolak.')
+                _log_activity(request, 'payments', f'Menolak pembayaran {payment.payment}.')
             return HttpResponseRedirect('/cms/notifications/')
         context['payment'] = payment
         context['payment_details'] = MyPaymentDetail.objects.select_related('book').filter(payment=payment)
@@ -993,6 +1500,9 @@ def notification_detail(request, kind, pk):
     elif kind == 'donation':
         donation = get_object_or_404(MyDonation, pk=pk)
         if request.method == 'POST' and not donation.is_verified and not donation.is_canceled:
+            if not can_process:
+                messages.add_message(request, messages.SUCCESS, 'Hanya akun dengan peran Keuangan yang dapat memproses persetujuan donasi.')
+                return HttpResponseRedirect('/cms/notifications/')
             decision = request.POST.get('decision', '').strip()
             if decision == 'approve':
                 donation.is_verified = True
@@ -1000,12 +1510,14 @@ def notification_detail(request, kind, pk):
                 donation.pemroses = request.user.username
                 donation.save()
                 messages.add_message(request, messages.SUCCESS, f'Donasi dari {donation.initial} berhasil disetujui.')
+                _log_activity(request, 'donations', f'Menyetujui donasi dari {donation.initial}.')
             elif decision == 'reject':
                 donation.is_verified = False
                 donation.is_canceled = True
                 donation.pemroses = request.user.username
                 donation.save()
                 messages.add_message(request, messages.SUCCESS, f'Donasi dari {donation.initial} berhasil ditolak.')
+                _log_activity(request, 'donations', f'Menolak donasi dari {donation.initial}.')
             return HttpResponseRedirect('/cms/notifications/')
         context['donation'] = donation
 
@@ -1016,6 +1528,7 @@ def notification_detail(request, kind, pk):
             blog.save()
             status_text = 'diaktifkan' if blog.is_active else 'dinonaktifkan'
             messages.add_message(request, messages.SUCCESS, f'Coretan pena "{blog.header}" berhasil {status_text}.')
+            _log_activity(request, 'content_moderation', f'Coretan pena "{blog.header}" {status_text}.')
             return HttpResponseRedirect('/cms/notifications/')
         context['blog'] = blog
 
@@ -1026,6 +1539,7 @@ def notification_detail(request, kind, pk):
             review.save()
             status_text = 'ditampilkan' if review.is_active else 'disembunyikan'
             messages.add_message(request, messages.SUCCESS, f'Review sahabat berhasil {status_text}.')
+            _log_activity(request, 'content_moderation', f'Review sahabat #{review.pk} {status_text}.')
             return HttpResponseRedirect('/cms/notifications/')
         context['review_sahabat'] = review
 
@@ -1036,6 +1550,7 @@ def notification_detail(request, kind, pk):
             review.save()
             status_text = 'dipublikasikan' if review.is_published else 'disembunyikan'
             messages.add_message(request, messages.SUCCESS, f'Review buku berhasil {status_text}.')
+            _log_activity(request, 'content_moderation', f'Review buku #{review.pk} {status_text}.')
             return HttpResponseRedirect('/cms/notifications/')
         context['review_buku'] = review
 
@@ -1048,3 +1563,52 @@ def notification_detail(request, kind, pk):
         return HttpResponseRedirect('/cms/notifications/')
 
     return render(request, 'cms/notification_detail.html', context)
+
+
+MODULE_LABELS = {
+    'payments': 'Payment',
+    'donations': 'Donasi',
+    'books': 'Buku',
+    'categories': 'Kategori',
+    'promo_bestseller': 'Promo & Best Seller',
+    'customers': 'Pelanggan',
+    'content_moderation': 'Moderasi Konten',
+    'roles': 'Role & User',
+    'coretan_pena': 'Coretan Pena',
+}
+
+
+def activity_log_dashboard(request):
+    blocked = _ensure_cms_access(request, 'activity_log')
+    if blocked:
+        return blocked
+
+    query = request.GET.get('q', '').strip()
+    module_filter = request.GET.get('module', '').strip()
+
+    logs = CmsActivityLog.objects.select_related('user').all()
+
+    if module_filter:
+        logs = logs.filter(module=module_filter)
+
+    if query:
+        logs = logs.filter(
+            Q(action__icontains=query)
+            | Q(user__username__icontains=query)
+            | Q(ip_address__icontains=query)
+        )
+
+    paginator = Paginator(logs, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    for log in page_obj:
+        log.module_label = MODULE_LABELS.get(log.module, log.module)
+
+    context = {
+        'page_obj': page_obj,
+        'current_query': query,
+        'current_module': module_filter,
+        'module_choices': MODULE_LABELS,
+        'total_logs': CmsActivityLog.objects.count(),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Log Transaksi', None)),
+    }
+    return render(request, 'cms/activity_log_dashboard.html', context)

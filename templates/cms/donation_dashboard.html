@@ -94,21 +94,10 @@
     }
 
     .donation-card {
-        display: block;
-        text-decoration: none;
-        color: inherit;
         padding: 18px;
         border: 1px solid var(--stroke);
         border-radius: 20px;
         background: white;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    }
-
-    .donation-card:hover,
-    .donation-card.is-active {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 34px rgba(69, 52, 34, 0.08);
-        border-color: rgba(123, 76, 112, 0.45);
     }
 
     .status-pill {
@@ -192,16 +181,58 @@
         border: none;
     }
 
+    .btn-approve:hover,
+    .btn-approve:focus,
+    .btn-approve:active {
+        background: #235c40;
+        color: white;
+    }
+
     .btn-reject {
         background: #b23a48;
         color: white;
         border: none;
     }
 
+    .btn-reject:hover,
+    .btn-reject:focus,
+    .btn-reject:active {
+        background: #92202d;
+        color: white;
+    }
+
     .btn-outline-warm {
         border: 1px solid rgba(123, 76, 112, 0.3);
         color: #7b4c70;
         background: white;
+    }
+
+    .report-value {
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .signature-space {
+        height: 60px;
+    }
+
+    .signature-line {
+        border-top: 1px solid var(--ink);
+        width: 220px;
+        margin: 6px auto 0;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #7b4c70, #593752);
+        color: white;
+        border: none;
+        font-weight: 800;
+    }
+
+    .btn-add:hover,
+    .btn-add:focus {
+        color: white;
     }
 
     @media (max-width: 991px) {
@@ -255,136 +286,205 @@
         </div>
     </section>
 
-    <div class="row g-4">
-        <div class="col-xl-4">
-            <section class="surface-card">
-                <div>
-                    <div class="section-title mb-1">Antrean Donasi</div>
-                    <div class="muted small mb-3">{{ page_obj.paginator.count }} donasi tampil</div>
-                </div>
-
-                <form method="get" class="toolbar mb-3">
-                    <div class="row g-2">
-                        <div class="col-12">
-                            <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari nama, email, atau keterangan">
-                        </div>
-                        <div class="col-7">
-                            <select class="form-select" name="status">
-                                <option value="all" {% if current_status == 'all' %}selected{% endif %}>Semua Status</option>
-                                <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Menunggu</option>
-                                <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Disetujui</option>
-                                <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Ditolak</option>
-                            </select>
-                        </div>
-                        <div class="col-5">
-                            <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
-                        </div>
-                    </div>
-                </form>
-
-                <div class="list-donation">
-                    {% for donation in page_obj %}
-                    <a href="?status={{ current_status }}&q={{ current_query|urlencode }}&donation={{ donation.donation }}" class="donation-card {% if selected_donation and donation.donation == selected_donation.donation %}is-active{% endif %}">
-                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                            <div>
-                                <div class="fw-bold">{{ donation.initial }}</div>
-                                <div class="muted small">{{ donation.email }}</div>
-                            </div>
-                            {% if donation.is_verified %}
-                            <span class="status-pill status-verifikasi">Disetujui</span>
-                            {% elif donation.is_canceled %}
-                            <span class="status-pill status-tolak">Ditolak</span>
-                            {% else %}
-                            <span class="status-pill status-menunggu">Menunggu</span>
-                            {% endif %}
-                        </div>
-                        <div class="row g-2 small">
-                            <div class="col-6">
-                                <div class="muted">Nilai</div>
-                                <div class="fw-semibold">Rp {{ donation.nilai|intcomma }}</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="muted">Masuk</div>
-                                <div class="fw-semibold">{{ donation.created_at|date:"d M Y H:i" }} WIB</div>
-                            </div>
-                        </div>
-                    </a>
-                    {% empty %}
-                    <div class="item-row">
-                        <strong>Belum ada donasi sesuai filter.</strong>
-                        <div class="muted small">Coba ganti kata kunci atau status untuk melihat antrean lain.</div>
-                    </div>
+    <section class="surface-card mb-4">
+        <div class="section-title mb-3">Laporan Transaksi Bulanan</div>
+        <form method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Bulan</label>
+                <select class="form-select" name="month">
+                    {% for value, label in month_choices %}
+                    <option value="{{ value }}" {% if report_month == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
-                </div>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tahun</label>
+                <select class="form-select" name="year">
+                    {% for value in year_choices %}
+                    <option value="{{ value }}" {% if report_year == value %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-warm w-100" type="submit">Buat Laporan</button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-add w-100" type="submit" formaction="/cms/donations/export/">Download Excel</button>
+            </div>
+        </form>
 
-                {% if page_obj.paginator.num_pages > 1 %}
-                <nav class="mt-3">
-                    <ul class="pagination pagination-sm justify-content-center flex-wrap">
-                        {% if page_obj.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-                        {% endif %}
-                        {% for num in page_obj.paginator.page_range %}
-                        <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ num }}">{{ num }}</a></li>
-                        {% endfor %}
-                        {% if page_obj.has_next %}
-                        <li class="page-item"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-            </section>
+        {% if request.GET.month %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                new bootstrap.Modal(document.getElementById("reportPreviewModal")).show();
+                var url = new URL(window.location.href);
+                url.searchParams.delete("month");
+                url.searchParams.delete("year");
+                window.history.replaceState({}, "", url);
+            });
+        </script>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="muted small mb-2">Total Transaksi</div>
+                    <div class="report-value">{{ report.total_count }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="muted small mb-2">Disetujui</div>
+                    <div class="report-value">{{ report.approved_count }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="muted small mb-2">Ditolak / Menunggu</div>
+                    <div class="report-value">{{ report.rejected_count }} / {{ report.pending_count }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="muted small mb-2">Total Nilai Disetujui</div>
+                    <div class="report-value">Rp {{ report.approved_amount|intcomma }}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="surface-card">
+        <div>
+            <div class="section-title mb-1">Antrean Donasi</div>
+            <div class="muted small mb-3">{{ page_obj.paginator.count }} donasi tampil</div>
         </div>
 
-        <div class="col-xl-8">
-            {% if selected_donation %}
-            <section class="surface-card mb-4">
+        <form method="get" class="toolbar mb-3">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari nama, email, atau keterangan">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="status">
+                        <option value="all" {% if current_status == 'all' %}selected{% endif %}>Semua Status</option>
+                        <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Menunggu</option>
+                        <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Disetujui</option>
+                        <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Ditolak</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="list-donation">
+            {% for donation in page_obj %}
+            <div class="donation-card">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                     <div>
-                        <div class="section-title mb-1">Detail Donasi</div>
-                        <div class="muted">Fokus verifikasi untuk donasi dari <strong>{{ selected_donation.initial }}</strong></div>
+                        <div class="fw-bold">{{ donation.initial }}</div>
+                        <div class="muted small">{{ donation.email }}</div>
                     </div>
-                    <div>
-                        {% if selected_donation.is_verified %}
-                        <span class="status-pill status-verifikasi">Donasi Disetujui</span>
-                        {% elif selected_donation.is_canceled %}
-                        <span class="status-pill status-tolak">Donasi Ditolak</span>
-                        {% else %}
-                        <span class="status-pill status-menunggu">Masih Menunggu Tindakan</span>
-                        {% endif %}
+                    {% if donation.is_verified %}
+                    <span class="status-pill status-verifikasi">Disetujui</span>
+                    {% elif donation.is_canceled %}
+                    <span class="status-pill status-tolak">Ditolak</span>
+                    {% else %}
+                    <span class="status-pill status-menunggu">Menunggu</span>
+                    {% endif %}
+                </div>
+                <div class="row g-2 small mb-3">
+                    <div class="col-6 col-md-3">
+                        <div class="muted">Nilai</div>
+                        <div class="fw-semibold">Rp {{ donation.nilai|intcomma }}</div>
                     </div>
+                    <div class="col-12 col-md-6">
+                        <div class="muted">Masuk</div>
+                        <div class="fw-semibold">{{ donation.created_at|date:"d M Y H:i" }} WIB</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-warm" data-bs-toggle="modal" data-bs-target="#donationModal-{{ donation.donation }}">Detail</button>
+            </div>
+            {% empty %}
+            <div class="item-row">
+                <strong>Belum ada donasi sesuai filter.</strong>
+                <div class="muted small">Coba ganti kata kunci atau status untuk melihat antrean lain.</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination pagination-sm justify-content-center flex-wrap">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?status={{ current_status }}&q={{ current_query|urlencode }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+</div>
+
+{% for donation in page_obj %}
+<div class="modal fade" id="donationModal-{{ donation.donation }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1">Detail Donasi</h5>
+                    <div class="muted small">Fokus verifikasi untuk donasi dari <strong>{{ donation.initial }}</strong></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    {% if donation.is_verified %}
+                    <span class="status-pill status-verifikasi">Donasi Disetujui</span>
+                    {% elif donation.is_canceled %}
+                    <span class="status-pill status-tolak">Donasi Ditolak</span>
+                    {% else %}
+                    <span class="status-pill status-menunggu">Masih Menunggu Tindakan</span>
+                    {% endif %}
                 </div>
 
                 <div class="detail-grid mb-3">
                     <div class="mini-field">
                         <span class="label">Nama Donatur</span>
-                        <strong>{{ selected_donation.initial }}</strong>
+                        <strong>{{ donation.initial }}</strong>
                     </div>
                     <div class="mini-field">
                         <span class="label">Email</span>
-                        <strong>{{ selected_donation.email }}</strong>
+                        <strong>{{ donation.email }}</strong>
                     </div>
                     <div class="mini-field">
                         <span class="label">Nilai Donasi</span>
-                        <strong>Rp {{ selected_donation.nilai|intcomma }}</strong>
+                        <strong>Rp {{ donation.nilai|intcomma }}</strong>
                     </div>
                     <div class="mini-field">
                         <span class="label">Tanggal Masuk</span>
-                        <strong>{{ selected_donation.created_at|date:"d F Y H:i" }} WIB</strong>
+                        <strong>{{ donation.created_at|date:"d F Y H:i" }} WIB</strong>
                     </div>
                     <div class="mini-field">
                         <span class="label">Keterangan</span>
-                        <strong>{{ selected_donation.keterangan|default:"-" }}</strong>
+                        <strong>{{ donation.keterangan|default:"-" }}</strong>
                     </div>
                     <div class="mini-field">
                         <span class="label">Diproses Oleh</span>
-                        <strong>{{ selected_donation.pemroses|default:"Belum ada" }}</strong>
+                        <strong>{{ donation.pemroses|default:"Belum ada" }}</strong>
                     </div>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="section-title">Bukti Transfer</div>
-                        <img src="{{ selected_donation.bukti.url }}" alt="Bukti donasi {{ selected_donation.initial }}" class="proof-image">
+                        <img src="{{ donation.bukti.url }}" alt="Bukti donasi {{ donation.initial }}" class="proof-image">
                     </div>
                     <div class="col-lg-6">
                         <div class="section-title">Checklist Verifikasi</div>
@@ -403,28 +503,124 @@
                             </div>
                         </div>
 
-                        <form method="post" class="d-grid gap-2">
-                            {% csrf_token %}
-                            <input type="hidden" name="donation_id" value="{{ selected_donation.donation }}">
-                            {% if not selected_donation.is_verified and not selected_donation.is_canceled %}
-                            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Donasi</button>
-                            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Donasi</button>
+                        {% if not donation.is_verified and not donation.is_canceled %}
+                            {% if can_process %}
+                            <form method="post" class="d-grid gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="donation_id" value="{{ donation.donation }}">
+                                <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Donasi</button>
+                                <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Donasi</button>
+                            </form>
                             {% else %}
                             <div class="item-row">
-                                <strong>Donasi ini sudah final.</strong>
-                                <div class="muted small">Status terakhir diperbarui pada {{ selected_donation.updated_at|date:"d F Y H:i" }} WIB.</div>
+                                <strong>Menunggu verifikasi tim Keuangan.</strong>
+                                <div class="muted small">Hanya akun dengan peran Keuangan yang dapat menyetujui atau menolak donasi. Anda dapat melihat data ini tanpa mengubah statusnya.</div>
                             </div>
                             {% endif %}
-                        </form>
+                        {% else %}
+                            <div class="item-row">
+                                <strong>Donasi ini sudah final.</strong>
+                                <div class="muted small">Status terakhir diperbarui pada {{ donation.updated_at|date:"d F Y H:i" }} WIB.</div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            </section>
-            {% else %}
-            <section class="surface-card">
-                <div class="section-title">Belum ada donasi terpilih</div>
-                <div class="muted">Pilih salah satu donasi dari panel kiri untuk melihat detail dan melakukan verifikasi.</div>
-            </section>
-            {% endif %}
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-outline-warm" href="/cms/donations/{{ donation.donation }}/receipt/">Download Bukti (PDF)</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="reportPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1">Preview Laporan Transaksi Donasi</h5>
+                    <div class="muted small">
+                        {% for value, label in month_choices %}{% if value == report_month %}{{ label }}{% endif %}{% endfor %} {{ report_year }}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Total Transaksi</div>
+                            <div class="report-value">{{ report.total_count }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Disetujui</div>
+                            <div class="report-value">{{ report.approved_count }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Ditolak / Menunggu</div>
+                            <div class="report-value">{{ report.rejected_count }} / {{ report.pending_count }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="muted small mb-2">Total Nilai Disetujui</div>
+                            <div class="report-value">Rp {{ report.approved_amount|intcomma }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Nama Donatur</th>
+                                <th>Nilai</th>
+                                <th>Status</th>
+                                <th>Disetujui Oleh</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donation in period_transactions %}
+                            <tr>
+                                <td>{{ donation.initial }}</td>
+                                <td>Rp {{ donation.nilai|intcomma }}</td>
+                                <td>{% if donation.is_verified %}Disetujui{% elif donation.is_canceled %}Ditolak{% else %}Menunggu{% endif %}</td>
+                                <td>{{ donation.pemroses|default:"-" }}</td>
+                                <td>{{ donation.created_at|date:"d-m-Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5">Tidak ada transaksi pada periode ini.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row g-4 mt-4">
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold mb-2">Dibuat Oleh,</div>
+                        <div class="signature-space"></div>
+                        <div>&nbsp;</div>
+                        <div class="signature-line"></div>
+                        <div class="mt-1">Bendahara</div>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold mb-2">Disetujui Oleh,</div>
+                        <div class="signature-space"></div>
+                        <div>&nbsp;</div>
+                        <div class="signature-line"></div>
+                        <div class="mt-1">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-add" href="/cms/donations/report/pdf/?month={{ report_month }}&year={{ report_year }}">Download PDF</a>
+            </div>
         </div>
     </div>
 </div>

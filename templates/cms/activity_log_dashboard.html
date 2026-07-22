@@ -1,0 +1,194 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Log Transaksi{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1440px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+    .hero-panel { padding: 26px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f4d6ca;
+        color: #bf5b3d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .toolbar .form-control,
+    .toolbar .form-select,
+    .toolbar .btn {
+        border-radius: 14px;
+        min-height: 48px;
+    }
+
+    .log-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .log-table thead th {
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        font-weight: 800;
+        padding: 0 14px;
+    }
+
+    .log-table tbody tr {
+        background: white;
+        border: 1px solid var(--stroke);
+    }
+
+    .log-table tbody td {
+        padding: 14px;
+        vertical-align: top;
+    }
+
+    .log-table tbody tr td:first-child {
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+        border-left: 1px solid var(--stroke);
+    }
+
+    .log-table tbody tr td:last-child {
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+        border-right: 1px solid var(--stroke);
+    }
+
+    .module-badge {
+        display: inline-flex;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #efe7dc;
+        color: #5b4d40;
+        font-size: 11px;
+        font-weight: 700;
+        width: fit-content;
+    }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.84);
+    }
+
+    @media (max-width: 900px) {
+        .log-table thead { display: none; }
+        .log-table, .log-table tbody, .log-table tr, .log-table td {
+            display: block;
+            width: 100%;
+        }
+        .log-table tbody tr {
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+        .log-table tbody td {
+            border: none !important;
+            padding: 4px 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="hero-panel surface-card mb-4">
+        <span class="eyebrow">Log Transaksi</span>
+        <h1 class="mt-3 mb-2 fw-bold">Riwayat Transaksi CMS</h1>
+        <p class="muted mb-0">Total {{ total_logs }} aktivitas tercatat. Setiap penambahan, perubahan, dan penghapusan data di CMS tercatat di sini.</p>
+    </section>
+
+    <section class="surface-card">
+        <form method="get" class="toolbar mb-3">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari aksi, akun staff, atau IP address">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="module">
+                        <option value="">Semua Modul</option>
+                        {% for value, label in module_choices.items %}
+                        <option value="{{ value }}" {% if current_module == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div style="overflow-x:auto;">
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Akun Staff</th>
+                        <th>Modul</th>
+                        <th>Aksi</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr>
+                        <td data-label="Waktu">{{ log.created_at|date:"d M Y H:i" }}</td>
+                        <td data-label="Akun Staff">{% firstof log.user.username "-" %}</td>
+                        <td data-label="Modul"><span class="module-badge">{{ log.module_label }}</span></td>
+                        <td data-label="Aksi">{{ log.action }}</td>
+                        <td data-label="IP Address">{{ log.ip_address|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="item-row">
+                                <strong>Belum ada log transaksi sesuai filter.</strong>
+                                <div class="muted small">Aktivitas penambahan, perubahan, dan penghapusan data akan tercatat otomatis di sini.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?q={{ current_query }}&module={{ current_module }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?q={{ current_query }}&module={{ current_module }}&page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?q={{ current_query }}&module={{ current_module }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

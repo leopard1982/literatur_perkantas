@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    activity_log_dashboard,
     book_form,
     books_dashboard,
     categories_dashboard,
@@ -11,12 +12,18 @@ from .views import (
     customers_dashboard,
     dashboard,
     donation_dashboard,
+    donation_export,
+    donation_receipt_pdf,
+    donation_report_pdf,
     login_view,
     logout_view,
     notification_detail,
     notifications_dashboard,
     onsale_form,
     payment_dashboard,
+    payment_export,
+    payment_receipt_pdf,
+    payment_report_pdf,
     promo_bestseller_dashboard,
     reports_dashboard,
     roles_dashboard,
@@ -29,7 +36,13 @@ urlpatterns = [
     path('', dashboard, name='cms_dashboard'),
 
     path('payments/', payment_dashboard, name='cms_payment_dashboard'),
+    path('payments/export/', payment_export, name='cms_payment_export'),
+    path('payments/report/pdf/', payment_report_pdf, name='cms_payment_report_pdf'),
+    path('payments/<str:payment_id>/receipt/', payment_receipt_pdf, name='cms_payment_receipt_pdf'),
     path('donations/', donation_dashboard, name='cms_donation_dashboard'),
+    path('donations/export/', donation_export, name='cms_donation_export'),
+    path('donations/report/pdf/', donation_report_pdf, name='cms_donation_report_pdf'),
+    path('donations/<uuid:donation_id>/receipt/', donation_receipt_pdf, name='cms_donation_receipt_pdf'),
 
     path('books/', books_dashboard, name='cms_books_dashboard'),
     path('books/add/', book_form, name='cms_book_add'),
@@ -57,4 +70,6 @@ urlpatterns = [
     path('notifications/<str:kind>/<str:pk>/', notification_detail, name='cms_notification_detail'),
 
     path('reports/', reports_dashboard, name='cms_reports_dashboard'),
+
+    path('logs/', activity_log_dashboard, name='cms_activity_log_dashboard'),
 ]

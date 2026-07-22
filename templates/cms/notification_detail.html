@@ -5,7 +5,7 @@
 
 {% block extra_styles %}
 <style>
-    .page-shell { max-width: 900px; }
+    .page-shell { max-width: 1440px; }
     .page-top { margin-bottom: 16px; }
     .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
     .surface-card { border-radius: 24px; padding: 28px; }
@@ -69,9 +69,13 @@
     .status-pending { background: rgba(201, 131, 40, 0.14); color: var(--warning); }
 
     .btn-approve { background: var(--forest); color: white; border: none; }
+    .btn-approve:hover, .btn-approve:focus, .btn-approve:active { background: #235c40; color: white; }
     .btn-reject { background: #b23a48; color: white; border: none; }
+    .btn-reject:hover, .btn-reject:focus, .btn-reject:active { background: #92202d; color: white; }
     .btn-toggle-on { background: var(--forest); color: white; border: none; }
+    .btn-toggle-on:hover, .btn-toggle-on:focus, .btn-toggle-on:active { background: #235c40; color: white; }
     .btn-toggle-off { background: #efe7dc; color: #5b4d40; border: none; }
+    .btn-toggle-off:hover, .btn-toggle-off:focus, .btn-toggle-off:active { background: #e2d5c4; color: #5b4d40; }
 
     .body-text {
         white-space: pre-line;
@@ -120,11 +124,18 @@
         </div>
         {% endfor %}
         {% if not payment.is_verified and not payment.is_canceled %}
-        <form method="post" class="d-grid gap-2 mt-4">
-            {% csrf_token %}
-            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Pembayaran</button>
-            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Pembayaran</button>
-        </form>
+            {% if can_process %}
+            <form method="post" class="d-grid gap-2 mt-4">
+                {% csrf_token %}
+                <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Pembayaran</button>
+                <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Pembayaran</button>
+            </form>
+            {% else %}
+            <div class="mini-field mt-4">
+                <strong>Menunggu verifikasi tim Keuangan.</strong>
+                <div class="muted small">Hanya akun dengan peran Keuangan yang dapat menyetujui atau menolak pembayaran.</div>
+            </div>
+            {% endif %}
         {% endif %}
 
         {% elif kind == 'donation' %}
@@ -137,11 +148,18 @@
         </div>
         {% if donation.bukti %}<img src="{{ donation.bukti.url }}" alt="Bukti donasi" class="proof-image">{% endif %}
         {% if not donation.is_verified and not donation.is_canceled %}
-        <form method="post" class="d-grid gap-2 mt-2">
-            {% csrf_token %}
-            <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Donasi</button>
-            <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Donasi</button>
-        </form>
+            {% if can_process %}
+            <form method="post" class="d-grid gap-2 mt-2">
+                {% csrf_token %}
+                <button class="btn btn-approve btn-lg" type="submit" name="decision" value="approve">Setujui Donasi</button>
+                <button class="btn btn-reject btn-lg" type="submit" name="decision" value="reject">Tolak Donasi</button>
+            </form>
+            {% else %}
+            <div class="mini-field mt-2">
+                <strong>Menunggu verifikasi tim Keuangan.</strong>
+                <div class="muted small">Hanya akun dengan peran Keuangan yang dapat menyetujui atau menolak donasi.</div>
+            </div>
+            {% endif %}
         {% endif %}
 
         {% elif kind == 'coretan_moderation' %}
