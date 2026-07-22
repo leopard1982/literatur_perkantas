@@ -5,6 +5,7 @@ ROLE_ACCESS = {
     'payments': {'Keuangan'},
     'donations': {'Keuangan'},
     'books': {'Admin', 'Superadmin'},
+    'categories': {'Admin', 'Superadmin'},
     'promo_bestseller': {'Admin', 'Superadmin'},
     'customers': {'Admin', 'Superadmin'},
     'content_moderation': {'Admin', 'Superadmin'},

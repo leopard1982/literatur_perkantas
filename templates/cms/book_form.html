@@ -4,7 +4,7 @@
 
 {% block extra_styles %}
 <style>
-    .page-shell { max-width: 1100px; }
+    .page-shell { max-width: 1440px; }
 
     .page-top { margin-bottom: 16px; }
 
@@ -41,14 +41,6 @@
         font-weight: 800;
     }
 
-    .category-panel {
-        border: 1px dashed var(--stroke-strong);
-        border-radius: 18px;
-        padding: 16px 18px;
-        background: rgba(255,255,255,0.7);
-        margin-top: 8px;
-    }
-
     .errorlist {
         list-style: none;
         padding: 0;
@@ -66,7 +58,7 @@
         <a href="/cms/books/">Kembali ke Management Buku</a>
     </div>
 
-    <section class="surface-card mb-4">
+    <section class="surface-card">
         <span class="eyebrow">Management Buku</span>
         <h1 class="mt-3 mb-4 fw-bold">{% if book %}Edit "{{ book.judul }}"{% else %}Tambah Buku Baru{% endif %}</h1>
 
@@ -93,17 +85,22 @@
                     {{ form.kategori }}
                     {{ form.kategori.errors }}
                 </div>
-                <div class="col-md-4">
+                <div class="{% if book %}col-md-4{% else %}col-md-6{% endif %}">
                     <label class="form-label">{{ form.price.label }}</label>
                     {{ form.price }}
                     {{ form.price.errors }}
                 </div>
+                {% if book %}
                 <div class="col-md-4">
                     <label class="form-label">{{ form.halaman.label }}</label>
                     {{ form.halaman }}
                     {{ form.halaman.errors }}
+                    <div class="muted small mt-1">Terhitung otomatis dari file PDF saat diunggah ulang.</div>
                 </div>
-                <div class="col-md-4">
+                {% else %}
+                <input type="hidden" name="halaman" value="0">
+                {% endif %}
+                <div class="{% if book %}col-md-4{% else %}col-md-6{% endif %}">
                     <label class="form-label">{{ form.point.label }}</label>
                     {{ form.point }}
                     {{ form.point.errors }}
@@ -132,46 +129,6 @@
                 <button class="btn btn-save px-4" type="submit">Simpan Buku</button>
             </div>
         </form>
-    </section>
-
-    <section class="surface-card">
-        <div class="fw-bold mb-2">Kategori belum tersedia?</div>
-        <p class="muted small mb-2">Tambahkan kategori baru tanpa meninggalkan halaman ini.</p>
-        <div class="category-panel">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="form_name" value="category">
-                <div class="row g-3">
-                    <div class="col-md-5">
-                        <label class="form-label">{{ category_form.nama.label }}</label>
-                        {{ category_form.nama }}
-                        {{ category_form.nama.errors }}
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label">{{ category_form.keterangan.label }}</label>
-                        {{ category_form.keterangan }}
-                        {{ category_form.keterangan.errors }}
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-outline-warm w-100" type="submit">Tambah</button>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">{{ category_form.gambar.label }}</label>
-                        {{ category_form.gambar }}
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="mt-3">
-            <div class="fw-bold small mb-2">Kategori tersedia saat ini</div>
-            <div class="d-flex flex-wrap gap-2">
-                {% for kategori in categories %}
-                <span class="badge-soft" style="display:inline-flex;padding:6px 12px;border-radius:999px;background:#efe7dc;color:#5b4d40;font-size:12px;font-weight:700;">{{ kategori.nama }}</span>
-                {% empty %}
-                <span class="muted small">Belum ada kategori.</span>
-                {% endfor %}
-            </div>
-        </div>
     </section>
 </div>
 {% endblock %}

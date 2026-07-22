@@ -5,6 +5,7 @@ NAV_CATALOG = [
     {'module': 'payments', 'label': 'Payment', 'href': '/cms/payments/'},
     {'module': 'donations', 'label': 'Donasi', 'href': '/cms/donations/'},
     {'module': 'books', 'label': 'Buku', 'href': '/cms/books/'},
+    {'module': 'categories', 'label': 'Kategori', 'href': '/cms/categories/'},
     {'module': 'promo_bestseller', 'label': 'Promo & Best Seller', 'href': '/cms/promo/'},
     {'module': 'customers', 'label': 'Pelanggan', 'href': '/cms/customers/'},
     {'module': 'content_moderation', 'label': 'Moderasi Konten', 'href': '/cms/content/'},

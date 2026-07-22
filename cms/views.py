@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -492,19 +492,7 @@ def book_form(request, book_id=None):
     if book_id:
         book = get_object_or_404(Books, pk=book_id)
 
-    category_form = CategoryQuickForm()
-
     if request.method == 'POST':
-        if request.POST.get('form_name') == 'category':
-            category_form = CategoryQuickForm(request.POST, request.FILES)
-            if category_form.is_valid():
-                category_form.save()
-                messages.add_message(request, messages.SUCCESS, 'Kategori baru berhasil ditambahkan.')
-            else:
-                messages.add_message(request, messages.SUCCESS, 'Kategori gagal ditambahkan, periksa kembali data yang diisi.')
-            redirect_url = f"/cms/books/{book_id}/edit/" if book_id else "/cms/books/add/"
-            return HttpResponseRedirect(redirect_url)
-
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             new_pdf_uploaded = bool(request.FILES.get('pdf_full'))
@@ -518,9 +506,7 @@ def book_form(request, book_id=None):
 
     context = {
         'form': form,
-        'category_form': category_form,
         'book': book,
-        'categories': Category.objects.all().order_by('nama'),
         'breadcrumbs': _breadcrumbs(
             ('CMS', '/cms/'),
             ('Management Buku', '/cms/books/'),
@@ -528,6 +514,64 @@ def book_form(request, book_id=None):
         ),
     }
     return render(request, 'cms/book_form.html', context)
+
+
+def categories_dashboard(request):
+    blocked = _ensure_cms_access(request, 'categories')
+    if blocked:
+        return blocked
+
+    query = request.GET.get('q', '').strip()
+    categories = Category.objects.annotate(book_count=Count('books')).order_by('nama')
+    if query:
+        categories = categories.filter(nama__icontains=query)
+
+    context = {
+        'categories': categories,
+        'current_query': query,
+        'total_categories': Category.objects.count(),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Master Kategori', None)),
+    }
+    return render(request, 'cms/categories_dashboard.html', context)
+
+
+def category_form(request, category_id=None):
+    blocked = _ensure_cms_access(request, 'categories')
+    if blocked:
+        return blocked
+
+    category = None
+    if category_id:
+        category = get_object_or_404(Category, pk=category_id)
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'delete' and category is not None:
+            if category.books_set.exists():
+                messages.add_message(request, messages.SUCCESS, f'Kategori "{category.nama}" masih dipakai oleh buku dan tidak dapat dihapus.')
+                return HttpResponseRedirect(f"/cms/categories/{category_id}/edit/")
+            category.delete()
+            messages.add_message(request, messages.SUCCESS, 'Kategori berhasil dihapus.')
+            return HttpResponseRedirect('/cms/categories/')
+
+        form = CategoryQuickForm(request.POST, request.FILES, instance=category)
+        if form.is_valid():
+            instance = form.save()
+            messages.add_message(request, messages.SUCCESS, f'Kategori "{instance.nama}" berhasil disimpan.')
+            return HttpResponseRedirect('/cms/categories/')
+        messages.add_message(request, messages.SUCCESS, 'Kategori gagal disimpan, periksa kembali form.')
+    else:
+        form = CategoryQuickForm(instance=category)
+
+    context = {
+        'form': form,
+        'category': category,
+        'breadcrumbs': _breadcrumbs(
+            ('CMS', '/cms/'),
+            ('Master Kategori', '/cms/categories/'),
+            ('Edit Kategori' if category else 'Tambah Kategori', None),
+        ),
+    }
+    return render(request, 'cms/category_form.html', context)
 
 
 def promo_bestseller_dashboard(request):

@@ -3,6 +3,8 @@ from django.urls import path
 from .views import (
     book_form,
     books_dashboard,
+    categories_dashboard,
+    category_form,
     content_moderation_dashboard,
     coretan_pena_dashboard,
     coretan_pena_form,
@@ -32,6 +34,10 @@ urlpatterns = [
     path('books/', books_dashboard, name='cms_books_dashboard'),
     path('books/add/', book_form, name='cms_book_add'),
     path('books/<uuid:book_id>/edit/', book_form, name='cms_book_edit'),
+
+    path('categories/', categories_dashboard, name='cms_categories_dashboard'),
+    path('categories/add/', category_form, name='cms_category_add'),
+    path('categories/<int:category_id>/edit/', category_form, name='cms_category_edit'),
 
     path('promo/', promo_bestseller_dashboard, name='cms_promo_bestseller_dashboard'),
     path('promo/add/', onsale_form, name='cms_promo_add'),

@@ -134,6 +134,10 @@ class Books(models.Model):
 			with open(lokasi_pdf,'rb') as pdf_file:
 				images = convert_from_bytes(pdf_file.read(),output_folder=lokasi_images)
 
+			#hitung jumlah halaman otomatis dari hasil ekstrak pdf
+			self.halaman = len(images)
+			Books.objects.filter(pk=self.pk).update(halaman=self.halaman)
+
 			#simpan setiap file ppm jadi jpg
 			print(f"create jpg baru start: {datetime.datetime.now()}")
 			for nomor,image in enumerate(images):
