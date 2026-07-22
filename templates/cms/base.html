@@ -440,7 +440,11 @@
                 </div>
                 <div class="brand-text">
                     <strong>Literatur Perkantas CMS</strong>
+                    {% if request.user.is_authenticated %}
                     <span>{% firstof request.user.get_full_name request.user.username %} (Admin)</span>
+                    {% else %}
+                    <span>Tamu</span>
+                    {% endif %}
                 </div>
             </a>
 
