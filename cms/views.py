@@ -18,10 +18,14 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from literatur.models import (
     Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
-    MyPaymentDetail, OnSaleBook, PageReview, UserDetail,
+    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, UserDetail,
 )
+from literatur.views import get_pengumuman_text
 
-from .forms import BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, OnSaleForm
+from .forms import (
+    BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, OnSaleForm,
+    PengumumanForm,
+)
 from .notifications import NOTIFICATION_KIND_ROLES, get_notifications
 from .roles import CMS_ROLE_CHOICES, CMS_ROLE_GROUPS, ROLE_ACCESS, STRICT_ROLE_MODULES
 
@@ -82,6 +86,14 @@ CARD_CATALOG = [
         'href': '/cms/instagram/',
         'count_label': 'Total Foto',
         'tone': 'plum',
+    },
+    {
+        'module': 'pengumuman_settings',
+        'title': 'Pengaturan Pengumuman',
+        'subtitle': 'Atur teks pengumuman berjalan yang tampil di halaman utama.',
+        'href': '/cms/pengumuman/',
+        'count_label': 'Status',
+        'tone': 'teal',
     },
     {
         'module': 'roles',
@@ -401,6 +413,8 @@ def dashboard(request):
             )
         elif module == 'instagram_settings':
             entry['count_value'] = Instagram.objects.count()
+        elif module == 'pengumuman_settings':
+            entry['count_value'] = 'Aktif' if Pengumuman.objects.exists() else 'Default'
         elif module == 'roles':
             entry['count_value'] = User.objects.filter(groups__name__in=CMS_ROLE_GROUPS).distinct().count()
         elif module == 'coretan_pena':
@@ -1119,6 +1133,32 @@ def instagram_settings_form(request, photo_id=None):
         ),
     }
     return render(request, 'cms/instagram_settings_form.html', context)
+
+
+def pengumuman_settings_dashboard(request):
+    blocked = _ensure_cms_access(request, 'pengumuman_settings')
+    if blocked:
+        return blocked
+
+    current = Pengumuman.objects.order_by('-id').first()
+
+    if request.method == 'POST':
+        form = PengumumanForm(request.POST, instance=current)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Teks pengumuman berhasil disimpan.')
+            _log_activity(request, 'pengumuman_settings', 'Mengubah teks pengumuman.')
+            return HttpResponseRedirect('/cms/pengumuman/')
+        messages.add_message(request, messages.SUCCESS, 'Teks pengumuman gagal disimpan, periksa kembali form.')
+    else:
+        form = PengumumanForm(instance=current)
+
+    context = {
+        'form': form,
+        'preview_text': get_pengumuman_text(),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Pengaturan Pengumuman', None)),
+    }
+    return render(request, 'cms/pengumuman_settings.html', context)
 
 
 def promo_bestseller_dashboard(request):

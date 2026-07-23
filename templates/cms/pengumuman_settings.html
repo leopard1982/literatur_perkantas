@@ -1,0 +1,84 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Pengaturan Pengumuman{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1440px; }
+    .page-top { margin-bottom: 16px; }
+    .page-top a { text-decoration: none; color: #bf5b3d; font-weight: 800; }
+    .surface-card { border-radius: 24px; padding: 28px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f4d6ca;
+        color: #bf5b3d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .form-label { font-weight: 700; font-size: 13px; color: #40515b; margin-bottom: 6px; }
+    .errorlist { list-style: none; padding: 0; margin: 4px 0 0; color: #b23a48; font-size: 12px; font-weight: 700; }
+
+    .preview-box {
+        border: 1px dashed var(--stroke);
+        border-radius: 16px;
+        padding: 14px 18px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 800;
+        margin-bottom: 24px;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        min-height: 50px;
+        font-weight: 800;
+    }
+
+    .btn-save:hover,
+    .btn-save:focus,
+    .btn-save:active {
+        background: linear-gradient(135deg, #9f4428, var(--accent));
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-top">
+        <a href="/cms/">Kembali ke CMS</a>
+    </div>
+
+    <section class="surface-card">
+        <span class="eyebrow">Pengaturan Pengumuman</span>
+        <h1 class="mt-3 mb-3 fw-bold">Teks Pengumuman Berjalan</h1>
+        <p class="muted">Teks ini tampil sebagai pengumuman berjalan di halaman utama. Teks otomatis ditampilkan dalam huruf kapital.</p>
+
+        <div class="preview-box">{{ preview_text }}</div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">{{ form.pengumuman.label }}</label>
+                {{ form.pengumuman }}
+                {{ form.pengumuman.errors }}
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button class="btn btn-save px-4" type="submit">Simpan Pengumuman</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

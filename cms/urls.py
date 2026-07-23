@@ -26,6 +26,7 @@ from .views import (
     payment_export,
     payment_receipt_pdf,
     payment_report_pdf,
+    pengumuman_settings_dashboard,
     promo_bestseller_dashboard,
     reports_dashboard,
     roles_dashboard,
@@ -65,6 +66,8 @@ urlpatterns = [
     path('instagram/', instagram_settings_dashboard, name='cms_instagram_settings_dashboard'),
     path('instagram/add/', instagram_settings_form, name='cms_instagram_settings_add'),
     path('instagram/<int:photo_id>/edit/', instagram_settings_form, name='cms_instagram_settings_edit'),
+
+    path('pengumuman/', pengumuman_settings_dashboard, name='cms_pengumuman_settings_dashboard'),
 
     path('roles/', roles_dashboard, name='cms_roles_dashboard'),
 

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from literatur.models import Blogs, Books, Category, Instagram, OnSaleBook
+from literatur.models import Blogs, Books, Category, Instagram, OnSaleBook, Pengumuman
 
 from .roles import CMS_ROLE_CHOICES
 
@@ -106,6 +106,18 @@ class InstagramForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk and self.instance.gambar:
             self.fields['gambar'].required = False
+
+
+class PengumumanForm(forms.ModelForm):
+    class Meta:
+        model = Pengumuman
+        fields = ['pengumuman']
+        widgets = {
+            'pengumuman': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Teks pengumuman berjalan', 'required': 'required', 'maxlength': 255}),
+        }
+        labels = {
+            'pengumuman': 'Teks Pengumuman',
+        }
 
 
 class CmsUserCreateForm(forms.Form):
