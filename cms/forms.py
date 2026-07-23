@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from literatur.models import Blogs, Books, Category, OnSaleBook
+from literatur.models import Blogs, Books, Category, Instagram, OnSaleBook
 
 from .roles import CMS_ROLE_CHOICES
 
@@ -85,6 +85,27 @@ class OnSaleForm(forms.ModelForm):
         else:
             queryset = queryset.filter(onsalebook__isnull=True)
         self.fields['book'].queryset = queryset
+
+
+class InstagramForm(forms.ModelForm):
+    class Meta:
+        model = Instagram
+        fields = ['gambar', 'link', 'is_active']
+        widgets = {
+            'gambar': forms.FileInput(attrs={**TEXT_ATTRS, 'accept': 'image/*'}),
+            'link': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'https://www.instagram.com/p/...'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'gambar': 'Foto Instagram',
+            'link': 'Link Postingan Instagram',
+            'is_active': 'Aktif (tampilkan di halaman utama)',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.gambar:
+            self.fields['gambar'].required = False
 
 
 class CmsUserCreateForm(forms.Form):

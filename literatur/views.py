@@ -478,7 +478,7 @@ def mainPage(request):
     except:
         pengumuman = DEFAULT_PENGUMUMAN
 
-    instagram = Instagram.objects.all().order_by('-id')[:6]
+    instagram = Instagram.objects.filter(is_active=True).order_by('-id')[:6]
 
 
     # messages.add_message(request,messages.ERROR,"Test")

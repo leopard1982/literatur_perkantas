@@ -17,11 +17,11 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from literatur.models import (
-    Blogs, BookReview, Books, Category, CmsActivityLog, MyDonation, MyPayment, MyPaymentDetail,
-    OnSaleBook, PageReview, UserDetail,
+    Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
+    MyPaymentDetail, OnSaleBook, PageReview, UserDetail,
 )
 
-from .forms import BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, OnSaleForm
+from .forms import BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, OnSaleForm
 from .notifications import NOTIFICATION_KIND_ROLES, get_notifications
 from .roles import CMS_ROLE_CHOICES, CMS_ROLE_GROUPS, ROLE_ACCESS, STRICT_ROLE_MODULES
 
@@ -74,6 +74,14 @@ CARD_CATALOG = [
         'href': '/cms/content/',
         'count_label': 'Menunggu Moderasi',
         'tone': 'navy',
+    },
+    {
+        'module': 'instagram_settings',
+        'title': 'Pengaturan Instagram',
+        'subtitle': 'Kelola foto dan link feed Instagram yang tampil di halaman utama.',
+        'href': '/cms/instagram/',
+        'count_label': 'Total Foto',
+        'tone': 'plum',
     },
     {
         'module': 'roles',
@@ -391,6 +399,8 @@ def dashboard(request):
                 + PageReview.objects.filter(is_active=False).count()
                 + BookReview.objects.filter(is_published=False).count()
             )
+        elif module == 'instagram_settings':
+            entry['count_value'] = Instagram.objects.count()
         elif module == 'roles':
             entry['count_value'] = User.objects.filter(groups__name__in=CMS_ROLE_GROUPS).distinct().count()
         elif module == 'coretan_pena':
@@ -1051,6 +1061,64 @@ def category_form(request, category_id=None):
         ),
     }
     return render(request, 'cms/category_form.html', context)
+
+
+def instagram_settings_dashboard(request):
+    blocked = _ensure_cms_access(request, 'instagram_settings')
+    if blocked:
+        return blocked
+
+    photos = Instagram.objects.all().order_by('-id')
+    photo_rows = [{'photo': photo, 'form': InstagramForm(instance=photo)} for photo in photos]
+
+    context = {
+        'photo_rows': photo_rows,
+        'total_photos': len(photo_rows),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Pengaturan Instagram', None)),
+    }
+    return render(request, 'cms/instagram_settings_dashboard.html', context)
+
+
+def instagram_settings_form(request, photo_id=None):
+    blocked = _ensure_cms_access(request, 'instagram_settings')
+    if blocked:
+        return blocked
+
+    photo = None
+    if photo_id:
+        photo = get_object_or_404(Instagram, pk=photo_id)
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'delete' and photo is not None:
+            photo.delete()
+            messages.add_message(request, messages.SUCCESS, 'Foto Instagram berhasil dihapus.')
+            _log_activity(request, 'instagram_settings', f'Menghapus foto Instagram #{photo_id}.')
+            return HttpResponseRedirect('/cms/instagram/')
+
+        is_new_photo = photo is None
+        form = InstagramForm(request.POST, request.FILES, instance=photo)
+        if form.is_valid():
+            instance = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Foto Instagram berhasil disimpan.')
+            action = 'Menambahkan' if is_new_photo else 'Mengubah'
+            _log_activity(request, 'instagram_settings', f'{action} foto Instagram #{instance.pk}.')
+            return HttpResponseRedirect('/cms/instagram/')
+        messages.add_message(request, messages.SUCCESS, 'Foto Instagram gagal disimpan, periksa kembali form.')
+        if not is_new_photo:
+            return HttpResponseRedirect('/cms/instagram/')
+    else:
+        form = InstagramForm(instance=photo)
+
+    context = {
+        'form': form,
+        'photo': photo,
+        'breadcrumbs': _breadcrumbs(
+            ('CMS', '/cms/'),
+            ('Pengaturan Instagram', '/cms/instagram/'),
+            ('Edit Foto' if photo else 'Tambah Foto', None),
+        ),
+    }
+    return render(request, 'cms/instagram_settings_form.html', context)
 
 
 def promo_bestseller_dashboard(request):

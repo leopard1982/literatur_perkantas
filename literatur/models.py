@@ -433,6 +433,7 @@ class Pengumuman(models.Model):
 class Instagram(models.Model):
 	gambar = models.ImageField(upload_to="gambar_instagram",blank=False,null=False)
 	link = models.CharField(max_length=200,default="")
+	is_active = models.BooleanField(default=True)
 
 
 class LupaPassword(models.Model):

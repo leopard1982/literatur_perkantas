@@ -15,6 +15,8 @@ from .views import (
     donation_export,
     donation_receipt_pdf,
     donation_report_pdf,
+    instagram_settings_dashboard,
+    instagram_settings_form,
     login_view,
     logout_view,
     notification_detail,
@@ -59,6 +61,10 @@ urlpatterns = [
     path('customers/', customers_dashboard, name='cms_customers_dashboard'),
 
     path('content/', content_moderation_dashboard, name='cms_content_moderation_dashboard'),
+
+    path('instagram/', instagram_settings_dashboard, name='cms_instagram_settings_dashboard'),
+    path('instagram/add/', instagram_settings_form, name='cms_instagram_settings_add'),
+    path('instagram/<int:photo_id>/edit/', instagram_settings_form, name='cms_instagram_settings_edit'),
 
     path('roles/', roles_dashboard, name='cms_roles_dashboard'),
 

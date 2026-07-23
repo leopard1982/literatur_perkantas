@@ -1,0 +1,346 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Pengaturan Instagram{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-shell { max-width: 1440px; }
+
+    .page-top {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        flex-wrap:wrap;
+        margin-bottom: 16px;
+    }
+
+    .page-top a.back-link {
+        text-decoration:none;
+        color:#bf5b3d;
+        font-weight:800;
+    }
+
+    .hero-panel, .surface-card { border-radius: 24px; }
+
+    .hero-panel {
+        padding: 26px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f4d6ca;
+        color: #bf5b3d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .surface-card { padding: 22px; }
+
+    .btn-add {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        font-weight: 800;
+        border-radius: 14px;
+        padding: 12px 20px;
+        text-decoration: none;
+    }
+
+    .btn-add:hover,
+    .btn-add:focus {
+        background: linear-gradient(135deg, #9f4428, var(--accent));
+        color: white;
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .photo-card {
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        background: white;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+    }
+
+    .photo-thumb-wrap {
+        position: relative;
+    }
+
+    .photo-thumb {
+        width: 100%;
+        height: 160px;
+        border-radius: 14px;
+        object-fit: cover;
+        background: var(--accent-soft);
+        display: block;
+    }
+
+    .badge-status {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .badge-status.active { background: #dcefdf; color: #235c40; }
+    .badge-status.inactive { background: #f1d9dc; color: #92202d; }
+
+    .btn-open-ig {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        color: white;
+        background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 55%, #6228d7 100%);
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 800;
+        font-size: 13px;
+        text-decoration: none;
+        box-shadow: 0 6px 14px rgba(238, 42, 123, 0.25);
+    }
+
+    .btn-open-ig:hover,
+    .btn-open-ig:focus {
+        color: white;
+        filter: brightness(1.06);
+        box-shadow: 0 8px 18px rgba(238, 42, 123, 0.32);
+    }
+
+    .photo-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .btn-edit-card {
+        border: none;
+        background: transparent;
+        font-weight: 800;
+        color: var(--accent);
+        font-size: 13px;
+        padding: 0;
+    }
+
+    .btn-edit-card:hover,
+    .btn-edit-card:focus {
+        color: #9f4428;
+    }
+
+    .item-row {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.84);
+    }
+
+    .modal-content { border-radius: 20px; border: none; }
+    .modal-header { border-bottom: 1px solid var(--stroke); }
+    .modal-footer { border-top: 1px solid var(--stroke); }
+
+    .current-thumb {
+        width: 100%;
+        max-width: 220px;
+        max-height: 140px;
+        object-fit: cover;
+        border-radius: 16px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .modal-dialog {
+        max-width: 480px;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .form-label { font-weight: 700; font-size: 13px; color: #40515b; margin-bottom: 6px; }
+    .errorlist { list-style: none; padding: 0; margin: 4px 0 0; color: #b23a48; font-size: 12px; font-weight: 700; }
+
+    .btn-save {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        padding: 10px 20px;
+    }
+
+    .btn-save:hover,
+    .btn-save:focus,
+    .btn-save:active {
+        background: linear-gradient(135deg, #9f4428, var(--accent));
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #efe7dc;
+        color: #5b4d40;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        padding: 10px 20px;
+    }
+
+    .btn-cancel:hover,
+    .btn-cancel:focus,
+    .btn-cancel:active {
+        background: #e2d7c8;
+        color: #5b4d40;
+    }
+
+    .btn-delete-sm {
+        background: #b23a48;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        padding: 10px 20px;
+    }
+
+    .btn-delete-sm:hover,
+    .btn-delete-sm:focus,
+    .btn-delete-sm:active {
+        background: #92202d;
+        color: white;
+    }
+
+    @media (max-width: 1100px) {
+        .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+        .photo-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-top">
+    <a class="back-link" href="/cms/">Kembali ke CMS</a>
+</div>
+<div class="page-shell">
+    <section class="hero-panel surface-card mb-4">
+        <div>
+            <span class="eyebrow">Pengaturan Instagram</span>
+            <h1 class="mt-3 mb-2 fw-bold">Feed Foto Instagram</h1>
+            <p class="muted mb-0">Total {{ total_photos }} foto tercatat. Foto berstatus aktif akan tampil pada feed Instagram di halaman utama.</p>
+        </div>
+        <a class="btn-add" href="/cms/instagram/add/">+ Tambah Foto</a>
+    </section>
+
+    <section class="surface-card">
+        <div class="photo-grid">
+            {% for row in photo_rows %}
+            {% with photo=row.photo %}
+            <div class="photo-card">
+                <div class="photo-thumb-wrap">
+                    <img class="photo-thumb" src="{{ photo.gambar.url }}" alt="Foto Instagram">
+                    <span class="badge-status {% if photo.is_active %}active{% else %}inactive{% endif %}">
+                        {% if photo.is_active %}Aktif{% else %}Nonaktif{% endif %}
+                    </span>
+                </div>
+                {% if photo.link %}
+                <a class="btn-open-ig" href="{{ photo.link }}" target="_blank" rel="noopener">
+                    <svg style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                        <circle cx="12" cy="12" r="4.2"></circle>
+                        <circle cx="17.4" cy="6.6" r="0.9" fill="currentColor" stroke="none"></circle>
+                    </svg>
+                    Buka Instagram
+                </a>
+                {% else %}
+                <span class="muted small">Belum ada link.</span>
+                {% endif %}
+                <div class="photo-footer">
+                    <button type="button" class="btn-edit-card" data-bs-toggle="modal" data-bs-target="#editModal-{{ photo.id }}">Edit &rarr;</button>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="item-row">
+                <strong>Belum ada foto Instagram.</strong>
+                <div class="muted small">Tambahkan foto untuk ditampilkan pada feed Instagram di halaman utama.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+{% for row in photo_rows %}
+{% with photo=row.photo form=row.form %}
+<div class="modal fade" id="editModal-{{ photo.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" action="/cms/instagram/{{ photo.id }}/edit/" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Foto Instagram</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <img class="current-thumb mb-3" src="{{ photo.gambar.url }}" alt="Foto Instagram">
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.gambar.label }}</label>
+                        {{ form.gambar }}
+                        {{ form.gambar.errors }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.link.label }}</label>
+                        {{ form.link }}
+                        {{ form.link.errors }}
+                    </div>
+                    <div class="form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+                        {{ form.is_active.errors }}
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="submit" form="deleteForm-{{ photo.id }}" class="btn btn-delete-sm">Hapus Foto Ini</button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-save">Simpan Foto</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<form id="deleteForm-{{ photo.id }}" method="post" action="/cms/instagram/{{ photo.id }}/edit/" class="d-none" onsubmit="return confirm('Hapus foto Instagram ini?');">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete">
+</form>
+{% endwith %}
+{% endfor %}
+{% endblock %}

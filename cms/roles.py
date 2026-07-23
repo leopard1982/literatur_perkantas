@@ -9,6 +9,7 @@ ROLE_ACCESS = {
     'promo_bestseller': {'Admin', 'Superadmin'},
     'customers': {'Admin', 'Superadmin'},
     'content_moderation': {'Admin', 'Superadmin'},
+    'instagram_settings': {'Admin', 'Superadmin'},
     'roles': {'Superadmin'},
     'activity_log': {'Superadmin'},
     'coretan_pena': {'Penulis'},
