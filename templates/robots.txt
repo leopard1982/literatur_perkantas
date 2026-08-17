@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /$
+Allow: /book/$
+Allow: /book/k/$
+Allow: /book/*/$
+Allow: /books/$
+Allow: /blogs/$
+Allow: /blogs/*/$
+Allow: /about/$
+Allow: /donasi/$
+Disallow: /admin/
+Disallow: /cms/
+Disallow: /media/
+Disallow: /profile/
+Disallow: /inbox/
+Disallow: /cart/
+Disallow: /wish/
+Disallow: /buy/
+Disallow: /forgot/
+Disallow: /daftar/
+Disallow: /logout/
+Disallow: /search/
+Disallow: /test/
+
+Sitemap: https://literatur.leopardos.tech/sitemap.xml
