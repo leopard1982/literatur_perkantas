@@ -28,7 +28,7 @@ class BookSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return Books.objects.all().only("id", "updated_at")
+        return Books.objects.order_by("-updated_at").only("id", "updated_at")
 
     def lastmod(self, obj):
         return obj.updated_at
@@ -42,7 +42,7 @@ class BlogSitemap(Sitemap):
     priority = 0.6
 
     def items(self):
-        return Blogs.objects.filter(is_active=True).only("id", "updated_at")
+        return Blogs.objects.filter(is_active=True).order_by("-updated_at").only("id", "updated_at")
 
     def lastmod(self, obj):
         return obj.updated_at
