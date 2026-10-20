@@ -42,7 +42,7 @@ def _uuid_or_none(value):
 
 
 def _books_qs():
-    return (Books.objects.select_related('kategori', 'onsalebook')
+    return (Books.objects.filter(is_active=True).select_related('kategori', 'onsalebook')
             .annotate(jumlah_dibeli=Count('userbook', distinct=True)))
 
 
@@ -51,13 +51,13 @@ def _books_qs():
 def _build_home():
     today = datetime.date.today()
     books = _books_qs()
-    on_sale = (OnSaleBook.objects.filter(is_active=True, end_date__gte=today)
+    on_sale = (OnSaleBook.objects.filter(is_active=True, end_date__gte=today, book__is_active=True)
                .select_related('book__kategori')
                .annotate(jumlah_dibeli=Count('book__userbook', distinct=True))
                .order_by('-updated_at'))
     sale_list = list(on_sale[:4])
 
-    featured = (FeaturedBook.objects.filter(is_active=True, start_date__lte=today, end_date__gte=today)
+    featured = (FeaturedBook.objects.filter(is_active=True, start_date__lte=today, end_date__gte=today, book__is_active=True)
                 .select_related('book__kategori').order_by('-updated_at')[:4])
     reviews = (PageReview.objects.filter(is_active=True)
                .select_related('user__userdetail').order_by('-updated_at')[:10])
@@ -168,10 +168,15 @@ def book_list(request):
 @api(['GET'], auth='optional', rate=(180, 60))
 def book_detail(request, book_id):
     uid = _uuid_or_none(book_id)
-    book = _books_qs().filter(id=uid).first() if uid else None
+    user = request.api_user
+    # nonaktif = tidak tampil di katalog; hanya pemiliknya yang masih bisa membukanya
+    book = (Books.objects.select_related('kategori', 'onsalebook')
+            .annotate(jumlah_dibeli=Count('userbook', distinct=True)).filter(id=uid).first()) if uid else None
+    if book is not None and not book.is_active:
+        if user is None or not UserBook.objects.filter(id_user=user, id_book=book).exists():
+            book = None
     if book is None:
         return error(404, 'not_found', 'Buku tidak ditemukan.')
-    user = request.api_user
     data = book_dict(book)
     data.update({
         'isbn': book.isbn, 'deskripsi': plain_text(book.deskripsi), 'sinopsis': plain_text(book.sinopsis),

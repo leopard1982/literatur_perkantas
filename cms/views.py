@@ -989,7 +989,8 @@ def books_dashboard(request):
 
 @require_POST
 def book_toggle_active(request, book_id):
-    """Switch a book on/off. Off = still readable, no longer purchasable."""
+    """Switch a book on/off. Off = hidden from catalogue/search/API and not purchasable;
+    people who already own it keep reading it from Koleksiku."""
     blocked = _ensure_cms_access(request, 'books')
     if blocked:
         return blocked
@@ -997,7 +998,7 @@ def book_toggle_active(request, book_id):
     new_state = not book.is_active
     # queryset.update(): Books.save() has custom branches and must not run here
     Books.objects.filter(pk=book.pk).update(is_active=new_state)
-    label = 'diaktifkan (bisa dibeli)' if new_state else 'dinonaktifkan (tetap bisa dibaca, tidak bisa dibeli)'
+    label = 'diaktifkan (tampil di katalog)' if new_state else 'dinonaktifkan (disembunyikan dari katalog; pemilik buku tetap bisa membaca)'
     messages.add_message(request, messages.SUCCESS, f'Buku "{book.judul}" {label}.')
     _log_activity(request, 'books', f'Buku "{book.judul}" {label}.')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/cms/books/')

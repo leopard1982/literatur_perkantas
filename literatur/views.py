@@ -443,31 +443,31 @@ def mainPage(request):
 
     page_review = PageReview.objects.filter(is_active=True).select_related('user__userdetail').order_by('-updated_at')[:10]
 
-    featured_book = FeaturedBook.objects.filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).select_related('book__kategori').order_by('-updated_at')[:4]
+    featured_book = FeaturedBook.objects.filter(Q(is_active=True) and Q(start_date__lte=datetime.datetime.now().date()) and Q(end_date__gte=datetime.datetime.now().date())).filter(book__is_active=True).select_related('book__kategori').order_by('-updated_at')[:4]
     category = Category.objects.all()
     OnSaleBook.objects.filter(end_date__lt=datetime.datetime.now()).delete()
     #id category=3 adalah freebook
     books_best_seller = (
-        Books.objects.filter(Q(is_best_seller=True) & Q(kategori__in=category.exclude(id=3)))
+        Books.objects.filter(Q(is_best_seller=True) & Q(is_active=True) & Q(kategori__in=category.exclude(id=3)))
         .select_related('kategori', 'onsalebook')
         .annotate(jumlah_dibeli=Count('userbook', distinct=True))
         .order_by('-updated_at')[:6]
     )
     books = (
-        Books.objects.select_related('kategori', 'onsalebook')
+        Books.objects.filter(is_active=True).select_related('kategori', 'onsalebook')
         .annotate(jumlah_dibeli=Count('userbook', distinct=True))
         .order_by('-updated_at')[:4]
     )
-    jml_on_sale = OnSaleBook.objects.count()
+    jml_on_sale = OnSaleBook.objects.filter(book__is_active=True).count()
     books_on_sale = (
-        OnSaleBook.objects.select_related('book__kategori')
+        OnSaleBook.objects.filter(book__is_active=True).select_related('book__kategori')
         .annotate(jumlah_dibeli=Count('book__userbook', distinct=True))
         .order_by('-updated_at')[:4]
     )
 
     #category=3 free
     free_book = (
-        Books.objects.filter(kategori__in=category.filter(id=3))
+        Books.objects.filter(kategori__in=category.filter(id=3), is_active=True)
         .select_related('kategori')
         .annotate(jumlah_dibeli=Count('userbook', distinct=True))
         .order_by('-updated_at')[:12]
@@ -506,6 +506,8 @@ def bacaBuku(request):
     try:
         id_buku = request.GET['id']
         book = Books.objects.select_related('kategori').get(id=id_buku)
+        if not book.is_active:  # nonaktif = tidak tampil (pemilik membaca lewat Koleksiku)
+            return HttpResponseRedirect(reverse('main_page'))
         if book.kategori.id == 3:
             max_page = book.halaman
     except Exception:
@@ -664,7 +666,7 @@ def allBookView(request):
     except (ValueError, TypeError):
         page_size = 10
 
-    base_books = Books.objects.select_related('kategori', 'onsalebook').annotate(
+    base_books = Books.objects.filter(is_active=True).select_related('kategori', 'onsalebook').annotate(
         jumlah_dibeli=Count('userbook', distinct=True)
     )
 
@@ -695,7 +697,7 @@ def allBookView(request):
         tab_title = "Semua Buku"
         tab_subtitle = "Seluruh koleksi Literatur Perkantas Nasional, dari buku gratis sampai judul premium pilihan."
 
-    jumlah_promo = OnSaleBook.objects.filter(is_active=True).count()
+    jumlah_promo = OnSaleBook.objects.filter(is_active=True, book__is_active=True).count()
 
     user_context = build_user_view_context(
         get_authenticated_user(request),
@@ -991,6 +993,8 @@ def sinopsisBuku(request,id):
 
     try:
         book = Books.objects.select_related('kategori', 'onsalebook').get(id=id)
+        if not book.is_active and not (user and UserBook.objects.filter(id_user=user, id_book=book).exists()):
+            raise Books.DoesNotExist  # nonaktif: hanya pemilik yang masih bisa membuka
         can_comment = can_user_comment_book(user, book)
 
         if request.method == "POST" and request.POST.get('comment_type') == "book":
@@ -1603,7 +1607,7 @@ def pencarianInfo(request):
             blog = Blogs.objects.filter(
                 Q(header__icontains=keyword) | Q(body__icontains=keyword)
             ).select_related('author')
-            book = Books.objects.filter(
+            book = Books.objects.filter(is_active=True).filter(
                 Q(judul__icontains=keyword) | Q(deskripsi__icontains=keyword) | Q(sinopsis__icontains=keyword) | Q(pengarang__icontains=keyword)
             ).select_related('kategori', 'onsalebook')
 

@@ -192,7 +192,7 @@
             <div class="book-card {% if not book.is_active %}is-off{% endif %}">
                 <div>
                     <span class="badge-soft">{{ book.kategori.nama }}</span>
-                    {% if not book.is_active %}<span class="badge-soft badge-off">Nonaktif</span>{% endif %}
+                    {% if not book.is_active %}<span class="badge-soft badge-off">Nonaktif &bull; tidak tampil</span>{% endif %}
                 </div>
                 <div class="book-title">{{ book.judul }}</div>
                 <div class="muted small">{{ book.pengarang }}{% if book.isbn %} &bull; ISBN {{ book.isbn }}{% endif %}</div>
@@ -205,10 +205,10 @@
                 <div class="book-actions">
                     <form method="post" action="{% url 'cms_book_toggle' book.id %}" class="m-0">
                         {% csrf_token %}
-                        <label class="switch" title="{% if book.is_active %}Aktif: bisa dibeli. Klik untuk menonaktifkan (tetap bisa dibaca).{% else %}Nonaktif: tidak bisa dibeli, tetap bisa dibaca. Klik untuk mengaktifkan.{% endif %}">
+                        <label class="switch" title="{% if book.is_active %}Aktif: tampil di katalog web &amp; aplikasi. Klik untuk menyembunyikan.{% else %}Nonaktif: tidak tampil &amp; tidak bisa dibeli (pemilik tetap bisa membaca). Klik untuk menampilkan.{% endif %}">
                             <input type="checkbox" {% if book.is_active %}checked{% endif %} onchange="this.form.submit()" aria-label="Aktif">
                             <span class="track"></span>
-                            <span>{% if book.is_active %}Aktif{% else %}Nonaktif{% endif %}</span>
+                            <span>{% if book.is_active %}Tampil{% else %}Tersembunyi{% endif %}</span>
                         </label>
                     </form>
                     {% if book.has_purchase %}

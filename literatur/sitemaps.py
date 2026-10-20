@@ -28,7 +28,7 @@ class BookSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return Books.objects.order_by("-updated_at").only("id", "updated_at")
+        return Books.objects.filter(is_active=True).order_by("-updated_at").only("id", "updated_at")
 
     def lastmod(self, obj):
         return obj.updated_at

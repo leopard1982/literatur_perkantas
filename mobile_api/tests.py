@@ -206,7 +206,7 @@ class BookActiveDeleteTests(TestCase):
         self.admin = User.objects.create_superuser('root', 'r@example.com', 'x-12345678')
         self.buyer = User.objects.create_user('buyer', 'b@example.com', 'rahasia-123')
         UserDetail.objects.create(user=self.buyer, nama_lengkap='Buyer')
-        cat = Category.objects.create(id=1, nama='Rohani')
+        cat = Category.objects.create(id=1, nama='Rohani', gambar='gambar_category/x.jpg')
         self.fresh = Books.objects.create(judul='Belum Dibeli', pengarang='A', kategori=cat, price=1000, halaman=10, is_update_info=True)
         self.sold = Books.objects.create(judul='Sudah Dibeli', pengarang='B', kategori=cat, price=1000, halaman=10, is_update_info=True)
         pay = MyPayment.objects.create(payment='INV9', user=self.buyer)
@@ -254,21 +254,35 @@ class BookActiveDeleteTests(TestCase):
         self.assertNotIn(f'/cms/books/{self.sold.id}/delete/', html)     # bought -> disabled button only
         self.assertIn(f'/cms/books/{self.sold.id}/toggle/', html)
 
-    def test_inactive_cannot_be_bought_but_owner_still_reads(self):
+    def test_inactive_is_hidden_from_catalog_but_owner_still_reads(self):
         self.client.logout()
         Books.objects.filter(pk=self.fresh.pk).update(is_active=False)
         Books.objects.filter(pk=self.sold.pk).update(is_active=False)
-        # API: cart refused, flag exposed
+        # public API: gone from lists, home, search and detail
+        listing = self.client.get('/api/v1/books/').json()['results']
+        self.assertEqual(listing, [])
+        home = self.client.get('/api/v1/home/').json()
+        self.assertEqual(home['new_books'] + home['best_seller'] + home['free_books'], [])
+        self.assertEqual(self.client.get(f'/api/v1/books/{self.fresh.id}/').status_code, 404)
+        self.assertEqual(self.client.get(f'/api/v1/books/{self.sold.id}/').status_code, 404)  # anonymous
+        # web: catalogue, search, synopsis and preview reader hide it
+        self.assertNotIn('Belum Dibeli', self.client.get('/books/').content.decode())
+        self.assertEqual(self.client.get(f'/book/?id={self.fresh.id}').status_code, 302)
+        # owner: still in collection, detail and reader
         tok = post(self.client, '/api/v1/auth/login/', {'username': 'buyer', 'password': 'rahasia-123'}).json()['access_token']
         h = {'HTTP_AUTHORIZATION': 'Bearer ' + tok}
+        self.assertEqual([b['judul'] for b in self.client.get('/api/v1/me/collection/', **h).json()['results']], ['Sudah Dibeli'])
+        self.assertEqual(self.client.get(f'/api/v1/books/{self.sold.id}/', **h).status_code, 200)
+        self.assertEqual(self.client.get(f'/api/v1/books/{self.fresh.id}/', **h).status_code, 404)  # not owned
+        # cannot be bought
         r = post(self.client, f'/api/v1/cart/{self.fresh.id}/', {}, **h)
         self.assertEqual((r.status_code, r.json()['error']['code']), (409, 'inactive'))
-        self.assertFalse(self.client.get(f'/api/v1/books/{self.fresh.id}/').json()['is_active'])
-        # web: add-to-cart refused
         self.client.force_login(self.buyer)
         self.client.get(f'/cart/add/{self.fresh.id}/', HTTP_REFERER='/')
         from literatur.models import MyCart
         self.assertFalse(MyCart.objects.filter(user=self.buyer, book=self.fresh).exists())
-        # owner of the inactive book can still open the reader
-        r = self.client.get(f'/book/p/{self.sold.id}/')
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.client.get(f'/book/p/{self.sold.id}/').status_code, 200)
+
+    def test_active_book_is_listed(self):
+        ids = [b['id'] for b in self.client.get('/api/v1/books/').json()['results']]
+        self.assertIn(str(self.fresh.id), ids)
