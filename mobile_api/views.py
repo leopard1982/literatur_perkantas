@@ -1,4 +1,5 @@
 import datetime
+import os
 import uuid
 
 from django.contrib.auth import authenticate
@@ -6,7 +7,8 @@ from django.core.cache import cache
 from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.conf import settings
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.decorators.gzip import gzip_page
 
 from literatur.models import (
@@ -380,3 +382,80 @@ def cart(request, book_id):
 @api(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'], rate=(60, 60))
 def not_found(request, *args, **kwargs):
     return error(404, 'not_found', 'Endpoint tidak ditemukan.')
+
+
+# ----------------------------------------------------------------- images
+
+IMG_WIDTHS = (240, 480, 800)
+# public, non-personal media folders the app may request resized copies of
+IMG_DIRS = ('blogs', 'gambar_instagram', 'gambar_category')
+
+
+def _resized(src, key, width):
+    """Resized + cached JPEG (~15-60 KB instead of 0.3-5 MB originals)."""
+    from PIL import Image
+    if not os.path.isfile(src):
+        return None
+    dst_dir = os.path.join(settings.MEDIA_ROOT, 'thumbs')
+    dst = os.path.join(dst_dir, '%s_%d.jpg' % (key, width))
+    if os.path.isfile(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+        return dst
+    os.makedirs(dst_dir, exist_ok=True)
+    with Image.open(src) as im:
+        im.draft('RGB', (width * 2, width * 3))  # fast JPEG down-decode
+        if im.mode in ('RGBA', 'LA', 'P'):  # PNG with transparency -> white background
+            im = im.convert('RGBA')
+            bg = Image.new('RGB', im.size, 'white')
+            bg.paste(im, mask=im.split()[-1])
+            im = bg
+        else:
+            im = im.convert('RGB')
+        im.thumbnail((width, width * 2))
+        tmp = dst + '.%s.tmp' % uuid.uuid4().hex
+        im.save(tmp, 'JPEG', quality=78, optimize=True, progressive=True)
+    os.replace(tmp, dst)  # atomic: concurrent workers never see a half-written file
+    return dst
+
+
+def _image_response(request, path):
+    if path is None:
+        return error(404, 'not_found', 'Gambar tidak tersedia.')
+    st = os.stat(path)
+    etag = '"%x-%x"' % (int(st.st_mtime), st.st_size)
+    if request.META.get('HTTP_IF_NONE_MATCH') == etag:  # revalidation costs ~0 bytes
+        resp = HttpResponse(status=304)
+    else:
+        resp = FileResponse(open(path, 'rb'), content_type='image/jpeg')
+    resp['ETag'] = etag
+    return resp
+
+
+def _width(request):
+    try:
+        w = int(request.GET.get('w', 480))
+    except ValueError:
+        w = 480
+    return w if w in IMG_WIDTHS else 480  # whitelist: no arbitrary sizes
+
+
+@api(['GET'], rate=(600, 60), cache_seconds=86400)
+def book_cover(request, book_id):
+    uid = _uuid_or_none(book_id)
+    w = _width(request)
+    src = os.path.join(settings.MEDIA_ROOT, 'extract', 'pdf_full', str(uid), '1.jpg') if uid else None
+    return _image_response(request, _resized(src, str(uid), w) if src else None)
+
+
+@api(['GET'], rate=(600, 60), cache_seconds=86400)
+def media_image(request):
+    """Resized copy of an allow-listed public image: ?p=blogs/x.jpg&w=480"""
+    import hashlib
+    rel = (request.GET.get('p') or '')[:200]
+    root = os.path.realpath(settings.MEDIA_ROOT)
+    src = os.path.realpath(os.path.join(root, rel))
+    top = rel.replace('\\', '/').split('/', 1)[0]
+    # must be inside MEDIA_ROOT/<allowed dir>/ (also defeats ../ and symlink tricks)
+    if top not in IMG_DIRS or not src.startswith(os.path.join(root, top) + os.sep):
+        return _image_response(request, None)
+    key = hashlib.sha256(rel.encode()).hexdigest()[:24]
+    return _image_response(request, _resized(src, key, _width(request)))

@@ -33,8 +33,9 @@ class ApiSecurityTests(TestCase):
         for book in (self.paid, self.free):
             d = os.path.join(MEDIA, 'extract', 'pdf_full', str(book.id))
             os.makedirs(d, exist_ok=True)
+            from PIL import Image
             for n in (1, 6):
-                open(os.path.join(d, f'{n}.jpg'), 'wb').write(b'\xff\xd8jpg')
+                Image.new('RGB', (1200, 1600), 'white').save(os.path.join(d, f'{n}.jpg'))
         os.makedirs(os.path.join(MEDIA, 'bukti_bayar'), exist_ok=True)
         open(os.path.join(MEDIA, 'bukti_bayar', 'x.jpg'), 'wb').write(b'x')
 
@@ -128,6 +129,32 @@ class ApiSecurityTests(TestCase):
         self.assertTrue(inboxMessage.objects.filter(id=theirs.id).exists())
         self.client.delete(f'/api/v1/me/inbox/{mine.id}/', **h)
         self.assertFalse(inboxMessage.objects.filter(id=mine.id).exists())
+
+    def test_cover_thumbnail(self):
+        r = self.client.get(f'/api/v1/books/{self.paid.id}/cover/?w=240')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['Content-Type'], 'image/jpeg')
+        self.assertIn('public', r['Cache-Control'])
+        from PIL import Image
+        import io
+        self.assertEqual(Image.open(io.BytesIO(b''.join(r.streaming_content))).width, 240)
+        # non-whitelisted width falls back to 480, bad ids 404
+        r = self.client.get(f'/api/v1/books/{self.paid.id}/cover/?w=99999')
+        self.assertEqual(Image.open(io.BytesIO(b''.join(r.streaming_content))).width, 480)
+        self.assertEqual(self.client.get('/api/v1/books/nope/cover/').status_code, 404)
+
+    def test_media_image_allowlist_and_etag(self):
+        from PIL import Image
+        os.makedirs(os.path.join(MEDIA, 'blogs'), exist_ok=True)
+        Image.new('RGBA', (1600, 900), (255, 0, 0, 128)).save(os.path.join(MEDIA, 'blogs', 'a.png'))
+        r = self.client.get('/api/v1/img/?p=blogs/a.png&w=240')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['Content-Type'], 'image/jpeg')
+        r2 = self.client.get('/api/v1/img/?p=blogs/a.png&w=240', HTTP_IF_NONE_MATCH=r['ETag'])
+        self.assertEqual(r2.status_code, 304)
+        # sensitive / traversal paths are refused
+        for bad in ('bukti_bayar/x.jpg', '../db.sqlite3', 'blogs/../bukti_bayar/x.jpg', '/etc/passwd', 'profile/a.jpg'):
+            self.assertEqual(self.client.get('/api/v1/img/', {'p': bad}).status_code, 404, bad)
 
     def test_cart_rules(self):
         h = {'HTTP_AUTHORIZATION': 'Bearer ' + self.login('ani', 'rahasia-456').json()['access_token']}

@@ -1,5 +1,6 @@
 import datetime
 import html
+from urllib.parse import quote
 
 from django.utils.html import strip_tags
 
@@ -9,11 +10,13 @@ MEDIA_PREFIX = '/media/'
 def media(name):
     # Relative URLs only: the app resolves them against its own configured base
     # URL, so a spoofed Host header can never poison cached responses.
-    return (MEDIA_PREFIX + str(name).lstrip('/')) if name else None
+    # Served through the resizing endpoint so phones never download originals.
+    return ('/api/v1/img/?p=' + quote(str(name).lstrip('/'))) if name else None
 
 
 def cover(book_id):
-    return '%sextract/pdf_full/%s/1.jpg' % (MEDIA_PREFIX, book_id)
+    # resized + cached by the API (see views.book_cover), not the raw 2500px scan
+    return '/api/v1/books/%s/cover/' % book_id
 
 
 def plain_text(value):
