@@ -100,6 +100,7 @@ class Books(models.Model):
 	is_update_pdf = models.BooleanField(default=False,verbose_name='IS UPDATE ALL DATA?')
 	is_update_info = models.BooleanField(default=False,verbose_name="IS UPDATE INFO ONLY")
 	is_best_seller = models.BooleanField(default=True)
+	is_active = models.BooleanField(default=True,verbose_name="Aktif (bisa dibeli)",help_text="Nonaktif: buku tetap bisa dibaca pemiliknya / preview, tapi tidak bisa dibeli.")
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	sinopsis = models.TextField(blank=True,null=True)

@@ -748,6 +748,9 @@ def addCartList(request,id):
         user = get_authenticated_user(request)
         try:
             book = Books.objects.get(id=id)
+            if not book.is_active:
+                messages.add_message(request,messages.SUCCESS,f"Buku {book.judul} sedang tidak dijual, tapi tetap bisa dibaca bagi yang sudah memilikinya.")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/')
             try:
                 try:
                     # cek apakah buku tersebut sudah ada di dalam koleksi?
@@ -1120,6 +1123,9 @@ def paymentProcess(request):
     if request.method == "POST":
         if request.user.is_authenticated:
             user = get_authenticated_user(request)
+            if MyCart.objects.filter(user=user, is_checked=True, book__is_active=False).exists():
+                messages.add_message(request,messages.SUCCESS,"Ada buku di keranjang yang sedang tidak dijual. Hapus dulu dari keranjang untuk melanjutkan pembayaran.")
+                return HttpResponseRedirect(reverse('cart_view'))
             x=request.FILES['bukti_bayar']
             filenya = "bukti_bayar/" + str(uuid.uuid4()) + ".jpg"
             default_storage.save(filenya, x)

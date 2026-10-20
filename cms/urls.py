@@ -3,6 +3,8 @@ from django.urls import path
 from .views import (
     activity_log_dashboard,
     book_form,
+    book_toggle_active,
+    book_delete,
     books_dashboard,
     categories_dashboard,
     category_form,
@@ -50,6 +52,8 @@ urlpatterns = [
     path('books/', books_dashboard, name='cms_books_dashboard'),
     path('books/add/', book_form, name='cms_book_add'),
     path('books/<uuid:book_id>/edit/', book_form, name='cms_book_edit'),
+    path('books/<uuid:book_id>/toggle/', book_toggle_active, name='cms_book_toggle'),
+    path('books/<uuid:book_id>/delete/', book_delete, name='cms_book_delete'),
 
     path('categories/', categories_dashboard, name='cms_categories_dashboard'),
     path('categories/add/', category_form, name='cms_category_add'),

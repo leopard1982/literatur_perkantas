@@ -1,14 +1,19 @@
 import datetime
 import io
+import os
+import shutil
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.paginator import Paginator
-from django.db.models import Count, Q, Sum
+from django.db import transaction
+from django.db.models import Count, Exists, OuterRef, ProtectedError, Q, RestrictedError, Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 from openpyxl import Workbook
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -18,7 +23,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from literatur.models import (
     Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
-    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, UserDetail,
+    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, UserBook, UserDetail,
 )
 from literatur.views import get_pengumuman_text
 
@@ -954,7 +959,11 @@ def books_dashboard(request):
     query = request.GET.get('q', '').strip()
     kategori_filter = request.GET.get('kategori', '').strip()
 
-    books = Books.objects.select_related('kategori').order_by('-created_at')
+    purchased = UserBook.objects.filter(id_book=OuterRef('pk'))
+    ordered = MyPaymentDetail.objects.filter(book=OuterRef('pk'))
+    books = (Books.objects.select_related('kategori')
+             .annotate(has_purchase=Exists(purchased) | Exists(ordered))
+             .order_by('-created_at'))
 
     if query:
         books = books.filter(
@@ -976,6 +985,61 @@ def books_dashboard(request):
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Management Buku', None)),
     }
     return render(request, 'cms/books_dashboard.html', context)
+
+
+@require_POST
+def book_toggle_active(request, book_id):
+    """Switch a book on/off. Off = still readable, no longer purchasable."""
+    blocked = _ensure_cms_access(request, 'books')
+    if blocked:
+        return blocked
+    book = get_object_or_404(Books, pk=book_id)
+    new_state = not book.is_active
+    # queryset.update(): Books.save() has custom branches and must not run here
+    Books.objects.filter(pk=book.pk).update(is_active=new_state)
+    label = 'diaktifkan (bisa dibeli)' if new_state else 'dinonaktifkan (tetap bisa dibaca, tidak bisa dibeli)'
+    messages.add_message(request, messages.SUCCESS, f'Buku "{book.judul}" {label}.')
+    _log_activity(request, 'books', f'Buku "{book.judul}" {label}.')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') or '/cms/books/')
+
+
+@require_POST
+def book_delete(request, book_id):
+    """Delete a book that has never been bought or ordered. Refused otherwise."""
+    blocked = _ensure_cms_access(request, 'books')
+    if blocked:
+        return blocked
+    book = get_object_or_404(Books, pk=book_id)
+    if UserBook.objects.filter(id_book=book).exists() or MyPaymentDetail.objects.filter(book=book).exists():
+        messages.add_message(request, messages.SUCCESS,
+                             f'Buku "{book.judul}" sudah pernah dibeli/dipesan sehingga tidak bisa dihapus. Nonaktifkan saja.')
+        return HttpResponseRedirect('/cms/books/')
+    title, pk = book.judul, str(book.pk)
+    pdf_name = book.pdf_full.name if book.pdf_full else None
+    try:
+        with transaction.atomic():
+            book.delete()
+    except (RestrictedError, ProtectedError):
+        messages.add_message(request, messages.SUCCESS,
+                             f'Buku "{title}" masih punya review pembaca sehingga tidak bisa dihapus. Nonaktifkan saja.')
+        return HttpResponseRedirect('/cms/books/')
+    # files go only after the DB delete succeeded
+    media = settings.MEDIA_ROOT
+    shutil.rmtree(os.path.join(media, 'extract', 'pdf_full', pk), ignore_errors=True)
+    for name in os.listdir(os.path.join(media, 'thumbs')) if os.path.isdir(os.path.join(media, 'thumbs')) else []:
+        if name.startswith(pk + '_'):
+            try:
+                os.remove(os.path.join(media, 'thumbs', name))
+            except OSError:
+                pass
+    if pdf_name:
+        try:
+            os.remove(os.path.join(media, pdf_name))
+        except OSError:
+            pass
+    messages.add_message(request, messages.SUCCESS, f'Buku "{title}" berhasil dihapus.')
+    _log_activity(request, 'books', f'Menghapus buku "{title}".')
+    return HttpResponseRedirect('/cms/books/')
 
 
 def book_form(request, book_id=None):

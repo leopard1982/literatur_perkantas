@@ -369,6 +369,8 @@ def cart(request, book_id):
         return JsonResponse({'in_cart': False})
     if book.kategori_id == 3:
         return error(409, 'free_book', 'Buku gratis tidak perlu dibeli.')
+    if not book.is_active:
+        return error(409, 'inactive', 'Buku ini sedang tidak dijual.')
     if UserBook.objects.filter(id_user=user, id_book=book).exists():
         return error(409, 'owned', 'Buku sudah ada di koleksi Anda.')
     if MyPaymentDetail.objects.filter(payment__user=user, payment__is_verified=False,

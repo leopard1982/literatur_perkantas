@@ -195,3 +195,80 @@ class ApiSecurityTests(TestCase):
     def test_test123_is_plain_text(self):
         r = self.client.get('/test/?q=<script>alert(1)</script>')
         self.assertTrue(r['Content-Type'].startswith('text/plain'))
+
+
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'])
+class BookActiveDeleteTests(TestCase):
+    """CMS toggle (aktif/nonaktif) + delete-only-if-never-bought, and what 'nonaktif' means."""
+
+    def setUp(self):
+        cache.clear()
+        self.admin = User.objects.create_superuser('root', 'r@example.com', 'x-12345678')
+        self.buyer = User.objects.create_user('buyer', 'b@example.com', 'rahasia-123')
+        UserDetail.objects.create(user=self.buyer, nama_lengkap='Buyer')
+        cat = Category.objects.create(id=1, nama='Rohani')
+        self.fresh = Books.objects.create(judul='Belum Dibeli', pengarang='A', kategori=cat, price=1000, halaman=10, is_update_info=True)
+        self.sold = Books.objects.create(judul='Sudah Dibeli', pengarang='B', kategori=cat, price=1000, halaman=10, is_update_info=True)
+        pay = MyPayment.objects.create(payment='INV9', user=self.buyer)
+        UserBook.objects.create(id_book=self.sold, id_user=self.buyer, payment=pay)
+        # leftovers on disk for the fresh book
+        d = os.path.join(MEDIA, 'extract', 'pdf_full', str(self.fresh.id))
+        os.makedirs(d, exist_ok=True)
+        open(os.path.join(d, '1.jpg'), 'wb').write(b'x')
+        self.client.force_login(self.admin)
+
+    def test_toggle_requires_post_and_login(self):
+        url = f'/cms/books/{self.fresh.id}/toggle/'
+        self.assertEqual(self.client.get(url).status_code, 405)
+        self.client.logout()
+        self.assertEqual(self.client.post(url).status_code, 302)  # -> login
+        self.fresh.refresh_from_db()
+        self.assertTrue(self.fresh.is_active)
+
+    def test_toggle_flips_state(self):
+        url = f'/cms/books/{self.fresh.id}/toggle/'
+        self.client.post(url)
+        self.fresh.refresh_from_db()
+        self.assertFalse(self.fresh.is_active)
+        self.client.post(url)
+        self.fresh.refresh_from_db()
+        self.assertTrue(self.fresh.is_active)
+
+    def test_delete_never_bought_removes_book_and_files(self):
+        r = self.client.post(f'/cms/books/{self.fresh.id}/delete/')
+        self.assertEqual(r.status_code, 302)
+        self.assertFalse(Books.objects.filter(id=self.fresh.id).exists())
+        self.assertFalse(os.path.exists(os.path.join(MEDIA, 'extract', 'pdf_full', str(self.fresh.id))))
+
+    def test_delete_refused_when_bought(self):
+        self.client.post(f'/cms/books/{self.sold.id}/delete/')
+        self.assertTrue(Books.objects.filter(id=self.sold.id).exists())
+
+    def test_delete_requires_post(self):
+        self.assertEqual(self.client.get(f'/cms/books/{self.fresh.id}/delete/').status_code, 405)
+        self.assertTrue(Books.objects.filter(id=self.fresh.id).exists())
+
+    def test_dashboard_shows_controls(self):
+        html = self.client.get('/cms/books/').content.decode()
+        self.assertIn(f'/cms/books/{self.fresh.id}/delete/', html)       # deletable
+        self.assertNotIn(f'/cms/books/{self.sold.id}/delete/', html)     # bought -> disabled button only
+        self.assertIn(f'/cms/books/{self.sold.id}/toggle/', html)
+
+    def test_inactive_cannot_be_bought_but_owner_still_reads(self):
+        self.client.logout()
+        Books.objects.filter(pk=self.fresh.pk).update(is_active=False)
+        Books.objects.filter(pk=self.sold.pk).update(is_active=False)
+        # API: cart refused, flag exposed
+        tok = post(self.client, '/api/v1/auth/login/', {'username': 'buyer', 'password': 'rahasia-123'}).json()['access_token']
+        h = {'HTTP_AUTHORIZATION': 'Bearer ' + tok}
+        r = post(self.client, f'/api/v1/cart/{self.fresh.id}/', {}, **h)
+        self.assertEqual((r.status_code, r.json()['error']['code']), (409, 'inactive'))
+        self.assertFalse(self.client.get(f'/api/v1/books/{self.fresh.id}/').json()['is_active'])
+        # web: add-to-cart refused
+        self.client.force_login(self.buyer)
+        self.client.get(f'/cart/add/{self.fresh.id}/', HTTP_REFERER='/')
+        from literatur.models import MyCart
+        self.assertFalse(MyCart.objects.filter(user=self.buyer, book=self.fresh).exists())
+        # owner of the inactive book can still open the reader
+        r = self.client.get(f'/book/p/{self.sold.id}/')
+        self.assertEqual(r.status_code, 200)

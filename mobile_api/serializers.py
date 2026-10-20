@@ -44,6 +44,7 @@ def book_dict(b, bought=None):
         'discount': float(sale.discount) if sale else None,
         'is_free': b.kategori_id == 3,
         'is_best_seller': bool(b.is_best_seller),
+        'is_active': bool(b.is_active),  # False = readable but not purchasable
         'jumlah_dibeli': bought,
         'cover': cover(b.id),
         'kategori': b.kategori.nama if b.kategori_id else '',
