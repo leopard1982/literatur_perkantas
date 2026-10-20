@@ -631,13 +631,9 @@ def delWishList(request,id):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def test123(request):
-    try:
-        if request.GET['q']!="":
-            return HttpResponse(f"Isiannya: {request.GET['q']}")
-        else:
-            return HttpResponse("Belum Ada Query Params")
-    except:
-        return HttpResponse("Initial")
+    # demo endpoint: respond as plain text so reflected input can never run as HTML
+    q = request.GET.get('q', '')[:100]
+    return HttpResponse(f"Isiannya: {q}" if q else "Belum Ada Query Params", content_type='text/plain; charset=utf-8')
 
 def allBookView(request):
     limit_options = [10, 25, 50, 100]

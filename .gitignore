@@ -11,4 +11,5 @@ db.sqlite3
 cms/migrations/
 cms/__pycache__/
 literatur/__pycache__/
-perkantas_literatur/__pycache__/
+perkantas_literatur/__pycache__/mobile_api/__pycache__/
+mobile_api/migrations/__pycache__/

@@ -22,6 +22,7 @@ from django.views.static import serve
 from django.conf import settings
 from django.shortcuts import redirect,render
 
+from literatur.media_guard import protected_media
 from literatur.sitemaps import BlogSitemap, BookSitemap, StaticViewSitemap
 
 sitemaps = {
@@ -33,10 +34,11 @@ sitemaps = {
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cms/', include('cms.urls')),
+    path('api/v1/', include('mobile_api.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('',include('literatur.urls')),
-    re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', protected_media),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT})
 ]
 
