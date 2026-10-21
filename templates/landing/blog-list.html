@@ -12,8 +12,9 @@
   .pn-search { display: flex; gap: 8px; width: 100%; max-width: 360px; }
   .pn-search input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 1px solid #d9e1e8; border-radius: 999px; background: #fff; font-size: 14px; color: #24343d; }
   .pn-search input:focus { outline: none; border-color: #8b5a55; box-shadow: 0 0 0 3px rgba(139,90,85,.12); }
-  .pn-search button { height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #24343d; color: #fff; font-weight: 700; font-size: 14px; }
-  .pn-search button:hover { background: #8b5a55; }
+  .pn-search button { display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #8b5a55; color: #fff; font-weight: 700; font-size: 14px; transition: background .2s; }
+  .pn-search button:hover { background: #a56b64; }
+  .pn-search button:focus-visible { outline: 3px solid rgba(139,90,85,.3); outline-offset: 2px; }
   .pn-count { margin: 0 0 14px 4px; font-size: 14px; color: #7a8892; }
   .bp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; align-items: start; }
   .bp-layout .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -28,6 +29,7 @@
   .bp-archive a { color: #34454f; text-decoration: none; }
   .bp-archive a:hover, .bp-archive a.active { color: #8b5a55; font-weight: 700; }
   .bp-select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #d9e1e8; border-radius: 12px; background: #fff; font-size: 14px; color: #34454f; }
+  .bp-badge { align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #7a8892; border: 1px solid #d9e1e8; border-radius: 6px; padding: 2px 8px; }
   .bp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
   .bp-card { background: #fff; border: 1px solid #e7ebf0; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 26px rgba(36,52,61,.05); display: flex; flex-direction: column; }
   .bp-cover { display: block; aspect-ratio: 16 / 10; background: #eef2f6; overflow: hidden; }
@@ -61,14 +63,15 @@
         </div>
         <form class="pn-search" method="get" action="{% url 'blog_list' %}" role="search">
           <input type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Cari judul, penulis, atau isi" aria-label="Cari">
-          <button type="submit">Cari</button>
+          {% if filter_value or mode_arsip %}<input type="hidden" name="{{ filter_name }}" value="{{ filter_value|default:'semua' }}">{% endif %}
+          <button type="submit"><i class="fa fa-search" aria-hidden="true"></i> Cari</button>
         </form>
       </div>
 
       <div class="bp-layout">
       <div class="bp-main">
       {% if halaman.object_list %}
-      <p class="pn-count">{{ halaman.paginator.count }} {% if q %}hasil untuk &ldquo;{{ q }}&rdquo;{% else %}tulisan{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}</p>
+      <p class="pn-count">{{ halaman.paginator.count }} {% if q %}hasil untuk &ldquo;{{ q }}&rdquo;{% elif mode_arsip %}tulisan diarsipkan{% else %}tulisan{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}</p>
       <div class="bp-grid">
         {% for post in halaman %}
         <article class="bp-card">
@@ -78,6 +81,7 @@
             {% endwith %}
           </a>
           <div class="bp-body">
+            {% if mode_arsip %}<span class="bp-badge">Arsip</span>{% endif %}
             <h2 class="bp-card-title"><a href="{% url 'blog_detail' post.id %}">{{ post.judul }}</a></h2>
             <div class="bp-meta">
               <span><i class="fa fa-user-o"></i> {{ post.pengarang }}</span>
@@ -101,31 +105,36 @@
       </div>
       {% endif %}
       {% else %}
-      <p class="bp-empty">{% if q or bulan_label %}Tidak ada blog{% if q %} yang cocok dengan &ldquo;{{ q }}&rdquo;{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}. Coba kata kunci atau bulan lain, atau <a href="{% url 'blog_list' %}">lihat semua blog</a>.{% else %}Belum ada blog yang dipublikasikan. Tulisan akan muncul di halaman ini begitu tim kami selesai menyiapkannya.{% endif %}</p>
+      <p class="bp-empty">{% if mode_arsip and not q and not bulan_label %}Belum ada tulisan yang diarsipkan.{% elif q or bulan_label %}Tidak ada blog{% if q %} yang cocok dengan &ldquo;{{ q }}&rdquo;{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}. Coba kata kunci atau bulan lain, atau <a href="{% url 'blog_list' %}{% if mode_arsip %}?arsip=semua{% endif %}">lihat semua {% if mode_arsip %}arsip{% else %}blog{% endif %}</a>.{% else %}Belum ada blog yang dipublikasikan. Tulisan akan muncul di halaman ini begitu tim kami selesai menyiapkannya.{% endif %}</p>
       {% endif %}
       </div>
       <aside class="bp-side">
         <section class="bp-widget">
-          <h3>Arsip</h3>
-          {% if arsip %}
+          <h3>Artikel</h3>
+          {% if arsip_aktif %}
           <ul class="bp-archive">
-            {% for a in arsip %}
+            <li><a href="{% url 'blog_list' %}" class="{% if not mode_arsip and not bulan %}active{% endif %}">Semua artikel</a></li>
+            {% for a in arsip_aktif %}
             <li><a href="{% url 'blog_list' %}?bulan={{ a.value }}" class="{% if a.active %}active{% endif %}">{{ a.label }}</a> <span>({{ a.count }})</span></li>
             {% endfor %}
           </ul>
           {% else %}
-          <p class="bp-widget-note">Belum ada arsip.</p>
+          <p class="bp-widget-note">Belum ada artikel.</p>
           {% endif %}
         </section>
-        {% if arsip %}
         <section class="bp-widget">
-          <label for="bpArsipSelect"><h3>Pilih Arsip</h3></label>
-          <select id="bpArsipSelect" class="bp-select" onchange="window.location = this.value">
-            <option value="{% url 'blog_list' %}" {% if not bulan %}selected{% endif %}>Semua bulan</option>
-            {% for a in arsip %}<option value="{% url 'blog_list' %}?bulan={{ a.value }}" {% if a.active %}selected{% endif %}>{{ a.label }} ({{ a.count }})</option>{% endfor %}
-          </select>
+          <h3>Arsip</h3>
+          {% if arsip_lama %}
+          <ul class="bp-archive">
+            <li><a href="{% url 'blog_list' %}?arsip=semua" class="{% if mode_arsip and not bulan_label %}active{% endif %}">Semua arsip</a> <span>({{ total_arsip }})</span></li>
+            {% for a in arsip_lama %}
+            <li><a href="{% url 'blog_list' %}?arsip={{ a.value }}" class="{% if a.active %}active{% endif %}">{{ a.label }}</a> <span>({{ a.count }})</span></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="bp-widget-note">Belum ada tulisan yang diarsipkan.</p>
+          {% endif %}
         </section>
-        {% endif %}
       </aside>
       </div>
     </div>

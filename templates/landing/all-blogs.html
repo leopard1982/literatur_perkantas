@@ -82,8 +82,9 @@
   .pn-search { display: flex; gap: 8px; width: 100%; max-width: 360px; }
   .pn-search input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 1px solid #d9e1e8; border-radius: 999px; background: #fff; font-size: 14px; color: #24343d; }
   .pn-search input:focus { outline: none; border-color: #8b5a55; box-shadow: 0 0 0 3px rgba(139,90,85,.12); }
-  .pn-search button { height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #24343d; color: #fff; font-weight: 700; font-size: 14px; }
-  .pn-search button:hover { background: #8b5a55; }
+  .pn-search button { display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #8b5a55; color: #fff; font-weight: 700; font-size: 14px; transition: background .2s; }
+  .pn-search button:hover { background: #a56b64; }
+  .pn-search button:focus-visible { outline: 3px solid rgba(139,90,85,.3); outline-offset: 2px; }
   .pn-count { margin: 0 0 14px 4px; font-size: 14px; color: #7a8892; }
   .blogs-grid {
     display: grid;
@@ -241,7 +242,7 @@
         </div>
         <form class="pn-search" method="get" action="{% url 'all_blogs_view' %}" role="search">
           <input type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Cari judul, penulis, atau isi" aria-label="Cari">
-          <button type="submit">Cari</button>
+          <button type="submit"><i class="fa fa-search" aria-hidden="true"></i> Cari</button>
         </form>
       </div>
 

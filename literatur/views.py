@@ -1191,22 +1191,34 @@ def blogListView(request):
     if q:
         posts = posts.filter(Q(judul__icontains=q) | Q(pengarang__icontains=q) | Q(isi__icontains=q))
 
-    # arsip per bulan seperti widget Archives WordPress (dihitung dari blog yang tayang, tanpa filter pencarian)
-    bulan = request.GET.get('bulan', '')
+    # dua daftar terpisah: "Artikel" (tayang) dan "Arsip" (sudah diarsipkan lewat CMS), masing-masing per bulan
+    mode_arsip = 'arsip' in request.GET
+    bulan = request.GET.get('arsip' if mode_arsip else 'bulan', '')
+    if mode_arsip:
+        posts = BlogPost.objects.filter(is_archived=True).prefetch_related('images').order_by('-created_at')
+        if q:
+            posts = posts.filter(Q(judul__icontains=q) | Q(pengarang__icontains=q) | Q(isi__icontains=q))
     bulan_label = ''
     m = re.fullmatch(r'(\d{4})-(\d{2})', bulan)
     if m and 1 <= int(m.group(2)) <= 12:
         posts = posts.filter(created_at__year=int(m.group(1)), created_at__month=int(m.group(2)))
         bulan_label = f"{NAMA_BULAN[int(m.group(2))]} {m.group(1)}"
-    else:
+    elif not (mode_arsip and bulan == 'semua'):
         bulan = ''
-    arsip = []
-    per_bulan = (BlogPost.objects.filter(is_archived=False)
-                 .annotate(y=ExtractYear('created_at'), mo=ExtractMonth('created_at'))
-                 .values('y', 'mo').annotate(n=Count('id')).order_by('-y', '-mo'))
-    for row in per_bulan:
-        value = f"{row['y']}-{row['mo']:02d}"
-        arsip.append({'value': value, 'label': f"{NAMA_BULAN[row['mo']]} {row['y']}", 'count': row['n'], 'active': value == bulan})
+
+    def per_bulan(archived, active_value):
+        rows = (BlogPost.objects.filter(is_archived=archived)
+                .annotate(y=ExtractYear('created_at'), mo=ExtractMonth('created_at'))
+                .values('y', 'mo').annotate(n=Count('id')).order_by('-y', '-mo'))
+        out = []
+        for row in rows:
+            value = f"{row['y']}-{row['mo']:02d}"
+            out.append({'value': value, 'label': f"{NAMA_BULAN[row['mo']]} {row['y']}", 'count': row['n'], 'active': value == active_value})
+        return out
+
+    arsip_aktif = per_bulan(False, '' if mode_arsip else bulan)
+    arsip_lama = per_bulan(True, bulan if mode_arsip else '')
+    total_arsip = sum(r['count'] for r in arsip_lama)
     page = Paginator(posts, per_page=9)
     try:
         halaman = page.page(h)
@@ -1219,8 +1231,13 @@ def blogListView(request):
     except Exception:
         pengumuman = DEFAULT_PENGUMUMAN
 
-    qs = ('&q=' + quote(q) if q else '') + ('&bulan=' + bulan if bulan else '')
-    context = {'pengumuman': pengumuman, 'q': q, 'bulan': bulan, 'bulan_label': bulan_label, 'arsip': arsip, 'q_qs': qs}
+    filter_name = 'arsip' if mode_arsip else 'bulan'
+    qs = ('&q=' + quote(q) if q else '') + (f'&{filter_name}={bulan}' if (bulan or mode_arsip) else '')
+    context = {
+        'pengumuman': pengumuman, 'q': q, 'bulan': bulan, 'bulan_label': bulan_label, 'q_qs': qs,
+        'mode_arsip': mode_arsip, 'filter_name': filter_name, 'filter_value': bulan,
+        'arsip_aktif': arsip_aktif, 'arsip_lama': arsip_lama, 'total_arsip': total_arsip,
+    }
     context.update(user_context)
     context.update(build_pagination_context(halaman, h))
     return render(request, 'landing/blog-list.html', context)
@@ -1228,7 +1245,7 @@ def blogListView(request):
 
 def blogDetailView(request, id):
     try:
-        post = BlogPost.objects.prefetch_related('images').get(id=id, is_archived=False)
+        post = BlogPost.objects.prefetch_related('images').get(id=id)
     except (BlogPost.DoesNotExist, ValueError, Exception):
         # tautan lama /blogs/<id>/ milik Coretan Pena sekarang berada di /pena/<id>/
         if Blogs.objects.filter(pk=id).exists():
