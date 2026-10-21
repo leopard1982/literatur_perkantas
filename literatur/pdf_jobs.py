@@ -47,6 +47,14 @@ def read_progress(book_id):
     return data
 
 
+def _right_half(image):
+    """Halaman 1 PDF berupa spread 2 halaman (landscape): ambil sisi kanan saja."""
+    w, h = image.size
+    if w <= h:
+        return image
+    return image.crop((w // 2, 0, w, h))
+
+
 def _convert(book_id, pdf_path, activate):
     from .models import Books
 
@@ -62,6 +70,8 @@ def _convert(book_id, pdf_path, activate):
         for first in range(1, total + 1, CHUNK_PAGES):
             last = min(first + CHUNK_PAGES - 1, total)
             for offset, image in enumerate(convert_from_path(pdf_path, first_page=first, last_page=last)):
+                if first + offset == 1:
+                    image = _right_half(image)
                 image.save(os.path.join(images_dir, f'{first + offset}.jpg'), 'JPEG')
             done = last
             _write_progress(book_id, status='processing', percent=int(done * 100 / total),
