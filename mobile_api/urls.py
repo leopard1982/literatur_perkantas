@@ -26,6 +26,7 @@ urlpatterns = [
     path('announcements/', views.announcements),
     path('me/bookmarks/', views.my_bookmarks),
     path('me/plans/', views.my_plans),
+    path('me/review/', views.my_review),
     path('me/wishlist/', views.my_wishlist),
     path('me/cart/', views.my_cart),
     path('me/inbox/', views.inbox),

@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import urllib.parse
 import urllib.request
@@ -18,7 +19,7 @@ from django.views.decorators.gzip import gzip_page
 from literatur.models import (
     Blogs, BlogComment, MobileBroadcast, BookComment, Books, Category, FeaturedBook, Instagram,
     MyCart, MyPaymentDetail, inboxMessage, MyWishlist, OnSaleBook, PageReview, Pengumuman,
-    UserBook,
+    UserBook, PageReview,
 )
 
 from literatur.invoice import get_downloadable_payment, invoice_id_from_text, invoice_response
@@ -35,6 +36,7 @@ from .serializers import (
     safe_https,
 )
 
+log = logging.getLogger('mobile_api')
 DEFAULT_PENGUMUMAN = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 HOME_CACHE_KEY = 'api:home:v1'
 HOME_CACHE_TTL = 60
@@ -43,24 +45,40 @@ RECAPTCHA_ACTION = 'login'
 RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
 
-RECAPTCHA_ACTIONS = ('login', 'comment', 'bookmark')
+RECAPTCHA_ACTIONS = ('login', 'comment', 'bookmark', 'review')
 
 
 def _recaptcha_ok(token, ip, action=RECAPTCHA_ACTION):
-    """Server-side reCAPTCHA v3 check (same keys / min score as the website). Fails closed."""
+    """Server-side reCAPTCHA v3 check (same keys as the website). Fails closed.
+
+    Login keeps the website's score; the other (already authenticated) actions accept a lower
+    score, because an app WebView has no Google cookies/history and often scores 0.3-0.5."""
     if not getattr(settings, 'MOBILE_LOGIN_RECAPTCHA', True):
         return True
     if not isinstance(token, str) or not token or len(token) > 4096:
+        log.warning('recaptcha[%s]: token kosong/tidak valid', action)
         return False
     body = urllib.parse.urlencode({'secret': settings.RECAPTCHA_PRIVATE_KEY, 'response': token,
                                    'remoteip': ip or ''}).encode()
-    try:
-        with urllib.request.urlopen(urllib.request.Request(RECAPTCHA_VERIFY_URL, data=body), timeout=5) as r:
-            res = json.loads(r.read().decode('utf-8'))
-    except Exception:
+    res = None
+    for _ in range(2):  # one retry: a slow / dropped call to Google must not look like a failed captcha
+        try:
+            with urllib.request.urlopen(urllib.request.Request(RECAPTCHA_VERIFY_URL, data=body), timeout=8) as r:
+                res = json.loads(r.read().decode('utf-8'))
+            break
+        except Exception:
+            continue
+    if res is None:
+        log.warning('recaptcha[%s]: tidak bisa menghubungi Google', action)
         return False
-    return bool(res.get('success')) and res.get('action') == action \
-        and float(res.get('score', 0)) >= getattr(settings, 'RECAPTCHA_REQUIRED_SCORE', 0.5)
+    need = getattr(settings, 'RECAPTCHA_REQUIRED_SCORE', 0.5)
+    if action != RECAPTCHA_ACTION:
+        need = min(need, getattr(settings, 'RECAPTCHA_MOBILE_SCORE', 0.3))
+    ok = bool(res.get('success')) and res.get('action') == action and float(res.get('score', 0)) >= need
+    if not ok:
+        log.warning('recaptcha[%s] ditolak: success=%s action=%s score=%s need=%s errors=%s', action, res.get('success'),
+                    res.get('action'), res.get('score'), need, res.get('error-codes'))
+    return ok
 
 
 def recaptcha_page(request):
@@ -658,6 +676,32 @@ def _plan_dict(p):
             'start_page': p.start_page, 'remind_time': p.remind_time.strftime('%H:%M')}
 
 
+@api(['GET', 'PUT', 'DELETE'], auth='required', rate=(30, 60))
+def my_review(request):
+    """Testimoni ("Review Sahabat") milik user: satu per akun, sama seperti di website."""
+    user = request.api_user
+    cur = PageReview.objects.filter(user=user).first()
+    if request.method == 'DELETE':
+        if cur is not None:
+            cur.delete()
+        return JsonResponse({'review': None})
+    if request.method == 'PUT':
+        text = request.json.get('review')
+        text = text.strip() if isinstance(text, str) else ''
+        if not text or len(text) > 400:
+            return error(400, 'invalid_input', 'Testimoni wajib diisi (maksimal 400 karakter).')
+        err = _captcha_or_error(request, 'review')
+        if err:
+            return err
+        if cur is None:
+            cur = PageReview(user=user)
+        if cur.review != text or not cur.is_active:
+            cur.review, cur.is_active = text, True
+            cur.save()
+            cache.delete(HOME_CACHE_KEY)
+    return JsonResponse({'review': {'review': cur.review, 'updated_at': cur.updated_at.isoformat()} if cur else None})
+
+
 @gzip_page
 @api(['GET'], auth='required', rate=(60, 60))
 def my_bookmarks(request):
@@ -706,10 +750,15 @@ def book_plan(request, book_id):
             remind = datetime.time.fromisoformat(str(request.json.get('remind_time', '19:00')))
         except ValueError:
             return error(400, 'invalid_input', 'Jam pengingat tidak valid.')
-        ReadingPlan.objects.update_or_create(
-            user=user, book=book,
-            defaults={'start_date': today, 'target_date': target, 'start_page': start_page,
-                      'remind_time': remind.replace(second=0, microsecond=0)})
+        remind = remind.replace(second=0, microsecond=0)
+        cur = ReadingPlan.objects.filter(user=user, book=book).first()
+        if cur is not None and cur.target_date == target:  # hanya jam pengingat yang berubah: patokan awal tetap
+            cur.remind_time = remind
+            cur.save(update_fields=['remind_time'])
+        else:
+            ReadingPlan.objects.update_or_create(
+                user=user, book=book,
+                defaults={'start_date': today, 'target_date': target, 'start_page': start_page, 'remind_time': remind})
     plan = ReadingPlan.objects.filter(user=user, book=book).first()
     return JsonResponse({'plan': _plan_dict(plan) if plan else None})
 

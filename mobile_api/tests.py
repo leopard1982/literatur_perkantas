@@ -367,6 +367,8 @@ class ReaderFeatureTests(TestCase):
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t}), content_type='application/json', **self.h).json()['plan']['target_date'], t)
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t, 'remind_time': '07:30'}), content_type='application/json', **self.h).json()['plan']['remind_time'], '07:30')
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t, 'remind_time': 'abc'}), content_type='application/json', **self.h).status_code, 400)
+        first = self.client.get(u + 'plan/', **self.h).json()['plan']
+        self.assertEqual(first['start_page'], 1)
         pl = self.client.get('/api/v1/me/plans/', **self.h).json()['results']
         self.assertEqual((pl[0]['book']['id'], pl[0]['page'], pl[0]['remind_time']), (str(self.free.id), 7, '07:30'))
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': '2001-01-01'}), content_type='application/json', **self.h).status_code, 400)
@@ -377,4 +379,18 @@ class ReaderFeatureTests(TestCase):
     def test_captcha_required(self):
         r = post(self.client, f'/api/v1/books/{self.free.id}/comments/', {'comment': 'x'}, **self.h)
         self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json()['error']['code'], 'captcha_failed')
+
+    def test_review_crud(self):
+        self.assertIsNone(self.client.get('/api/v1/me/review/', **self.h).json()['review'])
+        r = self.client.put('/api/v1/me/review/', json.dumps({'review': 'Bukunya bagus'}), content_type='application/json', **self.h)
+        self.assertEqual(r.json()['review']['review'], 'Bukunya bagus')
+        self.client.put('/api/v1/me/review/', json.dumps({'review': 'Diubah'}), content_type='application/json', **self.h)
+        self.assertEqual(self.client.get('/api/v1/me/review/', **self.h).json()['review']['review'], 'Diubah')
+        self.assertEqual(self.client.put('/api/v1/me/review/', json.dumps({'review': 'x' * 401}), content_type='application/json', **self.h).status_code, 400)
+        self.assertIsNone(self.client.delete('/api/v1/me/review/', **self.h).json()['review'])
+
+    @override_settings(MOBILE_LOGIN_RECAPTCHA=True)
+    def test_review_requires_captcha(self):
+        r = self.client.put('/api/v1/me/review/', json.dumps({'review': 'x'}), content_type='application/json', **self.h)
         self.assertEqual(r.json()['error']['code'], 'captcha_failed')
