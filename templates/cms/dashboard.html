@@ -35,11 +35,20 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .donation-tile { background: #fff; color: #3b3b3b; border: 1px solid var(--bs-border-color); border-left: 6px solid var(--dn); border-radius: .5rem; }
+    .donation-tile:hover { background: color-mix(in srgb, var(--dn) 7%, #fff); color: #3b3b3b; }
+    .donation-tile .inner h3 { color: var(--dn); }
+    .donation-tile .small-box-icon { color: var(--dn); opacity: .22; }
+    .donation-pending { --dn: #7c5cbf; }
+    .donation-approved { --dn: #0f8f8f; }
+    .donation-rejected { --dn: #c2417a; }
+</style>
 {% if summary_tiles %}
 <div class="row">
     {% for tile in summary_tiles %}
     <div class="col-lg-4 col-6">
-        <a href="{{ tile.href }}" class="small-box text-bg-{{ tile.tone }} text-decoration-none">
+        <a href="{{ tile.href }}" class="small-box text-decoration-none {% if tile.group == 'donation' %}donation-tile donation-{{ tile.tone }}{% else %}text-bg-{{ tile.tone }}{% endif %}">
             <div class="inner">
                 <h3>{{ tile.value }}</h3>
                 <p>{{ tile.label }}</p>
