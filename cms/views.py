@@ -465,8 +465,13 @@ def dashboard(request):
         'instagram_settings': 'bi-instagram', 'pengumuman_settings': 'bi-megaphone',
         'roles': 'bi-person-lock', 'coretan_pena': 'bi-pencil-square', 'reports': 'bi-clipboard-data',
     }
+    tone_bg = {
+        'earth': 'secondary', 'amber': 'warning', 'clay': 'danger', 'forest': 'success',
+        'plum': 'primary', 'navy': 'primary', 'charcoal': 'dark', 'gold': 'warning', 'teal': 'info',
+    }
     for entry in cards:
         entry['icon'] = card_icons.get(entry['module'], 'bi-app')
+        entry['bg'] = tone_bg.get(entry['tone'], 'secondary')
 
     trend = None
     recent_payments = []
@@ -608,6 +613,7 @@ def analytics_dashboard(request):
         'tab': tab,
         'start': start,
         'today': today,
+        'recent_visits': SiteVisit.objects.filter(date__gte=start).order_by('-last_seen')[:30],
         'web': visits('web'),
         'mobile': visits('mobile'),
         'purchases': purchases,

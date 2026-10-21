@@ -12,6 +12,48 @@ class CmsNoCacheMiddleware:
         return response
 
 
+def describe_device(ua):
+    """Ringkas user-agent menjadi 'Perangkat · OS · Browser'."""
+    low = ua.lower()
+    if 'okhttp' in low or 'dart' in low or 'expo' in low or 'cfnetwork' in low:
+        client_hint = 'Aplikasi Mobile'
+    else:
+        client_hint = ''
+
+    if 'ipad' in low or 'tablet' in low:
+        kind = 'Tablet'
+    elif 'mobi' in low or 'iphone' in low or ('android' in low and 'mobile' in low):
+        kind = 'HP'
+    else:
+        kind = 'Desktop'
+
+    if 'android' in low:
+        os_name = 'Android'
+    elif 'iphone' in low or 'ipad' in low or 'ios' in low:
+        os_name = 'iOS'
+    elif 'windows' in low:
+        os_name = 'Windows'
+    elif 'mac os' in low or 'macintosh' in low:
+        os_name = 'macOS'
+    elif 'linux' in low:
+        os_name = 'Linux'
+    else:
+        os_name = ''
+
+    browser = ''
+    for needle, name in (('edg/', 'Edge'), ('opr/', 'Opera'), ('firefox', 'Firefox'),
+                         ('samsungbrowser', 'Samsung Browser'), ('chrome', 'Chrome'),
+                         ('safari', 'Safari')):
+        if needle in low:
+            browser = name
+            break
+
+    if client_hint and kind == 'Desktop' and not os_name:
+        kind = client_hint
+    parts = [kind, os_name, browser]
+    return ' · '.join(p for p in parts if p)[:100] or 'Tidak diketahui'
+
+
 class VisitTrackingMiddleware:
     """Mencatat pengunjung unik harian untuk website dan API mobile (untuk analitik CMS)."""
 
@@ -53,9 +95,15 @@ class VisitTrackingMiddleware:
         from django.db.models import F
         from literatur.models import SiteVisit
 
-        ip = request.META.get('REMOTE_ADDR', '')
+        forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        ip = forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR', '')
         key = hashlib.sha256(f'{ip}|{ua}'.encode()).hexdigest()
         visit, created = SiteVisit.objects.get_or_create(
-            source=source, visitor_key=key, date=datetime.date.today())
+            source=source, visitor_key=key, date=datetime.date.today(),
+            defaults={
+                'ip_address': ip or None,
+                'device': describe_device(ua),
+                'user_agent': ua[:300],
+            })
         if not created:
             SiteVisit.objects.filter(pk=visit.pk).update(hits=F('hits') + 1)

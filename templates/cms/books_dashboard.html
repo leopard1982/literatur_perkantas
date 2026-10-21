@@ -3,172 +3,34 @@
 
 {% block title %}CMS Management Buku{% endblock %}
 
-{% block extra_styles %}
-<style>
-    .page-shell { max-width: 1480px; }
-
-    .page-top {
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:12px;
-        flex-wrap:wrap;
-        margin-bottom: 16px;
-    }
-
-    .page-top a.back-link {
-        text-decoration:none;
-        color:#bf5b3d;
-        font-weight:800;
-    }
-
-    .hero-panel, .surface-card { border-radius: 24px; }
-
-    .hero-panel {
-        padding: 26px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: #f4d6ca;
-        color: #bf5b3d;
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
-
-    .surface-card { padding: 22px; }
-
-    .toolbar .form-control,
-    .toolbar .form-select,
-    .toolbar .btn {
-        border-radius: 14px;
-        min-height: 48px;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, var(--accent), #9f4428);
-        color: white;
-        border: none;
-        font-weight: 800;
-        border-radius: 14px;
-        padding: 12px 20px;
-        text-decoration: none;
-    }
-
-    .btn-add:hover { color: white; }
-
-    .book-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-        margin-top: 20px;
-    }
-
-    .book-card {
-        border: 1px solid var(--stroke);
-        border-radius: 20px;
-        background: white;
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .book-title {
-        font-weight: 800;
-        font-size: 16px;
-    }
-
-    .badge-soft {
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 999px;
-        background: #efe7dc;
-        color: #5b4d40;
-        font-size: 11px;
-        font-weight: 700;
-        width: fit-content;
-    }
-
-    .book-footer {
-        margin-top: auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .book-card.is-off { background: #fbf8f5; }
-    .book-card.is-off .book-title { color: #8a7d70; }
-    .badge-off { background: #f6dede; color: #9b2c2c; }
-    .book-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-top: 10px;
-        border-top: 1px dashed var(--stroke);
-    }
-    .switch { display: inline-flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; font-size: 12px; font-weight: 700; color: #5b4d40; }
-    .switch input { position: absolute; opacity: 0; pointer-events: none; }
-    .switch .track { width: 38px; height: 22px; border-radius: 99px; background: #d8cfc4; position: relative; transition: background .2s; flex-shrink: 0; }
-    .switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
-    .switch input:checked + .track { background: #2f9e6e; }
-    .switch input:checked + .track::after { transform: translateX(16px); }
-    .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .btn-del { margin-left: auto; border: 1px solid #e6c4c4; background: #fff; color: #b03a3a; border-radius: 10px; font-size: 12px; font-weight: 800; padding: 5px 12px; }
-    .btn-del:hover { background: #b03a3a; color: #fff; }
-    .btn-del[disabled] { opacity: .45; cursor: not-allowed; background: #fff; color: #b03a3a; }
-    .edit-link {
-        text-decoration: none;
-        font-weight: 800;
-        color: var(--accent);
-        font-size: 13px;
-    }
-
-    .item-row {
-        border: 1px solid var(--stroke);
-        border-radius: 16px;
-        padding: 14px 16px;
-        background: rgba(255,255,255,0.84);
-    }
-
-    @media (max-width: 1100px) {
-        .book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 700px) {
-        .book-grid { grid-template-columns: 1fr; }
-    }
-</style>
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Management Buku</h3>
+                <small class="text-secondary">Total {{ total_books }} buku tercatat. Unggah PDF baru untuk memicu proses ekstraksi halaman otomatis.</small>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    
+                    <li class="breadcrumb-item active" aria-current="page">Management Buku</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="page-top">
-    <a class="back-link" href="/cms/">Kembali ke CMS</a>
-</div>
-<div class="page-shell">
-    <section class="hero-panel surface-card mb-4">
-        <div>
-            <span class="eyebrow">Management Buku</span>
-            <h1 class="mt-3 mb-2 fw-bold">Katalog buku Literatur Perkantas</h1>
-            <p class="muted mb-0">Total {{ total_books }} buku tercatat. Unggah PDF baru untuk memicu proses ekstraksi halaman otomatis.</p>
-        </div>
-        <a class="btn-add" href="/cms/books/add/">+ Tambah Buku</a>
-    </section>
-
-    <section class="surface-card">
-        <form method="get" class="toolbar mb-2">
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title">Katalog buku Literatur Perkantas</h3>
+        <div class="card-tools"><a class="btn btn-sm btn-primary" href="/cms/books/add/"><i class="bi bi-plus-lg"></i> Tambah Buku</a></div>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-4">
             <div class="row g-2">
                 <div class="col-md-6">
                     <input type="text" class="form-control" name="q" value="{{ current_query }}" placeholder="Cari judul, pengarang, atau ISBN">
@@ -182,57 +44,64 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-outline-warm w-100" type="submit">Filter</button>
+                    <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
                 </div>
             </div>
         </form>
 
-        <div class="book-grid">
+        <div class="row g-3">
             {% for book in page_obj %}
-            <div class="book-card {% if not book.is_active %}is-off{% endif %}">
-                <div>
-                    <span class="badge-soft">{{ book.kategori.nama }}</span>
-                    {% if not book.is_active %}<span class="badge-soft badge-off">Nonaktif &bull; tidak tampil</span>{% endif %}
-                </div>
-                <div class="book-title">{{ book.judul }}</div>
-                <div class="muted small">{{ book.pengarang }}{% if book.isbn %} &bull; ISBN {{ book.isbn }}{% endif %}</div>
-                <div class="muted small">Rp {{ book.price|intcomma }} &bull; {{ book.halaman }} halaman</div>
-                <div class="muted small">{% if book.is_best_seller %}<span class="badge-soft">Best Seller</span>{% endif %}</div>
-                <div class="book-footer">
-                    <div class="muted small">Diperbarui {{ book.updated_at|date:"d M Y" }}</div>
-                    <a class="edit-link" href="/cms/books/{{ book.id }}/edit/">Edit &rarr;</a>
-                </div>
-                <div class="book-actions">
-                    <form method="post" action="{% url 'cms_book_toggle' book.id %}" class="m-0">
-                        {% csrf_token %}
-                        <label class="switch" title="{% if book.is_active %}Aktif: tampil di katalog web &amp; aplikasi. Klik untuk menyembunyikan.{% else %}Nonaktif: tidak tampil &amp; tidak bisa dibeli (pemilik tetap bisa membaca). Klik untuk menampilkan.{% endif %}">
-                            <input type="checkbox" {% if book.is_active %}checked{% endif %} onchange="this.form.submit()" aria-label="Aktif">
-                            <span class="track"></span>
-                            <span>{% if book.is_active %}Tampil{% else %}Tersembunyi{% endif %}</span>
-                        </label>
-                    </form>
-                    {% if book.has_purchase %}
-                    <button type="button" class="btn-del" disabled title="Sudah pernah dibeli/dipesan, tidak bisa dihapus. Nonaktifkan saja.">Hapus</button>
-                    {% else %}
-                    <form method="post" action="{% url 'cms_book_delete' book.id %}" class="m-0 ms-auto"
-                          onsubmit="return confirm('Hapus buku &quot;{{ book.judul|escapejs }}&quot; secara permanen? Tindakan ini tidak bisa dibatalkan.');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-del">Hapus</button>
-                    </form>
-                    {% endif %}
+            <div class="col-xl-4 col-md-6">
+                <div class="card h-100 {% if not book.is_active %}border-secondary bg-body-tertiary{% endif %}">
+                    <div class="card-body d-flex flex-column gap-2">
+                        <div>
+                            <span class="badge text-bg-secondary">{{ book.kategori.nama }}</span>
+                            {% if not book.is_active %}<span class="badge text-bg-danger">Nonaktif &bull; tidak tampil</span>{% endif %}
+                            {% if book.is_best_seller %}<span class="badge text-bg-warning">Best Seller</span>{% endif %}
+                        </div>
+                        <h5 class="mb-0 {% if not book.is_active %}text-secondary{% endif %}">{{ book.judul }}</h5>
+                        <div class="text-secondary small">{{ book.pengarang }}{% if book.isbn %} &bull; ISBN {{ book.isbn }}{% endif %}</div>
+                        <div class="text-secondary small">Rp {{ book.price|intcomma }} &bull; {{ book.halaman }} halaman</div>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div class="text-secondary small">Diperbarui {{ book.updated_at|date:"d M Y" }}</div>
+                            <a class="btn btn-sm btn-outline-primary" href="/cms/books/{{ book.id }}/edit/">Edit &rarr;</a>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex align-items-center gap-2">
+                        <form method="post" action="{% url 'cms_book_toggle' book.id %}" class="m-0">
+                            {% csrf_token %}
+                            <div class="form-check form-switch m-0" title="{% if book.is_active %}Aktif: tampil di katalog web &amp; aplikasi. Klik untuk menyembunyikan.{% else %}Nonaktif: tidak tampil &amp; tidak bisa dibeli (pemilik tetap bisa membaca). Klik untuk menampilkan.{% endif %}">
+                                <input class="form-check-input" type="checkbox" role="switch" id="toggle-{{ book.id }}" {% if book.is_active %}checked{% endif %} onchange="this.form.submit()" aria-label="Aktif">
+                                <label class="form-check-label small" for="toggle-{{ book.id }}">{% if book.is_active %}Tampil{% else %}Tersembunyi{% endif %}</label>
+                            </div>
+                        </form>
+                        {% if book.has_purchase %}
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-auto" disabled title="Sudah pernah dibeli/dipesan, tidak bisa dihapus. Nonaktifkan saja.">Hapus</button>
+                        {% else %}
+                        <form method="post" action="{% url 'cms_book_delete' book.id %}" class="m-0 ms-auto"
+                              onsubmit="return confirm('Hapus buku &quot;{{ book.judul|escapejs }}&quot; secara permanen? Tindakan ini tidak bisa dibatalkan.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% empty %}
-            <div class="item-row">
-                <strong>Belum ada buku sesuai filter.</strong>
-                <div class="muted small">Coba ganti kata kunci atau tambahkan buku baru.</div>
+            <div class="col-12">
+                <div class="alert alert-info mb-0">
+                    <strong>Belum ada buku sesuai filter.</strong>
+                    <div class="small">Coba ganti kata kunci atau tambahkan buku baru.</div>
+                </div>
             </div>
             {% endfor %}
         </div>
+    </div>
 
-        {% if page_obj.paginator.num_pages > 1 %}
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item"><a class="page-link" href="?q={{ current_query }}&kategori={{ current_kategori }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
                 {% endif %}
@@ -244,7 +113,7 @@
                 {% endif %}
             </ul>
         </nav>
-        {% endif %}
-    </section>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

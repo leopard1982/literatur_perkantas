@@ -58,6 +58,17 @@
                     </div></div>
             </div>
         </div>
+        <div class="card mt-3"><div class="card-header"><h3 class="card-title mb-0">Pengunjung Terbaru</h3></div>
+            <div class="card-body p-0 table-responsive"><table class="table table-sm table-striped mb-0">
+                <thead><tr><th class="ps-3">Terakhir</th><th>Sumber</th><th>IP Address</th><th>Perangkat</th><th class="text-end pe-3">Hits</th></tr></thead>
+                <tbody>{% for v in recent_visits %}<tr>
+                    <td class="ps-3">{{ v.last_seen|date:"d M H:i" }}</td>
+                    <td><span class="badge {% if v.source == 'mobile' %}text-bg-info{% else %}text-bg-primary{% endif %}">{{ v.get_source_display }}</span></td>
+                    <td>{{ v.ip_address|default:"-" }}</td>
+                    <td title="{{ v.user_agent }}">{{ v.device|default:"-" }}</td>
+                    <td class="text-end pe-3">{{ v.hits }}</td></tr>
+                {% empty %}<tr><td colspan="5" class="p-3 text-secondary">Belum ada data pengunjung.</td></tr>{% endfor %}</tbody>
+            </table></div></div>
         <p class="text-secondary small mt-2">Pengunjung unik dihitung per hari berdasarkan IP + perangkat; data mulai terkumpul sejak fitur analitik aktif.</p>
     </div>
 

@@ -14,19 +14,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f5efe6;
-            --panel: rgba(255, 252, 246, 0.92);
-            --panel-solid: #fffdf8;
-            --ink: #24343d;
-            --muted: #66757f;
-            --stroke: rgba(219, 205, 189, 0.9);
-            --stroke-strong: #d3c1ac;
-            --shadow: 0 20px 50px rgba(63, 49, 35, 0.09);
-            --accent: #bf5b3d;
-            --accent-soft: #f4d6ca;
-            --navy: #355070;
-            --forest: #2d6a4f;
-            --warning: #c98328;
+            --bg: #f4f6f9;
+            --panel: #ffffff;
+            --panel-solid: #ffffff;
+            --ink: #212529;
+            --muted: #6c757d;
+            --stroke: #dee2e6;
+            --stroke-strong: #ced4da;
+            --shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+            --accent: #0d6efd;
+            --accent-soft: #cfe2ff;
+            --navy: #0a58ca;
+            --forest: #198754;
+            --warning: #ffc107;
         }
 
         * { box-sizing: border-box; }
@@ -38,7 +38,6 @@
             font-size: 14.5px;
             color: var(--ink);
         }
-        .app-wrapper { background: #f4f1ec; }
         body.cms-guest .app-wrapper { display: block; }
 
         /* Admin CMS typography scale — deliberately smaller than Bootstrap's
@@ -54,7 +53,6 @@
 
         .app-sidebar .brand-link { padding: .75rem 1rem; }
         .app-sidebar .brand-image { max-height: 34px; width: auto; background: #fff; border-radius: 8px; padding: 2px 6px; margin-right: .6rem; }
-        .app-sidebar .nav-link.active { background-color: var(--accent) !important; color: #fff !important; }
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; }
         .nav-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.7); color: var(--ink); }
         .nav-chip.primary { background: linear-gradient(135deg, var(--accent), #9f4428); color: #fff; border: none; }
@@ -191,11 +189,10 @@
         .hero-panel,
         .surface-card,
         .panel {
-            background: var(--panel);
-            border: 1px solid var(--stroke);
-            border-radius: 28px;
+            background: #fff;
+            border: 0;
+            border-radius: .375rem;
             box-shadow: var(--shadow);
-            backdrop-filter: blur(8px);
         }
 
         .cms-toast-stack {
@@ -349,37 +346,47 @@
                 </li>
                 <li class="nav-item d-none d-md-block"><a href="/cms/" class="nav-link">Dashboard</a></li>
             </ul>
-            <ul class="navbar-nav ms-auto align-items-center gap-2">
+            <ul class="navbar-nav ms-auto">
                 {% if cms_bell_notifications is not None %}
-                <li class="nav-item">
-                    <details class="notif-bell">
-                        <summary title="Notifikasi">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
-                            {% if cms_bell_count %}<span class="notif-badge">{{ cms_bell_count }}</span>{% endif %}
-                        </summary>
-                        <div class="notif-dropdown">
-                            <div class="notif-dropdown-title">Notifikasi</div>
-                            {% for notif in cms_bell_notifications %}
-                            <a class="notif-item" href="{{ notif.url }}">
-                                <div class="notif-item-title">{{ notif.title }}</div>
-                                <div class="notif-item-message">{{ notif.message }}</div>
-                            </a>
-                            {% empty %}
-                            <div class="notif-empty">Belum ada notifikasi.</div>
-                            {% endfor %}
-                            <a class="notif-see-all" href="/cms/notifications/">Lihat semua notifikasi &rarr;</a>
-                        </div>
-                    </details>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-label="Notifikasi">
+                        <i class="bi bi-bell-fill"></i>
+                        {% if cms_bell_count %}<span class="navbar-badge badge text-bg-warning">{{ cms_bell_count }}</span>{% endif %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                        <span class="dropdown-item dropdown-header">Notifikasi</span>
+                        {% for notif in cms_bell_notifications %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ notif.url }}" class="dropdown-item">
+                            <div class="fw-semibold text-truncate">{{ notif.title }}</div>
+                            <div class="small text-secondary text-wrap">{{ notif.message }}</div>
+                        </a>
+                        {% empty %}
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-item text-secondary">Belum ada notifikasi.</span>
+                        {% endfor %}
+                        <div class="dropdown-divider"></div>
+                        <a href="/cms/notifications/" class="dropdown-item dropdown-footer">Lihat semua notifikasi</a>
+                    </div>
                 </li>
                 {% endif %}
-                <li class="nav-item d-flex align-items-center gap-2">
-                    <span class="user-avatar">{{ request.user.username|slice:":1" }}</span>
-                    <span class="user-name fw-semibold">{% firstof request.user.get_full_name request.user.username %}</span>
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <span class="user-avatar me-1">{{ request.user.username|slice:":1" }}</span>
+                        <span class="d-none d-md-inline">{% firstof request.user.get_full_name request.user.username %}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                        <li class="user-header text-bg-primary">
+                            <span class="user-avatar mx-auto mb-2" style="width:64px;height:64px;font-size:26px;">{{ request.user.username|slice:":1" }}</span>
+                            <p class="mb-0">{% firstof request.user.get_full_name request.user.username %}
+                                <small>{{ request.user.email }}</small></p>
+                        </li>
+                        <li class="user-footer">
+                            <a href="/" class="btn btn-outline-secondary btn-flat">Website</a>
+                            <a href="/cms/logout/" class="btn btn-outline-danger btn-flat float-end">Logout</a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav-item"><a class="btn btn-sm btn-outline-danger" href="/cms/logout/"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul>
         </div>
     </nav>
@@ -435,6 +442,7 @@
             </div>
         </div>
         {% endif %}
+        {% block page_header %}{% endblock %}
         <div class="app-content">
             <div class="shell">
                 {% block content %}{% endblock %}

@@ -641,6 +641,10 @@ class SiteVisit(models.Model):
 	visitor_key = models.CharField(max_length=64)
 	date = models.DateField(db_index=True)
 	hits = models.PositiveIntegerField(default=1)
+	ip_address = models.GenericIPAddressField(null=True,blank=True)
+	device = models.CharField(max_length=100,blank=True,default="",help_text="Perangkat, OS, dan browser")
+	user_agent = models.CharField(max_length=300,blank=True,default="")
+	last_seen = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		unique_together = ('source','visitor_key','date')

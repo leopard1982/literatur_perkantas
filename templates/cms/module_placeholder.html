@@ -2,47 +2,36 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block extra_styles %}
-<style>
-    .page-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 16px;
-    }
-
-    .back-link {
-        display: inline-flex;
-        text-decoration: none;
-        color: #bf5b3d;
-        font-weight: 800;
-    }
-
-    .panel {
-        padding: 28px;
-    }
-
-    .bullet {
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: white;
-        border: 1px solid rgba(219, 205, 189, 0.9);
-        margin-top: 12px;
-    }
-</style>
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="mb-0">{{ title }}</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="page-top">
-    <a class="back-link" href="/cms/">Kembali ke CMS</a>
+<div class="card">
+    <div class="card-body">
+        <p class="text-secondary">{{ description }}</p>
+        <div class="list-group">
+            {% for bullet in bullets %}
+            <div class="list-group-item">{{ bullet }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer">
+        <a class="btn btn-sm btn-outline-secondary" href="/cms/"><i class="bi bi-arrow-left"></i> Kembali ke CMS</a>
+    </div>
 </div>
-<section class="panel surface-card">
-    <h1 class="fw-bold mb-2">{{ title }}</h1>
-    <p class="text-secondary mb-4">{{ description }}</p>
-    {% for bullet in bullets %}
-    <div class="bullet">{{ bullet }}</div>
-    {% endfor %}
-</section>
 {% endblock %}
