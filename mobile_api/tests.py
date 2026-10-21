@@ -324,3 +324,49 @@ class AnnouncementsTests(TestCase):
         MobileBroadcast.objects.create(jenis='pengumuman', header='Off', body='x', is_active=False)
         r = self.client.get('/api/v1/announcements/')
         self.assertEqual([b['header'] for b in r.json()['results']], ['Diskon'])
+
+
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'], MOBILE_LOGIN_RECAPTCHA=False)
+class ReaderFeatureTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.user = User.objects.create_user('budi', 'budi@example.com', 'rahasia-123')
+        UserDetail.objects.create(user=self.user, nama_lengkap='Budi')
+        free = Category.objects.create(id=3, nama='Gratis')
+        paid = Category.objects.create(id=1, nama='Rohani')
+        self.paid = Books.objects.create(judul='Berbayar', pengarang='A', kategori=paid, price=50000, halaman=20, is_update_info=True)
+        self.free = Books.objects.create(judul='Gratis', pengarang='B', kategori=free, halaman=20, is_update_info=True)
+        tok = post(self.client, '/api/v1/auth/login/', {'username': 'budi', 'password': 'rahasia-123'}).json()['access_token']
+        self.h = {'HTTP_AUTHORIZATION': 'Bearer ' + tok}
+
+    def test_not_owned_paid_book_is_rejected(self):
+        r = post(self.client, f'/api/v1/books/{self.paid.id}/bookmarks/', {'page': 1, 'color': 'red'}, **self.h)
+        self.assertEqual(r.status_code, 403)
+        r = post(self.client, f'/api/v1/books/{self.paid.id}/comments/', {'comment': 'x'}, **self.h)
+        self.assertEqual(r.status_code, 403)
+
+    def test_free_book_bookmark_plan_progress_comment(self):
+        u = f'/api/v1/books/{self.free.id}/'
+        r = post(self.client, u + 'bookmarks/', {'page': 3, 'color': 'blue', 'note': 'penting'}, **self.h)
+        self.assertEqual(r.status_code, 201)
+        r2 = post(self.client, u + 'bookmarks/', {'page': 3, 'color': 'green', 'note': 'ubah'}, **self.h)
+        self.assertEqual(r2.status_code, 200)
+        self.assertEqual(self.client.get(u + 'bookmarks/', **self.h).json()['results'][0]['color'], 'green')
+        self.assertEqual(post(self.client, u + 'bookmarks/', {'page': 99, 'color': 'red'}, **self.h).status_code, 400)
+        self.assertEqual(post(self.client, u + 'bookmarks/', {'page': 2, 'color': 'nope'}, **self.h).status_code, 400)
+        self.assertEqual(self.client.delete(f"/api/v1/bookmarks/{r.json()['id']}/", **self.h).status_code, 200)
+        self.assertEqual(self.client.put(u + 'progress/', json.dumps({'page': 7}), content_type='application/json', **self.h).status_code, 200)
+        self.assertEqual(self.client.get(u + 'progress/', **self.h).json()['page'], 7)
+        self.assertEqual(self.client.get(u, **self.h).json()['last_page'], 7)
+        import datetime
+        t = (datetime.date.today() + datetime.timedelta(days=10)).isoformat()
+        self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t}), content_type='application/json', **self.h).json()['plan']['target_date'], t)
+        self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': '2001-01-01'}), content_type='application/json', **self.h).status_code, 400)
+        self.assertEqual(post(self.client, u + 'comments/', {'comment': 'Bagus'}, **self.h).status_code, 201)
+        self.assertEqual(self.client.get(u, **self.h).json()['comments'][0]['comment'], 'Bagus')
+
+    @override_settings(MOBILE_LOGIN_RECAPTCHA=True)
+    def test_captcha_required(self):
+        r = post(self.client, f'/api/v1/books/{self.free.id}/comments/', {'comment': 'x'}, **self.h)
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json()['error']['code'], 'captcha_failed')

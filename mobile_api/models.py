@@ -66,3 +66,47 @@ class ApiSession(models.Model):
         if self.revoked_at is None:
             self.revoked_at = timezone.now()
             self.save(update_fields=['revoked_at'])
+
+
+BOOKMARK_COLORS = ('pink', 'blue', 'red', 'yellow', 'green', 'chocolate', 'cyan', 'magenta', 'purple', 'violet', 'grey')
+
+
+class ReaderBookmark(models.Model):
+    """Penanda halaman + catatan dari aplikasi. Terpisah dari customerBookmark milik web karena
+    buku gratis tidak punya baris UserBook."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reader_bookmarks')
+    book = models.ForeignKey('literatur.Books', on_delete=models.CASCADE, related_name='+')
+    page = models.PositiveSmallIntegerField()
+    color = models.CharField(max_length=20, default='red')
+    note = models.CharField(max_length=2000, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'book', 'page']
+        ordering = ['page']
+
+
+class ReadingPlan(models.Model):
+    """Rencana baca: selesaikan buku sebelum target_date, dimulai dari start_page."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reading_plans')
+    book = models.ForeignKey('literatur.Books', on_delete=models.CASCADE, related_name='+')
+    start_date = models.DateField()
+    target_date = models.DateField()
+    start_page = models.PositiveSmallIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'book']
+
+
+class ReadingProgress(models.Model):
+    """Halaman terakhir yang dibuka (tersinkron antar perangkat, juga untuk buku gratis)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reading_progress')
+    book = models.ForeignKey('literatur.Books', on_delete=models.CASCADE, related_name='+')
+    page = models.PositiveSmallIntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'book']

@@ -26,7 +26,10 @@ from literatur.models import MyPayment
 
 from . import throttle
 from .core import api, error
-from .models import ACCESS_TTL, ApiSession, hash_token, password_stamp
+from .models import (
+    ACCESS_TTL, BOOKMARK_COLORS, ApiSession, ReaderBookmark, ReadingPlan, ReadingProgress,
+    hash_token, password_stamp,
+)
 from .serializers import (
     active_sale, blog_dict, book_dict, cover, media, person_name, plain_text,
     safe_https,
@@ -40,7 +43,10 @@ RECAPTCHA_ACTION = 'login'
 RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
 
-def _recaptcha_ok(token, ip):
+RECAPTCHA_ACTIONS = ('login', 'comment', 'bookmark')
+
+
+def _recaptcha_ok(token, ip, action=RECAPTCHA_ACTION):
     """Server-side reCAPTCHA v3 check (same keys / min score as the website). Fails closed."""
     if not getattr(settings, 'MOBILE_LOGIN_RECAPTCHA', True):
         return True
@@ -53,19 +59,22 @@ def _recaptcha_ok(token, ip):
             res = json.loads(r.read().decode('utf-8'))
     except Exception:
         return False
-    return bool(res.get('success')) and res.get('action') == RECAPTCHA_ACTION \
+    return bool(res.get('success')) and res.get('action') == action \
         and float(res.get('score', 0)) >= getattr(settings, 'RECAPTCHA_REQUIRED_SCORE', 0.5)
 
 
 def recaptcha_page(request):
     """Tiny page loaded in a hidden WebView by the app (must be served from our own origin so the
     site key's domain check passes). It hands the v3 token to the app via the `Captcha` channel."""
+    action = request.GET.get('action', RECAPTCHA_ACTION)
+    if action not in RECAPTCHA_ACTIONS:
+        action = RECAPTCHA_ACTION
     html = (
         '<!doctype html><meta charset="utf-8"><title>captcha</title>'
         '<script src="https://www.google.com/recaptcha/api.js?render=%(k)s"></script>'
         '<script>grecaptcha.ready(function(){grecaptcha.execute("%(k)s",{action:"%(a)s"})'
         '.then(function(t){Captcha.postMessage(t)},function(){Captcha.postMessage("")})});</script>'
-    ) % {'k': settings.RECAPTCHA_PUBLIC_KEY, 'a': RECAPTCHA_ACTION}
+    ) % {'k': settings.RECAPTCHA_PUBLIC_KEY, 'a': action}
     resp = HttpResponse(html, content_type='text/html; charset=utf-8')
     resp['Content-Security-Policy'] = ("default-src 'none'; script-src 'unsafe-inline' https://www.google.com "
                                        "https://www.gstatic.com; frame-src https://www.google.com; "
@@ -233,6 +242,8 @@ def book_detail(request, book_id):
         data['in_cart'] = MyCart.objects.filter(user=user, book=book).exists()
         data['in_wishlist'] = MyWishlist.objects.filter(user=user, book=book).exists()
         data['can_comment'] = data['owned'] or data['is_free']
+        prog = ReadingProgress.objects.filter(user=user, book=book).values_list('page', flat=True).first()
+        data['last_page'] = prog or 0
     comments = (BookComment.objects.filter(book=book, is_active=True, is_publish=True)
                 .select_related('user__userdetail').order_by('-created_at')[:20])
     data['comments'] = [{'name': person_name(c.user), 'comment': c.comment,
@@ -558,6 +569,135 @@ def cart(request, book_id):
     MyWishlist.objects.filter(user=user, book=book).delete()
     MyCart.objects.get_or_create(user=user, book=book, defaults={'is_checked': False})
     return JsonResponse({'in_cart': True})
+
+
+# ----------------------------------------------- reader: komentar / penanda / rencana / progres
+
+def _readable_book(user, book_id):
+    """Buku yang boleh diberi penanda / komentar: milik user atau buku gratis."""
+    book = _get_book(book_id)
+    if book is None:
+        return None, error(404, 'not_found', 'Buku tidak ditemukan.')
+    owned = UserBook.objects.filter(id_user=user, id_book=book).exists()
+    if not book.is_active and not owned:  # nonaktif: hanya pemiliknya (sama seperti book_detail)
+        return None, error(404, 'not_found', 'Buku tidak ditemukan.')
+    if book.kategori_id != 3 and not owned:
+        return None, error(403, 'not_owned', 'Fitur ini hanya untuk buku yang sudah dibeli atau buku gratis.')
+    return book, None
+
+
+def _captcha_or_error(request, action):
+    if _recaptcha_ok(request.json.get('recaptcha_token'), throttle.client_ip(request), action):
+        return None
+    return error(400, 'captcha_failed', 'Verifikasi reCAPTCHA gagal, silakan coba lagi.')
+
+
+def _bookmark_dict(b):
+    return {'id': str(b.id), 'page': b.page, 'color': b.color, 'note': b.note,
+            'updated_at': b.updated_at.isoformat()}
+
+
+def _int_in(value, lo, hi):
+    if isinstance(value, bool) or not isinstance(value, int) or not lo <= value <= hi:
+        return None
+    return value
+
+
+@api(['POST'], auth='required', rate=(20, 60))
+def book_comment_create(request, book_id):
+    book, err = _readable_book(request.api_user, book_id)
+    if err:
+        return err
+    text = request.json.get('comment')
+    text = text.strip() if isinstance(text, str) else ''
+    if not text or len(text) > 1000:
+        return error(400, 'invalid_input', 'Komentar wajib diisi (maksimal 1000 karakter).')
+    err = _captcha_or_error(request, 'comment')
+    if err:
+        return err
+    if throttle.hit('book-comment', '%s:%s' % (request.api_user.id, book.id), 5, 10 * 60)[0] is False:
+        return error(429, 'rate_limited', 'Terlalu banyak komentar, coba lagi nanti.')
+    c = BookComment.objects.create(book=book, user=request.api_user, comment=text)
+    return JsonResponse({'name': person_name(request.api_user), 'comment': c.comment,
+                         'date': c.created_at.isoformat()}, status=201)
+
+
+@api(['GET', 'POST'], auth='required', rate=(60, 60))
+def book_bookmarks(request, book_id):
+    user = request.api_user
+    book, err = _readable_book(user, book_id)
+    if err:
+        return err
+    if request.method == 'GET':
+        rows = ReaderBookmark.objects.filter(user=user, book=book)
+        return JsonResponse({'results': [_bookmark_dict(b) for b in rows]})
+    page = _int_in(request.json.get('page'), 1, max(book.halaman, 1))
+    color = request.json.get('color', 'red')
+    note = request.json.get('note', '')
+    if page is None or color not in BOOKMARK_COLORS or not isinstance(note, str) or len(note) > 2000:
+        return error(400, 'invalid_input', 'Data penanda tidak valid.')
+    err = _captcha_or_error(request, 'bookmark')
+    if err:
+        return err
+    b, created = ReaderBookmark.objects.update_or_create(
+        user=user, book=book, page=page, defaults={'color': color, 'note': note.strip()})
+    return JsonResponse(_bookmark_dict(b), status=201 if created else 200)
+
+
+@api(['DELETE'], auth='required', rate=(60, 60))
+def bookmark_delete(request, bookmark_id):
+    uid = _uuid_or_none(bookmark_id)
+    n, _ = ReaderBookmark.objects.filter(id=uid, user=request.api_user).delete() if uid else (0, 0)
+    if not n:
+        return error(404, 'not_found', 'Penanda tidak ditemukan.')
+    return JsonResponse({'deleted': True})
+
+
+def _plan_dict(p):
+    return {'start_date': p.start_date.isoformat(), 'target_date': p.target_date.isoformat(),
+            'start_page': p.start_page}
+
+
+@api(['GET', 'PUT', 'DELETE'], auth='required', rate=(60, 60))
+def book_plan(request, book_id):
+    user = request.api_user
+    book, err = _readable_book(user, book_id)
+    if err:
+        return err
+    if request.method == 'DELETE':
+        ReadingPlan.objects.filter(user=user, book=book).delete()
+        return JsonResponse({'plan': None})
+    if request.method == 'PUT':
+        try:
+            target = datetime.date.fromisoformat(str(request.json.get('target_date')))
+        except ValueError:
+            return error(400, 'invalid_input', 'Tanggal target tidak valid.')
+        today = datetime.date.today()
+        if not today <= target <= today + datetime.timedelta(days=365 * 2):
+            return error(400, 'invalid_input', 'Tanggal target harus antara hari ini dan 2 tahun ke depan.')
+        start_page = _int_in(request.json.get('start_page', 1), 1, max(book.halaman, 1)) or 1
+        ReadingPlan.objects.update_or_create(
+            user=user, book=book,
+            defaults={'start_date': today, 'target_date': target, 'start_page': start_page})
+    plan = ReadingPlan.objects.filter(user=user, book=book).first()
+    return JsonResponse({'plan': _plan_dict(plan) if plan else None})
+
+
+@api(['GET', 'PUT'], auth='required', rate=(120, 60))
+def book_progress(request, book_id):
+    user = request.api_user
+    book, err = _readable_book(user, book_id)
+    if err:
+        return err
+    if request.method == 'PUT':
+        page = _int_in(request.json.get('page'), 1, max(book.halaman, 1))
+        if page is None:
+            return error(400, 'invalid_input', 'Halaman tidak valid.')
+        ReadingProgress.objects.update_or_create(user=user, book=book, defaults={'page': page})
+        UserBook.objects.filter(id_user=user, id_book=book).update(last_page=page)
+        return JsonResponse({'page': page})
+    page = ReadingProgress.objects.filter(user=user, book=book).values_list('page', flat=True).first()
+    return JsonResponse({'page': page or 0})
 
 
 @api(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'], rate=(60, 60))
