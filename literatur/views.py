@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, PendaftaranBaru, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
-from .models import MyPayment, MyPaymentDetail, MyDonation
+from .models import MyPayment, MyPaymentDetail, MyDonation, qris_url
 from .models import BlogComment, BookComment
 from django.db.models import Avg,Q,Sum,Prefetch,Count,F
 import datetime
@@ -1281,7 +1281,8 @@ def paymentProcess(request):
                 'total_bayar':total_bayar,
                 'no_rekening':'01230254390',
                 'nama_bank':'BCA',
-                'nama_pemilik':'PT SULUH  CENDEKIA'
+                'nama_pemilik':'PT SULUH  CENDEKIA',
+                'qris_url':qris_url('pembelian'),
             }
         context.update(user_context)
         return render(request,'landing/payment.html',context)
@@ -1806,7 +1807,8 @@ def melakukanDonasi(request):
         'nama_pemilik':'PT SULUH  CENDEKIA',
         'form':formmydonation,
         'donatur':data_donasi_now,
-        'pengumuman':pengumuman
+        'pengumuman':pengumuman,
+        'qris_url':qris_url('donasi'),
     }
     context.update(user_context)
     return render(request,'landing/form-donasi.html',context)

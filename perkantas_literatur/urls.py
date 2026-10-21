@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path,include,re_path
@@ -31,8 +33,13 @@ sitemaps = {
     'blogs': BlogSitemap,
 }
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
+# Django admin is hidden: /admin/ answers 404. Pengelolaan dilakukan lewat /cms/. Bila admin Django
+# memang diperlukan, set DJANGO_ADMIN_URL=<path-rahasia> (mis. "kelola-7f3a9c/") dan admin hanya
+# tersedia di path itu.
+_admin_path = os.getenv('DJANGO_ADMIN_URL', '').strip().strip('/')
+admin_urls = [path(_admin_path + '/', admin.site.urls)] if _admin_path and _admin_path != 'admin' else []
+
+urlpatterns = admin_urls + [
     path('cms/', include('cms.urls')),
     path('api/v1/', include('mobile_api.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),

@@ -4,6 +4,7 @@ CMS_ROLE_CHOICES = [(role, role) for role in CMS_ROLE_GROUPS]
 ROLE_ACCESS = {
     'payments': {'Keuangan', 'Admin', 'Superadmin'},
     'donations': {'Keuangan', 'Admin', 'Superadmin'},
+    'qris_settings': {'Admin', 'Superadmin'},
     'books': {'Admin', 'Superadmin'},
     'categories': {'Admin', 'Superadmin'},
     'promo_bestseller': {'Admin', 'Superadmin'},

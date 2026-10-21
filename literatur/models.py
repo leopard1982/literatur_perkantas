@@ -428,6 +428,62 @@ class PageReview(models.Model):
 	def __str__(self):
 		return f"{self.user.userdetail.nama_lengkap} - {self.review}"
 
+class QrisCode(models.Model):
+	"""Kode QRIS pembayaran yang dikelola dari CMS. Satu yang aktif per tujuan; riwayat disimpan
+	supaya bisa diaktifkan kembali. Jika belum ada yang aktif, halaman memakai static/images/qris.jpg."""
+	TUJUAN_CHOICES = [('pembelian', 'Pembelian Buku'), ('donasi', 'Donasi')]
+	tujuan = models.CharField(max_length=20, choices=TUJUAN_CHOICES, db_index=True)
+	gambar = models.ImageField(upload_to='qris')
+	keterangan = models.CharField(max_length=200, blank=True, default='')
+	is_active = models.BooleanField(default=False)
+	pemroses = models.CharField(max_length=100, blank=True, default='')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['-created_at']
+
+	def __str__(self):
+		return f"{self.get_tujuan_display()} - {self.created_at:%Y-%m-%d %H:%M}"
+
+	@property
+	def url(self):
+		return '/media/' + self.gambar.name
+
+
+QRIS_DEFAULT_KETERANGAN = 'QRIS bawaan (default)'
+
+
+def ensure_default_qris(tujuan):
+	"""Belum ada QRIS sama sekali untuk tujuan ini -> buat default dari static/images/qris.jpg,
+	aktif dan berketerangan 'QRIS bawaan (default)'. Mengembalikan QRIS aktif (atau None)."""
+	from django.conf import settings
+	from django.contrib.staticfiles import finders
+	from django.core.files.base import ContentFile
+	import os
+	if tujuan not in dict(QrisCode.TUJUAN_CHOICES):
+		return None
+	cur = QrisCode.objects.filter(tujuan=tujuan, is_active=True).first()
+	if cur or QrisCode.objects.filter(tujuan=tujuan).exists():
+		return cur
+	src = finders.find('images/qris.jpg') or os.path.join(settings.STATIC_ROOT, 'images', 'qris.jpg')
+	if not src or not os.path.isfile(src):
+		return None
+	with open(src, 'rb') as fh:
+		data = fh.read()
+	q = QrisCode(tujuan=tujuan, keterangan=QRIS_DEFAULT_KETERANGAN, is_active=True, pemroses='sistem')
+	q.gambar.save(f'default-{tujuan}.jpg', ContentFile(data), save=False)
+	q.save()
+	return q
+
+
+def qris_url(tujuan):
+	"""URL gambar QRIS aktif untuk 'pembelian' / 'donasi'. Belum ada -> dibuatkan default dulu;
+	kalau file bawaan pun tidak ada, jatuh ke URL statis."""
+	from django.templatetags.static import static
+	q = ensure_default_qris(tujuan)
+	return q.url if q else static('images/qris.jpg')
+
+
 class Pengumuman(models.Model):
 	pengumuman = models.CharField(max_length=255,default="",blank=False,null=False)
 

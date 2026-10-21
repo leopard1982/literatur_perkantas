@@ -176,3 +176,35 @@ class CoretanPenaForm(forms.ModelForm):
             'image': 'Gambar Tema (opsional)',
             'body': 'Isi Tulisan',
         }
+
+
+class QrisUploadForm(forms.Form):
+    """Unggah QRIS baru. Isi file diperiksa dengan Pillow (bukan hanya ekstensi / content-type)."""
+    MAX_BYTES = 3 * 1024 * 1024
+    FORMATS = {'JPEG': 'jpg', 'PNG': 'png', 'WEBP': 'webp'}
+
+    tujuan = forms.ChoiceField(choices=[('pembelian', 'Pembelian Buku'), ('donasi', 'Donasi')], widget=forms.HiddenInput)
+    gambar = forms.FileField(label='Gambar QRIS', widget=forms.FileInput(attrs={**TEXT_ATTRS, 'accept': 'image/jpeg,image/png,image/webp', 'required': 'required'}))
+    keterangan = forms.CharField(label='Keterangan (opsional)', required=False, max_length=200,
+                                 widget=forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Contoh: QRIS BCA a.n. PT Suluh Cendekia', 'maxlength': 200}))
+
+    def clean_gambar(self):
+        from PIL import Image, UnidentifiedImageError
+        f = self.cleaned_data['gambar']
+        if f.size > self.MAX_BYTES:
+            raise forms.ValidationError('Ukuran gambar maksimal 3 MB.')
+        try:
+            with Image.open(f) as im:
+                im.verify()
+            f.seek(0)
+            with Image.open(f) as im:
+                fmt, (w, h) = im.format, im.size
+        except (UnidentifiedImageError, OSError, SyntaxError):
+            raise forms.ValidationError('File bukan gambar yang valid.')
+        f.seek(0)
+        if fmt not in self.FORMATS:
+            raise forms.ValidationError('Gunakan gambar JPG, PNG, atau WEBP.')
+        if min(w, h) < 200 or max(w, h) > 6000:
+            raise forms.ValidationError('Ukuran gambar harus antara 200 dan 6000 piksel.')
+        f.ext = self.FORMATS[fmt]
+        return f

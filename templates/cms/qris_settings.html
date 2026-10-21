@@ -1,0 +1,92 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS QRIS Pembayaran{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .qris-preview { width: 100%; max-width: 280px; border: 1px solid var(--bs-border-color); border-radius: .75rem; background: #fff; padding: .5rem; }
+    .qris-thumb { width: 64px; height: 64px; object-fit: contain; border: 1px solid var(--bs-border-color); border-radius: .5rem; background: #fff; }
+    .errorlist { list-style: none; padding: 0; margin: .25rem 0 0; color: var(--bs-danger); font-size: .875rem; }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">QRIS Pembayaran</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">QRIS Pembayaran</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<p class="text-secondary">QRIS yang aktif di sini langsung tampil di halaman pembayaran buku dan halaman donasi. Jika belum pernah ada yang diunggah, sistem membuat QRIS bawaan (default) dari gambar QRIS lama. Unggah gambar baru untuk menggantinya.</p>
+<div class="row">
+{% for sec in sections %}
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header"><h3 class="card-title mb-0">QRIS {{ sec.label }}</h3></div>
+            <div class="card-body">
+                <div class="mb-3 text-center">
+                    {% if sec.active %}
+                        <img class="qris-preview" src="{{ sec.active.url }}" alt="QRIS {{ sec.label }} aktif">
+                        <div class="small text-secondary mt-2">
+                            Aktif sejak {{ sec.active.created_at|date:"d M Y H:i" }}{% if sec.active.pemroses %} oleh {{ sec.active.pemroses }}{% endif %}
+                            {% if sec.active.keterangan %}<br>{{ sec.active.keterangan }}{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary mb-0">Belum ada QRIS dan gambar bawaan tidak ditemukan. Unggah QRIS di bawah ini.</div>
+                    {% endif %}
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="upload">
+                    {{ sec.form.tujuan }}
+                    <div class="mb-3">
+                        <label class="form-label">{{ sec.form.gambar.label }}</label>
+                        {{ sec.form.gambar }}
+                        <div class="form-text">JPG / PNG / WEBP, maksimal 3 MB. Pastikan QR bisa dipindai sebelum disimpan.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ sec.form.keterangan.label }}</label>
+                        {{ sec.form.keterangan }}
+                    </div>
+                    <button class="btn btn-primary" type="submit">Ganti QRIS {{ sec.label }}</button>
+                </form>
+            </div>
+
+            {% if sec.history %}
+            <div class="card-footer">
+                <div class="fw-bold mb-2">Riwayat</div>
+                {% for h in sec.history %}
+                <div class="d-flex align-items-center gap-3 py-2 border-top">
+                    <img class="qris-thumb" src="{{ h.url }}" alt="">
+                    <div class="flex-grow-1 small">
+                        {{ h.created_at|date:"d M Y H:i" }}{% if h.pemroses %} · {{ h.pemroses }}{% endif %}
+                        {% if h.keterangan %}<br><span class="text-secondary">{{ h.keterangan }}</span>{% endif %}
+                    </div>
+                    <form method="post" class="d-inline">{% csrf_token %}
+                        <input type="hidden" name="action" value="activate"><input type="hidden" name="id" value="{{ h.pk }}">
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Aktifkan</button>
+                    </form>
+                    <form method="post" class="d-inline" onsubmit="return confirm('Hapus QRIS ini dari riwayat?');">{% csrf_token %}
+                        <input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ h.pk }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

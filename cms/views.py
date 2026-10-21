@@ -2,6 +2,7 @@ import datetime
 import io
 import os
 import shutil
+import uuid
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -22,7 +23,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from literatur.models import (
-    Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
+    Blogs, BookReview, Books, QrisCode, ensure_default_qris, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
     MobileBroadcast, MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
 )
 from literatur.forms import FormCmsLoginRecaptcha
@@ -30,6 +31,7 @@ from literatur.views import get_pengumuman_text
 from literatur.pdf_jobs import read_progress, start_pdf_conversion
 
 from .forms import (
+    QrisUploadForm,
     BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, MobileBroadcastForm, OnSaleForm,
     PengumumanForm,
 )
@@ -1413,6 +1415,67 @@ def pengumuman_settings_dashboard(request):
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Pengaturan Pengumuman', None)),
     }
     return render(request, 'cms/pengumuman_settings.html', context)
+
+
+def qris_settings_dashboard(request):
+    blocked = _ensure_cms_access(request, 'qris_settings')
+    if blocked:
+        return blocked
+
+    tujuan_labels = dict(QrisCode.TUJUAN_CHOICES)
+    if request.method == 'POST':
+        action = request.POST.get('action', '').strip()
+        if action == 'upload':
+            form = QrisUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                tujuan, f = form.cleaned_data['tujuan'], form.cleaned_data['gambar']
+                f.name = f'{uuid.uuid4()}.{f.ext}'
+                with transaction.atomic():
+                    QrisCode.objects.filter(tujuan=tujuan, is_active=True).update(is_active=False)
+                    QrisCode.objects.create(tujuan=tujuan, gambar=f, is_active=True,
+                                            keterangan=form.cleaned_data['keterangan'].strip(),
+                                            pemroses=request.user.get_username())
+                messages.add_message(request, messages.SUCCESS, f'QRIS {tujuan_labels[tujuan]} berhasil diganti.')
+                _log_activity(request, 'qris_settings', f'Mengganti QRIS {tujuan_labels[tujuan]}.')
+            else:
+                err = '; '.join(e for errs in form.errors.values() for e in errs)
+                messages.add_message(request, messages.SUCCESS, f'QRIS gagal diunggah: {err}')
+        elif action in ('activate', 'delete'):
+            raw = request.POST.get('id', '').strip()
+            item = QrisCode.objects.filter(pk=int(raw)).first() if raw.isdigit() else None
+            if item is None:
+                messages.add_message(request, messages.SUCCESS, 'QRIS tidak ditemukan.')
+            elif action == 'activate':
+                with transaction.atomic():
+                    QrisCode.objects.filter(tujuan=item.tujuan, is_active=True).update(is_active=False)
+                    item.is_active = True
+                    item.save(update_fields=['is_active'])
+                messages.add_message(request, messages.SUCCESS, f'QRIS {tujuan_labels[item.tujuan]} diaktifkan kembali.')
+                _log_activity(request, 'qris_settings', f'Mengaktifkan kembali QRIS {tujuan_labels[item.tujuan]} #{item.pk}.')
+            elif item.is_active:
+                messages.add_message(request, messages.SUCCESS, 'QRIS yang sedang aktif tidak bisa dihapus. Aktifkan QRIS lain terlebih dahulu.')
+            else:
+                item.gambar.delete(save=False)
+                item.delete()
+                messages.add_message(request, messages.SUCCESS, 'QRIS dihapus dari riwayat.')
+                _log_activity(request, 'qris_settings', f'Menghapus riwayat QRIS {tujuan_labels[item.tujuan]}.')
+        return HttpResponseRedirect('/cms/qris/')
+
+    sections = []
+    for key, label in QrisCode.TUJUAN_CHOICES:
+        ensure_default_qris(key)  # tampilkan QRIS bawaan bila belum pernah ada yang diunggah
+        rows = list(QrisCode.objects.filter(tujuan=key))
+        sections.append({
+            'key': key, 'label': label,
+            'active': next((r for r in rows if r.is_active), None),
+            'history': [r for r in rows if not r.is_active],
+            'form': QrisUploadForm(initial={'tujuan': key}),
+        })
+    context = {
+        'sections': sections,
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('QRIS Pembayaran', None)),
+    }
+    return render(request, 'cms/qris_settings.html', context)
 
 
 def broadcast_dashboard(request):
