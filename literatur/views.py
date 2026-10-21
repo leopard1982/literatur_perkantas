@@ -1168,6 +1168,17 @@ def paymentProcess(request):
                 return HttpResponseRedirect(reverse('cart_view'))
             if recaptcha_failed(request, FormPaymentRecaptcha):
                 return HttpResponseRedirect(reverse('payment_process'))
+            sudah_dimiliki = list(
+                MyCart.objects.filter(
+                    user=user,
+                    is_checked=True,
+                    book__in=UserBook.objects.filter(id_user=user).values('id_book'),
+                ).values_list('book__judul', flat=True)
+            )
+            if sudah_dimiliki:
+                daftar_judul = ", ".join(sudah_dimiliki)
+                messages.add_message(request,messages.ERROR,f"Pembayaran dibatalkan karena kaka sudah pernah membeli buku: {daftar_judul}. Hapus buku tersebut dari keranjang untuk melanjutkan.")
+                return HttpResponseRedirect(reverse('cart_view'))
             x=request.FILES.get('bukti_bayar')
             if x is None:
                 messages.add_message(request,messages.ERROR,"Bukti pembayaran belum dipilih. Silakan unggah foto bukti transfer.")
