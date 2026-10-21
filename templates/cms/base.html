@@ -56,10 +56,10 @@
         .app-sidebar { display: flex; flex-direction: column; }
         .fixed-header .app-sidebar .sidebar-wrapper { flex: 1 1 auto; min-height: 0; height: auto !important; }
         /* logo menempel selebar sidebar di atas latar putih (JPG-nya berlatar putih), keterangan di bawahnya */
-        .app-sidebar .sidebar-brand { height: auto; display: block; border-bottom: 0; }
-        .app-sidebar .brand-link { display: block; width: 100%; padding: 0; }
-        .app-sidebar .brand-image { display: block; width: 100%; height: auto; max-height: none; margin: 0; float: none; background: #fff; padding: 10px 14px; }
-        .app-sidebar .brand-text { display: block; margin: 0; padding: .45rem 1rem; font-size: .78rem; font-weight: 600; letter-spacing: .02em; color: rgba(255,255,255,.7); text-align: left; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .app-sidebar .sidebar-brand { display: block; height: auto; padding: 0; border-bottom: 0; white-space: normal; }
+        .app-sidebar .sidebar-brand .brand-link { display: block; width: 100%; padding: 0; }
+        .app-sidebar .sidebar-brand .brand-link .brand-image { display: block; float: none; width: 100%; height: auto; max-height: none; margin: 0; padding: 10px 14px; background: #fff; line-height: normal; }
+        .app-sidebar .sidebar-brand .brand-link .brand-text { display: block; margin: 0; padding: .5rem 1rem; text-align: center; font-size: .85rem; font-weight: 700; letter-spacing: .12em; color: rgba(255,255,255,.85); border-bottom: 1px solid rgba(255,255,255,.08); }
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; }
         .nav-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.7); color: var(--ink); }
         .nav-chip.primary { background: linear-gradient(135deg, var(--accent), #9f4428); color: #fff; border: none; }
@@ -402,7 +402,7 @@
         <div class="sidebar-brand">
             <a href="/cms/" class="brand-link">
                 <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Logo Litanas" class="brand-image">
-                <span class="brand-text">Panel Administrasi</span>
+                <span class="brand-text">CMS</span>
             </a>
         </div>
         <div class="sidebar-wrapper">
