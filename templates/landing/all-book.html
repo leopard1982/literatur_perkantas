@@ -375,7 +375,7 @@
         {% for cat in category %}
         <a href="{% url 'all_book_view' %}?k={{ cat.id }}&limit={{ page_size }}"
            class="filter-pill {% if cat.id == kategori %}active{% endif %}">
-          <img src="{{ cat.gambar.url }}" alt="{{ cat.nama }}"> {{ cat.nama }}
+          {% if cat.gambar %}<img src="{{ cat.gambar.url }}" alt="{{ cat.nama }}">{% else %}<i class="fa fa-book"></i>{% endif %} {{ cat.nama }}
         </a>
         {% endfor %}
         <a href="{% url 'all_book_view' %}?k=10&limit={{ page_size }}"

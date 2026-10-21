@@ -2905,7 +2905,7 @@
           {% for inst in instagram %}
           <div class="swiper-slide">
             <a href="{{ inst.link }}" class="insta-item" target="_blank" rel="noopener">
-              <img loading="lazy" decoding="async" src="{{ inst.gambar.url }}" alt="Instagram Litanas">
+              {% if inst.gambar %}<img loading="lazy" decoding="async" src="{{ inst.gambar.url }}" alt="Instagram Litanas">{% endif %}
               <div class="insta-overlay">
                 <svg style="width:30px;height:30px;color:white;"><use xlink:href="#instagram"></use></svg>
               </div>
