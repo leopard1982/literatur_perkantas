@@ -149,10 +149,7 @@
   .blogs-card-title a:hover {
     color: #b55f5c;
   }
-  .blogs-empty { padding: 44px 28px; max-width: 620px; background: #fff; border-radius: 22px; border: 1px solid #e7ebf0; border-left: 5px solid #8b5a55; color: #51616c; }
-  .blogs-empty h2 { font-size: 22px; font-weight: 800; color: #24343d; margin: 0 0 8px; }
-  .blogs-empty p { margin: 0; line-height: 1.7; }
-  .blogs-empty a { color: #8b5a55; font-weight: 700; }
+  .blogs-empty { margin: 0; padding: 40px 4px 56px; font-size: 17px; line-height: 1.7; color: #62727d; max-width: 640px; }
   .blogs-meta {
     display: flex;
     flex-wrap: wrap;
@@ -245,10 +242,7 @@
       </div>
 
       {% if not halaman.object_list %}
-      <div class="blogs-empty">
-        <h2>Belum ada coretan pena yang terbit</h2>
-        <p>Tulisan dari para penulis Perkantas akan tampil di sini setelah melewati tahap moderasi. Sambil menunggu, kaka bisa membaca <a href="{% url 'blog_list' %}">Blogs</a> atau melihat <a href="{% url 'all_book_view' %}">katalog buku</a>.</p>
-      </div>
+      <p class="blogs-empty">Belum ada coretan pena yang dipublikasikan. Tulisan baru akan muncul di halaman ini setelah ditinjau oleh redaksi.</p>
       {% endif %}
 
       <div class="blogs-grid">
