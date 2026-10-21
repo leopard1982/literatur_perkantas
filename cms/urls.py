@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    analytics_dashboard,
     activity_log_dashboard,
     book_form,
     book_toggle_active,
@@ -40,6 +41,7 @@ urlpatterns = [
     path('logout/', logout_view, name='cms_logout'),
     path('', dashboard, name='cms_dashboard'),
 
+    path('analytics/', analytics_dashboard, name='cms_analytics'),
     path('payments/', payment_dashboard, name='cms_payment_dashboard'),
     path('payments/export/', payment_export, name='cms_payment_export'),
     path('payments/report/pdf/', payment_report_pdf, name='cms_payment_report_pdf'),

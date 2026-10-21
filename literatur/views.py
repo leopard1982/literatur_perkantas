@@ -7,7 +7,7 @@ from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumu
 from .models import UserBook, LupaPassword, PendaftaranBaru, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation
 from .models import BlogComment, BookComment
-from django.db.models import Avg,Q,Sum,Prefetch,Count
+from django.db.models import Avg,Q,Sum,Prefetch,Count,F
 import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -1074,6 +1074,9 @@ def detailBlog(request,id):
     except Exception:
         messages.add_message(request,messages.SUCCESS,"Maaf, blogs yang kaka cari tidak ada...")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    if request.method == "GET" and blog.is_active:
+        Blogs.objects.filter(pk=blog.pk).update(view=F('view') + 1)
 
     user = get_authenticated_user(request)
 

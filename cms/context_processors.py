@@ -2,18 +2,19 @@ from .notifications import get_notifications
 from .roles import ROLE_ACCESS, STRICT_ROLE_MODULES
 
 NAV_CATALOG = [
-    {'module': 'payments', 'label': 'Payment', 'href': '/cms/payments/'},
-    {'module': 'donations', 'label': 'Donasi', 'href': '/cms/donations/'},
-    {'module': 'books', 'label': 'Buku', 'href': '/cms/books/'},
-    {'module': 'categories', 'label': 'Kategori', 'href': '/cms/categories/'},
-    {'module': 'promo_bestseller', 'label': 'Promo & Best Seller', 'href': '/cms/promo/'},
-    {'module': 'customers', 'label': 'Pelanggan', 'href': '/cms/customers/'},
-    {'module': 'content_moderation', 'label': 'Moderasi Konten', 'href': '/cms/content/'},
-    {'module': 'instagram_settings', 'label': 'Instagram', 'href': '/cms/instagram/'},
-    {'module': 'pengumuman_settings', 'label': 'Pengumuman', 'href': '/cms/pengumuman/'},
-    {'module': 'roles', 'label': 'Role & User', 'href': '/cms/roles/'},
-    {'module': 'coretan_pena', 'label': 'Coretan Pena', 'href': '/cms/coretan-pena/'},
-    {'module': 'activity_log', 'label': 'Log Transaksi', 'href': '/cms/logs/'},
+    {'module': 'analytics', 'label': 'Analitik', 'href': '/cms/analytics/', 'icon': 'bi-bar-chart-line'},
+    {'module': 'payments', 'label': 'Payment', 'href': '/cms/payments/', 'icon': 'bi-credit-card'},
+    {'module': 'donations', 'label': 'Donasi', 'href': '/cms/donations/', 'icon': 'bi-heart'},
+    {'module': 'books', 'label': 'Buku', 'href': '/cms/books/', 'icon': 'bi-book'},
+    {'module': 'categories', 'label': 'Kategori', 'href': '/cms/categories/', 'icon': 'bi-grid'},
+    {'module': 'promo_bestseller', 'label': 'Promo & Best Seller', 'href': '/cms/promo/', 'icon': 'bi-star'},
+    {'module': 'customers', 'label': 'Pelanggan', 'href': '/cms/customers/', 'icon': 'bi-people'},
+    {'module': 'content_moderation', 'label': 'Moderasi Konten', 'href': '/cms/content/', 'icon': 'bi-shield-check'},
+    {'module': 'instagram_settings', 'label': 'Instagram', 'href': '/cms/instagram/', 'icon': 'bi-instagram'},
+    {'module': 'pengumuman_settings', 'label': 'Pengumuman', 'href': '/cms/pengumuman/', 'icon': 'bi-megaphone'},
+    {'module': 'roles', 'label': 'Role & User', 'href': '/cms/roles/', 'icon': 'bi-person-lock'},
+    {'module': 'coretan_pena', 'label': 'Coretan Pena', 'href': '/cms/coretan-pena/', 'icon': 'bi-pencil-square'},
+    {'module': 'activity_log', 'label': 'Log Transaksi', 'href': '/cms/logs/', 'icon': 'bi-activity'},
 ]
 
 
@@ -39,6 +40,7 @@ def cms_nav(request):
         if has_access:
             links.append({
                 'label': entry['label'],
+                'icon': entry['icon'],
                 'href': entry['href'],
                 'active': request.path.startswith(entry['href']),
             })

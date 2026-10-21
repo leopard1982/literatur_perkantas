@@ -11,6 +11,7 @@ ROLE_ACCESS = {
     'content_moderation': {'Admin', 'Superadmin'},
     'instagram_settings': {'Admin', 'Superadmin'},
     'pengumuman_settings': {'Admin', 'Superadmin'},
+    'analytics': {'Admin', 'Superadmin'},
     'roles': {'Superadmin'},
     'activity_log': {'Superadmin'},
     'coretan_pena': {'Penulis'},

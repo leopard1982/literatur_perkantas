@@ -3,346 +3,56 @@
 
 {% block title %}Login CMS{% endblock %}
 
-{% block header_actions %}
-<a class="nav-chip" href="/">Kembali ke Website</a>
-<a class="nav-chip primary" href="/cms/login/">Login CMS</a>
-{% endblock %}
+{% block body_class %}login-page bg-body-secondary{% endblock %}
 
 {% block extra_styles %}
 <style>
     .cms-header,
-    .cms-footer {
-        display: none;
-    }
+    .cms-footer { display: none; }
 
-    .shell {
-        max-width: 1320px;
-        min-height: 100vh;
-        padding: 24px;
-        display: grid;
-        place-items: center;
-    }
-
-    .auth-shell {
-        width: min(1140px, 100%);
-        min-height: calc(100vh - 48px);
-        max-height: calc(100vh - 48px);
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
-        border-radius: 36px;
-        overflow: hidden;
-        border: 1px solid rgba(219, 205, 189, 0.8);
-        box-shadow: 0 30px 70px rgba(63, 49, 35, 0.14);
-        background: rgba(255, 252, 246, 0.82);
-        backdrop-filter: blur(12px);
-        position: relative;
-    }
-
-    .auth-shell::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-            radial-gradient(circle at top left, rgba(191, 91, 61, 0.08), transparent 28%),
-            radial-gradient(circle at bottom right, rgba(53, 80, 112, 0.08), transparent 26%);
-        pointer-events: none;
-    }
-
-    .auth-aside,
-    .auth-main {
-        position: relative;
-        z-index: 1;
-    }
-
-    .auth-aside {
-        padding: 52px 44px;
-        background:
-            radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 30%),
-            linear-gradient(160deg, #3f5f84 0%, #24343d 100%);
-        color: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 9px 14px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.12);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-        width: fit-content;
-    }
-
-    .aside-title {
-        font-size: clamp(1.7rem, 2.6vw, 2.5rem);
-        line-height: 1.15;
-        font-weight: 800;
-        margin: 18px 0 14px;
-        max-width: none;
-        white-space: nowrap;
-    }
-
-    .aside-copy {
-        color: rgba(255,255,255,0.78);
-        font-size: 15px;
-        line-height: 1.7;
-        max-width: 52ch;
-    }
-
-    .vision-quote {
-        margin-top: 28px;
-        padding: 24px 26px;
-        border-radius: 24px;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-    }
-
-    .vision-quote blockquote {
-        margin: 0;
-        font-size: clamp(1.05rem, 1.7vw, 1.4rem);
-        line-height: 1.8;
-        font-weight: 600;
-        color: rgba(255,255,255,0.92);
-    }
-
-    .aside-footer {
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255,255,255,0.12);
-        color: rgba(255,255,255,0.64);
-        font-size: 13px;
-        line-height: 1.6;
-        text-align: center;
-    }
-
-    .auth-main {
-        padding: 32px 44px;
-        background:
-            linear-gradient(180deg, rgba(255,255,255,0.74), rgba(250,244,237,0.92));
-        display: flex;
-        align-items: center;
-        overflow: auto;
-    }
-
-    .auth-panel {
-        width: 100%;
-        max-width: 420px;
-        margin: 0 auto;
-    }
-
-    .auth-kicker {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        padding: 0 16px;
-        border-radius: 999px;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 700;
-        color: #355070;
-        background: rgba(255,255,255,0.9);
-        border: 1px solid rgba(211, 193, 172, 0.9);
-        margin-bottom: 14px;
-    }
-
-    .mobile-login-brand {
-        display: none;
-        margin-bottom: 18px;
-        text-align: center;
-    }
-
-    .mobile-login-brand img {
-        width: auto;
-        max-width: min(220px, 70vw);
-        max-height: 72px;
-    }
-
-    .auth-title {
-        margin-bottom: 14px;
-    }
-
-    .auth-title-logo {
-        display: block;
-        width: min(100%, 320px);
-        height: auto;
-    }
-
-    .auth-copy {
-        color: var(--muted);
-        margin-bottom: 26px;
-        line-height: 1.7;
-    }
-
-    .auth-card {
-        padding: 24px;
-        border-radius: 24px;
-        background: rgba(255,255,255,0.82);
-        border: 1px solid rgba(219, 205, 189, 0.8);
-        box-shadow: 0 16px 32px rgba(63, 49, 35, 0.06);
-    }
-
-    .form-label {
-        font-size: 13px;
-        font-weight: 700;
-        color: #40515b;
-        margin-bottom: 8px;
-    }
-
-    .form-control {
-        min-height: 56px;
-        border-radius: 18px;
-        border: 1px solid #d7c8b8;
-        padding: 0 18px;
-        background: rgba(255,255,255,0.95);
-        box-shadow: none;
-    }
-
-    .form-control:focus {
-        border-color: #bf5b3d;
-        box-shadow: 0 0 0 0.22rem rgba(191, 91, 61, 0.14);
-    }
-
-    .btn-login {
-        min-height: 56px;
+    body.login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    body.login-page .app-wrapper,
+    body.login-page .app-main,
+    body.login-page .app-content { display: contents; background: transparent; }
+    body.login-page .shell { max-width: none; width: auto; padding: 0; flex: none; }
+    .login-box { width: 400px; max-width: calc(100vw - 32px); margin: 0; }
+    .login-logo-img { max-width: 220px; width: 100%; height: auto; }
+    .login-card-body .btn-login {
+        background: linear-gradient(135deg, var(--accent), #9f4428);
         border: none;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #bf5b3d, #9f4428);
-        color: white;
-        font-weight: 800;
-        letter-spacing: .01em;
-        box-shadow: 0 14px 24px rgba(191, 91, 61, 0.2);
-    }
-
-    .btn-login:hover {
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    .portal-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 18px;
-        text-decoration: none;
-        color: #355070;
+        color: #fff;
         font-weight: 700;
-        font-size: 14px;
-    }
-
-    @media (max-width: 960px) {
-        .shell {
-            min-height: auto;
-            padding: 20px 16px;
-        }
-
-        .auth-shell {
-            grid-template-columns: 1fr;
-            min-height: auto;
-            max-height: none;
-            border-radius: 28px;
-        }
-
-        .auth-aside {
-            display: none;
-        }
-
-        .auth-main {
-            padding: 24px;
-            align-items: center;
-        }
-
-        .auth-panel {
-            max-width: 100%;
-        }
-
-        .mobile-login-brand {
-            display: block;
-        }
-
-        .auth-title {
-            margin-bottom: 12px;
-        }
-
-        .auth-title-logo {
-            width: min(100%, 280px);
-        }
-
-        .auth-copy {
-            margin-bottom: 22px;
-        }
-
-        .auth-card {
-            padding: 22px 18px;
-            border-radius: 22px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .auth-main {
-            padding: 18px 16px;
-        }
-
-        .auth-shell {
-            border-radius: 24px;
-        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-shell">
-    <section class="auth-aside">
-        <div>
-            <h1 class="aside-title">Admin Literatur Perkantas</h1>
-            <p class="aside-copy">Akses khusus untuk administrator dalam mengelola operasional internal Literatur Perkantas.</p>
-
-            <div class="vision-quote">
-                <blockquote>
-                    “Menjadi penerbit buku berkualitas bagi pertumbuhan rohani dan pembentukan pola pikir bagi siswa, mahasiswa, dan alumni.”
-                </blockquote>
-            </div>
+<div class="login-box">
+    <div class="card card-outline card-primary shadow-sm" style="--bs-card-border-color: var(--accent);">
+        <div class="card-header text-center">
+            <img class="login-logo-img" src="{% static 'images/literatur_perkantas.jpg' %}" alt="Admin Literatur Perkantas">
+            <h1 class="h5 fw-bold mt-2 mb-0">Admin Literatur Perkantas</h1>
         </div>
-
-        <div class="aside-footer">
-            &copy; 2026{% now "Y" as current_year %}{% if current_year != "2026" %} - {{ current_year }}{% endif %} Literatur Perkantas Nasional
+        <div class="card-body login-card-body">
+            <p class="login-box-msg text-center text-secondary">Masuk untuk mengelola CMS</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <div class="input-group mb-3">
+                    <input class="form-control" type="text" name="username" placeholder="Username" autocomplete="username" required>
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="password" name="password" placeholder="Password" autocomplete="current-password" required>
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                </div>
+                <button class="btn btn-login w-100" type="submit">Masuk ke CMS</button>
+            </form>
+            <p class="mt-3 mb-0 text-center"><a href="/">&larr; Kembali ke website utama</a></p>
         </div>
-    </section>
-
-    <section class="auth-main">
-        <div class="auth-panel">
-            <div class="mobile-login-brand">
-                <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Literatur Perkantas">
-            </div>
-            <a class="auth-kicker" href="/">Kembali ke halaman Literatur Perkantas</a>
-            <div class="auth-title">
-                <img class="auth-title-logo" src="{% static 'images/literatur_perkantas.jpg' %}" alt="Admin Literatur Perkantas">
-            </div>
-            <div class="auth-card">
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ next_url }}">
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input class="form-control" type="text" name="username" placeholder="Masukkan username superuser" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input class="form-control" type="password" name="password" placeholder="Masukkan password" required>
-                    </div>
-                    <button class="btn btn-login w-100" type="submit">Masuk ke CMS</button>
-                </form>
-            </div>
-
-            <a class="portal-link" href="/">Kembali ke website utama</a>
+        <div class="card-footer text-center small text-secondary">
+            &copy; {% now "Y" %} Literatur Perkantas Nasional
         </div>
-    </section>
+    </div>
 </div>
 {% endblock %}

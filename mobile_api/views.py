@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.decorators.gzip import gzip_page
@@ -219,6 +219,7 @@ def blog_detail(request, blog_id):
             if uid else None)
     if blog is None:
         return error(404, 'not_found', 'Artikel tidak ditemukan.')
+    Blogs.objects.filter(pk=blog.pk).update(view=F('view') + 1)
     data = blog_dict(blog, full=True)
     comments = (BlogComment.objects.filter(blog=blog, is_active=True, is_publish=True)
                 .select_related('user__userdetail').order_by('-created_at')[:20])

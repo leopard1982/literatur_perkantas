@@ -509,6 +509,7 @@ class Blogs(models.Model):
 	header = models.CharField(max_length=50,verbose_name="Judul Blog")
 	body = models.TextField(verbose_name="Isi Blog")
 	is_active = models.BooleanField(default=True)
+	view = models.PositiveBigIntegerField(default=0)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -630,3 +631,16 @@ class CmsActivityLog(models.Model):
 
 	def __str__(self):
 		return f"{self.action}"
+
+
+class SiteVisit(models.Model):
+	"""Satu baris per pengunjung unik per hari per sumber (web / mobile)."""
+	SOURCE_CHOICES = [('web', 'Website'), ('mobile', 'Mobile')]
+
+	source = models.CharField(max_length=10,choices=SOURCE_CHOICES)
+	visitor_key = models.CharField(max_length=64)
+	date = models.DateField(db_index=True)
+	hits = models.PositiveIntegerField(default=1)
+
+	class Meta:
+		unique_together = ('source','visitor_key','date')

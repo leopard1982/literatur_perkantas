@@ -7,6 +7,8 @@
     <title>{% block title %}CMS{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/icon.ico' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0/dist/css/adminlte.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -35,13 +37,9 @@
             font-family: "Plus Jakarta Sans", sans-serif;
             font-size: 14.5px;
             color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(191, 91, 61, 0.16), transparent 25%),
-                radial-gradient(circle at right 20%, rgba(45, 106, 79, 0.1), transparent 24%),
-                linear-gradient(180deg, #fbf7f1 0%, #f2eadf 100%);
-            display: flex;
-            flex-direction: column;
         }
+        .app-wrapper { background: #f4f1ec; }
+        body.cms-guest .app-wrapper { display: block; }
 
         /* Admin CMS typography scale — deliberately smaller than Bootstrap's
            marketing-page defaults so dense dashboards don't feel oversized. */
@@ -54,142 +52,17 @@
         .form-label { font-size: 0.82rem; }
         .small, small { font-size: 0.8rem; }
 
-        .cms-header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(12px);
-            background: rgba(251, 247, 241, 0.8);
-            border-bottom: 1px solid rgba(211, 193, 172, 0.7);
-        }
+        .app-sidebar .brand-link { padding: .75rem 1rem; }
+        .app-sidebar .brand-image { max-height: 34px; width: auto; background: #fff; border-radius: 8px; padding: 2px 6px; margin-right: .6rem; }
+        .app-sidebar .nav-link.active { background-color: var(--accent) !important; color: #fff !important; }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; }
+        .nav-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; border: 1px solid var(--stroke); background: rgba(255,255,255,0.7); color: var(--ink); }
+        .nav-chip.primary { background: linear-gradient(135deg, var(--accent), #9f4428); color: #fff; border: none; }
+        .cms-header { }
+        .app-main .app-content { padding: 0; }
 
-        .cms-nav {
-            position: relative;
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 14px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .cms-nav-toggle {
-            display: none;
-            width: 42px;
-            height: 42px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            border: 1px solid var(--stroke);
-            background: rgba(255,255,255,0.7);
-            cursor: pointer;
-        }
-
-        .cms-nav-toggle svg {
-            width: 20px;
-            height: 20px;
-            stroke: var(--ink);
-        }
-
-        .cms-nav-links {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-basis: 100%;
-            flex-wrap: wrap;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .brand-mark {
-            width: auto;
-            height: 46px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(211, 193, 172, 0.7);
-            box-shadow: 0 12px 24px rgba(191, 91, 61, 0.2);
-            overflow: hidden;
-            padding: 4px 8px;
-        }
-
-        .brand-mark img {
-            width: auto;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        .brand-text strong {
-            display: block;
-            font-size: 15px;
-            letter-spacing: .02em;
-        }
-
-        .brand-text span {
-            display: block;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .cms-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .nav-chip {
-            display: inline-flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 0 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid var(--stroke);
-            background: rgba(255,255,255,0.7);
-            color: var(--ink);
-        }
-
-        .nav-chip.primary {
-            background: linear-gradient(135deg, var(--accent), #9f4428);
-            color: white;
-            border: none;
-        }
-
-        .nav-chip.active {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .cms-user-actions {
-            position: absolute;
-            top: 14px;
-            right: 18px;
-            z-index: 1100;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .notif-bell {
-            z-index: 1100;
-        }
+        .notif-bell { position: relative; z-index: 1100; }
+        .notif-bell > summary { color: inherit; }
 
         .notif-bell > summary {
             list-style: none;
@@ -311,7 +184,7 @@
             max-width: 1440px;
             width: 100%;
             margin: 0 auto;
-            padding: 28px 18px 42px;
+            padding: 28px 28px 42px;
             flex: 1;
         }
 
@@ -391,9 +264,7 @@
             background: rgba(255, 250, 245, 0.82);
         }
         .cms-breadcrumbs-inner {
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 10px 18px;
+            padding: 10px 28px;
         }
         .cms-breadcrumbs .breadcrumb {
             margin: 0;
@@ -458,82 +329,29 @@
                 width: auto;
             }
 
-            .cms-nav,
-            .cms-footer-inner {
-                align-items: flex-start;
-            }
+            .cms-footer-inner { align-items: flex-start; }
 
-            .cms-nav-toggle {
-                display: inline-flex;
-            }
-
-            .cms-nav-links {
-                display: none;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-                margin-top: 4px;
-            }
-
-            .cms-nav-links.is-open {
-                display: flex;
-            }
-
-            .cms-actions {
-                width: 100%;
-            }
-
-            .cms-user-actions {
-                position: static;
-                width: 100%;
-                justify-content: flex-end;
-            }
+            .shell { padding: 20px 16px 32px; }
+            .cms-breadcrumbs-inner { padding: 10px 16px; }
+            .user-name { display: none; }
         }
     </style>
     {% block extra_styles %}{% endblock %}
 </head>
-<body>
-    <header class="cms-header">
-        <div class="cms-nav">
-            <a class="brand" href="/cms/">
-                <div class="brand-mark">
-                    <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Logo Litanas">
-                </div>
-                <div class="brand-text">
-                    <strong>Litanas CMS</strong>
-                    {% if request.user.is_authenticated %}
-                    <span>{% firstof request.user.get_full_name request.user.username %} (Admin)</span>
-                    {% else %}
-                    <span>Tamu</span>
-                    {% endif %}
-                </div>
-            </a>
-
-            <button type="button" class="cms-nav-toggle" id="cmsNavToggle" aria-expanded="false" aria-controls="cmsNavLinks" aria-label="Buka menu navigasi">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-
-            <div class="cms-nav-links" id="cmsNavLinks">
-                <div class="cms-actions">
-                    {% block header_actions %}
-                        {% if request.user.is_authenticated and cms_nav_links is not None %}
-                        <a class="nav-chip {% if cms_dashboard_active %}active{% endif %}" href="/cms/">Dashboard</a>
-                        {% for link in cms_nav_links %}
-                        <a class="nav-chip {% if link.active %}active{% endif %}" href="{{ link.href }}">{{ link.label }}</a>
-                        {% endfor %}
-                        {% else %}
-                        <a class="nav-chip primary" href="/cms/login/">Login CMS</a>
-                        {% endif %}
-                    {% endblock %}
-                </div>
-
-                {% if request.user.is_authenticated and cms_nav_links is not None %}
-                <div class="cms-user-actions">
-                    {% if cms_bell_notifications is not None %}
+<body class="{% block body_class %}layout-fixed sidebar-expand-lg{% endblock %} {% if not request.user.is_authenticated or cms_nav_links is None %}cms-guest{% endif %}">
+<div class="app-wrapper">
+{% if request.user.is_authenticated and cms_nav_links is not None %}
+    <nav class="app-header navbar navbar-expand bg-body cms-header">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Buka menu navigasi"><i class="bi bi-list fs-5"></i></a>
+                </li>
+                <li class="nav-item d-none d-md-block"><a href="/cms/" class="nav-link">Dashboard</a></li>
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                {% if cms_bell_notifications is not None %}
+                <li class="nav-item">
                     <details class="notif-bell">
                         <summary title="Notifikasi">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -555,77 +373,99 @@
                             <a class="notif-see-all" href="/cms/notifications/">Lihat semua notifikasi &rarr;</a>
                         </div>
                     </details>
-                    {% endif %}
-                    <a class="nav-chip primary" href="/cms/logout/">Logout CMS</a>
-                </div>
+                </li>
                 {% endif %}
-            </div>
+                <li class="nav-item d-flex align-items-center gap-2">
+                    <span class="user-avatar">{{ request.user.username|slice:":1" }}</span>
+                    <span class="user-name fw-semibold">{% firstof request.user.get_full_name request.user.username %}</span>
+                </li>
+                <li class="nav-item"><a class="btn btn-sm btn-outline-danger" href="/cms/logout/"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            </ul>
         </div>
+    </nav>
+
+    <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+        <div class="sidebar-brand">
+            <a href="/cms/" class="brand-link">
+                <img src="{% static 'images/literatur_perkantas.jpg' %}" alt="Logo Litanas" class="brand-image">
+                <span class="brand-text fw-bold">Litanas CMS</span>
+            </a>
+        </div>
+        <div class="sidebar-wrapper">
+            <nav class="mt-2">
+                <ul class="nav sidebar-menu flex-column" role="navigation" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="/cms/" class="nav-link {% if cms_dashboard_active %}active{% endif %}">
+                            <i class="nav-icon bi bi-speedometer2"></i><p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">MENU</li>
+                    {% for link in cms_nav_links %}
+                    <li class="nav-item">
+                        <a href="{{ link.href }}" class="nav-link {% if link.active %}active{% endif %}">
+                            <i class="nav-icon bi {{ link.icon }}"></i><p>{{ link.label }}</p>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </aside>
+{% else %}
+    <header class="cms-header">
+        <div class="d-flex justify-content-end p-3 gap-2">
+            {% block header_actions %}
+            <a class="nav-chip primary" href="/cms/login/">Login CMS</a>
+            {% endblock %}
+        </div>
+    </header>
+{% endif %}
+
+    <main class="app-main">
         {% if breadcrumbs %}
-        <div class="cms-breadcrumbs">
-            <div class="cms-breadcrumbs-inner">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        {% for crumb in breadcrumbs %}
-                        <li class="breadcrumb-item {% if crumb.active %}active{% endif %}" {% if crumb.active %}aria-current="page"{% endif %}>
-                            {% if crumb.url and not crumb.active %}
-                            <a href="{{ crumb.url }}">{{ crumb.label }}</a>
-                            {% else %}
-                            {{ crumb.label }}
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ol>
-                </nav>
+        <div class="app-content-header cms-breadcrumbs py-2">
+            <div class="container-fluid">
+                <ol class="breadcrumb mb-0">
+                    {% for crumb in breadcrumbs %}
+                    <li class="breadcrumb-item {% if crumb.active %}active{% endif %}" {% if crumb.active %}aria-current="page"{% endif %}>
+                        {% if crumb.url and not crumb.active %}<a href="{{ crumb.url }}">{{ crumb.label }}</a>{% else %}{{ crumb.label }}{% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
             </div>
         </div>
         {% endif %}
-    </header>
-
-    {% if messages %}
-    <div class="cms-toast-stack" aria-live="polite" aria-atomic="true">
-        {% for message in messages %}
-        <div class="cms-toast {{ message.tags|default:'info' }}" data-cms-toast>
-            {{ message }}
+        <div class="app-content">
+            <div class="shell">
+                {% block content %}{% endblock %}
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <main class="shell">
-        {% block content %}{% endblock %}
     </main>
 
-    <footer class="cms-footer">
-        <div class="cms-footer-inner cms-footer-simple">
-            <div class="footer-title mb-0">Administrasi Literatur Perkantas Nasional</div>
-        </div>
+    <footer class="app-footer cms-footer text-center">
+        <strong>Administrasi Literatur Perkantas Nasional</strong>
     </footer>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var toasts = document.querySelectorAll("[data-cms-toast]");
+</div>
 
-            toasts.forEach(function (toast, index) {
-                window.setTimeout(function () {
-                    toast.classList.add("is-hiding");
+{% if messages %}
+<div class="cms-toast-stack" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+    <div class="cms-toast {{ message.tags|default:'info' }}" data-cms-toast>{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
 
-                    window.setTimeout(function () {
-                        toast.remove();
-                    }, 300);
-                }, 5000 + (index * 120));
-            });
-
-            var navToggle = document.getElementById("cmsNavToggle");
-            var navLinks = document.getElementById("cmsNavLinks");
-
-            if (navToggle && navLinks) {
-                navToggle.addEventListener("click", function () {
-                    var isOpen = navLinks.classList.toggle("is-open");
-                    navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-                });
-            }
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0/dist/js/adminlte.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("[data-cms-toast]").forEach(function (toast, index) {
+            window.setTimeout(function () {
+                toast.classList.add("is-hiding");
+                window.setTimeout(function () { toast.remove(); }, 300);
+            }, 5000 + (index * 120));
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    });
+</script>
 </body>
 </html>

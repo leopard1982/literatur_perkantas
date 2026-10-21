@@ -1,0 +1,151 @@
+{% extends 'cms/base.html' %}
+{% load humanize %}
+
+{% block title %}CMS Analitik{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .chart-box { position: relative; height: 300px; }
+    .rank-table td, .rank-table th { vertical-align: middle; }
+    .rank-no { width: 36px; color: var(--muted); font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="mb-0">Analitik</h1>
+        <div class="text-secondary small">{{ start|date:"d M Y" }} &ndash; {{ today|date:"d M Y" }}</div>
+    </div>
+    <div class="btn-group" role="group" aria-label="Periode">
+        <a class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?days=7&tab={{ tab }}">7 hari</a>
+        <a class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?days=30&tab={{ tab }}">30 hari</a>
+        <a class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?days=90&tab={{ tab }}">90 hari</a>
+        <a class="btn btn-sm {% if days == 365 %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?days=365&tab={{ tab }}">1 tahun</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3"><div class="small-box text-bg-primary"><div class="inner"><h3>{{ web.unique }}</h3><p>Pengunjung Website</p></div></div></div>
+    <div class="col-6 col-lg-3"><div class="small-box text-bg-info"><div class="inner"><h3>{{ mobile.unique }}</h3><p>Pengunjung Mobile</p></div></div></div>
+    <div class="col-6 col-lg-3"><div class="small-box text-bg-success"><div class="inner"><h3>{{ purchases.count }}</h3><p>Pembelian Terverifikasi</p></div></div></div>
+    <div class="col-6 col-lg-3"><div class="small-box text-bg-warning"><div class="inner"><h3>Rp {{ donation.total|floatformat:0|intcomma }}</h3><p>Donasi Terverifikasi</p></div></div></div>
+</div>
+
+<ul class="nav nav-tabs mb-3" id="analyticsTabs" role="tablist">
+    <li class="nav-item"><button class="nav-link {% if tab == 'pengunjung' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-pengunjung" type="button"><i class="bi bi-people"></i> Pengunjung</button></li>
+    <li class="nav-item"><button class="nav-link {% if tab == 'pembelian' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-pembelian" type="button"><i class="bi bi-cart-check"></i> Pembelian</button></li>
+    <li class="nav-item"><button class="nav-link {% if tab == 'buku' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-buku" type="button"><i class="bi bi-book"></i> Buku</button></li>
+    <li class="nav-item"><button class="nav-link {% if tab == 'coretan' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-coretan" type="button"><i class="bi bi-pencil-square"></i> Coretan Pena</button></li>
+    <li class="nav-item"><button class="nav-link {% if tab == 'donasi' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-donasi" type="button"><i class="bi bi-heart"></i> Donasi</button></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade {% if tab == 'pengunjung' %}show active{% endif %}" id="tab-pengunjung">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Pengunjung Website</h3></div>
+                    <div class="card-body">
+                        <p class="text-secondary small">{{ web.unique }} pengunjung unik &middot; {{ web.hits }} kunjungan halaman</p>
+                        <div class="chart-box"><canvas id="chartWeb"></canvas></div>
+                    </div></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Pengunjung Mobile</h3></div>
+                    <div class="card-body">
+                        <p class="text-secondary small">{{ mobile.unique }} pengunjung unik &middot; {{ mobile.hits }} pembukaan aplikasi</p>
+                        <div class="chart-box"><canvas id="chartMobile"></canvas></div>
+                    </div></div>
+            </div>
+        </div>
+        <p class="text-secondary small mt-2">Pengunjung unik dihitung per hari berdasarkan IP + perangkat; data mulai terkumpul sejak fitur analitik aktif.</p>
+    </div>
+
+    <div class="tab-pane fade {% if tab == 'pembelian' %}show active{% endif %}" id="tab-pembelian">
+        <div class="card"><div class="card-header"><h3 class="card-title mb-0">Pembelian per Hari</h3></div>
+            <div class="card-body">
+                <p class="text-secondary small">{{ purchases.count }} transaksi &middot; {{ purchases.books }} buku &middot; Rp {{ purchases.revenue|floatformat:0|intcomma }}</p>
+                <div class="chart-box"><canvas id="chartPurchases"></canvas></div>
+            </div></div>
+    </div>
+
+    <div class="tab-pane fade {% if tab == 'buku' %}show active{% endif %}" id="tab-buku">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Buku Terbanyak Dibeli</h3></div>
+                    <div class="card-body p-0"><table class="table table-sm table-striped rank-table mb-0">
+                        <tbody>{% for b in top_books %}<tr><td class="rank-no ps-3">{{ forloop.counter }}</td><td>{{ b.judul }}<div class="small text-secondary">{{ b.pengarang }}</div></td><td class="text-end pe-3"><span class="badge text-bg-success">{{ b.sold }}x</span></td></tr>
+                        {% empty %}<tr><td class="p-3 text-secondary">Belum ada pembelian pada periode ini.</td></tr>{% endfor %}</tbody>
+                    </table></div></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Buku Jarang Dibeli</h3></div>
+                    <div class="card-body p-0"><table class="table table-sm table-striped rank-table mb-0">
+                        <tbody>{% for b in least_books %}<tr><td class="rank-no ps-3">{{ forloop.counter }}</td><td>{{ b.judul }}<div class="small text-secondary">{{ b.pengarang }}</div></td><td class="text-end pe-3"><span class="badge text-bg-secondary">{{ b.sold }}x</span></td></tr>
+                        {% empty %}<tr><td class="p-3 text-secondary">Belum ada buku aktif.</td></tr>{% endfor %}</tbody>
+                    </table></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade {% if tab == 'coretan' %}show active{% endif %}" id="tab-coretan">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Coretan Pena Sering Dilihat</h3></div>
+                    <div class="card-body p-0"><table class="table table-sm table-striped rank-table mb-0">
+                        <tbody>{% for c in top_coretan %}<tr><td class="rank-no ps-3">{{ forloop.counter }}</td><td>{{ c.header }}<div class="small text-secondary">{% firstof c.author.get_full_name c.author.username %}</div></td><td class="text-end pe-3"><span class="badge text-bg-primary">{{ c.view }} views</span></td></tr>
+                        {% empty %}<tr><td class="p-3 text-secondary">Belum ada coretan pena aktif.</td></tr>{% endfor %}</tbody>
+                    </table></div></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card"><div class="card-header"><h3 class="card-title mb-0">Coretan Pena Jarang Dilihat</h3></div>
+                    <div class="card-body p-0"><table class="table table-sm table-striped rank-table mb-0">
+                        <tbody>{% for c in least_coretan %}<tr><td class="rank-no ps-3">{{ forloop.counter }}</td><td>{{ c.header }}<div class="small text-secondary">{% firstof c.author.get_full_name c.author.username %}</div></td><td class="text-end pe-3"><span class="badge text-bg-secondary">{{ c.view }} views</span></td></tr>
+                        {% empty %}<tr><td class="p-3 text-secondary">Belum ada coretan pena aktif.</td></tr>{% endfor %}</tbody>
+                    </table></div></div>
+            </div>
+        </div>
+        <p class="text-secondary small mt-2">Jumlah dilihat bersifat kumulatif (tidak terpengaruh filter periode) dan dihitung sejak fitur analitik aktif.</p>
+    </div>
+
+    <div class="tab-pane fade {% if tab == 'donasi' %}show active{% endif %}" id="tab-donasi">
+        <div class="card"><div class="card-header"><h3 class="card-title mb-0">Donasi per Hari</h3></div>
+            <div class="card-body">
+                <p class="text-secondary small">{{ donation.count }} donasi &middot; Rp {{ donation.total|floatformat:0|intcomma }}</p>
+                <div class="chart-box"><canvas id="chartDonation"></canvas></div>
+            </div></div>
+    </div>
+</div>
+
+{{ web|json_script:"data-web" }}
+{{ mobile|json_script:"data-mobile" }}
+{{ purchases|json_script:"data-purchases" }}
+{{ donation|json_script:"data-donation" }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var made = {};
+        function draw(canvasId, dataId, label, color, type) {
+            var el = document.getElementById(canvasId);
+            if (!el || made[canvasId] || el.offsetParent === null) return;
+            var d = JSON.parse(document.getElementById(dataId).textContent);
+            made[canvasId] = new Chart(el, {
+                type: type,
+                data: { labels: d.labels, datasets: [{ label: label, data: d.values, borderColor: color, backgroundColor: color + "55", fill: type === "line", tension: .3, borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            });
+        }
+        function drawAll() {
+            draw("chartWeb", "data-web", "Pengunjung", "#355070", "line");
+            draw("chartMobile", "data-mobile", "Pengunjung", "#2d6a4f", "line");
+            draw("chartPurchases", "data-purchases", "Transaksi", "#bf5b3d", "bar");
+            draw("chartDonation", "data-donation", "Donasi (Rp)", "#c98328", "bar");
+        }
+        drawAll();
+        document.querySelectorAll('#analyticsTabs [data-bs-toggle="tab"]').forEach(function (b) {
+            b.addEventListener("shown.bs.tab", drawAll);
+        });
+    });
+</script>
+{% endblock %}

@@ -23,7 +23,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from literatur.models import (
     Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
-    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, UserBook, UserDetail,
+    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
 )
 from literatur.views import get_pengumuman_text
 
@@ -36,6 +36,14 @@ from .roles import CMS_ROLE_CHOICES, CMS_ROLE_GROUPS, ROLE_ACCESS, STRICT_ROLE_M
 
 
 CARD_CATALOG = [
+    {
+        'module': 'analytics',
+        'title': 'Analitik',
+        'subtitle': 'Pengunjung web & mobile, pembelian, buku, coretan pena, dan donasi.',
+        'href': '/cms/analytics/',
+        'count_label': 'Pengunjung Hari Ini',
+        'tone': 'navy',
+    },
     {
         'module': 'payments',
         'title': 'Management Payment',
@@ -400,7 +408,9 @@ def dashboard(request):
         entry = dict(card)
         module = card['module']
 
-        if module == 'payments':
+        if module == 'analytics':
+            entry['count_value'] = SiteVisit.objects.filter(date=datetime.date.today()).count()
+        elif module == 'payments':
             entry['count_value'] = MyPayment.objects.filter(is_verified=False, is_canceled=False).count()
         elif module == 'donations':
             entry['count_value'] = MyDonation.objects.filter(is_verified=False, is_canceled=False).count()
@@ -468,6 +478,110 @@ def module_placeholder(request, title, description, bullets):
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), (title, None)),
     }
     return render(request, 'cms/module_placeholder.html', context)
+
+
+def _daily_series(rows, start, days, value_key='total'):
+    by_day = {row['day']: row[value_key] for row in rows}
+    labels, values = [], []
+    for offset in range(days):
+        day = start + datetime.timedelta(days=offset)
+        labels.append(day.strftime('%d %b'))
+        values.append(float(by_day.get(day) or 0))
+    return labels, values
+
+
+def analytics_dashboard(request):
+    blocked = _ensure_cms_access(request, 'analytics')
+    if blocked:
+        return blocked
+
+    try:
+        days = int(request.GET.get('days', 30))
+    except (TypeError, ValueError):
+        days = 30
+    if days not in (7, 30, 90, 365):
+        days = 30
+
+    today = datetime.date.today()
+    start = today - datetime.timedelta(days=days - 1)
+    start_dt = datetime.datetime.combine(start, datetime.time.min)
+
+    def visits(source):
+        qs = SiteVisit.objects.filter(source=source, date__gte=start)
+        rows = qs.values('date').annotate(total=Count('id')).values('date', 'total')
+        rows = [{'day': r['date'], 'total': r['total']} for r in rows]
+        labels, values = _daily_series(rows, start, days)
+        return {
+            'labels': labels,
+            'values': values,
+            'unique': qs.values('visitor_key').distinct().count(),
+            'hits': qs.aggregate(t=Sum('hits'))['t'] or 0,
+        }
+
+    paid = MyPayment.objects.filter(is_verified=True, is_canceled=False, created_at__gte=start_dt)
+    pay_rows = [
+        {'day': r['created_at__date'], 'total': r['n']}
+        for r in paid.values('created_at__date').annotate(n=Count('payment'))
+    ]
+    pay_labels, pay_values = _daily_series(pay_rows, start, days)
+    purchases = {
+        'labels': pay_labels,
+        'values': pay_values,
+        'count': paid.count(),
+        'revenue': paid.aggregate(t=Sum('total'))['t'] or 0,
+        'books': paid.aggregate(t=Sum('jumlah_buku'))['t'] or 0,
+    }
+
+    sold = (
+        MyPaymentDetail.objects
+        .filter(payment__is_verified=True, payment__is_canceled=False, payment__created_at__gte=start_dt)
+        .values('book').annotate(n=Count('id'))
+    )
+    sold_map = {row['book']: row['n'] for row in sold}
+    book_rows = [
+        {'judul': b.judul, 'pengarang': b.pengarang, 'sold': sold_map.get(b.id, 0)}
+        for b in Books.objects.filter(is_active=True).only('id', 'judul', 'pengarang')
+    ]
+    top_books = sorted((b for b in book_rows if b['sold'] > 0), key=lambda b: -b['sold'])[:10]
+    least_books = sorted(book_rows, key=lambda b: (b['sold'], b['judul']))[:10]
+
+    coretan = Blogs.objects.filter(tipe='Coretan Pena', is_active=True).select_related('author')
+    top_coretan = list(coretan.order_by('-view', '-created_at')[:10])
+    least_coretan = list(coretan.order_by('view', 'created_at')[:10])
+
+    donations = MyDonation.objects.filter(is_verified=True, is_canceled=False, created_at__gte=start_dt)
+    don_rows = [
+        {'day': r['created_at__date'], 'total': r['n']}
+        for r in donations.values('created_at__date').annotate(n=Sum('nilai'))
+    ]
+    don_labels, don_values = _daily_series(don_rows, start, days)
+    donation_data = {
+        'labels': don_labels,
+        'values': don_values,
+        'count': donations.count(),
+        'total': donations.aggregate(t=Sum('nilai'))['t'] or 0,
+    }
+
+    tab = request.GET.get('tab', 'pengunjung')
+    if tab not in ('pengunjung', 'pembelian', 'buku', 'coretan', 'donasi'):
+        tab = 'pengunjung'
+
+    context = {
+        'days': days,
+        'tab': tab,
+        'start': start,
+        'today': today,
+        'web': visits('web'),
+        'mobile': visits('mobile'),
+        'purchases': purchases,
+        'top_books': top_books,
+        'least_books': least_books,
+        'top_coretan': top_coretan,
+        'least_coretan': least_coretan,
+        'donation': donation_data,
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Analitik', None)),
+    }
+    return render(request, 'cms/analytics_dashboard.html', context)
 
 
 def reports_dashboard(request):
