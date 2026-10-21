@@ -464,9 +464,9 @@ def dashboard(request):
         summary_tiles.append({'tone': 'success', 'icon': 'bi-check-circle', 'href': '/cms/payments/', 'label': 'Payment Disetujui', 'value': MyPayment.objects.filter(is_verified=True).count()})
         summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'href': '/cms/payments/', 'label': 'Payment Ditolak', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=True).count()})
     if has_access('donations'):
-        summary_tiles.append({'group': 'donation', 'tone': 'pending', 'href': '/cms/donations/', 'icon': 'bi-hourglass-split', 'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
-        summary_tiles.append({'group': 'donation', 'tone': 'approved', 'href': '/cms/donations/', 'icon': 'bi-heart-fill', 'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
-        summary_tiles.append({'group': 'donation', 'tone': 'rejected', 'href': '/cms/donations/', 'icon': 'bi-x-circle', 'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
+        summary_tiles.append({'tone': 'primary', 'href': '/cms/donations/', 'icon': 'bi-hourglass-split', 'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
+        summary_tiles.append({'tone': 'info', 'href': '/cms/donations/', 'icon': 'bi-heart-fill', 'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
+        summary_tiles.append({'tone': 'dark', 'href': '/cms/donations/', 'icon': 'bi-x-circle', 'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
 
     card_icons = {
         'analytics': 'bi-bar-chart-line', 'payments': 'bi-credit-card', 'donations': 'bi-heart',
