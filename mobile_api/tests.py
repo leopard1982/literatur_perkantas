@@ -15,7 +15,7 @@ def post(client, url, data, **extra):
     return client.post(url, json.dumps(data), content_type='application/json', **extra)
 
 
-@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'])
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'], MOBILE_LOGIN_RECAPTCHA=False)
 class ApiSecurityTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -197,7 +197,7 @@ class ApiSecurityTests(TestCase):
         self.assertTrue(r['Content-Type'].startswith('text/plain'))
 
 
-@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'])
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'], MOBILE_LOGIN_RECAPTCHA=False)
 class BookActiveDeleteTests(TestCase):
     """CMS toggle (aktif/nonaktif) + delete-only-if-never-bought, and what 'nonaktif' means."""
 
@@ -286,3 +286,41 @@ class BookActiveDeleteTests(TestCase):
     def test_active_book_is_listed(self):
         ids = [b['id'] for b in self.client.get('/api/v1/books/').json()['results']]
         self.assertIn(str(self.fresh.id), ids)
+
+
+@override_settings(ALLOWED_HOSTS=['testserver'], MOBILE_LOGIN_RECAPTCHA=True)
+class LoginRecaptchaTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        u = User.objects.create_user('budi', 'budi@example.com', 'rahasia-123')
+        UserDetail.objects.create(user=u, nama_lengkap='Budi')
+
+    def test_login_rejected_without_or_with_bad_token(self):
+        from unittest import mock
+        r = post(self.client, '/api/v1/auth/login/', {'username': 'budi', 'password': 'rahasia-123'})
+        self.assertEqual((r.status_code, r.json()['error']['code']), (400, 'captcha_failed'))
+        with mock.patch('mobile_api.views.urllib.request.urlopen', side_effect=OSError):
+            r = post(self.client, '/api/v1/auth/login/', {'username': 'budi', 'password': 'rahasia-123', 'recaptcha_token': 'x'})
+        self.assertEqual(r.status_code, 400)
+
+    def test_login_ok_with_valid_token(self):
+        from unittest import mock
+        fake = mock.MagicMock()
+        fake.__enter__.return_value.read.return_value = b'{"success":true,"score":0.9,"action":"login"}'
+        with mock.patch('mobile_api.views.urllib.request.urlopen', return_value=fake):
+            r = post(self.client, '/api/v1/auth/login/', {'username': 'budi', 'password': 'rahasia-123', 'recaptcha_token': 'tok'})
+        self.assertEqual(r.status_code, 200)
+
+    def test_page_served(self):
+        r = self.client.get('/api/v1/auth/recaptcha/')
+        self.assertContains(r, 'grecaptcha.execute')
+
+
+@override_settings(ALLOWED_HOSTS=['testserver'])
+class AnnouncementsTests(TestCase):
+    def test_only_active_listed_publicly(self):
+        from literatur.models import MobileBroadcast
+        MobileBroadcast.objects.create(jenis='promo', header='Diskon', body='50%')
+        MobileBroadcast.objects.create(jenis='pengumuman', header='Off', body='x', is_active=False)
+        r = self.client.get('/api/v1/announcements/')
+        self.assertEqual([b['header'] for b in r.json()['results']], ['Diskon'])

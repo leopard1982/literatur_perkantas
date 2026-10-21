@@ -23,12 +23,12 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from literatur.models import (
     Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
-    MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
+    MobileBroadcast, MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
 )
 from literatur.views import get_pengumuman_text
 
 from .forms import (
-    BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, OnSaleForm,
+    BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, MobileBroadcastForm, OnSaleForm,
     PengumumanForm,
 )
 from .notifications import NOTIFICATION_KIND_ROLES, get_notifications
@@ -1381,6 +1381,42 @@ def pengumuman_settings_dashboard(request):
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Pengaturan Pengumuman', None)),
     }
     return render(request, 'cms/pengumuman_settings.html', context)
+
+
+def broadcast_dashboard(request):
+    blocked = _ensure_cms_access(request, 'broadcast')
+    if blocked:
+        return blocked
+
+    if request.method == 'POST':
+        action = request.POST.get('action', '').strip()
+        if action in ('toggle', 'delete'):
+            item = MobileBroadcast.objects.filter(pk=request.POST.get('id', '').strip() or 0).first()
+            if item:
+                if action == 'toggle':
+                    item.is_active = not item.is_active
+                    item.save(update_fields=['is_active'])
+                    messages.add_message(request, messages.SUCCESS, 'Status notifikasi diperbarui.')
+                else:
+                    item.delete()
+                    messages.add_message(request, messages.SUCCESS, 'Notifikasi dihapus.')
+                _log_activity(request, 'broadcast', f'{action} notifikasi aplikasi: {item.header}')
+            return HttpResponseRedirect('/cms/broadcast/')
+        form = MobileBroadcastForm(request.POST)
+        if form.is_valid():
+            item = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Notifikasi disimpan; akan muncul di HP pengguna dalam beberapa menit.')
+            _log_activity(request, 'broadcast', f'Membuat notifikasi aplikasi: {item.header}')
+            return HttpResponseRedirect('/cms/broadcast/')
+    else:
+        form = MobileBroadcastForm()
+
+    context = {
+        'form': form,
+        'items': MobileBroadcast.objects.all()[:50],
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Notifikasi Aplikasi', None)),
+    }
+    return render(request, 'cms/broadcast.html', context)
 
 
 def promo_bestseller_dashboard(request):

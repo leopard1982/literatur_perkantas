@@ -1,5 +1,8 @@
 import datetime
+import json
 import os
+import urllib.parse
+import urllib.request
 import uuid
 
 from django.contrib.auth import authenticate
@@ -12,7 +15,7 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.decorators.gzip import gzip_page
 
 from literatur.models import (
-    Blogs, BlogComment, BookComment, Books, Category, FeaturedBook, Instagram,
+    Blogs, BlogComment, MobileBroadcast, BookComment, Books, Category, FeaturedBook, Instagram,
     MyCart, MyPaymentDetail, inboxMessage, MyWishlist, OnSaleBook, PageReview, Pengumuman,
     UserBook,
 )
@@ -29,6 +32,43 @@ DEFAULT_PENGUMUMAN = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 HOME_CACHE_KEY = 'api:home:v1'
 HOME_CACHE_TTL = 60
 MAX_SESSIONS_PER_USER = 10
+RECAPTCHA_ACTION = 'login'
+RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
+
+
+def _recaptcha_ok(token, ip):
+    """Server-side reCAPTCHA v3 check (same keys / min score as the website). Fails closed."""
+    if not getattr(settings, 'MOBILE_LOGIN_RECAPTCHA', True):
+        return True
+    if not isinstance(token, str) or not token or len(token) > 4096:
+        return False
+    body = urllib.parse.urlencode({'secret': settings.RECAPTCHA_PRIVATE_KEY, 'response': token,
+                                   'remoteip': ip or ''}).encode()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(RECAPTCHA_VERIFY_URL, data=body), timeout=5) as r:
+            res = json.loads(r.read().decode('utf-8'))
+    except Exception:
+        return False
+    return bool(res.get('success')) and res.get('action') == RECAPTCHA_ACTION \
+        and float(res.get('score', 0)) >= getattr(settings, 'RECAPTCHA_REQUIRED_SCORE', 0.5)
+
+
+def recaptcha_page(request):
+    """Tiny page loaded in a hidden WebView by the app (must be served from our own origin so the
+    site key's domain check passes). It hands the v3 token to the app via the `Captcha` channel."""
+    html = (
+        '<!doctype html><meta charset="utf-8"><title>captcha</title>'
+        '<script src="https://www.google.com/recaptcha/api.js?render=%(k)s"></script>'
+        '<script>grecaptcha.ready(function(){grecaptcha.execute("%(k)s",{action:"%(a)s"})'
+        '.then(function(t){Captcha.postMessage(t)},function(){Captcha.postMessage("")})});</script>'
+    ) % {'k': settings.RECAPTCHA_PUBLIC_KEY, 'a': RECAPTCHA_ACTION}
+    resp = HttpResponse(html, content_type='text/html; charset=utf-8')
+    resp['Content-Security-Policy'] = ("default-src 'none'; script-src 'unsafe-inline' https://www.google.com "
+                                       "https://www.gstatic.com; frame-src https://www.google.com; "
+                                       "connect-src https://www.google.com; frame-ancestors 'none'")
+    resp['Cache-Control'] = 'no-store'
+    resp['X-Content-Type-Options'] = 'nosniff'
+    return resp
 
 LOGIN_FAIL_LIMIT = 5
 LOGIN_FAIL_WINDOW = 15 * 60
@@ -245,6 +285,9 @@ def login(request):
         return error(400, 'invalid_input', 'Username dan password wajib diisi.')
     device = device[:80] if isinstance(device, str) else ''
 
+    if not _recaptcha_ok(request.json.get('recaptcha_token'), throttle.client_ip(request)):
+        return error(400, 'captcha_failed', 'Verifikasi reCAPTCHA gagal, silakan coba lagi.')
+
     ident = username.strip().lower()
     if throttle.is_blocked('login-user', ident, LOGIN_FAIL_LIMIT):
         return error(429, 'locked', 'Terlalu banyak percobaan gagal. Coba lagi dalam 15 menit.',
@@ -330,6 +373,32 @@ def collection(request):
     rows = (UserBook.objects.filter(id_user=request.api_user)
             .select_related('id_book__kategori', 'id_book__onsalebook').order_by('-id'))
     return JsonResponse({'results': [dict(book_dict(u.id_book, 0), last_page=u.last_page) for u in rows]})
+
+
+def _saved_books(request, model):
+    rows = (model.objects.filter(user=request.api_user, book__isnull=False)
+            .select_related('book__kategori', 'book__onsalebook').order_by('-id'))
+    return JsonResponse({'results': [book_dict(r.book, 0) for r in rows]})
+
+
+@api(['GET'], auth='none', rate=(120, 60))
+def announcements(request):
+    """Public pengumuman/promo broadcasts for the app's background poll (newest 20 active)."""
+    rows = MobileBroadcast.objects.filter(is_active=True)[:20]
+    return JsonResponse({'results': [{'id': b.id, 'jenis': b.jenis, 'header': b.header, 'body': b.body,
+                                      'created_at': b.created_at.isoformat()} for b in rows]})
+
+
+@gzip_page
+@api(['GET'], auth='required', rate=(120, 60))
+def my_wishlist(request):
+    return _saved_books(request, MyWishlist)
+
+
+@gzip_page
+@api(['GET'], auth='required', rate=(120, 60))
+def my_cart(request):
+    return _saved_books(request, MyCart)
 
 
 @api(['GET'], auth='required', rate=(120, 60))

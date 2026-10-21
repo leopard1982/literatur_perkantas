@@ -1,0 +1,67 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Notifikasi Aplikasi{% endblock %}
+
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">Notifikasi Aplikasi Android</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Notifikasi Aplikasi</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header"><h3 class="card-title mb-0">Kirim Pengumuman / Promo</h3></div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+            <p class="text-secondary">Muncul di daftar notifikasi Android semua pengguna aplikasi (aplikasi memeriksa server secara berkala, jadi bisa tertunda hingga sekitar 15 menit).</p>
+            {% for f in form %}
+            <div class="mb-3">
+                <label class="form-label">{{ f.label }}</label>
+                {{ f }}
+                {{ f.errors }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <button class="btn btn-primary" type="submit">Kirim Notifikasi</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title mb-0">Riwayat</h3></div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Jenis</th><th>Judul</th><th>Isi</th><th>Dibuat</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            {% for b in items %}
+                <tr>
+                    <td>{{ b.get_jenis_display }}</td>
+                    <td>{{ b.header }}</td>
+                    <td>{{ b.body }}</td>
+                    <td>{{ b.created_at|date:"d M Y H:i" }}</td>
+                    <td>{% if b.is_active %}<span class="badge text-bg-success">Aktif</span>{% else %}<span class="badge text-bg-secondary">Nonaktif</span>{% endif %}</td>
+                    <td class="text-end">
+                        <form method="post" class="d-inline">{% csrf_token %}<input type="hidden" name="id" value="{{ b.id }}"><button name="action" value="toggle" class="btn btn-sm btn-outline-secondary">{% if b.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button></form>
+                        <form method="post" class="d-inline" onsubmit="return confirm('Hapus notifikasi ini?')">{% csrf_token %}<input type="hidden" name="id" value="{{ b.id }}"><button name="action" value="delete" class="btn btn-sm btn-outline-danger">Hapus</button></form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center text-secondary py-4">Belum ada notifikasi.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

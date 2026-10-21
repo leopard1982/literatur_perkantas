@@ -648,3 +648,19 @@ class SiteVisit(models.Model):
 
 	class Meta:
 		unique_together = ('source','visitor_key','date')
+
+
+class MobileBroadcast(models.Model):
+	"""Pengumuman / promo yang dikirim ke semua pengguna aplikasi Android (diambil lewat polling)."""
+	JENIS = [('pengumuman', 'Pengumuman'), ('promo', 'Promo')]
+	jenis = models.CharField(max_length=12, choices=JENIS, default='pengumuman')
+	header = models.CharField(max_length=50)
+	body = models.CharField(max_length=200)
+	is_active = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['-id']
+
+	def __str__(self):
+		return f"[{self.jenis}] {self.header}"

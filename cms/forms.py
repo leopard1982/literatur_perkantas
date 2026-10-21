@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from literatur.models import Blogs, Books, Category, Instagram, OnSaleBook, Pengumuman
+from literatur.models import Blogs, Books, Category, Instagram, MobileBroadcast, OnSaleBook, Pengumuman
 
 from .roles import CMS_ROLE_CHOICES
 
@@ -118,6 +118,18 @@ class PengumumanForm(forms.ModelForm):
         labels = {
             'pengumuman': 'Teks Pengumuman',
         }
+
+
+class MobileBroadcastForm(forms.ModelForm):
+    class Meta:
+        model = MobileBroadcast
+        fields = ['jenis', 'header', 'body']
+        widgets = {
+            'jenis': forms.Select(attrs={'class': 'form-select'}),
+            'header': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Judul notifikasi', 'required': 'required', 'maxlength': 50}),
+            'body': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Isi notifikasi', 'required': 'required', 'maxlength': 200}),
+        }
+        labels = {'jenis': 'Jenis', 'header': 'Judul', 'body': 'Isi'}
 
 
 class CmsUserCreateForm(forms.Form):
