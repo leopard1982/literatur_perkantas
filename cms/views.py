@@ -450,18 +450,55 @@ def dashboard(request):
 
     summary_tiles = []
     if has_access('payments'):
-        summary_tiles.append({'label': 'Payment Pending', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=False).count()})
-        summary_tiles.append({'label': 'Payment Disetujui', 'value': MyPayment.objects.filter(is_verified=True).count()})
-        summary_tiles.append({'label': 'Payment Ditolak', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=True).count()})
+        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'label': 'Payment Pending', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=False).count()})
+        summary_tiles.append({'tone': 'success', 'icon': 'bi-check-circle', 'label': 'Payment Disetujui', 'value': MyPayment.objects.filter(is_verified=True).count()})
+        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'label': 'Payment Ditolak', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=True).count()})
     if has_access('donations'):
-        summary_tiles.append({'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
-        summary_tiles.append({'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
-        summary_tiles.append({'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
+        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
+        summary_tiles.append({'tone': 'success', 'icon': 'bi-heart-fill', 'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
+        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
+
+    card_icons = {
+        'analytics': 'bi-bar-chart-line', 'payments': 'bi-credit-card', 'donations': 'bi-heart',
+        'books': 'bi-book', 'categories': 'bi-grid', 'promo_bestseller': 'bi-star',
+        'customers': 'bi-people', 'content_moderation': 'bi-shield-check',
+        'instagram_settings': 'bi-instagram', 'pengumuman_settings': 'bi-megaphone',
+        'roles': 'bi-person-lock', 'coretan_pena': 'bi-pencil-square', 'reports': 'bi-clipboard-data',
+    }
+    for entry in cards:
+        entry['icon'] = card_icons.get(entry['module'], 'bi-app')
+
+    trend = None
+    recent_payments = []
+    recent_donations = []
+    if has_access('payments'):
+        days = 14
+        start = datetime.date.today() - datetime.timedelta(days=days - 1)
+        start_dt = datetime.datetime.combine(start, datetime.time.min)
+        rows = [
+            {'day': r['created_at__date'], 'total': r['n']}
+            for r in MyPayment.objects.filter(is_verified=True, is_canceled=False, created_at__gte=start_dt)
+            .values('created_at__date').annotate(n=Sum('total'))
+        ]
+        labels, values = _daily_series(rows, start, days)
+        trend = {'labels': labels, 'values': values, 'days': days}
+        recent_payments = list(
+            MyPayment.objects.filter(is_verified=False, is_canceled=False)
+            .select_related('user').order_by('-created_at')[:5]
+        )
+    if has_access('donations'):
+        recent_donations = list(
+            MyDonation.objects.filter(is_verified=False, is_canceled=False).order_by('-created_at')[:5]
+        )
 
     context = {
         'cards': cards,
         'summary_tiles': summary_tiles,
         'roles': ['Superuser'] if is_super else sorted(roles),
+        'trend': trend,
+        'recent_payments': recent_payments,
+        'recent_donations': recent_donations,
+        'today': datetime.date.today(),
     }
     return render(request, 'cms/dashboard.html', context)
 

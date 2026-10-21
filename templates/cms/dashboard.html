@@ -1,179 +1,202 @@
 {% extends 'cms/base.html' %}
+{% load humanize %}
 
 {% block title %}CMS Dashboard{% endblock %}
 
 {% block extra_styles %}
 <style>
-    .hero {
-        padding: 30px;
-        margin-bottom: 26px;
-    }
-
-    .eyebrow {
-        display: inline-block;
-        padding: 8px 14px;
-        border-radius: 999px;
-        background: #f4d6ca;
-        color: #bf5b3d;
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-    }
-
-    .summary-grid,
-    .module-grid {
-        display: grid;
-        gap: 18px;
-    }
-
-    .summary-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        margin-top: 22px;
-    }
-
-    .summary-box {
-        padding: 18px 20px;
+    .welcome {
+        position: relative;
+        overflow: hidden;
         border-radius: 20px;
-        background: white;
+        padding: 28px 30px;
+        color: #fff;
+        background: linear-gradient(135deg, #24343d 0%, #355070 55%, #bf5b3d 130%);
+        box-shadow: 0 18px 40px rgba(36, 52, 61, 0.22);
+        margin-bottom: 22px;
+    }
+    .welcome::after {
+        content: "";
+        position: absolute;
+        right: -60px; top: -60px;
+        width: 240px; height: 240px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+    }
+    .welcome h1 { font-weight: 800; margin-bottom: 4px; color: #fff; }
+    .welcome p { color: rgba(255,255,255,0.78); margin: 0; }
+    .role-chip {
+        display: inline-flex; align-items: center;
+        padding: 4px 12px; border-radius: 999px;
+        background: rgba(255,255,255,0.16);
+        font-size: 12px; font-weight: 700; margin: 12px 6px 0 0;
+    }
+
+    .stat-card {
+        display: flex; align-items: center; gap: 16px;
+        padding: 18px 20px; height: 100%;
+        background: var(--panel-solid);
         border: 1px solid var(--stroke);
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(63, 49, 35, 0.06);
     }
+    .stat-icon {
+        width: 50px; height: 50px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; flex-shrink: 0;
+    }
+    .stat-icon.warning { background: #fdf0d8; color: #c98328; }
+    .stat-icon.success { background: #dff2e8; color: #2d6a4f; }
+    .stat-icon.danger { background: #fbe3dd; color: #bf5b3d; }
+    .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
+    .stat-label { color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 4px; }
 
-    .summary-box .value {
-        font-size: 34px;
+    .panel-card {
+        background: var(--panel-solid);
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(63, 49, 35, 0.06);
+        height: 100%;
+    }
+    .panel-card .panel-head {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 16px 20px; border-bottom: 1px solid var(--stroke);
         font-weight: 800;
-        line-height: 1;
-        margin-top: 8px;
     }
+    .panel-card .panel-head a { font-size: 12.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
+    .panel-body { padding: 16px 20px; }
+    .chart-box { position: relative; height: 260px; }
 
-    .module-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .recent-item {
+        display: flex; justify-content: space-between; align-items: center; gap: 10px;
+        padding: 10px 0; border-bottom: 1px dashed var(--stroke);
     }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-title { font-weight: 700; font-size: 13.5px; }
+    .recent-sub { color: var(--muted); font-size: 12px; }
 
-    .card-module {
-        display: block;
-        padding: 22px;
-        color: inherit;
-        text-decoration: none;
+    .section-title { font-weight: 800; margin: 26px 0 14px; font-size: 1.05rem; }
+
+    .module-tile {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px 18px; height: 100%;
+        background: var(--panel-solid);
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        color: inherit; text-decoration: none;
         transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
-
-    .card-module:hover {
+    .module-tile:hover {
         transform: translateY(-3px);
-        box-shadow: 0 24px 46px rgba(63, 49, 35, 0.14);
+        border-color: var(--accent);
+        box-shadow: 0 18px 36px rgba(63, 49, 35, 0.12);
+        color: inherit;
     }
-
-    .tone-earth { border-top: 5px solid #8f5b3c; }
-    .tone-amber { border-top: 5px solid #c98328; }
-    .tone-clay { border-top: 5px solid #bf5b3d; }
-    .tone-forest { border-top: 5px solid #2d6a4f; }
-    .tone-plum { border-top: 5px solid #7b4c70; }
-    .tone-navy { border-top: 5px solid #355070; }
-    .tone-charcoal { border-top: 5px solid #495057; }
-    .tone-gold { border-top: 5px solid #9a7a1f; }
-    .tone-teal { border-top: 5px solid #1f7a6c; }
-
-    .role-chip {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.7);
-        border: 1px solid var(--stroke);
-        font-size: 12px;
-        font-weight: 800;
-        margin-right: 6px;
+    .module-icon {
+        width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: #fff;
     }
-
-    .module-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: #efe7dc;
-        color: #5b4d40;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .module-title {
-        font-size: 22px;
-        font-weight: 800;
-        margin: 18px 0 8px;
-    }
-
-    .muted {
-        color: var(--muted);
-    }
-
-    .module-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-        gap: 12px;
-        margin-top: 18px;
-    }
-
-    .module-count {
-        font-size: 28px;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .cta {
-        color: #bf5b3d;
-        font-weight: 800;
-        font-size: 14px;
-    }
-
-    @media (max-width: 1100px) {
-        .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 768px) {
-        .summary-grid,
-        .module-grid { grid-template-columns: 1fr; }
-    }
+    .tone-earth { background: #8f5b3c; } .tone-amber { background: #c98328; }
+    .tone-clay { background: #bf5b3d; } .tone-forest { background: #2d6a4f; }
+    .tone-plum { background: #7b4c70; } .tone-navy { background: #355070; }
+    .tone-charcoal { background: #495057; } .tone-gold { background: #9a7a1f; }
+    .tone-teal { background: #1f7a6c; }
+    .module-name { font-weight: 800; font-size: 14.5px; }
+    .module-desc { color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 2px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .module-count { margin-left: auto; text-align: right; flex-shrink: 0; }
+    .module-count .n { font-size: 20px; font-weight: 800; line-height: 1; }
+    .module-count .l { font-size: 10.5px; color: var(--muted); max-width: 90px; }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="hero hero-panel">
-    <span class="eyebrow">CMS Literatur Perkantas</span>
-    <h1 class="mt-3 mb-2 fw-bold">Pusat management operasional Literatur Perkantas</h1>
-    <p class="muted mb-3">Modul yang tampil menyesuaikan peran akun Anda saat ini.</p>
-    <div>
-        {% for role in roles %}
-        <span class="role-chip">{{ role }}</span>
-        {% endfor %}
-    </div>
-
-    {% if summary_tiles %}
-    <div class="summary-grid">
-        {% for tile in summary_tiles %}
-        <div class="summary-box">
-            <div class="muted small">{{ tile.label }}</div>
-            <div class="value">{{ tile.value }}</div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+<section class="welcome">
+    <h1>Halo, {% firstof request.user.get_full_name request.user.username %} 👋</h1>
+    <p>{{ today|date:"l, d F Y" }} &middot; Ringkasan operasional Literatur Perkantas.</p>
+    {% for role in roles %}<span class="role-chip">{{ role }}</span>{% endfor %}
 </section>
 
-<section class="module-grid">
-    {% for card in cards %}
-    <a href="{{ card.href }}" class="card-module surface-card tone-{{ card.tone }}">
-        <span class="module-badge">{{ card.count_label }}</span>
-        <div class="module-title">{{ card.title }}</div>
-        <p class="muted mb-0">{{ card.subtitle }}</p>
-        <div class="module-footer">
+{% if summary_tiles %}
+<div class="row g-3 mb-3">
+    {% for tile in summary_tiles %}
+    <div class="col-6 col-xl-2 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon {{ tile.tone }}"><i class="bi {{ tile.icon }}"></i></div>
             <div>
-                <div class="muted small">{{ card.count_label }}</div>
-                <div class="module-count">{{ card.count_value }}</div>
+                <div class="stat-value">{{ tile.value }}</div>
+                <div class="stat-label">{{ tile.label }}</div>
             </div>
-            <div class="cta">Buka Modul</div>
         </div>
-    </a>
+    </div>
     {% endfor %}
-</section>
+</div>
+{% endif %}
+
+{% if trend %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="panel-card">
+            <div class="panel-head"><span>Penjualan {{ trend.days }} Hari Terakhir (Rp)</span><a href="/cms/analytics/">Analitik lengkap &rarr;</a></div>
+            <div class="panel-body"><div class="chart-box"><canvas id="trendChart"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel-card">
+            <div class="panel-head"><span>Menunggu Persetujuan</span></div>
+            <div class="panel-body">
+                {% for p in recent_payments %}
+                <a class="recent-item text-decoration-none text-reset" href="/cms/payments/?status=pending">
+                    <div><div class="recent-title">{% firstof p.user.get_full_name p.user.username "Pelanggan" %}</div>
+                        <div class="recent-sub">Payment &middot; {{ p.created_at|date:"d M H:i" }}</div></div>
+                    <span class="badge text-bg-warning">Rp {{ p.total|floatformat:0|intcomma }}</span>
+                </a>
+                {% endfor %}
+                {% for d in recent_donations %}
+                <a class="recent-item text-decoration-none text-reset" href="/cms/donations/">
+                    <div><div class="recent-title">{{ d.initial }}</div>
+                        <div class="recent-sub">Donasi &middot; {{ d.created_at|date:"d M H:i" }}</div></div>
+                    <span class="badge text-bg-info">Rp {{ d.nilai|floatformat:0|intcomma }}</span>
+                </a>
+                {% endfor %}
+                {% if not recent_payments and not recent_donations %}
+                <div class="text-secondary small py-3 text-center">Tidak ada antrean. 🎉</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{{ trend|json_script:"trend-data" }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var d = JSON.parse(document.getElementById("trend-data").textContent);
+        new Chart(document.getElementById("trendChart"), {
+            type: "line",
+            data: { labels: d.labels, datasets: [{ data: d.values, borderColor: "#bf5b3d", backgroundColor: "rgba(191,91,61,0.15)", fill: true, tension: .35, pointRadius: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    });
+</script>
+{% endif %}
+
+<h2 class="section-title">Modul</h2>
+<div class="row g-3">
+    {% for card in cards %}
+    <div class="col-md-6 col-xl-4">
+        <a href="{{ card.href }}" class="module-tile">
+            <div class="module-icon tone-{{ card.tone }}"><i class="bi {{ card.icon }}"></i></div>
+            <div style="min-width:0">
+                <div class="module-name">{{ card.title }}</div>
+                <div class="module-desc">{{ card.subtitle }}</div>
+            </div>
+            <div class="module-count">
+                <div class="n">{{ card.count_value }}</div>
+                <div class="l">{{ card.count_label }}</div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
