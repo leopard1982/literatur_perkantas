@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import  User
 from django.db.models import Sum,Count,F
@@ -107,6 +108,14 @@ class Books(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	sinopsis = models.TextField(blank=True,null=True)
+	persen_penulis = models.DecimalField(max_digits=5,decimal_places=2,default=60,validators=[MinValueValidator(0),MaxValueValidator(100)],verbose_name="Bagi Hasil Penulis (%)")
+	persen_litanas = models.DecimalField(max_digits=5,decimal_places=2,default=40,validators=[MinValueValidator(0),MaxValueValidator(100)],verbose_name="Bagi Hasil Litanas (%)")
+
+	def clean(self):
+		super().clean()
+		if (self.persen_penulis or 0) + (self.persen_litanas or 0) != 100:
+			from django.core.exceptions import ValidationError
+			raise ValidationError('Bagi hasil penulis + Litanas harus berjumlah 100%.')
 
 	def save(self,*args,**kwargs):
 		if self.is_update_pdf and self.pdf_full!=None:
@@ -230,6 +239,8 @@ class MyPayment(models.Model):
 			#update status buku detail jadi aktif
 			mypaymentdetail=MyPaymentDetail.objects.all().filter(payment=self.payment)
 			mypaymentdetail.update(is_active=True)
+			for d in MyPaymentDetail.objects.filter(payment=self.payment).select_related('book'):
+				d.snapshot_share()
 			
 			mypayment = MyPayment.objects.get(payment=self.payment)
 			#tambahkan buku ke UserBook
@@ -285,6 +296,8 @@ class MyPayment(models.Model):
 			#update status buku detail jadi aktif
 			mypaymentdetail=MyPaymentDetail.objects.all().filter(payment=self.payment)
 			mypaymentdetail.update(is_active=False)
+			for d in MyPaymentDetail.objects.filter(payment=self.payment):
+				d.reset_share()
 			
 			#hapus  UserBook
 			UserBook.objects.all().filter(payment=MyPayment.objects.get(payment=self.payment)).delete()
@@ -329,6 +342,27 @@ class MyPaymentDetail(models.Model):
 	book = models.ForeignKey(Books,on_delete=models.SET_NULL,null=True)
 	is_active = models.BooleanField(default=False)
 	harga = models.DecimalField(decimal_places=2,max_digits=30,default=0)
+	# bagi hasil: persentase buku dibekukan (snapshot) saat pembayaran disetujui, jadi perubahan
+	# persentase di kemudian hari tidak mengubah transaksi yang sudah lalu.
+	persen_penulis = models.DecimalField(max_digits=5,decimal_places=2,default=60)
+	persen_litanas = models.DecimalField(max_digits=5,decimal_places=2,default=40)
+	bagian_penulis = models.DecimalField(decimal_places=2,max_digits=30,default=0)
+	bagian_litanas = models.DecimalField(decimal_places=2,max_digits=30,default=0)
+
+	def snapshot_share(self):
+		"""Bekukan persentase buku saat ini dan hitung bagian penulis / Litanas dari harga."""
+		from decimal import Decimal, ROUND_HALF_UP
+		if self.book_id is None:
+			return
+		pp = Decimal(self.book.persen_penulis)
+		penulis = (Decimal(self.harga) * pp / 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+		self.persen_penulis, self.persen_litanas = pp, Decimal(self.book.persen_litanas)
+		self.bagian_penulis, self.bagian_litanas = penulis, Decimal(self.harga) - penulis  # jumlahnya selalu = harga
+		self.save(update_fields=['persen_penulis','persen_litanas','bagian_penulis','bagian_litanas'])
+
+	def reset_share(self):
+		self.bagian_penulis = self.bagian_litanas = 0
+		self.save(update_fields=['bagian_penulis','bagian_litanas'])
 
 	def __str__(self):
 		return f"{self.payment.payment} - {self.book.judul}"

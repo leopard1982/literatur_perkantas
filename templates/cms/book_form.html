@@ -74,6 +74,21 @@
                     {{ form.point.errors }}
                 </div>
                 <div class="col-12">
+                    <div class="fw-bold mt-2">Bagi Hasil Penjualan</div>
+                    <div class="form-text mb-2">Pembagian hasil penjualan buku ini. Totalnya harus 100%. Perubahan hanya berlaku untuk pembayaran yang disetujui setelahnya; transaksi yang sudah disetujui tidak berubah.</div>
+                    {{ form.non_field_errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.persen_penulis.label }}</label>
+                    {{ form.persen_penulis }}
+                    {{ form.persen_penulis.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.persen_litanas.label }}</label>
+                    {{ form.persen_litanas }}
+                    {{ form.persen_litanas.errors }}
+                </div>
+                <div class="col-12">
                     <label class="form-label">{{ form.deskripsi.label }}</label>
                     {{ form.deskripsi }}
                     {{ form.deskripsi.errors }}
@@ -102,6 +117,16 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script>
+    // Bagi hasil: mengisi satu kolom otomatis melengkapi kolom lain sampai 100%.
+    document.addEventListener('DOMContentLoaded', function () {
+        var a = document.getElementById('id_persen_penulis'), b = document.getElementById('id_persen_litanas');
+        if (!a || !b) { return; }
+        function fix(v) { return (Math.round((100 - v) * 100) / 100).toString(); }
+        a.addEventListener('input', function () { var v = parseFloat(a.value); if (!isNaN(v)) { b.value = fix(v); } });
+        b.addEventListener('input', function () { var v = parseFloat(b.value); if (!isNaN(v)) { a.value = fix(v); } });
+    });
+</script>
 <div class="modal fade" id="progress-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

@@ -4,6 +4,9 @@ CMS_ROLE_CHOICES = [(role, role) for role in CMS_ROLE_GROUPS]
 ROLE_ACCESS = {
     'payments': {'Keuangan', 'Admin', 'Superadmin'},
     'donations': {'Keuangan', 'Admin', 'Superadmin'},
+    # semua laporan (ekspor Excel/PDF pembayaran & donasi, bagi hasil) memakai modul ini
+    'reports': {'Keuangan', 'Admin', 'Superadmin'},
+    'revenue_share': {'Keuangan', 'Admin', 'Superadmin'},
     'qris_settings': {'Admin', 'Superadmin'},
     'books': {'Admin', 'Superadmin'},
     'categories': {'Admin', 'Superadmin'},

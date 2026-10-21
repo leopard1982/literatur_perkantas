@@ -15,7 +15,7 @@ class BookForm(forms.ModelForm):
         model = Books
         fields = [
             'judul', 'pengarang', 'isbn', 'kategori', 'price',
-            'halaman', 'point', 'deskripsi', 'sinopsis', 'pdf_full',
+            'halaman', 'point', 'persen_penulis', 'persen_litanas', 'deskripsi', 'sinopsis', 'pdf_full',
         ]
         widgets = {
             'judul': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Judul buku', 'required': 'required'}),
@@ -25,6 +25,8 @@ class BookForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={**TEXT_ATTRS, 'min': 0, 'required': 'required'}),
             'halaman': forms.NumberInput(attrs={**TEXT_ATTRS, 'min': 0}),
             'point': forms.NumberInput(attrs={**TEXT_ATTRS, 'min': 0}),
+            'persen_penulis': forms.NumberInput(attrs={**TEXT_ATTRS, 'min': 0, 'max': 100, 'step': '0.01', 'required': 'required'}),
+            'persen_litanas': forms.NumberInput(attrs={**TEXT_ATTRS, 'min': 0, 'max': 100, 'step': '0.01', 'required': 'required'}),
             'deskripsi': forms.Textarea(attrs={**TEXT_ATTRS, 'rows': 3, 'placeholder': 'Deskripsi singkat buku'}),
             'sinopsis': forms.Textarea(attrs={**TEXT_ATTRS, 'rows': 5, 'placeholder': 'Sinopsis lengkap buku'}),
             'pdf_full': forms.FileInput(attrs={**TEXT_ATTRS, 'accept': 'application/pdf'}),
@@ -37,6 +39,8 @@ class BookForm(forms.ModelForm):
             'price': 'Harga (Rp)',
             'halaman': 'Jumlah Halaman',
             'point': 'Point',
+            'persen_penulis': 'Bagi Hasil Penulis (%)',
+            'persen_litanas': 'Bagi Hasil Litanas (%)',
             'deskripsi': 'Deskripsi Singkat',
             'sinopsis': 'Sinopsis',
             'pdf_full': 'File PDF Full (unggah ulang jika ingin memperbarui isi buku)',

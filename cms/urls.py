@@ -33,6 +33,8 @@ from .views import (
     broadcast_dashboard,
     pengumuman_settings_dashboard,
     qris_settings_dashboard,
+    revenue_share_dashboard,
+    revenue_share_export,
     promo_bestseller_dashboard,
     reports_dashboard,
     roles_dashboard,
@@ -78,6 +80,8 @@ urlpatterns = [
     path('instagram/<int:photo_id>/edit/', instagram_settings_form, name='cms_instagram_settings_edit'),
 
     path('broadcast/', broadcast_dashboard, name='cms_broadcast_dashboard'),
+    path('bagi-hasil/', revenue_share_dashboard, name='cms_revenue_share_dashboard'),
+    path('bagi-hasil/export/', revenue_share_export, name='cms_revenue_share_export'),
     path('qris/', qris_settings_dashboard, name='cms_qris_settings_dashboard'),
     path('pengumuman/', pengumuman_settings_dashboard, name='cms_pengumuman_settings_dashboard'),
 

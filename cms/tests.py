@@ -84,3 +84,95 @@ class QrisSettingsTests(TestCase):
         r = self.client.get('/cms/qris/')
         self.assertContains(r, '<br>QRIS bawaan (default)', count=2)
         self.assertEqual(QrisCode.objects.filter(is_active=True).count(), 2)
+
+
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver', 'localhost'])
+class RevenueShareTests(TestCase):
+    def setUp(self):
+        from literatur.models import Books, Category, MyPayment, MyPaymentDetail
+        self.User, self.Books, self.MyPayment, self.Detail = User, Books, MyPayment, MyPaymentDetail
+        self.admin = User.objects.create_superuser('boss', 'b@example.com', 'pw-123456')
+        self.buyer = User.objects.create_user('pembeli', 'p@example.com', 'pw-123456')
+        cat = Category.objects.create(id=1, nama='Rohani')
+        self.book = Books.objects.create(judul='Buku A', pengarang='Pak A', kategori=cat, price=100000, halaman=10,
+                                         persen_penulis=30, persen_litanas=70, is_update_info=True)
+
+    def pay(self, inv, harga=100000):
+        buyer = self.User.objects.create_user(f'pembeli-{inv}', f'{inv}@example.com', 'pw-123456')  # one purchase per user+book
+        p = self.MyPayment.objects.create(payment=inv, user=buyer, total=harga, bukti='x')
+        d = self.Detail.objects.create(payment=p, book=self.book, harga=harga)
+        return p, d
+
+    def approve(self, p):
+        p.is_verified, p.is_canceled = True, False
+        p.save()
+
+    def test_split_is_frozen_at_approval(self):
+        p, d = self.pay('INV1', 99999)
+        self.approve(p)
+        d.refresh_from_db()
+        self.assertEqual((d.persen_penulis, d.persen_litanas), (30, 70))
+        self.assertEqual(d.bagian_penulis + d.bagian_litanas, d.harga)  # exact, no rounding drift
+        self.assertEqual(float(d.bagian_penulis), 29999.7)
+        self.book.persen_penulis, self.book.persen_litanas = 50, 50
+        self.book.save()
+        d.refresh_from_db()
+        self.assertEqual(float(d.bagian_penulis), 29999.7)  # old transaction unchanged
+        p2, d2 = self.pay('INV2')
+        self.approve(p2)
+        d2.refresh_from_db()
+        self.assertEqual(float(d2.bagian_penulis), 50000)
+
+    def test_pending_has_no_share(self):
+        _, d = self.pay('INV3')
+        self.assertEqual((d.bagian_penulis, d.bagian_litanas), (0, 0))
+        from literatur.models import Books
+        b = Books.objects.create(judul='Baru', pengarang='Z', kategori=self.book.kategori, is_update_info=True)
+        self.assertEqual((b.persen_penulis, b.persen_litanas), (60, 40))  # default bagi hasil
+
+    def test_book_form_requires_100_percent(self):
+        from cms.forms import BookForm
+        data = {'judul': 'X', 'pengarang': 'Y', 'isbn': '123', 'kategori': self.book.kategori_id, 'price': 1000, 'halaman': 0,
+                'point': 0, 'deskripsi': 'd', 'persen_penulis': '60', 'persen_litanas': '30'}
+        f = BookForm(data, instance=self.book)
+        self.assertFalse(f.is_valid())
+        self.assertIn('100%', str(f.non_field_errors()))
+        data['persen_litanas'] = '40'
+        f2 = BookForm(data, instance=self.book)
+        self.assertTrue(f2.is_valid(), f2.errors.as_json())
+
+    def test_report_and_access(self):
+        p, _ = self.pay('INV4')
+        self.approve(p)
+        self.client.force_login(self.admin)
+        r = self.client.get('/cms/bagi-hasil/')
+        self.assertContains(r, 'Buku A')
+        self.assertContains(r, 'Rp 30,000')
+        self.assertEqual(self.client.get('/cms/bagi-hasil/export/').status_code, 200)
+        self.client.force_login(self.buyer)
+        self.assertEqual(self.client.get('/cms/bagi-hasil/').status_code, 302)
+
+
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver', 'localhost'])
+class ReportAccessTests(TestCase):
+    URLS = ['/cms/payments/export/', '/cms/payments/report/pdf/', '/cms/donations/export/',
+            '/cms/donations/report/pdf/', '/cms/bagi-hasil/', '/cms/bagi-hasil/export/']
+
+    def login_as(self, role):
+        from django.contrib.auth.models import Group
+        u = User.objects.create_user(f'r-{role}', password='pw-123456')
+        if role:
+            u.groups.add(Group.objects.get_or_create(name=role)[0])
+        self.client.force_login(u)
+
+    def test_reports_only_for_keuangan_admin_superadmin(self):
+        for role, allowed in (('Keuangan', True), ('Admin', True), ('Superadmin', True), ('Penulis', False), (None, False)):
+            self.login_as(role)
+            for url in self.URLS:
+                code = self.client.get(url).status_code
+                self.assertEqual(code == 200, allowed, f'{role} {url} -> {code}')
+                if not allowed:
+                    self.assertEqual(code, 302, f'{role} {url}')
+        self.client.logout()
+        for url in self.URLS:
+            self.assertEqual(self.client.get(url).status_code, 302, url)

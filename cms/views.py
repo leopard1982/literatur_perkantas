@@ -868,7 +868,7 @@ def donation_dashboard(request):
 
 
 def payment_export(request):
-    blocked = _ensure_cms_access(request, 'payments')
+    blocked = _ensure_cms_access(request, 'reports')
     if blocked:
         return blocked
 
@@ -908,7 +908,7 @@ def payment_export(request):
 
 
 def donation_export(request):
-    blocked = _ensure_cms_access(request, 'donations')
+    blocked = _ensure_cms_access(request, 'reports')
     if blocked:
         return blocked
 
@@ -945,7 +945,7 @@ def donation_export(request):
 
 
 def payment_report_pdf(request):
-    blocked = _ensure_cms_access(request, 'payments')
+    blocked = _ensure_cms_access(request, 'reports')
     if blocked:
         return blocked
 
@@ -996,7 +996,7 @@ def payment_report_pdf(request):
 
 
 def donation_report_pdf(request):
-    blocked = _ensure_cms_access(request, 'donations')
+    blocked = _ensure_cms_access(request, 'reports')
     if blocked:
         return blocked
 
@@ -1476,6 +1476,54 @@ def qris_settings_dashboard(request):
         'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('QRIS Pembayaran', None)),
     }
     return render(request, 'cms/qris_settings.html', context)
+
+
+def _revenue_share_rows(month, year):
+    """Per buku: jumlah terjual, pendapatan, bagian penulis & Litanas dari pembayaran yang disetujui
+    pada periode (acuan tanggal sama dengan laporan pembayaran: tanggal masuk invoice)."""
+    rows = (MyPaymentDetail.objects
+            .filter(payment__is_verified=True, payment__is_canceled=False,
+                    payment__created_at__year=year, payment__created_at__month=month, book__isnull=False)
+            .values('book_id', 'book__judul', 'book__pengarang', 'book__persen_penulis', 'book__persen_litanas')
+            .annotate(terjual=Count('id'), pendapatan=Sum('harga'),
+                      penulis=Sum('bagian_penulis'), litanas=Sum('bagian_litanas'))
+            .order_by('-pendapatan', 'book__judul'))
+    return list(rows)
+
+
+def revenue_share_dashboard(request):
+    blocked = _ensure_cms_access(request, 'reports')
+    if blocked:
+        return blocked
+
+    month, year = _report_period(request)
+    rows = _revenue_share_rows(month, year)
+    totals = {
+        'terjual': sum(r['terjual'] for r in rows),
+        'pendapatan': sum(r['pendapatan'] or 0 for r in rows),
+        'penulis': sum(r['penulis'] or 0 for r in rows),
+        'litanas': sum(r['litanas'] or 0 for r in rows),
+    }
+    context = {
+        'rows': rows, 'totals': totals,
+        'report_month': month, 'report_year': year,
+        'month_choices': MONTH_CHOICES, 'year_choices': _year_choices(),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Bagi Hasil', None)),
+    }
+    return render(request, 'cms/revenue_share.html', context)
+
+
+def revenue_share_export(request):
+    blocked = _ensure_cms_access(request, 'reports')
+    if blocked:
+        return blocked
+    month, year = _report_period(request)
+    rows = [[r['book__judul'], r['book__pengarang'], r['terjual'], float(r['pendapatan'] or 0),
+             float(r['penulis'] or 0), float(r['litanas'] or 0)] for r in _revenue_share_rows(month, year)]
+    response = _xlsx_response(f'bagi-hasil-{year}-{month:02d}.xlsx',
+                              ['Buku', 'Penulis', 'Terjual', 'Pendapatan', 'Bagian Penulis', 'Bagian Litanas'], rows)
+    _log_activity(request, 'revenue_share', f'Mengunduh laporan bagi hasil periode {dict(MONTH_CHOICES).get(month, month)} {year}.')
+    return response
 
 
 def broadcast_dashboard(request):

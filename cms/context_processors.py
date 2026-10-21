@@ -5,6 +5,7 @@ NAV_CATALOG = [
     {'module': 'analytics', 'label': 'Analitik', 'href': '/cms/analytics/', 'icon': 'bi-bar-chart-line'},
     {'module': 'payments', 'label': 'Payment', 'href': '/cms/payments/', 'icon': 'bi-credit-card'},
     {'module': 'donations', 'label': 'Donasi', 'href': '/cms/donations/', 'icon': 'bi-heart'},
+    {'module': 'revenue_share', 'label': 'Bagi Hasil', 'href': '/cms/bagi-hasil/', 'icon': 'bi-pie-chart'},
     {'module': 'qris_settings', 'label': 'QRIS Pembayaran', 'href': '/cms/qris/', 'icon': 'bi-qr-code'},
     {'module': 'books', 'label': 'Buku', 'href': '/cms/books/', 'icon': 'bi-book'},
     {'module': 'categories', 'label': 'Kategori', 'href': '/cms/categories/', 'icon': 'bi-grid'},

@@ -1,0 +1,79 @@
+{% extends 'cms/base.html' %}
+{% load humanize %}
+
+{% block title %}CMS Bagi Hasil{% endblock %}
+
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">Bagi Hasil Penjualan Buku</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Bagi Hasil</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Bulan</label>
+                <select class="form-select" name="month">
+                    {% for value, label in month_choices %}<option value="{{ value }}" {% if report_month == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tahun</label>
+                <select class="form-select" name="year">
+                    {% for value in year_choices %}<option value="{{ value }}" {% if report_year == value %}selected{% endif %}>{{ value }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Tampilkan</button></div>
+            <div class="col-md-3"><a class="btn btn-success w-100" href="/cms/bagi-hasil/export/?month={{ report_month }}&year={{ report_year }}"><i class="bi bi-file-earmark-excel"></i> Unduh Excel</a></div>
+        </form>
+        <p class="text-secondary small mt-3 mb-0">Dihitung dari pembayaran yang sudah disetujui. Persentase dibekukan saat pembayaran disetujui, jadi mengubah persentase buku tidak mengubah transaksi lama. Persentase diatur di Management Buku.</p>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-6 col-lg-3"><div class="info-box mb-0"><div class="info-box-content"><span class="info-box-text">Buku Terjual</span><span class="info-box-number">{{ totals.terjual }}</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="info-box mb-0"><div class="info-box-content"><span class="info-box-text">Pendapatan</span><span class="info-box-number">Rp {{ totals.pendapatan|floatformat:0|intcomma }}</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="info-box mb-0"><div class="info-box-content"><span class="info-box-text">Bagian Penulis</span><span class="info-box-number">Rp {{ totals.penulis|floatformat:0|intcomma }}</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="info-box mb-0"><div class="info-box-content"><span class="info-box-text">Bagian Litanas</span><span class="info-box-number">Rp {{ totals.litanas|floatformat:0|intcomma }}</span></div></div></div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Buku</th><th>Penulis</th><th class="text-end">Bagi Hasil Saat Ini</th><th class="text-end">Terjual</th>
+                    <th class="text-end">Pendapatan</th><th class="text-end">Bagian Penulis</th><th class="text-end">Bagian Litanas</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in rows %}
+                <tr>
+                    <td class="fw-semibold">{{ r.book__judul }}</td>
+                    <td>{{ r.book__pengarang }}</td>
+                    <td class="text-end">{{ r.book__persen_penulis|floatformat:"-2" }}% / {{ r.book__persen_litanas|floatformat:"-2" }}%</td>
+                    <td class="text-end">{{ r.terjual }}</td>
+                    <td class="text-end">Rp {{ r.pendapatan|floatformat:0|intcomma }}</td>
+                    <td class="text-end">Rp {{ r.penulis|floatformat:0|intcomma }}</td>
+                    <td class="text-end">Rp {{ r.litanas|floatformat:0|intcomma }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-center text-secondary py-4">Belum ada penjualan yang disetujui pada periode ini.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
