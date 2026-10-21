@@ -1,0 +1,29 @@
+{% if recaptcha_site_key %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}" async defer></script>
+<script>
+  // Form dengan atribut data-recaptcha-action mendapat token reCAPTCHA v3 saat disubmit.
+  document.addEventListener('submit', function (event) {
+    var form = event.target;
+    var action = form.getAttribute && form.getAttribute('data-recaptcha-action');
+    if (!action || form.dataset.recaptchaDone === '1' || typeof grecaptcha === 'undefined') {
+      return;
+    }
+    event.preventDefault();
+    var submitter = event.submitter;
+    grecaptcha.ready(function () {
+      grecaptcha.execute('{{ recaptcha_site_key }}', {action: action}).then(function (token) {
+        var input = form.querySelector('input[name="g-recaptcha-response"]');
+        if (!input) {
+          input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'g-recaptcha-response';
+          form.appendChild(input);
+        }
+        input.value = token;
+        form.dataset.recaptchaDone = '1';
+        form.requestSubmit(submitter || undefined);
+      });
+    });
+  });
+</script>
+{% endif %}

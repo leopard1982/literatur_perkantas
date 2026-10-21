@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 
 from .forms import FormLoginRecaptcha, FormRegisterRecaptcha, FormResetPasswordRecaptcha
@@ -143,3 +144,7 @@ def recaptcha_forms(request):
         'recaptcha_register_form': FormRegisterRecaptcha(),
         'recaptcha_reset_form': FormResetPasswordRecaptcha(),
     }
+
+
+def recaptcha_site_key(request):
+    return {'recaptcha_site_key': settings.RECAPTCHA_PUBLIC_KEY or ''}

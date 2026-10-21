@@ -35,7 +35,7 @@
         </div>
         <div class="card-body login-card-body">
             <p class="login-box-msg text-center text-secondary">Masuk untuk mengelola CMS</p>
-            <form method="post">
+            <form method="post" data-recaptcha-action="cms_login">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ next_url }}">
                 <div class="input-group mb-3">

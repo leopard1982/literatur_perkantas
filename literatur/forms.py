@@ -19,6 +19,34 @@ class FormResetPasswordRecaptcha(forms.Form):
 class FormBuatPasswordRecaptcha(forms.Form):
     recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='buat_password'))
 
+
+class FormPaymentRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='payment'))
+
+
+class FormCommentRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='comment'))
+
+
+class FormDeleteRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='delete_item'))
+
+
+class FormProfileRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='profile_update'))
+
+
+class FormGantiPasswordRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='ganti_password'))
+
+
+class FormSearchRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='search'))
+
+
+class FormCmsLoginRecaptcha(forms.Form):
+    recaptcha = ReCaptchaField(widget=ReCaptchaV3(action='cms_login'))
+
 class FormUpdateProfile(forms.ModelForm):
     class Meta:
         model = UserDetail

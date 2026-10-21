@@ -9,6 +9,8 @@ from .models import MyPayment, MyPaymentDetail, MyDonation
 from .models import BlogComment, BookComment
 from django.db.models import Avg,Q,Sum,Prefetch,Count,F
 import datetime
+import logging
+from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.models import User
 import uuid
@@ -19,9 +21,20 @@ from django.core.files.storage import default_storage
 import os
 from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
+
+logger = logging.getLogger(__name__)
+
+
+def recaptcha_failed(request, form_class):
+    """True (dan menambah pesan error) jika token reCAPTCHA v3 pada POST tidak valid."""
+    if form_class(request.POST).is_valid():
+        return False
+    messages.add_message(request,messages.ERROR,"Verifikasi keamanan (reCAPTCHA) gagal, silakan coba lagi.")
+    return True
 from django.template import loader
 from .forms import FormMyDonation
 from .forms import FormLoginRecaptcha, FormRegisterRecaptcha, FormResetPasswordRecaptcha, FormBuatPasswordRecaptcha
+from .forms import FormPaymentRecaptcha, FormCommentRecaptcha, FormDeleteRecaptcha, FormProfileRecaptcha, FormGantiPasswordRecaptcha, FormSearchRecaptcha
 # test untuk delete session user
 from django.contrib.sessions.models import Session
 
@@ -517,6 +530,8 @@ def bacaBuku(request):
     can_comment = can_user_comment_book(user, book)
 
     if request.method == "POST" and request.POST.get('comment_type') == "book":
+        if recaptcha_failed(request, FormCommentRecaptcha):
+            return HttpResponseRedirect(request.get_full_path())
         comment_value = request.POST.get('comment', '').strip()
         if user is None:
             messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
@@ -916,6 +931,9 @@ def deleteInboxMessage(request,id):
         if request.method != "POST":
             return HttpResponseRedirect(reverse('list_inbox_message'))
 
+        if recaptcha_failed(request, FormDeleteRecaptcha):
+            return HttpResponseRedirect(reverse('list_inbox_message'))
+
         user = get_authenticated_user(request)
         current_page = request.POST.get('h', '1')
 
@@ -942,6 +960,9 @@ def deleteBlogComment(request, id):
     if request.method != "POST":
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('all_blogs_view')))
 
+    if recaptcha_failed(request, FormDeleteRecaptcha):
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('all_blogs_view')))
+
     user = get_authenticated_user(request)
     if user is None:
         messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menghapus komentar.")
@@ -960,6 +981,9 @@ def deleteBlogComment(request, id):
 
 def deleteBookComment(request, id):
     if request.method != "POST":
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('main_page')))
+
+    if recaptcha_failed(request, FormDeleteRecaptcha):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('main_page')))
 
     user = get_authenticated_user(request)
@@ -998,6 +1022,8 @@ def sinopsisBuku(request,id):
         can_comment = can_user_comment_book(user, book)
 
         if request.method == "POST" and request.POST.get('comment_type') == "book":
+            if recaptcha_failed(request, FormCommentRecaptcha):
+                return HttpResponseRedirect(request.get_full_path())
             comment_value = request.POST.get('comment', '').strip()
             if user is None:
                 messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
@@ -1081,6 +1107,8 @@ def detailBlog(request,id):
     user = get_authenticated_user(request)
 
     if request.method == "POST" and request.POST.get('comment_type') == "blog":
+        if recaptcha_failed(request, FormCommentRecaptcha):
+            return HttpResponseRedirect(request.get_full_path())
         comment_value = request.POST.get('comment', '').strip()
         if user is None:
             messages.add_message(request, messages.SUCCESS, "Silakan login terlebih dahulu untuk menambahkan komentar.")
@@ -1133,33 +1161,30 @@ def paymentProcess(request):
             if MyCart.objects.filter(user=user, is_checked=True, book__is_active=False).exists():
                 messages.add_message(request,messages.SUCCESS,"Ada buku di keranjang yang sedang tidak dijual. Hapus dulu dari keranjang untuk melanjutkan pembayaran.")
                 return HttpResponseRedirect(reverse('cart_view'))
-            x=request.FILES['bukti_bayar']
-            filenya = "bukti_bayar/" + str(uuid.uuid4()) + ".jpg"
-            default_storage.save(filenya, x)
-            id_payment=request.POST['nomor_invoice']
-            total_bayar = request.POST['total_bayar']
-            nilai_bayar = "".join(total_bayar.split('.00')[0].split(','))
-            jumlah_buku = MyCart.objects.all().filter(Q(user=user) & Q(is_checked=True)).count()
+            if recaptcha_failed(request, FormPaymentRecaptcha):
+                return HttpResponseRedirect(reverse('payment_process'))
+            x=request.FILES.get('bukti_bayar')
+            if x is None:
+                messages.add_message(request,messages.ERROR,"Bukti pembayaran belum dipilih. Silakan unggah foto bukti transfer.")
+                return HttpResponseRedirect(reverse('payment_process'))
+            id_payment=request.POST.get('nomor_invoice','')
+            total_bayar = request.POST.get('total_bayar','')
             try:
-                mypayment = MyPayment()
-                mypayment.payment=id_payment
-                mypayment.user=user
-                mypayment.total=int(nilai_bayar)
-                mypayment.bukti=filenya
-                mypayment.jumlah_buku=jumlah_buku
-                mypayment.save()
-                messages.add_message(request,messages.SUCCESS,"Pembayaran kaka telah kami terima, silakan menunggu verifikasi dari kami maksimal 1x24 yah...")
+                nilai_bayar = int("".join(ch for ch in total_bayar.split('.00')[0] if ch.isdigit()))
+                jumlah_buku = MyCart.objects.filter(Q(user=user) & Q(is_checked=True)).count()
+                with transaction.atomic():
+                    filenya = default_storage.save("bukti_bayar/" + str(uuid.uuid4()) + ".jpg", x)
+                    mypayment = MyPayment()
+                    mypayment.payment=id_payment
+                    mypayment.user=user
+                    mypayment.total=nilai_bayar
+                    mypayment.bukti=filenya
+                    mypayment.jumlah_buku=jumlah_buku
+                    mypayment.save()
 
-                inboxmessage = inboxMessage()
-                inboxmessage.header = "Pembayaran Menunggu Konfirmasi"
-                inboxmessage.body = f"Pembayaran untuk nomor invoice {id_payment} telah kami terima, silakan menunggu konfirmasi dari admin kami maksimal 1x24 jam. Tuhan memberkati!!"
-                inboxmessage.user=user
-                inboxmessage.save()
-
-                # simpan buku ke paymentdetail
-                mycart = MyCart.objects.filter(Q(user=user) & Q(is_checked=True)).select_related('book__onsalebook')
-                for cart in mycart:
-                    try:
+                    # simpan buku ke paymentdetail
+                    mycart = MyCart.objects.filter(Q(user=user) & Q(is_checked=True)).select_related('book__onsalebook')
+                    for cart in mycart:
                         book = cart.book
                         # pengecekan harga buku: apakah merupakan buku on sale?
                         try:
@@ -1171,12 +1196,19 @@ def paymentProcess(request):
                         paymentdetail.book=book
                         paymentdetail.harga=int(price)
                         paymentdetail.save()
-                    except Exception as ex:
-                        print(ex)
-                mycart.delete()
-                
-            except Exception as ex:
-                print(ex)
+                    mycart.delete()
+
+                    inboxmessage = inboxMessage()
+                    inboxmessage.header = "Pembayaran Menunggu Konfirmasi"
+                    inboxmessage.body = f"Pembayaran untuk nomor invoice {id_payment} telah kami terima, silakan menunggu konfirmasi dari admin kami maksimal 1x24 jam. Tuhan memberkati!!"
+                    inboxmessage.user=user
+                    inboxmessage.save()
+            except Exception:
+                logger.exception("Gagal memproses konfirmasi pembayaran %s", id_payment)
+                messages.add_message(request,messages.ERROR,"Maaf, pembayaran belum berhasil kami proses. Silakan coba lagi, atau hubungi admin jika masih bermasalah.")
+                return HttpResponseRedirect(reverse('payment_process'))
+            messages.add_message(request,messages.SUCCESS,"Pembayaran kaka telah kami terima, silakan menunggu verifikasi dari kami maksimal 1x24 yah...")
+            return HttpResponseRedirect(reverse('list_payment'))
         else:
             messages.add_message(request,messages.SUCCESS,"Ups.. sepertinya kaka baru login di device lain? Silakan Kaka login kembali di browser ini untuk memproses pembayaran...")
 
@@ -1249,6 +1281,8 @@ def bacaBukuKoleksi(request,id):
                 return HttpResponseRedirect(f'/book/?id={book.id}')
 
             if request.method == "POST" and request.POST.get('comment_type') == "book":
+                if recaptcha_failed(request, FormCommentRecaptcha):
+                    return HttpResponseRedirect(request.get_full_path())
                 comment_value = request.POST.get('comment', '').strip()
                 if comment_value == "":
                     messages.add_message(request, messages.SUCCESS, "Komentar tidak boleh kosong.")
@@ -1396,6 +1430,8 @@ def profileUpdate(request):
     if request.user.is_authenticated:
         user = get_authenticated_user(request)
         if request.method == "POST":
+            if recaptcha_failed(request, FormProfileRecaptcha):
+                return HttpResponseRedirect(reverse('profile_update'))
             formnya = FormUpdateProfile(data=request.POST,files=request.FILES)
             if formnya.is_valid():
                 try:
@@ -1533,6 +1569,8 @@ def gantiPasswordPage(request):
         user = get_authenticated_user(request)
 
         if request.method=="POST":
+            if recaptcha_failed(request, FormGantiPasswordRecaptcha):
+                return HttpResponseRedirect(reverse('ganti_password_page'))
             password_lama = request.POST['password_lama']
             password_baru = request.POST['password_baru']
             password_konfirmasi = request.POST['password_konfirmasi']
@@ -1605,6 +1643,8 @@ def gantiPasswordPage(request):
 def pencarianInfo(request):
     try:
         if request.method=="POST":
+            if recaptcha_failed(request, FormSearchRecaptcha):
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER') or reverse('main_page'))
             keyword = request.POST['s']
 
             blog = Blogs.objects.filter(
@@ -1681,13 +1721,22 @@ def tentangKami(request):
     return render(request,'landing/tentangkami.html',context)
 
 def melakukanDonasi(request):
+    formmydonation = FormMyDonation()
     if request.method=="POST":
         formmydonation=FormMyDonation(data=request.POST,files=request.FILES)
-        if(formmydonation.is_valid()):
-            formmydonation.save()
-            messages.add_message(request,messages.SUCCESS,f'Terima kasih kaka {request.POST["initial"]} atas donasinya. ')
+        nama_donatur = request.POST.get('initial','')
+        if formmydonation.is_valid():
+            try:
+                formmydonation.save()
+            except Exception:
+                logger.exception("Gagal menyimpan donasi dari %s", nama_donatur)
+                messages.add_message(request,messages.ERROR,f'Maaf, donasi kaka {nama_donatur} belum berhasil kami simpan. Silakan coba lagi.')
+            else:
+                messages.add_message(request,messages.SUCCESS,f'Terima kasih kaka {nama_donatur} atas donasinya. ')
+                return HttpResponseRedirect(reverse('melakukan_donasi'))
         else:
-            messages.add_message(request,messages.SUCCESS,f'Maaf, ada kesalah sistem. Silakan kaka {request.POST["initial"]} ulangi kembali proses donasinya. Terima kasih.')
+            logger.warning("Validasi donasi gagal: %s", formmydonation.errors.as_json())
+            messages.add_message(request,messages.ERROR,f'Maaf, data donasi belum lengkap atau tidak valid. Silakan kaka {nama_donatur} periksa isian di bawah dan ulangi kembali. Terima kasih.')
 
     bulan_donasi_now = datetime.datetime.now().month
     tahun_donasi_now = datetime.datetime.now().year
@@ -1706,8 +1755,6 @@ def melakukanDonasi(request):
         # kalau belum ada data donasi di nolkan
         total_now=0
     bulan_now = bulanTeks(bulan_donasi_now) + f" {str(tahun_donasi_now)}"
-
-    formmydonation = FormMyDonation()
 
     user_context = build_user_view_context(
         get_authenticated_user(request),

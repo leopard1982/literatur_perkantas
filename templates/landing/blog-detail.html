@@ -285,7 +285,7 @@
         </div>
 
         {% if user.is_authenticated %}
-        <form method="post" class="blog-comment-form">
+        <form method="post" class="blog-comment-form" data-recaptcha-action="comment">
           {% csrf_token %}
           <input type="hidden" name="comment_type" value="blog">
           <textarea name="comment" maxlength="1000" placeholder="Tulis tanggapan kamu untuk tulisan ini..." required></textarea>
@@ -308,7 +308,7 @@
               <div class="blog-comment-meta-actions">
                 <span>{{ item.created_at|date:"j F Y H:i" }}</span>
                 {% if user.is_authenticated and item.user_id == user.id %}
-                <form method="post" action="{% url 'delete_blog_comment' item.id %}">
+                <form method="post" action="{% url 'delete_blog_comment' item.id %}" data-recaptcha-action="delete_item">
                   {% csrf_token %}
                   <input type="hidden" name="next" value="{{ request.get_full_path }}#blog-comments">
                   <button type="submit" class="blog-btn-delete-comment">Hapus</button>

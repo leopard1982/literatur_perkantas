@@ -754,7 +754,7 @@
 
     <div class="search-popup" >
       <div class="search-popup-container " >
-        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}">
+        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}" data-recaptcha-action="search">
           {% csrf_token%}
           <input type="search" id="search-form"  required minlength="5" class="search-field"   placeholder="Masukkan Pencarian..." value=""
             name="s" />
@@ -764,7 +764,7 @@
         </form>
       </div>
       <!-- <div class="search-popup-container d-flex d-lg-none">
-        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}">
+        <form role="search" method="post" class="search-form" action="{% url 'pencarian_info'%}" data-recaptcha-action="search">
           {% csrf_token%}
           <input type="search" id="search-form" minlength="5" required class="search-field" placeholder="Masukkan Pencarian..." value=""
             name="s" />
@@ -1370,6 +1370,7 @@
       crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
     <script type="text/javascript" src="{% static 'js/script.js'%}?v=20260331-2"></script>
+    {% include "partials/recaptcha_submit.html" %}
     <!-- script tambahan -->
 
     <!-- end script tambahan -->

@@ -25,6 +25,7 @@ from literatur.models import (
     Blogs, BookReview, Books, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
     MobileBroadcast, MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
 )
+from literatur.forms import FormCmsLoginRecaptcha
 from literatur.views import get_pengumuman_text
 
 from .forms import (
@@ -365,9 +366,15 @@ def login_view(request):
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
-        user = authenticate(request, username=username, password=password)
+        if not FormCmsLoginRecaptcha(request.POST).is_valid():
+            messages.add_message(request, messages.SUCCESS, 'Verifikasi keamanan (reCAPTCHA) gagal, silakan coba lagi.')
+            user = False
+        else:
+            user = authenticate(request, username=username, password=password)
 
-        if user is None:
+        if user is False:
+            pass
+        elif user is None:
             messages.add_message(request, messages.SUCCESS, 'Username atau password CMS tidak sesuai.')
         elif not (user.is_superuser or _user_cms_roles(user)):
             messages.add_message(request, messages.SUCCESS, 'Akun ditemukan, tetapi tidak memiliki akses staff ke CMS.')
@@ -613,7 +620,7 @@ def analytics_dashboard(request):
         'tab': tab,
         'start': start,
         'today': today,
-        'recent_visits': SiteVisit.objects.filter(date__gte=start).order_by('-last_seen')[:30],
+        'recent_visits': SiteVisit.objects.filter(date__gte=start).order_by('-last_seen')[:200],
         'web': visits('web'),
         'mobile': visits('mobile'),
         'purchases': purchases,

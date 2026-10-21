@@ -274,7 +274,7 @@
         </div>
       </div>
 
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" data-recaptcha-action="payment">
         {% csrf_token %}
         <div class="payment-layout">
           <div class="payment-card">

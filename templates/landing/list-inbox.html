@@ -420,7 +420,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn inbox-delete-cancel" data-bs-dismiss="modal">Batal</button>
-                <form method="post" action="{% url 'delete_inbox_message' inbox.id %}" class="inbox-delete-form">
+                <form method="post" action="{% url 'delete_inbox_message' inbox.id %}" class="inbox-delete-form" data-recaptcha-action="delete_item">
                   {% csrf_token %}
                   <input type="hidden" name="h" value="{{ current }}">
                   <button type="submit" class="btn inbox-delete-confirm">Ya, hapus</button>
