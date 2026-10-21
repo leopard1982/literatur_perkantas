@@ -56,7 +56,7 @@
                         <input type="hidden" name="promo_id" value="{{ promo.id }}">
                         <button class="btn btn-sm {% if promo.is_active %}btn-outline-secondary{% else %}btn-success{% endif %}" type="submit">{% if promo.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}</button>
                     </form>
-                    <form method="post" class="d-inline" onsubmit="return confirm('Hapus promo ini?');">
+                    <form method="post" class="d-inline" data-confirm="Hapus promo ini?">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="delete_promo">
                         <input type="hidden" name="promo_id" value="{{ promo.id }}">

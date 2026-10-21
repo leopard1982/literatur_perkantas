@@ -124,7 +124,7 @@
         </div>
     </div>
 </div>
-<form id="deleteForm-{{ photo.id }}" method="post" action="/cms/instagram/{{ photo.id }}/edit/" class="d-none" onsubmit="return confirm('Hapus foto Instagram ini?');">
+<form id="deleteForm-{{ photo.id }}" method="post" action="/cms/instagram/{{ photo.id }}/edit/" class="d-none" data-confirm="Hapus foto Instagram ini?">
     {% csrf_token %}
     <input type="hidden" name="action" value="delete">
 </form>

@@ -475,6 +475,41 @@
         });
     });
 </script>
+<div class="modal fade" id="cms-confirm-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" id="cms-confirm-message"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="cms-confirm-ok">Ya, lanjutkan</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Form dengan atribut data-confirm="pesan" meminta konfirmasi lewat modal.
+    document.addEventListener("submit", function (e) {
+        var form = e.target;
+        var message = form.getAttribute && form.getAttribute("data-confirm");
+        if (!message || form.dataset.confirmed === "1") { return; }
+        e.preventDefault();
+        var submitter = e.submitter;
+        var modalEl = document.getElementById("cms-confirm-modal");
+        var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        document.getElementById("cms-confirm-message").textContent = message;
+        var ok = document.getElementById("cms-confirm-ok");
+        ok.onclick = function () {
+            form.dataset.confirmed = "1";
+            modal.hide();
+            form.requestSubmit(submitter || undefined);
+        };
+        modal.show();
+    }, true);
+</script>
 {% include "partials/recaptcha_submit.html" %}
 {% block extra_scripts %}{% endblock %}
 </body>

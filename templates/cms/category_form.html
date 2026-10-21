@@ -60,7 +60,7 @@
     </form>
     {% if category %}
     <div class="card-footer">
-        <form method="post" class="m-0" onsubmit="return confirm('Hapus kategori ini?');">
+        <form method="post" class="m-0" data-confirm="Hapus kategori ini?">
             {% csrf_token %}
             <input type="hidden" name="action" value="delete">
             <button class="btn btn-danger w-100" type="submit"><i class="bi bi-trash"></i> Hapus Kategori Ini</button>

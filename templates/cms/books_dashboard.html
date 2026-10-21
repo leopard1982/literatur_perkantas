@@ -79,7 +79,7 @@
                         <button type="button" class="btn btn-sm btn-outline-danger ms-auto" disabled title="Sudah pernah dibeli/dipesan, tidak bisa dihapus. Nonaktifkan saja.">Hapus</button>
                         {% else %}
                         <form method="post" action="{% url 'cms_book_delete' book.id %}" class="m-0 ms-auto"
-                              onsubmit="return confirm('Hapus buku &quot;{{ book.judul|escapejs }}&quot; secara permanen? Tindakan ini tidak bisa dibatalkan.');">
+                              data-confirm="Hapus buku &quot;{{ book.judul }}&quot; secara permanen? Tindakan ini tidak bisa dibatalkan.">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                         </form>

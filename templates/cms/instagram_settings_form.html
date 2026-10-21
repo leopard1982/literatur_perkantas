@@ -62,7 +62,7 @@
 </div>
 
 {% if photo %}
-<form method="post" onsubmit="return confirm('Hapus foto Instagram ini?');">
+<form method="post" data-confirm="Hapus foto Instagram ini?">
     {% csrf_token %}
     <input type="hidden" name="action" value="delete">
     <button class="btn btn-outline-danger w-100" type="submit">Hapus Foto Ini</button>
