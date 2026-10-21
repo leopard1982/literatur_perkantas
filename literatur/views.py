@@ -8,12 +8,15 @@ from .models import UserBook, LupaPassword, PendaftaranBaru, MyWishlist, MyCart,
 from .models import MyPayment, MyPaymentDetail, MyDonation, qris_url
 from .models import BlogComment, BookComment, BlogPost
 from django.db.models import Avg,Q,Sum,Prefetch,Count,F
+from django.db.models.functions import ExtractMonth, ExtractYear
 import datetime
 import logging
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.models import User
 import uuid
+import re
+from urllib.parse import quote
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.sessions.models import Session
 import random
@@ -1088,6 +1091,9 @@ def allBlogsView(request):
     except:
         h=1
     blogs = Blogs.objects.filter(is_active=True).select_related('author').order_by('-created_at')
+    q = request.GET.get('q', '').strip()[:100]
+    if q:
+        blogs = blogs.filter(Q(header__icontains=q) | Q(body__icontains=q) | Q(author__username__icontains=q))
     page = Paginator(blogs,per_page=8)
     
     try:
@@ -1104,6 +1110,8 @@ def allBlogsView(request):
     context = {
         'pengumuman':pengumuman,
         'blogs':blogs,
+        'q': q,
+        'q_qs': ('&q=' + quote(q)) if q else '',
     }
     context.update(user_context)
     context.update(build_pagination_context(halaman, h))
@@ -1169,6 +1177,9 @@ def detailBlog(request,id):
     context.update(user_context)
     return render(request,'landing/blog-detail.html',context)
 
+NAMA_BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+
 def blogListView(request):
     user_context = build_user_view_context(get_authenticated_user(request))
     try:
@@ -1176,6 +1187,26 @@ def blogListView(request):
     except (TypeError, ValueError):
         h = 1
     posts = BlogPost.objects.filter(is_archived=False).prefetch_related('images').order_by('-created_at')
+    q = request.GET.get('q', '').strip()[:100]
+    if q:
+        posts = posts.filter(Q(judul__icontains=q) | Q(pengarang__icontains=q) | Q(isi__icontains=q))
+
+    # arsip per bulan seperti widget Archives WordPress (dihitung dari blog yang tayang, tanpa filter pencarian)
+    bulan = request.GET.get('bulan', '')
+    bulan_label = ''
+    m = re.fullmatch(r'(\d{4})-(\d{2})', bulan)
+    if m and 1 <= int(m.group(2)) <= 12:
+        posts = posts.filter(created_at__year=int(m.group(1)), created_at__month=int(m.group(2)))
+        bulan_label = f"{NAMA_BULAN[int(m.group(2))]} {m.group(1)}"
+    else:
+        bulan = ''
+    arsip = []
+    per_bulan = (BlogPost.objects.filter(is_archived=False)
+                 .annotate(y=ExtractYear('created_at'), mo=ExtractMonth('created_at'))
+                 .values('y', 'mo').annotate(n=Count('id')).order_by('-y', '-mo'))
+    for row in per_bulan:
+        value = f"{row['y']}-{row['mo']:02d}"
+        arsip.append({'value': value, 'label': f"{NAMA_BULAN[row['mo']]} {row['y']}", 'count': row['n'], 'active': value == bulan})
     page = Paginator(posts, per_page=9)
     try:
         halaman = page.page(h)
@@ -1188,7 +1219,8 @@ def blogListView(request):
     except Exception:
         pengumuman = DEFAULT_PENGUMUMAN
 
-    context = {'pengumuman': pengumuman, 'total_posts': page.count}
+    qs = ('&q=' + quote(q) if q else '') + ('&bulan=' + bulan if bulan else '')
+    context = {'pengumuman': pengumuman, 'q': q, 'bulan': bulan, 'bulan_label': bulan_label, 'arsip': arsip, 'q_qs': qs}
     context.update(user_context)
     context.update(build_pagination_context(halaman, h))
     return render(request, 'landing/blog-list.html', context)

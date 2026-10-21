@@ -13,7 +13,7 @@
     padding: 28px 0 42px;
   }
   .blogs-shell {
-    max-width: 1120px;
+    max-width: none;
     margin: 0 auto;
   }
   .blogs-hero {
@@ -79,6 +79,12 @@
     font-size: 12px;
     line-height: 1.6;
   }
+  .pn-search { display: flex; gap: 8px; width: 100%; max-width: 360px; }
+  .pn-search input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 1px solid #d9e1e8; border-radius: 999px; background: #fff; font-size: 14px; color: #24343d; }
+  .pn-search input:focus { outline: none; border-color: #8b5a55; box-shadow: 0 0 0 3px rgba(139,90,85,.12); }
+  .pn-search button { height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #24343d; color: #fff; font-weight: 700; font-size: 14px; }
+  .pn-search button:hover { background: #8b5a55; }
+  .pn-count { margin: 0 0 14px 4px; font-size: 14px; color: #7a8892; }
   .blogs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(270px, 320px));
@@ -218,9 +224,7 @@
       align-items: start;
       padding: 22px;
     }
-    .blogs-note {
-      width: 100%;
-    }
+    .pn-search { max-width: none; }
   }
 </style>
 {% endblock %}
@@ -235,14 +239,18 @@
           <h1 class="blogs-title">Coretan Pena</h1>
           <p class="blogs-subtitle">Kumpulan tulisan dari komunitas Perkantas yang kami susun lebih rapi agar pembaca mudah menemukan artikel yang menguatkan iman, memperluas wawasan, dan menemani perjalanan pelayanan.</p>
         </div>
-        <div class="blogs-note">
-          <strong>{% if blogs %}{{ blogs|length }} artikel tersedia{% else %}Belum ada artikel{% endif %}</strong>
-          <span>Jelajahi tulisan terbaru, lalu buka artikel yang paling relevan dengan kebutuhan dan pergumulan hari ini.</span>
-        </div>
+        <form class="pn-search" method="get" action="{% url 'all_blogs_view' %}" role="search">
+          <input type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Cari judul, penulis, atau isi" aria-label="Cari">
+          <button type="submit">Cari</button>
+        </form>
       </div>
 
       {% if not halaman.object_list %}
-      <p class="blogs-empty">Belum ada coretan pena yang dipublikasikan. Tulisan baru akan muncul di halaman ini setelah ditinjau oleh redaksi.</p>
+      <p class="blogs-empty">{% if q %}Tidak ada coretan pena yang cocok dengan &ldquo;{{ q }}&rdquo;. Coba kata kunci lain atau <a href="{% url 'all_blogs_view' %}">lihat semua tulisan</a>.{% else %}Belum ada coretan pena yang dipublikasikan. Tulisan baru akan muncul di halaman ini setelah ditinjau oleh redaksi.{% endif %}</p>
+      {% endif %}
+
+      {% if halaman.paginator.count %}
+      <p class="pn-count">{% if q %}{{ halaman.paginator.count }} hasil untuk &ldquo;{{ q }}&rdquo;{% else %}{{ halaman.paginator.count }} tulisan{% endif %}</p>
       {% endif %}
 
       <div class="blogs-grid">
@@ -274,11 +282,11 @@
 
       {% if halaman.paginator.num_pages > 1 %}
       <div class="blogs-pagination">
-        <a href="{% url 'all_blogs_view' %}?h={{ prev_page }}" class="blogs-pg-btn">Prev</a>
+        <a href="{% url 'all_blogs_view' %}?h={{ prev_page }}{{ q_qs }}" class="blogs-pg-btn">Prev</a>
         {% for page in range_page %}
-          <a href="{% url 'all_blogs_view' %}?h={{ page }}" class="blogs-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
+          <a href="{% url 'all_blogs_view' %}?h={{ page }}{{ q_qs }}" class="blogs-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
         {% endfor %}
-        <a href="{% url 'all_blogs_view' %}?h={{ next_page }}" class="blogs-pg-btn">Next</a>
+        <a href="{% url 'all_blogs_view' %}?h={{ next_page }}{{ q_qs }}" class="blogs-pg-btn">Next</a>
       </div>
       {% endif %}
     </div>

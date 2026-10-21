@@ -4,11 +4,30 @@
 {% block styling_akuh %}
 <style>
   .bp-page { background: linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%); min-height: 80vh; padding: 28px 0 42px; }
-  .bp-shell { max-width: 1120px; margin: 0 auto; }
-  .bp-hero { padding: 28px; border-radius: 28px; background: rgba(255,255,255,.9); border: 1px solid #e7ebf0; box-shadow: 0 16px 36px rgba(36,52,61,.06); margin-bottom: 24px; }
+  .bp-shell { max-width: none; }
+  .bp-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding: 28px 30px; border-radius: 28px; background: rgba(255,255,255,.9); border: 1px solid #e7ebf0; box-shadow: 0 16px 36px rgba(36,52,61,.06); margin-bottom: 24px; }
   .bp-kicker { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8b5a55; }
   .bp-title { margin: 8px 0 6px; font-size: clamp(28px, 4vw, 40px); font-weight: 800; color: #24343d; }
   .bp-sub { margin: 0; color: #62727d; max-width: 680px; }
+  .pn-search { display: flex; gap: 8px; width: 100%; max-width: 360px; }
+  .pn-search input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 1px solid #d9e1e8; border-radius: 999px; background: #fff; font-size: 14px; color: #24343d; }
+  .pn-search input:focus { outline: none; border-color: #8b5a55; box-shadow: 0 0 0 3px rgba(139,90,85,.12); }
+  .pn-search button { height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #24343d; color: #fff; font-weight: 700; font-size: 14px; }
+  .pn-search button:hover { background: #8b5a55; }
+  .pn-count { margin: 0 0 14px 4px; font-size: 14px; color: #7a8892; }
+  .bp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; align-items: start; }
+  .bp-layout .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bp-side { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 18px; }
+  .bp-widget { background: #fff; border: 1px solid #e7ebf0; border-radius: 18px; padding: 18px 20px; }
+  .bp-widget h3 { margin: 0 0 10px; font-size: 16px; font-weight: 800; color: #24343d; }
+  .bp-widget label h3 { margin-bottom: 8px; }
+  .bp-widget-note { margin: 0; font-size: 14px; color: #7a8892; }
+  .bp-archive { list-style: none; margin: 0; padding: 0; }
+  .bp-archive li { padding: 6px 0; border-bottom: 1px solid #f0f3f6; font-size: 14px; color: #7a8892; }
+  .bp-archive li:last-child { border-bottom: 0; }
+  .bp-archive a { color: #34454f; text-decoration: none; }
+  .bp-archive a:hover, .bp-archive a.active { color: #8b5a55; font-weight: 700; }
+  .bp-select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #d9e1e8; border-radius: 12px; background: #fff; font-size: 14px; color: #34454f; }
   .bp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
   .bp-card { background: #fff; border: 1px solid #e7ebf0; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 26px rgba(36,52,61,.05); display: flex; flex-direction: column; }
   .bp-cover { display: block; aspect-ratio: 16 / 10; background: #eef2f6; overflow: hidden; }
@@ -24,8 +43,9 @@
   .bp-pagination { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 28px; }
   .bp-pg-btn { padding: 8px 14px; border-radius: 12px; border: 1px solid #e0e6ec; background: #fff; color: #24343d; text-decoration: none; font-weight: 700; }
   .bp-pg-btn.active { background: #24343d; color: #fff; border-color: #24343d; }
-  @media (max-width: 991px) { .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 575px) { .bp-grid { grid-template-columns: 1fr; } .bp-hero { padding: 22px; } }
+  @media (max-width: 991px) { .bp-layout { grid-template-columns: 1fr; } .bp-side { position: static; } .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 767px) { .bp-hero { flex-direction: column; align-items: stretch; } .pn-search { max-width: none; } }
+  @media (max-width: 575px) { .bp-layout .bp-grid, .bp-grid { grid-template-columns: 1fr; } .bp-hero { padding: 22px; } }
 </style>
 {% endblock %}
 
@@ -34,12 +54,21 @@
   <div class="container">
     <div class="bp-shell">
       <div class="bp-hero">
-        <span class="bp-kicker"><i class="fa fa-newspaper-o"></i> Blogs</span>
-        <h1 class="bp-title">Blog Literatur Perkantas</h1>
-        <p class="bp-sub">Kabar, cerita, dan dokumentasi pelayanan dari tim Literatur Perkantas Nasional. {{ total_posts }} tulisan tersedia.</p>
+        <div>
+          <span class="bp-kicker"><i class="fa fa-newspaper-o"></i> Blogs</span>
+          <h1 class="bp-title">Blog Literatur Perkantas</h1>
+          <p class="bp-sub">Kabar, cerita, dan dokumentasi pelayanan dari tim Literatur Perkantas Nasional.</p>
+        </div>
+        <form class="pn-search" method="get" action="{% url 'blog_list' %}" role="search">
+          <input type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Cari judul, penulis, atau isi" aria-label="Cari">
+          <button type="submit">Cari</button>
+        </form>
       </div>
 
+      <div class="bp-layout">
+      <div class="bp-main">
       {% if halaman.object_list %}
+      <p class="pn-count">{{ halaman.paginator.count }} {% if q %}hasil untuk &ldquo;{{ q }}&rdquo;{% else %}tulisan{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}</p>
       <div class="bp-grid">
         {% for post in halaman %}
         <article class="bp-card">
@@ -64,16 +93,41 @@
 
       {% if halaman.paginator.num_pages > 1 %}
       <div class="bp-pagination">
-        <a href="{% url 'blog_list' %}?h={{ prev_page }}" class="bp-pg-btn">Prev</a>
+        <a href="{% url 'blog_list' %}?h={{ prev_page }}{{ q_qs }}" class="bp-pg-btn">Prev</a>
         {% for page in range_page %}
-        <a href="{% url 'blog_list' %}?h={{ page }}" class="bp-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
+        <a href="{% url 'blog_list' %}?h={{ page }}{{ q_qs }}" class="bp-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
         {% endfor %}
-        <a href="{% url 'blog_list' %}?h={{ next_page }}" class="bp-pg-btn">Next</a>
+        <a href="{% url 'blog_list' %}?h={{ next_page }}{{ q_qs }}" class="bp-pg-btn">Next</a>
       </div>
       {% endif %}
       {% else %}
-      <p class="bp-empty">Belum ada blog yang dipublikasikan. Tulisan akan muncul di halaman ini begitu tim kami selesai menyiapkannya.</p>
+      <p class="bp-empty">{% if q or bulan_label %}Tidak ada blog{% if q %} yang cocok dengan &ldquo;{{ q }}&rdquo;{% endif %}{% if bulan_label %} pada {{ bulan_label }}{% endif %}. Coba kata kunci atau bulan lain, atau <a href="{% url 'blog_list' %}">lihat semua blog</a>.{% else %}Belum ada blog yang dipublikasikan. Tulisan akan muncul di halaman ini begitu tim kami selesai menyiapkannya.{% endif %}</p>
       {% endif %}
+      </div>
+      <aside class="bp-side">
+        <section class="bp-widget">
+          <h3>Arsip</h3>
+          {% if arsip %}
+          <ul class="bp-archive">
+            {% for a in arsip %}
+            <li><a href="{% url 'blog_list' %}?bulan={{ a.value }}" class="{% if a.active %}active{% endif %}">{{ a.label }}</a> <span>({{ a.count }})</span></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="bp-widget-note">Belum ada arsip.</p>
+          {% endif %}
+        </section>
+        {% if arsip %}
+        <section class="bp-widget">
+          <label for="bpArsipSelect"><h3>Pilih Arsip</h3></label>
+          <select id="bpArsipSelect" class="bp-select" onchange="window.location = this.value">
+            <option value="{% url 'blog_list' %}" {% if not bulan %}selected{% endif %}>Semua bulan</option>
+            {% for a in arsip %}<option value="{% url 'blog_list' %}?bulan={{ a.value }}" {% if a.active %}selected{% endif %}>{{ a.label }} ({{ a.count }})</option>{% endfor %}
+          </select>
+        </section>
+        {% endif %}
+      </aside>
+      </div>
     </div>
   </div>
 </div>
