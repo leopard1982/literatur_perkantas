@@ -29,7 +29,7 @@
 
 {% block content %}
 <div class="card mb-4">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="book-form">
         {% csrf_token %}
         <div class="card-body">
             <div class="row g-3">
@@ -95,8 +95,136 @@
         </div>
         <div class="card-footer d-flex justify-content-end gap-2">
             <a class="btn btn-outline-secondary" href="/cms/books/">Kembali</a>
-            <button class="btn btn-primary px-4" type="submit">Simpan Buku</button>
+            <button class="btn btn-primary px-4" type="submit" id="book-submit">Simpan Buku</button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<div class="modal fade" id="progress-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="progress-title">Menyimpan buku...</h5>
+            </div>
+            <div class="modal-body">
+                <div class="progress" style="height: 22px;">
+                    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                </div>
+                <p class="mt-3 mb-0 text-muted" id="progress-message">Mengunggah file...</p>
+                <div class="alert alert-danger mt-3 mb-0 d-none" id="progress-error"></div>
+            </div>
+            <div class="modal-footer d-none" id="progress-footer">
+                <button type="button" class="btn btn-outline-secondary" id="progress-close">Tutup</button>
+                <a class="btn btn-primary d-none" id="progress-done" href="/cms/books/">Selesai</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var form = document.getElementById('book-form');
+    var modalEl = document.getElementById('progress-modal');
+    var modal = new bootstrap.Modal(modalEl);
+    var bar = document.getElementById('progress-bar');
+    var msg = document.getElementById('progress-message');
+    var title = document.getElementById('progress-title');
+    var errBox = document.getElementById('progress-error');
+    var footer = document.getElementById('progress-footer');
+    var doneBtn = document.getElementById('progress-done');
+    var redirectUrl = '/cms/books/';
+
+    // Cegah tutup/refresh halaman selama proses berjalan
+    var busy = false;
+    window.addEventListener('beforeunload', function (e) { if (busy) { e.preventDefault(); e.returnValue = ''; } });
+
+    function setPercent(p) {
+        bar.style.width = p + '%';
+        bar.textContent = p + '%';
+    }
+    function fail(text) {
+        busy = false;
+        bar.classList.remove('progress-bar-animated');
+        bar.classList.add('bg-danger');
+        title.textContent = 'Gagal';
+        errBox.textContent = text;
+        errBox.classList.remove('d-none');
+        footer.classList.remove('d-none');
+    }
+    function finish() {
+        busy = false;
+        bar.classList.remove('progress-bar-animated');
+        bar.classList.add('bg-success');
+        setPercent(100);
+        title.textContent = 'Selesai';
+        footer.classList.remove('d-none');
+        document.getElementById('progress-close').classList.add('d-none');
+        doneBtn.classList.remove('d-none');
+        window.setTimeout(function () { window.location.href = redirectUrl; }, 1200);
+    }
+    function poll(bookId) {
+        title.textContent = 'Memproses halaman buku...';
+        fetch('/cms/books/' + bookId + '/progress/', {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d.status === 'error' || d.status === 'unknown') { fail(d.message); return; }
+                setPercent(d.percent);
+                msg.textContent = d.message;
+                if (d.status === 'done') { finish(); } else { window.setTimeout(function () { poll(bookId); }, 1500); }
+            })
+            .catch(function () { window.setTimeout(function () { poll(bookId); }, 3000); });
+    }
+
+    document.getElementById('progress-close').addEventListener('click', function () {
+        modal.hide();
+        document.getElementById('book-submit').disabled = false;
+    });
+
+    form.addEventListener('submit', function (e) {
+        var file = form.querySelector('input[type=file]');
+        if (!file || !file.files.length) { return; } // tanpa PDF: submit biasa
+        e.preventDefault();
+        busy = true;
+        setPercent(0);
+        bar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+        errBox.classList.add('d-none');
+        footer.classList.add('d-none');
+        doneBtn.classList.add('d-none');
+        document.getElementById('progress-close').classList.remove('d-none');
+        title.textContent = 'Mengunggah file PDF...';
+        msg.textContent = 'Jangan tutup atau refresh halaman ini.';
+        document.getElementById('book-submit').disabled = true;
+        modal.show();
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', window.location.href);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.upload.onprogress = function (ev) {
+            if (ev.lengthComputable) {
+                // unggah = 0-100% tahap pertama; tampilkan apa adanya
+                setPercent(Math.round(ev.loaded * 100 / ev.total));
+                msg.textContent = 'Mengunggah file... (' + Math.round(ev.loaded / 1048576) + ' / ' + Math.round(ev.total / 1048576) + ' MB)';
+            }
+        };
+        xhr.onload = function () {
+            var data = {};
+            try { data = JSON.parse(xhr.responseText); } catch (x) {}
+            if (xhr.status === 200 && data.ok) {
+                redirectUrl = data.redirect || redirectUrl;
+                setPercent(0);
+                if (data.book_id) { poll(data.book_id); } else { finish(); }
+            } else if (data.errors) {
+                var lines = [];
+                Object.keys(data.errors).forEach(function (k) { lines.push(k + ': ' + data.errors[k].join(', ')); });
+                fail('Periksa kembali form. ' + lines.join(' | '));
+            } else {
+                fail('Server menolak permintaan (HTTP ' + xhr.status + ').');
+            }
+        };
+        xhr.onerror = function () { fail('Koneksi terputus saat mengunggah file.'); };
+        xhr.send(new FormData(form));
+    });
+})();
+</script>
 {% endblock %}

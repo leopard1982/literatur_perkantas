@@ -21,6 +21,7 @@ from django.core.files.storage import default_storage
 import os
 from django.core.paginator import Paginator
 from .forms import FormUpdateProfile
+from .invoice import get_downloadable_payment, invoice_id_from_text, invoice_response
 
 logger = logging.getLogger(__name__)
 
@@ -920,6 +921,15 @@ def listInboxMessage(request):
         except:
             pengumuman = DEFAULT_PENGUMUMAN
         
+        # tandai notifikasi pembayaran disetujui yang punya invoice untuk diunduh
+        user = get_authenticated_user(request)
+        for pesan in halaman:
+            pesan.invoice_id = None
+            if pesan.header == "Pembayaran Selesai Dikonfirmasi":
+                payment = get_downloadable_payment(user, invoice_id_from_text(pesan.body))
+                if payment:
+                    pesan.invoice_id = payment.payment
+
         context = {
             'pengumuman':pengumuman,
             'inbox_message':inbox_message,
@@ -1579,6 +1589,17 @@ def listPayment(request):
     else:
         messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
         return HttpResponseRedirect('/')
+
+def downloadInvoice(request, payment_id):
+    user = get_authenticated_user(request)
+    if user is None:
+        messages.add_message(request,messages.SUCCESS,'Ups.. sepertinya kaka login dari device lain? Silakan kaka login kembali di device ini untuk melanjutkan yah...')
+        return HttpResponseRedirect('/')
+    payment = get_downloadable_payment(user, payment_id)
+    if payment is None:
+        messages.add_message(request,messages.ERROR,'Invoice tidak ditemukan atau pembayaran belum disetujui.')
+        return HttpResponseRedirect(reverse('list_payment'))
+    return invoice_response(payment)
 
 def gantiPasswordPage(request):
     if request.user.is_authenticated:

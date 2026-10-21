@@ -6,6 +6,7 @@ import urllib.request
 import uuid
 
 from django.contrib.auth import authenticate
+from django.core import signing
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
@@ -19,6 +20,9 @@ from literatur.models import (
     MyCart, MyPaymentDetail, inboxMessage, MyWishlist, OnSaleBook, PageReview, Pengumuman,
     UserBook,
 )
+
+from literatur.invoice import get_downloadable_payment, invoice_id_from_text, invoice_response
+from literatur.models import MyPayment
 
 from . import throttle
 from .core import api, error
@@ -367,6 +371,53 @@ def me(request):
     return JsonResponse(_me(request.api_user))
 
 
+@api(['POST'], auth='required', rate=(20, 60), multipart=True)
+def me_update(request):
+    """Ubah nama lengkap dan/atau foto profil (multipart: nama_lengkap, photo)."""
+    from io import BytesIO
+    from django.core.files.base import ContentFile
+    from PIL import Image, ImageOps
+
+    d = request.api_user.userdetail
+    data = request.POST if request.content_type == 'multipart/form-data' else request.json
+    nama = data.get('nama_lengkap')
+    photo = request.FILES.get('photo') if request.content_type == 'multipart/form-data' else None
+
+    if nama is None and photo is None:
+        return error(400, 'invalid_input', 'Tidak ada data yang diubah.')
+    if nama is not None:
+        nama = ' '.join(str(nama).split())
+        if not nama or len(nama) > 200:
+            return error(400, 'invalid_input', 'Nama wajib diisi (maksimal 200 karakter).')
+
+    content = None
+    if photo is not None:
+        try:
+            img = Image.open(photo)
+            img.verify()
+            photo.seek(0)
+            img = ImageOps.exif_transpose(Image.open(photo)).convert('RGB')
+            img.thumbnail((600, 600))
+            buf = BytesIO()
+            img.save(buf, 'JPEG', quality=85, optimize=True)
+            content = ContentFile(buf.getvalue())
+        except Exception:
+            return error(400, 'invalid_image', 'File foto tidak valid. Gunakan JPG atau PNG.')
+
+    if nama is not None:
+        d.nama_lengkap = nama
+    if content is not None:
+        old = d.photo.name if d.photo else ''
+        d.photo.save(f'{uuid.uuid4()}.jpg', content, save=False)
+        if old.startswith('profile/'):
+            try:
+                d.photo.storage.delete(old)
+            except Exception:
+                pass
+    d.save()
+    return JsonResponse(_me(request.api_user))
+
+
 @gzip_page
 @api(['GET'], auth='required', rate=(120, 60))
 def collection(request):
@@ -403,9 +454,51 @@ def my_cart(request):
 
 @api(['GET'], auth='required', rate=(120, 60))
 def inbox(request):
-    rows = inboxMessage.objects.filter(user=request.api_user).order_by('-id')[:50]
-    return JsonResponse({'results': [{'id': m.id, 'header': m.header, 'body': m.body,
-                                      'created_at': m.created_at.isoformat()} for m in rows]})
+    rows = list(inboxMessage.objects.filter(user=request.api_user).order_by('-id')[:50])
+    results = []
+    for m in rows:
+        item = {'id': m.id, 'header': m.header, 'body': m.body,
+                'created_at': m.created_at.isoformat(), 'invoice_id': None}
+        if m.header == 'Pembayaran Selesai Dikonfirmasi':
+            payment = get_downloadable_payment(request.api_user, invoice_id_from_text(m.body))
+            if payment:
+                item['invoice_id'] = payment.payment
+        results.append(item)
+    return JsonResponse({'results': results})
+
+
+INVOICE_LINK_SALT = 'mobile-invoice-link'
+INVOICE_LINK_TTL = 300  # detik
+
+
+@api(['GET'], auth='required', rate=(30, 60))
+def invoice_link(request, payment_id):
+    """Tautan unduh sementara, supaya browser/pengunduh Android tidak perlu header Bearer."""
+    payment = get_downloadable_payment(request.api_user, payment_id)
+    if payment is None:
+        return error(404, 'not_found', 'Invoice tidak ditemukan atau pembayaran belum disetujui.')
+    token = signing.dumps(payment.payment, salt=INVOICE_LINK_SALT)
+    return JsonResponse({'url': f'/api/v1/invoices/dl/{token}/', 'expires_in': INVOICE_LINK_TTL})
+
+
+@api(['GET'], auth='none', rate=(30, 60))
+def invoice_download(request, token):
+    try:
+        payment_id = signing.loads(token, salt=INVOICE_LINK_SALT, max_age=INVOICE_LINK_TTL)
+    except signing.BadSignature:
+        return error(404, 'not_found', 'Tautan invoice tidak valid atau sudah kedaluwarsa.')
+    payment = MyPayment.objects.filter(payment=payment_id, is_verified=True).first()
+    if payment is None:
+        return error(404, 'not_found', 'Invoice tidak ditemukan.')
+    return invoice_response(payment)
+
+
+@api(['GET'], auth='required', rate=(30, 60))
+def invoice_pdf(request, payment_id):
+    payment = get_downloadable_payment(request.api_user, payment_id)
+    if payment is None:
+        return error(404, 'not_found', 'Invoice tidak ditemukan atau pembayaran belum disetujui.')
+    return invoice_response(payment)
 
 
 @api(['DELETE'], auth='required', rate=(60, 60))
@@ -465,7 +558,7 @@ def not_found(request, *args, **kwargs):
 
 IMG_WIDTHS = (240, 480, 800)
 # public, non-personal media folders the app may request resized copies of
-IMG_DIRS = ('blogs', 'gambar_instagram', 'gambar_category')
+IMG_DIRS = ('blogs', 'gambar_instagram', 'gambar_category', 'profile')
 
 
 def _resized(src, key, width):

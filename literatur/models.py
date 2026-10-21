@@ -3,6 +3,7 @@ from django.contrib.auth.models import  User
 from django.db.models import Sum,Count,F
 import uuid
 import hashlib
+import logging
 from pdf2image import convert_from_bytes
 from django.conf import settings
 import os
@@ -11,6 +12,8 @@ from django.contrib import messages
 import re
 from django.core.mail import send_mail
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 colornya = [
 	('pink','pink'),
@@ -253,20 +256,22 @@ class MyPayment(models.Model):
 			inboxmessage = inboxMessage()
 			inboxmessage.user=self.user
 			inboxmessage.header="Pembayaran Selesai Dikonfirmasi"
-			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca. Terima kasih, Tuhan memberkati!"
+			daftar_buku = [d.book.judul for d in mypaymentdetail.select_related('book') if d.book]
+			teks_buku = (" Buku: " + ", ".join(daftar_buku) + ".") if daftar_buku else ""
+			inboxmessage.body=f"Selamat kaka, untuk pembayaran sebesar {self.total} untuk nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.{teks_buku} Terima kasih, Tuhan memberkati!"
 			inboxmessage.save()
 
 			if self.user and self.user.email:
 				try:
 					send_mail(
 						"Pembayaran Disetujui - Litanas",
-						f"Selamat kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
+						f"Selamat kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.{teks_buku}\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
 						settings.DEFAULT_FROM_EMAIL,
 						[self.user.email],
 						fail_silently=False
 					)
 				except Exception as ex:
-					print(ex)
+					logger.exception("Gagal mengirim email pembayaran disetujui %s ke %s", self.payment, self.user.email)
 
 			#simpan pemroses
 			MyPayment.objects.filter(payment=self.payment).update(

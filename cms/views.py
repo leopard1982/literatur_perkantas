@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group, User
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, ProtectedError, Q, RestrictedError, Sum
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -27,6 +27,7 @@ from literatur.models import (
 )
 from literatur.forms import FormCmsLoginRecaptcha
 from literatur.views import get_pengumuman_text
+from literatur.pdf_jobs import read_progress, start_pdf_conversion
 
 from .forms import (
     BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, MobileBroadcastForm, OnSaleForm,
@@ -1207,6 +1208,13 @@ def book_delete(request, book_id):
     return HttpResponseRedirect('/cms/books/')
 
 
+def book_pdf_progress(request, book_id):
+    blocked = _ensure_cms_access(request, 'books')
+    if blocked:
+        return blocked
+    return JsonResponse(read_progress(book_id))
+
+
 def book_form(request, book_id=None):
     blocked = _ensure_cms_access(request, 'books')
     if blocked:
@@ -1215,6 +1223,7 @@ def book_form(request, book_id=None):
     book = None
     if book_id:
         book = get_object_or_404(Books, pk=book_id)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
@@ -1222,11 +1231,27 @@ def book_form(request, book_id=None):
             new_pdf_uploaded = bool(request.FILES.get('pdf_full'))
             is_new_book = book is None
             instance = form.save(commit=False)
+            if new_pdf_uploaded and is_ajax:
+                # Konversi PDF lama bisa melewati timeout gateway: simpan dulu, proses di background.
+                if is_new_book:
+                    instance.is_active = False  # aktif otomatis setelah konversi sukses
+                _persist_book(instance, False)
+                start_pdf_conversion(instance, activate=is_new_book)
+                action = 'Menambahkan' if is_new_book else 'Mengubah'
+                _log_activity(request, 'books', f'{action} buku "{instance.judul}" (PDF diproses di background).')
+                return JsonResponse({'ok': True, 'book_id': str(instance.pk), 'judul': instance.judul,
+                                     'redirect': '/cms/books/'})
             _persist_book(instance, new_pdf_uploaded)
+            if is_ajax:
+                messages.add_message(request, messages.SUCCESS, f'Buku "{instance.judul}" berhasil disimpan.')
+                return JsonResponse({'ok': True, 'redirect': '/cms/books/'})
             messages.add_message(request, messages.SUCCESS, f'Buku "{instance.judul}" berhasil disimpan.')
             action = 'Menambahkan' if is_new_book else 'Mengubah'
             _log_activity(request, 'books', f'{action} buku "{instance.judul}".')
             return HttpResponseRedirect('/cms/books/')
+        if is_ajax:
+            return JsonResponse({'ok': False, 'errors': {k: [str(e) for e in v] for k, v in form.errors.items()}},
+                                status=400)
         messages.add_message(request, messages.SUCCESS, 'Data buku gagal disimpan, periksa kembali form.')
     else:
         form = BookForm(instance=book)

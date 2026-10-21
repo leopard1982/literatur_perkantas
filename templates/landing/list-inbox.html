@@ -406,6 +406,9 @@
             </div>
           </div>
           <p class="inbox-card-body">{{ inbox.body }}</p>
+          {% if inbox.invoice_id %}
+          <a href="{% url 'download_invoice' inbox.invoice_id %}" class="btn btn-sm btn-outline-secondary mt-2"><i class="fa fa-download"></i> Unduh Invoice</a>
+          {% endif %}
         </article>
 
         <div class="modal fade inbox-delete-modal" id="deleteInboxModal{{ inbox.id }}" tabindex="-1" aria-hidden="true">

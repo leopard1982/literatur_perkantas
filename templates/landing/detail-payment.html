@@ -247,6 +247,10 @@
                 {% endfor %}
               </ol>
 
+              {% if payment.is_verified %}
+              <a href="{% url 'download_invoice' payment.payment %}" class="payment-admin-link"><i class="fa fa-download"></i> Unduh Invoice</a>
+              {% endif %}
+
               {% if payment.is_verified == False and payment.is_canceled == False or payment.is_canceled %}
               <a href="https://wa.me/+6281291508616/?text=mohon%20konfirmasi%20untuk%20pesanan%20dengan%20nomor%20invoice%20{{ payment.payment }}" target="_blank" class="payment-admin-link">Hubungi Admin <i class="fa fa-arrow-right"></i></a>
               {% endif %}
