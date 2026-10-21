@@ -1391,7 +1391,8 @@ def broadcast_dashboard(request):
     if request.method == 'POST':
         action = request.POST.get('action', '').strip()
         if action in ('toggle', 'delete'):
-            item = MobileBroadcast.objects.filter(pk=request.POST.get('id', '').strip() or 0).first()
+            raw_id = request.POST.get('id', '').strip()
+            item = MobileBroadcast.objects.filter(pk=int(raw_id)).first() if raw_id.isdigit() else None
             if item:
                 if action == 'toggle':
                     item.is_active = not item.is_active
