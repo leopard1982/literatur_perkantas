@@ -16,6 +16,12 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
+
+def format_email_body(isi, sapaan="Ka"):
+	# format sama dengan email registrasi di halaman landing (literatur/views.py)
+	return f"\nHallo {sapaan}, {isi}\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: {settings.SITE_URL}"
+
+
 colornya = [
 	('pink','pink'),
 	('blue','blue'),
@@ -275,8 +281,8 @@ class MyPayment(models.Model):
 			if self.user and self.user.email:
 				try:
 					send_mail(
-						"Pembayaran Disetujui - Litanas",
-						f"Selamat kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.{teks_buku}\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
+						"Pembayaran Disetujui",
+						format_email_body(f"untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} sudah selesai dikonfirmasi, dan buku sudah bisa kaka baca.{teks_buku}"),
 						settings.DEFAULT_FROM_EMAIL,
 						[self.user.email],
 						fail_silently=False
@@ -320,8 +326,8 @@ class MyPayment(models.Model):
 			if self.user and self.user.email:
 				try:
 					send_mail(
-						"Pembayaran Ditolak - Litanas",
-						f"Maaf kaka, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai.\n\nBoleh kaka kembali kirimkan foto yang sesuai ke nomor whatsapp admin Litanas di nomor: +6281291508616.\n\nTerima kasih, Tuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/",
+						"Pembayaran Ditolak",
+						format_email_body(f"mohon maaf, untuk pembayaran sebesar Rp.{self.total} dengan nomor invoice {self.payment} tidak berhasil diverifikasi, karena bukti transfer tidak sesuai. \n\nBoleh kaka kembali kirimkan foto yang sesuai ke nomor whatsapp admin Litanas di nomor: +6281291508616."),
 						settings.DEFAULT_FROM_EMAIL,
 						[self.user.email],
 						fail_silently=False
@@ -693,11 +699,11 @@ class MyDonation(models.Model):
 
 		# kirimkan email
         #send email again
-		subject = "Terima Kasih - Donasi Litanas"
+		subject = "Terima Kasih Donasi Anda"
 		if is_ok:
-			message = f"Hallo kaka {self.initial} Terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}.\n\nUntuk status donasi kaka {status}\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.\n\nTuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+			message = format_email_body(f"terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}. \n\nStatus donasi kaka{status}\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.", sapaan=f"Ka {self.initial}")
 		else:
-			message = f"Hallo kaka {self.initial} Terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}.\n\nUntuk status donasi kaka {status}\n\nApabila admin sudah selesai melakukan verifikasi, akan diberikan konfirmasi via email kembali.\n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.\n\nTuhan memberkati!\n\n\nSalam, \n\n\nLiteratur Perkantas Nasional \n\n\nTautan Literatur Nasional Perkantas: https://literatur.pythonanywhere.com/"
+			message = format_email_body(f"terima kasih untuk donasi yang kaka berikan sebesar Rp.{self.nilai}. \n\nStatus donasi kaka{status}\n\nApabila admin sudah selesai melakukan verifikasi, akan diberikan konfirmasi via email kembali. \n\nSemoga melalui donasi yang kaka berikan pelayanan Litanas ini boleh semakin berkembang dan memberkati banyak orang.", sapaan=f"Ka {self.initial}")
 		from_email = settings.DEFAULT_FROM_EMAIL
 
 		try:
