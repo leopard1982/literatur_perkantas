@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from literatur.models import Blogs, Books, Category, Instagram, MobileBroadcast, OnSaleBook, Pengumuman
+from literatur.models import BlogPost, Blogs, Books, Category, Instagram, MobileBroadcast, OnSaleBook, Pengumuman
 
 from .roles import CMS_ROLE_CHOICES
 
@@ -179,6 +179,24 @@ class CoretanPenaForm(forms.ModelForm):
             'header': 'Judul',
             'image': 'Gambar Tema (opsional)',
             'body': 'Isi Tulisan',
+        }
+
+
+class BlogPostForm(forms.ModelForm):
+    class Meta:
+        model = BlogPost
+        fields = ['judul', 'pengarang', 'isi', 'is_archived']
+        widgets = {
+            'judul': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Judul blog', 'required': 'required', 'maxlength': 150}),
+            'pengarang': forms.TextInput(attrs={**TEXT_ATTRS, 'placeholder': 'Nama pengarang', 'required': 'required', 'maxlength': 100}),
+            'isi': forms.Textarea(attrs={**TEXT_ATTRS, 'rows': 12, 'placeholder': 'Tulis isi blog di sini...'}),
+            'is_archived': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'judul': 'Judul',
+            'pengarang': 'Pengarang',
+            'isi': 'Isi Blog',
+            'is_archived': 'Arsipkan (tidak tampil di halaman utama)',
         }
 
 

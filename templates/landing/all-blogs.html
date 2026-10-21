@@ -149,6 +149,10 @@
   .blogs-card-title a:hover {
     color: #b55f5c;
   }
+  .blogs-empty { padding: 44px 28px; max-width: 620px; background: #fff; border-radius: 22px; border: 1px solid #e7ebf0; border-left: 5px solid #8b5a55; color: #51616c; }
+  .blogs-empty h2 { font-size: 22px; font-weight: 800; color: #24343d; margin: 0 0 8px; }
+  .blogs-empty p { margin: 0; line-height: 1.7; }
+  .blogs-empty a { color: #8b5a55; font-weight: 700; }
   .blogs-meta {
     display: flex;
     flex-wrap: wrap;
@@ -235,10 +239,17 @@
           <p class="blogs-subtitle">Kumpulan tulisan dari komunitas Perkantas yang kami susun lebih rapi agar pembaca mudah menemukan artikel yang menguatkan iman, memperluas wawasan, dan menemani perjalanan pelayanan.</p>
         </div>
         <div class="blogs-note">
-          <strong>{{ blogs|length }} artikel tersedia</strong>
+          <strong>{% if blogs %}{{ blogs|length }} artikel tersedia{% else %}Belum ada artikel{% endif %}</strong>
           <span>Jelajahi tulisan terbaru, lalu buka artikel yang paling relevan dengan kebutuhan dan pergumulan hari ini.</span>
         </div>
       </div>
+
+      {% if not halaman.object_list %}
+      <div class="blogs-empty">
+        <h2>Belum ada coretan pena yang terbit</h2>
+        <p>Tulisan dari para penulis Perkantas akan tampil di sini setelah melewati tahap moderasi. Sambil menunggu, kaka bisa membaca <a href="{% url 'blog_list' %}">Blogs</a> atau melihat <a href="{% url 'all_book_view' %}">katalog buku</a>.</p>
+      </div>
+      {% endif %}
 
       <div class="blogs-grid">
         {% for blog in halaman %}
@@ -258,6 +269,7 @@
             <div class="blogs-meta">
               <span><i class="fa fa-user-o"></i> {{ blog.author.username|title }}</span>
               <span><i class="fa fa-calendar-o"></i> {{ blog.updated_at|date:"j M Y" }}</span>
+              <span><i class="fa fa-eye"></i> {{ blog.view }}x dilihat</span>
             </div>
             <p class="blogs-excerpt">{{ blog.body|striptags|truncatechars:150 }}</p>
             <a href="{% url 'detail_blog' blog.id %}" class="blogs-read">Baca artikel <i class="fa fa-arrow-right"></i></a>
@@ -266,6 +278,7 @@
         {% endfor %}
       </div>
 
+      {% if halaman.paginator.num_pages > 1 %}
       <div class="blogs-pagination">
         <a href="{% url 'all_blogs_view' %}?h={{ prev_page }}" class="blogs-pg-btn">Prev</a>
         {% for page in range_page %}
@@ -273,6 +286,7 @@
         {% endfor %}
         <a href="{% url 'all_blogs_view' %}?h={{ next_page }}" class="blogs-pg-btn">Next</a>
       </div>
+      {% endif %}
     </div>
   </div>
 </div>

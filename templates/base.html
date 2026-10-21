@@ -886,6 +886,11 @@
                   </a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link link-underline" href="{% url 'blog_list' %}">
+                    <i class="fa fa-newspaper-o me-1"></i> Blogs
+                  </a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link link-underline" href="{% url 'all_blogs_view' %}">
                     <i class="fa fa-pencil me-1"></i> Coretan Pena
                   </a>
@@ -1306,6 +1311,7 @@
               <li><a href="{% url 'all_book_view' %}">&#8250; Semua Buku</a></li>
               <li><a href="{% url 'all_book_view' %}?k=3">&#8250; Buku Gratis</a></li>
               <li><a href="{% url 'all_book_view' %}?k=12">&#8250; Promo</a></li>
+              <li><a href="{% url 'blog_list' %}">&#8250; Blogs</a></li>
               <li><a href="{% url 'all_blogs_view' %}">&#8250; Coretan Pena</a></li>
               <li><a href="{% url 'tentang_kami' %}">&#8250; Tentang Kami</a></li>
               <li><a href="{% url 'melakukan_donasi' %}">&#8250; Donasi</a></li>

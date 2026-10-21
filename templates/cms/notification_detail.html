@@ -107,7 +107,7 @@
         {% elif kind == 'review_sahabat' %}
         <h4 class="fw-bold mb-1">Review dari {{ review_sahabat.user.userdetail.nama_lengkap|default:review_sahabat.user.username }}</h4>
         <div class="text-secondary small mb-2">{{ review_sahabat.created_at|date:"d F Y H:i" }}</div>
-        <span class="badge {% if review_sahabat.is_active %}text-bg-success{% else %}text-bg-warning{% endif %}">{% if review_sahabat.is_active %}Tampil{% else %}Disembunyikan{% endif %}</span>
+        <span class="badge {% if review_sahabat.is_active %}text-bg-success{% else %}text-bg-warning{% endif %}">{% if review_sahabat.is_active %}Tampil{% else %}Tidak Tampil{% endif %}</span>
         <div class="body-text border rounded p-3 my-3">{{ review_sahabat.review }}</div>
         <form method="post">
             {% csrf_token %}
@@ -115,13 +115,13 @@
         </form>
 
         {% elif kind == 'review_buku' %}
-        <h4 class="fw-bold mb-1">{{ review_buku.id_buku.judul }}</h4>
-        <div class="text-secondary small mb-2">Oleh {{ review_buku.id_customer.nama_lengkap }} &bull; {{ review_buku.updated_review|date:"d F Y" }}</div>
-        <span class="badge {% if review_buku.is_published %}text-bg-success{% else %}text-bg-warning{% endif %}">{% if review_buku.is_published %}Terbit{% else %}Menunggu Moderasi{% endif %}</span>
-        <div class="body-text border rounded p-3 my-3">{{ review_buku.review }}</div>
+        <h4 class="fw-bold mb-1">{{ review_buku.book.judul }}</h4>
+        <div class="text-secondary small mb-2">Oleh {{ review_buku.user.userdetail.nama_lengkap|default:review_buku.user.username }} &bull; {{ review_buku.created_at|date:"d F Y" }}</div>
+        <span class="badge {% if review_buku.is_publish %}text-bg-success{% else %}text-bg-warning{% endif %}">{% if review_buku.is_publish %}Tampil{% else %}Tidak Tampil{% endif %}</span>
+        <div class="body-text border rounded p-3 my-3">{{ review_buku.comment }}</div>
         <form method="post">
             {% csrf_token %}
-            <button class="btn {% if review_buku.is_published %}btn-secondary{% else %}btn-success{% endif %} w-100" type="submit">{% if review_buku.is_published %}Sembunyikan{% else %}Terbitkan{% endif %}</button>
+            <button class="btn {% if review_buku.is_publish %}btn-secondary{% else %}btn-success{% endif %} w-100" type="submit">{% if review_buku.is_publish %}Sembunyikan{% else %}Tampilkan{% endif %}</button>
         </form>
 
         {% elif kind == 'coretan_status' %}

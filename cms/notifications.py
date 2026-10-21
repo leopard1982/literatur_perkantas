@@ -1,6 +1,6 @@
 import datetime
 
-from literatur.models import Blogs, BookReview, MyDonation, MyPayment, PageReview
+from literatur.models import Blogs, BookComment, MyDonation, MyPayment, PageReview
 
 NOTIFICATION_KIND_ROLES = {
     'payment': {'Keuangan'},
@@ -59,12 +59,12 @@ def get_notifications(user, is_super, roles):
                 'urgent': True,
                 'url': f'/cms/notifications/review_sahabat/{review.id}/',
             })
-        for review in BookReview.objects.filter(is_published=False).select_related('id_buku', 'id_customer').order_by('-updated_review')[:25]:
+        for review in BookComment.objects.filter(is_publish=False).select_related('book', 'user').order_by('-created_at')[:25]:
             items.append({
                 'kind': 'review_buku',
                 'title': 'Review buku menunggu moderasi',
-                'message': f'{review.id_buku.judul} oleh {review.id_customer.nama_lengkap}',
-                'created_at': datetime.datetime.combine(review.updated_review, datetime.time.min),
+                'message': f'{review.book.judul} oleh {review.user.username}',
+                'created_at': review.created_at,
                 'urgent': True,
                 'url': f'/cms/notifications/review_buku/{review.id}/',
             })

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styling_akuh %}
+<style>
+  .bp-page { background: linear-gradient(180deg, #fcfdff 0%, #f5f7fb 100%); min-height: 80vh; padding: 28px 0 42px; }
+  .bp-shell { max-width: 1120px; margin: 0 auto; }
+  .bp-hero { padding: 28px; border-radius: 28px; background: rgba(255,255,255,.9); border: 1px solid #e7ebf0; box-shadow: 0 16px 36px rgba(36,52,61,.06); margin-bottom: 24px; }
+  .bp-kicker { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8b5a55; }
+  .bp-title { margin: 8px 0 6px; font-size: clamp(28px, 4vw, 40px); font-weight: 800; color: #24343d; }
+  .bp-sub { margin: 0; color: #62727d; max-width: 680px; }
+  .bp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .bp-card { background: #fff; border: 1px solid #e7ebf0; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 26px rgba(36,52,61,.05); display: flex; flex-direction: column; }
+  .bp-cover { display: block; aspect-ratio: 16 / 10; background: #eef2f6; overflow: hidden; }
+  .bp-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+  .bp-card:hover .bp-cover img { transform: scale(1.04); }
+  .bp-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .bp-card-title { font-size: 20px; font-weight: 800; line-height: 1.25; margin: 0; }
+  .bp-card-title a { color: #24343d; text-decoration: none; }
+  .bp-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: #7a8892; }
+  .bp-excerpt { color: #51616c; font-size: 14px; margin: 0; }
+  .bp-read { margin-top: auto; font-weight: 700; color: #8b5a55; text-decoration: none; }
+  .bp-empty { padding: 44px 28px; max-width: 620px; background: #fff; border-radius: 22px; border: 1px solid #e7ebf0; border-left: 5px solid #8b5a55; color: #51616c; }
+  .bp-empty h2 { font-size: 22px; font-weight: 800; color: #24343d; margin: 0 0 8px; }
+  .bp-empty p { margin: 0; line-height: 1.7; }
+  .bp-empty a { color: #8b5a55; font-weight: 700; }
+  .bp-pagination { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 28px; }
+  .bp-pg-btn { padding: 8px 14px; border-radius: 12px; border: 1px solid #e0e6ec; background: #fff; color: #24343d; text-decoration: none; font-weight: 700; }
+  .bp-pg-btn.active { background: #24343d; color: #fff; border-color: #24343d; }
+  @media (max-width: 991px) { .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 575px) { .bp-grid { grid-template-columns: 1fr; } .bp-hero { padding: 22px; } }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="bp-page">
+  <div class="container">
+    <div class="bp-shell">
+      <div class="bp-hero">
+        <span class="bp-kicker"><i class="fa fa-newspaper-o"></i> Blogs</span>
+        <h1 class="bp-title">Blog Literatur Perkantas</h1>
+        <p class="bp-sub">Kabar, cerita, dan dokumentasi pelayanan dari tim Literatur Perkantas Nasional. {{ total_posts }} tulisan tersedia.</p>
+      </div>
+
+      {% if halaman.object_list %}
+      <div class="bp-grid">
+        {% for post in halaman %}
+        <article class="bp-card">
+          <a href="{% url 'blog_detail' post.id %}" class="bp-cover">
+            {% with cover=post.cover %}
+            {% if cover %}<img src="{{ cover.url }}" alt="{{ post.judul }}">{% else %}<img src="{% static 'images/post-item1.jpg' %}" alt="{{ post.judul }}">{% endif %}
+            {% endwith %}
+          </a>
+          <div class="bp-body">
+            <h2 class="bp-card-title"><a href="{% url 'blog_detail' post.id %}">{{ post.judul }}</a></h2>
+            <div class="bp-meta">
+              <span><i class="fa fa-user-o"></i> {{ post.pengarang }}</span>
+              <span><i class="fa fa-calendar-o"></i> {{ post.created_at|date:"j M Y" }}</span>
+              <span><i class="fa fa-eye"></i> {{ post.view }}x dilihat</span>
+            </div>
+            <p class="bp-excerpt">{{ post.isi|striptags|truncatechars:130 }}</p>
+            <a href="{% url 'blog_detail' post.id %}" class="bp-read">Baca selengkapnya <i class="fa fa-arrow-right"></i></a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      {% if halaman.paginator.num_pages > 1 %}
+      <div class="bp-pagination">
+        <a href="{% url 'blog_list' %}?h={{ prev_page }}" class="bp-pg-btn">Prev</a>
+        {% for page in range_page %}
+        <a href="{% url 'blog_list' %}?h={{ page }}" class="bp-pg-btn {% if page == current %}active{% endif %}">{{ page }}</a>
+        {% endfor %}
+        <a href="{% url 'blog_list' %}?h={{ next_page }}" class="bp-pg-btn">Next</a>
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="bp-empty">
+        <h2>Blog belum terbit</h2>
+        <p>Tim Literatur Perkantas masih menyiapkan tulisan pertamanya. Sambil menunggu, kaka bisa membaca <a href="{% url 'all_blogs_view' %}">Coretan Pena</a> dari para penulis kami atau melihat <a href="{% url 'all_book_view' %}">katalog buku</a>.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

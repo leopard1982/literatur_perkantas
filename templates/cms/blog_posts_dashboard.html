@@ -1,0 +1,119 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}CMS Blogs{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .blog-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: .35rem; background: #e9ecef; }
+    .blog-title-link { font-weight: 600; text-decoration: none; }
+    .row-actions { font-size: .8125rem; visibility: hidden; }
+    tr:hover .row-actions, tr:focus-within .row-actions { visibility: visible; }
+    @media (hover: none) { .row-actions { visibility: visible; } }
+    .row-actions form { display: inline; }
+    .row-actions .btn-link { padding: 0; font-size: inherit; vertical-align: baseline; text-decoration: none; }
+    .status-tabs a { text-decoration: none; }
+    .status-tabs .active { font-weight: 700; color: var(--bs-body-color); }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">Blogs</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Blogs</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="status-tabs">
+        <a href="/cms/blogs/" class="{% if status == 'tayang' %}active{% endif %}">Tayang <span class="text-secondary">({{ active_posts }})</span></a>
+        <span class="text-secondary mx-1">|</span>
+        <a href="/cms/blogs/?status=arsip" class="{% if status == 'arsip' %}active{% endif %}">Arsip <span class="text-secondary">({{ archived_posts }})</span></a>
+    </div>
+    <a class="btn btn-sm btn-primary" href="/cms/blogs/add/"><i class="bi bi-plus-lg"></i> Tulis Blog</a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width:72px"></th>
+                    <th>Judul</th>
+                    <th>Pengarang</th>
+                    <th class="text-center">Dilihat</th>
+                    <th>Tanggal</th>
+                    <th class="text-center" style="width:130px">Tampilkan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in page_obj %}
+                <tr>
+                    <td>
+                        {% with cover=post.cover %}
+                        {% if cover %}<img class="blog-thumb" src="{{ cover.url }}" alt="">{% else %}<div class="blog-thumb d-flex align-items-center justify-content-center text-secondary"><i class="bi bi-image"></i></div>{% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <a class="blog-title-link" href="/cms/blogs/{{ post.id }}/edit/">{{ post.judul }}</a>
+                        <div class="row-actions">
+                            <a href="/cms/blogs/{{ post.id }}/edit/">Edit</a>
+                            {% if not post.is_archived %}| <a href="/blogs/{{ post.id }}/" target="_blank" rel="noopener">Lihat</a>{% endif %}
+                            |
+                            <form method="post" action="/cms/blogs/{{ post.id }}/edit/" data-confirm="Hapus blog &quot;{{ post.judul }}&quot; beserta semua fotonya?">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-link text-danger">Hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td>{{ post.pengarang }}</td>
+                    <td class="text-center">{{ post.view }}</td>
+                    <td class="text-nowrap">{{ post.created_at|date:"d M Y" }}<div class="text-secondary small">{{ post.images.all|length }} foto</div></td>
+                    <td class="text-center">
+                        <form method="post" action="/cms/blogs/{{ post.id }}/edit/">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_archive">
+                            <input type="hidden" name="next" value="/cms/blogs/{% if status == 'arsip' %}?status=arsip{% endif %}">
+                            <div class="form-check form-switch d-inline-block m-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="tg{{ post.id }}" {% if not post.is_archived %}checked{% endif %} onchange="this.form.submit()" aria-label="Tampilkan {{ post.judul }} di halaman utama">
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-4 px-4">
+                        {% if status == 'arsip' %}
+                        <strong>Tidak ada blog yang diarsipkan.</strong>
+                        <div class="text-secondary small">Blog yang tombol "Tampilkan"-nya dimatikan akan dipindahkan ke sini dan tidak muncul di halaman utama.</div>
+                        {% else %}
+                        <strong>Belum ada blog yang tayang.</strong>
+                        <div class="text-secondary small">Halaman Blogs di situs masih kosong. Tulis blog pertama, atau nyalakan "Tampilkan" pada blog di tab Arsip.</div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="text-secondary small">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+        <div class="btn-group btn-group-sm">
+            {% if page_obj.has_previous %}<a class="btn btn-outline-secondary" href="?status={{ status }}&page={{ page_obj.previous_page_number }}">Sebelumnya</a>{% endif %}
+            {% if page_obj.has_next %}<a class="btn btn-outline-secondary" href="?status={{ status }}&page={{ page_obj.next_page_number }}">Berikutnya</a>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

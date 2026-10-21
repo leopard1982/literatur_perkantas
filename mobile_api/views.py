@@ -649,7 +649,8 @@ def book_comment_create(request, book_id):
         return error(429, 'rate_limited', 'Terlalu banyak komentar, coba lagi nanti.')
     c = BookComment.objects.create(book=book, user=request.api_user, comment=text)
     return JsonResponse({'name': person_name(request.api_user), 'comment': c.comment,
-                         'date': c.created_at.isoformat()}, status=201)
+                         'date': c.created_at.isoformat(), 'pending': True,
+                         'message': 'Komentar terkirim dan menunggu moderasi admin sebelum tampil.'}, status=201)
 
 
 @api(['GET', 'POST'], auth='required', rate=(60, 60))
@@ -707,11 +708,12 @@ def my_review(request):
             return err
         if cur is None:
             cur = PageReview(user=user)
-        if cur.review != text or not cur.is_active:
-            cur.review, cur.is_active = text, True
+        if cur.review != text or cur.pk is None:
+            cur.review, cur.is_active = text, False
             cur.save()
             cache.delete(HOME_CACHE_KEY)
-    return JsonResponse({'review': {'review': cur.review, 'updated_at': cur.updated_at.isoformat()} if cur else None})
+    return JsonResponse({'review': {'review': cur.review, 'updated_at': cur.updated_at.isoformat(),
+                                    'is_active': cur.is_active, 'pending': not cur.is_active} if cur else None})
 
 
 @gzip_page

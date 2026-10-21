@@ -6,7 +6,7 @@ from django.urls import reverse
 from .models import PageReview,Books,FeaturedBook, Category, OnSaleBook, Pengumuman, Instagram
 from .models import UserBook, LupaPassword, PendaftaranBaru, MyWishlist, MyCart, inboxMessage, Blogs, UserDetail
 from .models import MyPayment, MyPaymentDetail, MyDonation, qris_url
-from .models import BlogComment, BookComment
+from .models import BlogComment, BookComment, BlogPost
 from django.db.models import Avg,Q,Sum,Prefetch,Count,F
 import datetime
 import logging
@@ -551,13 +551,13 @@ def bacaBuku(request):
             if existing_comment:
                 existing_comment.comment = comment_value
                 existing_comment.is_active = True
-                existing_comment.is_publish = True
+                existing_comment.is_publish = False
                 existing_comment.save()
                 existing_comments.exclude(id=existing_comment.id).delete()
-                messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui dan menunggu moderasi admin sebelum tampil.")
             else:
                 BookComment.objects.create(book=book, user=user, comment=comment_value)
-                messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+                messages.add_message(request, messages.SUCCESS, "Komentar berhasil dikirim dan menunggu moderasi admin sebelum tampil.")
         p = request.GET.get('p', '1')
         return HttpResponseRedirect(f"{reverse('baca_buku')}?id={book.id}&p={p}#book-comments")
 
@@ -1052,13 +1052,13 @@ def sinopsisBuku(request,id):
                 if existing_comment:
                     existing_comment.comment = comment_value
                     existing_comment.is_active = True
-                    existing_comment.is_publish = True
+                    existing_comment.is_publish = False
                     existing_comment.save()
                     existing_comments.exclude(id=existing_comment.id).delete()
-                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui dan menunggu moderasi admin sebelum tampil.")
                 else:
                     BookComment.objects.create(book=book, user=user, comment=comment_value)
-                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+                    messages.add_message(request, messages.SUCCESS, "Komentar berhasil dikirim dan menunggu moderasi admin sebelum tampil.")
             return HttpResponseRedirect(f"{reverse('sinopsis_buku', args=[book.id])}#book-comments")
 
         comments_qs = BookComment.objects.filter(
@@ -1168,6 +1168,61 @@ def detailBlog(request,id):
         }
     context.update(user_context)
     return render(request,'landing/blog-detail.html',context)
+
+def blogListView(request):
+    user_context = build_user_view_context(get_authenticated_user(request))
+    try:
+        h = int(request.GET.get('h', 1))
+    except (TypeError, ValueError):
+        h = 1
+    posts = BlogPost.objects.filter(is_archived=False).prefetch_related('images').order_by('-created_at')
+    page = Paginator(posts, per_page=9)
+    try:
+        halaman = page.page(h)
+    except Exception:
+        h = 1
+        halaman = page.page(1)
+
+    try:
+        pengumuman = get_pengumuman_text()
+    except Exception:
+        pengumuman = DEFAULT_PENGUMUMAN
+
+    context = {'pengumuman': pengumuman, 'total_posts': page.count}
+    context.update(user_context)
+    context.update(build_pagination_context(halaman, h))
+    return render(request, 'landing/blog-list.html', context)
+
+
+def blogDetailView(request, id):
+    try:
+        post = BlogPost.objects.prefetch_related('images').get(id=id, is_archived=False)
+    except (BlogPost.DoesNotExist, ValueError, Exception):
+        # tautan lama /blogs/<id>/ milik Coretan Pena sekarang berada di /pena/<id>/
+        if Blogs.objects.filter(pk=id).exists():
+            return HttpResponseRedirect(reverse('detail_blog', args=[id]))
+        messages.add_message(request, messages.SUCCESS, "Maaf, blog yang kaka cari tidak ada...")
+        return HttpResponseRedirect(reverse('blog_list'))
+
+    if request.method == "GET":
+        BlogPost.objects.filter(pk=post.pk).update(view=F('view') + 1)
+        post.view += 1
+
+    user_context = build_user_view_context(
+        get_authenticated_user(request),
+        include_cart=True,
+        include_checked_cart=True,
+        include_inbox=True,
+    )
+    try:
+        pengumuman = get_pengumuman_text()
+    except Exception:
+        pengumuman = DEFAULT_PENGUMUMAN
+
+    context = {'pengumuman': pengumuman, 'post': post}
+    context.update(user_context)
+    return render(request, 'landing/blog-post-detail.html', context)
+
 
 def paymentProcess(request):
     if request.method == "POST":
@@ -1319,13 +1374,13 @@ def bacaBukuKoleksi(request,id):
                     if existing_comment:
                         existing_comment.comment = comment_value
                         existing_comment.is_active = True
-                        existing_comment.is_publish = True
+                        existing_comment.is_publish = False
                         existing_comment.save()
                         existing_comments.exclude(id=existing_comment.id).delete()
-                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui.")
+                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil diperbarui dan menunggu moderasi admin sebelum tampil.")
                     else:
                         BookComment.objects.create(book=book, user=user, comment=comment_value)
-                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil ditambahkan.")
+                        messages.add_message(request, messages.SUCCESS, "Komentar berhasil dikirim dan menunggu moderasi admin sebelum tampil.")
                 p = request.GET.get('p', '1')
                 return HttpResponseRedirect(f"{reverse('baca_buku_koleksi', args=[book.id])}?p={p}#book-comments")
 
@@ -1507,27 +1562,28 @@ def profileUpdate(request):
                         pagereview = PageReview.objects.get(user=user)
                         if pagereview.review != request.POST['review_litanas']:
                             pagereview.review=request.POST['review_litanas']
+                            pagereview.is_active=False
                             pagereview.save()
                             # kirim pesan inbox kalau ada perubahan page review
                             inbox = inboxMessage()
                             inbox.header="Page Review"
-                            inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} sudah berubah menjadi: {request.POST['review_litanas']} pada {datetime.datetime.now()}"
+                            inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} sudah berubah menjadi: {request.POST['review_litanas']} pada {datetime.datetime.now()}. Review akan tampil kembali setelah disetujui admin."
                             inbox.user=user
                             inbox.save()
-                            messages.add_message(request,messages.SUCCESS,"Untuk Page Review Dilakukan Perubahan")
+                            messages.add_message(request,messages.SUCCESS,"Page Review berhasil diubah dan menunggu moderasi admin sebelum tampil")
                     except:
                         # kalau tidak ada maka akan buat pagereview baru
                         pagereview = PageReview()
                         pagereview.user=user
                         pagereview.review=request.POST['review_litanas']    
-                        pagereview.is_active=True
+                        pagereview.is_active=False
                         pagereview.save()      
-                        messages.add_message(request,messages.SUCCESS,"Untuk Page Review Sudah Bershasil Disimpan dan  Aktif")
+                        messages.add_message(request,messages.SUCCESS,"Page Review berhasil dikirim dan menunggu moderasi admin sebelum tampil")
                         
                         # kirim pesan inbox kalau ada perubahan page review
                         inbox = inboxMessage()
                         inbox.header="Page Review"
-                        inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} berhasil disimpan pada {datetime.datetime.now()}. Kaka bisa melihat di bagian Review Sahabat."
+                        inbox.body = f"Page Review  untuk {user.userdetail.nama_lengkap} berhasil disimpan pada {datetime.datetime.now()}. Review akan tampil di bagian Review Sahabat setelah disetujui admin."
                         inbox.user=user
                         inbox.save()
                         messages.add_message(request,messages.SUCCESS,"Info Saya Berhasil Diperbaharui...")

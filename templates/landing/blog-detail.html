@@ -267,8 +267,9 @@
             <span><i class="fa fa-user-o"></i> {{ blog.author.username|title }}</span>
             <span><i class="fa fa-calendar-o"></i> {{ blog.updated_at|date:"j F Y" }}</span>
             <span><i class="fa fa-clock-o"></i> {{ blog.updated_at|date:"H:i" }} WIB</span>
+            <span><i class="fa fa-eye"></i> {{ blog.view }}x dilihat</span>
           </div>
-          <a href="{{ prev|default:'/blogs/' }}" class="blog-detail-back"><i class="fa fa-arrow-left"></i> Kembali</a>
+          <a href="{{ prev|default:'/pena/' }}" class="blog-detail-back"><i class="fa fa-arrow-left"></i> Kembali</a>
         </div>
       </div>
 

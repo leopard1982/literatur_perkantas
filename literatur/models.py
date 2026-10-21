@@ -463,7 +463,7 @@ class PageReview(models.Model):
 	review = models.CharField(max_length=400,null=True,blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
-	is_active = models.BooleanField(default=True)
+	is_active = models.BooleanField(default=False)  # baru tampil setelah dimoderasi di /cms/
 
 	def __str__(self):
 		return f"{self.user.userdetail.nama_lengkap} - {self.review}"
@@ -618,6 +618,42 @@ class Blogs(models.Model):
 		return f"{self.author} - {self.header}"
 
 
+class BlogPost(models.Model):
+	"""Blog yang diisi admin/superadmin lewat /cms/ (terpisah dari Coretan Pena / artikel)."""
+	id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+	judul = models.CharField(max_length=150, verbose_name="Judul")
+	pengarang = models.CharField(max_length=100, verbose_name="Pengarang")
+	isi = models.TextField(verbose_name="Isi Blog", blank=True, default="")
+	is_archived = models.BooleanField(default=False, verbose_name="Diarsipkan")
+	view = models.PositiveBigIntegerField(default=0, verbose_name="Jumlah Dilihat")
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['-created_at']
+
+	def __str__(self):
+		return f"{self.pengarang} - {self.judul}"
+
+	@property
+	def cover(self):
+		first = self.images.first()
+		return first.image if first else None
+
+
+class BlogPostImage(models.Model):
+	post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='images')
+	image = models.ImageField(upload_to='blog_posts')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['created_at', 'id']
+
+	def __str__(self):
+		return f"{self.post.judul} - {self.image.name}"
+
+
 class BlogComment(models.Model):
 	id = models.UUIDField(auto_created=True, primary_key=True, editable=False, default=uuid.uuid4)
 	blog = models.ForeignKey(Blogs, on_delete=models.CASCADE, related_name='comments')
@@ -638,7 +674,7 @@ class BookComment(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	comment = models.TextField(max_length=1000)
 	is_active = models.BooleanField(default=True)
-	is_publish = models.BooleanField(default=True)
+	is_publish = models.BooleanField(default=False)  # baru tampil setelah dimoderasi di /cms/
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

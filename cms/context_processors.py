@@ -16,6 +16,7 @@ NAV_CATALOG = [
     {'module': 'pengumuman_settings', 'label': 'Pengumuman', 'href': '/cms/pengumuman/', 'icon': 'bi-megaphone'},
     {'module': 'broadcast', 'label': 'Notifikasi Aplikasi', 'href': '/cms/broadcast/', 'icon': 'bi-bell'},
     {'module': 'roles', 'label': 'Role & User', 'href': '/cms/roles/', 'icon': 'bi-person-lock'},
+    {'module': 'blog_posts', 'label': 'Blogs', 'href': '/cms/blogs/', 'icon': 'bi-newspaper'},
     {'module': 'coretan_pena', 'label': 'Coretan Pena', 'href': '/cms/coretan-pena/', 'icon': 'bi-pencil-square'},
     {'module': 'activity_log', 'label': 'Log Transaksi', 'href': '/cms/logs/', 'icon': 'bi-activity'},
 ]

@@ -25,12 +25,13 @@ from django.conf import settings
 from django.shortcuts import redirect,render
 
 from literatur.media_guard import protected_media
-from literatur.sitemaps import BlogSitemap, BookSitemap, StaticViewSitemap
+from literatur.sitemaps import BlogPostSitemap, BlogSitemap, BookSitemap, StaticViewSitemap
 
 sitemaps = {
     'static': StaticViewSitemap,
     'books': BookSitemap,
     'blogs': BlogSitemap,
+    'blog_posts': BlogPostSitemap,
 }
 
 # Django admin is hidden: /admin/ answers 404. Pengelolaan dilakukan lewat /cms/. Bila admin Django

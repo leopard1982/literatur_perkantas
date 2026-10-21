@@ -6,6 +6,8 @@ Allow: /book/*/$
 Allow: /books/$
 Allow: /blogs/$
 Allow: /blogs/*/$
+Allow: /pena/$
+Allow: /pena/*/$
 Allow: /about/$
 Allow: /donasi/$
 Disallow: /admin/

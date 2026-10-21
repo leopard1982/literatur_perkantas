@@ -1,0 +1,120 @@
+{% extends 'cms/base.html' %}
+
+{% block title %}{% if post %}Edit Blog{% else %}Tulis Blog{% endif %} - CMS{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .errorlist { list-style: none; padding: 0; margin: .25rem 0 0; color: var(--bs-danger); font-size: .875rem; }
+    .photo-tile { position: relative; }
+    .photo-tile img { width: 100%; height: 110px; object-fit: cover; border-radius: .5rem; }
+    .photo-tile .form-check { position: absolute; left: .4rem; bottom: .4rem; background: rgba(255,255,255,.92); border-radius: .35rem; padding: .15rem .5rem .15rem 1.9rem; margin: 0; font-size: .8rem; }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .75rem; }
+    .preview-grid img { width: 100%; height: 90px; object-fit: cover; border-radius: .5rem; }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">{% if post %}Edit "{{ post.judul }}"{% else %}Tulis Blog Baru{% endif %}</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/cms/">CMS</a></li>
+                    <li class="breadcrumb-item"><a href="/cms/blogs/">Blogs</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{% if post %}Edit{% else %}Tulis{% endif %}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">{{ form.judul.label }}</label>
+                    {{ form.judul }}
+                    {{ form.judul.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form.pengarang.label }}</label>
+                    {{ form.pengarang }}
+                    {{ form.pengarang.errors }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">{{ form.isi.label }}</label>
+                    {{ form.isi }}
+                    {{ form.isi.errors }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Foto (bisa lebih dari satu)</label>
+                    <input class="form-control" type="file" name="photos" id="photosInput" accept="image/jpeg,image/png,image/webp" multiple>
+                    <div class="form-text">JPG, PNG, atau WEBP, maksimal 5 MB per foto dan {{ max_photos }} foto per unggahan. Foto pertama menjadi sampul.</div>
+                    <div class="preview-grid mt-2" id="photosPreview"></div>
+                </div>
+
+                {% if post and post.images.all %}
+                <div class="col-12">
+                    <label class="form-label">Foto saat ini</label>
+                    <div class="row g-2">
+                        {% for img in post.images.all %}
+                        <div class="col-6 col-md-3 col-xl-2">
+                            <div class="photo-tile">
+                                <img src="{{ img.image.url }}" alt="Foto {{ forloop.counter }}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remove_images" value="{{ img.pk }}" id="rm{{ img.pk }}">
+                                    <label class="form-check-label" for="rm{{ img.pk }}">Hapus</label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        {{ form.is_archived }}
+                        <label class="form-check-label" for="{{ form.is_archived.id_for_label }}">{{ form.is_archived.label }}</label>
+                        {{ form.is_archived.errors }}
+                    </div>
+                </div>
+
+                {% if post %}
+                <div class="col-12 text-secondary small"><i class="bi bi-eye"></i> Dilihat {{ post.view }}x</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a class="btn btn-outline-secondary" href="/cms/blogs/">Kembali</a>
+            <button class="btn btn-primary" type="submit">Simpan Blog</button>
+        </div>
+    </form>
+</div>
+
+{% if post %}
+<form method="post" data-confirm="Hapus blog ini beserta semua fotonya?">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete">
+    <button class="btn btn-outline-danger w-100" type="submit">Hapus Blog Ini</button>
+</form>
+{% endif %}
+
+<script>
+    document.getElementById('photosInput').addEventListener('change', function () {
+        var box = document.getElementById('photosPreview');
+        box.innerHTML = '';
+        Array.prototype.forEach.call(this.files, function (f) {
+            var img = document.createElement('img');
+            img.src = URL.createObjectURL(f);
+            box.appendChild(img);
+        });
+    });
+</script>
+{% endblock %}

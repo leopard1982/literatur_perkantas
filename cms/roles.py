@@ -19,6 +19,7 @@ ROLE_ACCESS = {
     'analytics': {'Admin', 'Superadmin'},
     'roles': {'Superadmin'},
     'activity_log': {'Superadmin'},
+    'blog_posts': {'Admin', 'Superadmin'},
     'coretan_pena': {'Penulis'},
 }
 

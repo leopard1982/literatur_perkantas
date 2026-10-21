@@ -11,6 +11,8 @@ from .views import (
     categories_dashboard,
     category_form,
     content_moderation_dashboard,
+    blog_posts_dashboard,
+    blog_post_form,
     coretan_pena_dashboard,
     coretan_pena_form,
     customers_dashboard,
@@ -86,6 +88,10 @@ urlpatterns = [
     path('pengumuman/', pengumuman_settings_dashboard, name='cms_pengumuman_settings_dashboard'),
 
     path('roles/', roles_dashboard, name='cms_roles_dashboard'),
+
+    path('blogs/', blog_posts_dashboard, name='cms_blog_posts_dashboard'),
+    path('blogs/add/', blog_post_form, name='cms_blog_post_add'),
+    path('blogs/<uuid:post_id>/edit/', blog_post_form, name='cms_blog_post_edit'),
 
     path('coretan-pena/', coretan_pena_dashboard, name='cms_coretan_pena_dashboard'),
     path('coretan-pena/add/', coretan_pena_form, name='cms_coretan_pena_add'),

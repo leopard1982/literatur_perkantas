@@ -23,7 +23,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from literatur.models import (
-    Blogs, BookReview, Books, QrisCode, ensure_default_qris, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
+    BlogPost, BlogPostImage, Blogs, BookComment, Books, QrisCode, ensure_default_qris, Category, CmsActivityLog, Instagram, MyDonation, MyPayment,
     MobileBroadcast, MyPaymentDetail, OnSaleBook, PageReview, Pengumuman, SiteVisit, UserBook, UserDetail,
 )
 from literatur.forms import FormCmsLoginRecaptcha
@@ -32,7 +32,7 @@ from literatur.pdf_jobs import read_progress, start_pdf_conversion
 
 from .forms import (
     QrisUploadForm,
-    BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, MobileBroadcastForm, OnSaleForm,
+    BlogPostForm, BookForm, CategoryQuickForm, CmsUserCreateForm, CoretanPenaForm, InstagramForm, MobileBroadcastForm, OnSaleForm,
     PengumumanForm,
 )
 from .notifications import NOTIFICATION_KIND_ROLES, get_notifications
@@ -119,6 +119,14 @@ CARD_CATALOG = [
         'href': '/cms/roles/',
         'count_label': 'Akun Staff',
         'tone': 'gold',
+    },
+    {
+        'module': 'blog_posts',
+        'title': 'Management Blogs',
+        'subtitle': 'Tulis blog dengan banyak foto, arsipkan, dan pantau jumlah dilihat.',
+        'href': '/cms/blogs/',
+        'count_label': 'Total Blog',
+        'tone': 'forest',
     },
     {
         'module': 'coretan_pena',
@@ -434,7 +442,7 @@ def dashboard(request):
             entry['count_value'] = (
                 Blogs.objects.filter(tipe='Coretan Pena', is_active=False).count()
                 + PageReview.objects.filter(is_active=False).count()
-                + BookReview.objects.filter(is_published=False).count()
+                + BookComment.objects.filter(is_publish=False).count()
             )
         elif module == 'instagram_settings':
             entry['count_value'] = Instagram.objects.count()
@@ -442,6 +450,8 @@ def dashboard(request):
             entry['count_value'] = 'Aktif' if Pengumuman.objects.exists() else 'Default'
         elif module == 'roles':
             entry['count_value'] = User.objects.filter(groups__name__in=CMS_ROLE_GROUPS).distinct().count()
+        elif module == 'blog_posts':
+            entry['count_value'] = BlogPost.objects.count()
         elif module == 'coretan_pena':
             entry['count_value'] = Blogs.objects.filter(tipe='Coretan Pena', author=request.user).count()
 
@@ -473,7 +483,7 @@ def dashboard(request):
         'books': 'bi-book', 'categories': 'bi-grid', 'promo_bestseller': 'bi-star',
         'customers': 'bi-people', 'content_moderation': 'bi-shield-check',
         'instagram_settings': 'bi-instagram', 'pengumuman_settings': 'bi-megaphone',
-        'roles': 'bi-person-lock', 'coretan_pena': 'bi-pencil-square', 'reports': 'bi-clipboard-data',
+        'roles': 'bi-person-lock', 'blog_posts': 'bi-newspaper', 'coretan_pena': 'bi-pencil-square', 'reports': 'bi-clipboard-data',
     }
     tone_bg = {
         'earth': 'secondary', 'amber': 'warning', 'clay': 'danger', 'forest': 'success',
@@ -1766,13 +1776,13 @@ def content_moderation_dashboard(request):
         if action == 'toggle_buku':
             review_id = request.POST.get('review_id', '').strip()
             try:
-                review = BookReview.objects.get(pk=review_id)
-                review.is_published = not review.is_published
+                review = BookComment.objects.get(pk=review_id)
+                review.is_publish = not review.is_publish
                 review.save()
-                status_text = 'dipublikasikan' if review.is_published else 'disembunyikan'
+                status_text = 'ditampilkan' if review.is_publish else 'disembunyikan'
                 messages.add_message(request, messages.SUCCESS, f'Review buku berhasil {status_text}.')
                 _log_activity(request, 'content_moderation', f'Review buku #{review.pk} {status_text}.')
-            except BookReview.DoesNotExist:
+            except BookComment.DoesNotExist:
                 messages.add_message(request, messages.SUCCESS, 'Review tidak ditemukan.')
             return HttpResponseRedirect('/cms/content/?tab=buku')
 
@@ -1786,7 +1796,7 @@ def content_moderation_dashboard(request):
     elif tab == 'sahabat':
         queryset = PageReview.objects.select_related('user').order_by('-created_at')
     else:
-        queryset = BookReview.objects.select_related('id_buku', 'id_customer').order_by('-updated_review')
+        queryset = BookComment.objects.select_related('book', 'user', 'user__userdetail').order_by('-created_at')
 
     paginator = Paginator(queryset, 10)
     context['page_obj'] = paginator.get_page(request.GET.get('page'))
@@ -1941,6 +1951,116 @@ def coretan_pena_form(request, blog_id=None):
     return render(request, 'cms/coretan_pena_form.html', context)
 
 
+BLOG_MAX_PHOTOS = 20
+BLOG_MAX_PHOTO_BYTES = 5 * 1024 * 1024
+
+
+def _validate_blog_photos(files):
+    """Periksa isi file dengan Pillow (bukan hanya ekstensi). Mengembalikan daftar pesan error."""
+    from PIL import Image, UnidentifiedImageError
+    errors = []
+    if len(files) > BLOG_MAX_PHOTOS:
+        errors.append(f'Maksimal {BLOG_MAX_PHOTOS} foto per unggahan.')
+        return errors
+    for f in files:
+        if f.size > BLOG_MAX_PHOTO_BYTES:
+            errors.append(f'Foto "{f.name}" melebihi 5 MB.')
+            continue
+        try:
+            img = Image.open(f)
+            if img.format not in ('JPEG', 'PNG', 'WEBP'):
+                errors.append(f'Foto "{f.name}" harus berformat JPG, PNG, atau WEBP.')
+            img.verify()
+        except (UnidentifiedImageError, OSError, ValueError):
+            errors.append(f'File "{f.name}" bukan gambar yang valid.')
+        finally:
+            f.seek(0)
+    return errors
+
+
+def blog_posts_dashboard(request):
+    blocked = _ensure_cms_access(request, 'blog_posts')
+    if blocked:
+        return blocked
+
+    # seperti daftar Post di WordPress: blog tayang dan blog arsip ditampilkan terpisah
+    status = 'arsip' if request.GET.get('status') == 'arsip' else 'tayang'
+    posts = BlogPost.objects.prefetch_related('images').filter(is_archived=(status == 'arsip')).order_by('-created_at')
+    paginator = Paginator(posts, 10)
+
+    all_posts = BlogPost.objects.all()
+    context = {
+        'page_obj': paginator.get_page(request.GET.get('page')),
+        'status': status,
+        'active_posts': all_posts.filter(is_archived=False).count(),
+        'archived_posts': all_posts.filter(is_archived=True).count(),
+        'breadcrumbs': _breadcrumbs(('CMS', '/cms/'), ('Blogs', None)),
+    }
+    return render(request, 'cms/blog_posts_dashboard.html', context)
+
+
+def blog_post_form(request, post_id=None):
+    blocked = _ensure_cms_access(request, 'blog_posts')
+    if blocked:
+        return blocked
+
+    post = get_object_or_404(BlogPost, pk=post_id) if post_id else None
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'delete' and post is not None:
+            judul = post.judul
+            for img in post.images.all():
+                img.image.delete(save=False)
+            post.delete()
+            messages.add_message(request, messages.SUCCESS, 'Blog berhasil dihapus.')
+            _log_activity(request, 'blog_posts', f'Menghapus blog "{judul}".')
+            return HttpResponseRedirect('/cms/blogs/')
+
+        if request.POST.get('action') == 'toggle_archive' and post is not None:
+            post.is_archived = not post.is_archived
+            post.save(update_fields=['is_archived', 'updated_at'])
+            label = 'disembunyikan dari halaman utama (diarsipkan)' if post.is_archived else 'ditampilkan di halaman utama'
+            messages.add_message(request, messages.SUCCESS, f'Blog "{post.judul}" {label}.')
+            _log_activity(request, 'blog_posts', f'Blog "{post.judul}" {label}.')
+            return HttpResponseRedirect(request.POST.get('next') or '/cms/blogs/')
+
+        is_new = post is None
+        form = BlogPostForm(request.POST, instance=post)
+        photos = request.FILES.getlist('photos')
+        photo_errors = _validate_blog_photos(photos)
+        if form.is_valid() and not photo_errors:
+            with transaction.atomic():
+                instance = form.save(commit=False)
+                if is_new:
+                    instance.created_by = request.user
+                instance.save()
+                if post is not None:
+                    for img in instance.images.filter(pk__in=request.POST.getlist('remove_images')):
+                        img.image.delete(save=False)
+                        img.delete()
+                for f in photos:
+                    BlogPostImage.objects.create(post=instance, image=f)
+            messages.add_message(request, messages.SUCCESS, f'Blog "{instance.judul}" berhasil disimpan.')
+            _log_activity(request, 'blog_posts', f"{'Menambahkan' if is_new else 'Mengubah'} blog \"{instance.judul}\".")
+            return HttpResponseRedirect('/cms/blogs/')
+        for err in photo_errors:
+            messages.add_message(request, messages.SUCCESS, err)
+        messages.add_message(request, messages.SUCCESS, 'Blog gagal disimpan, periksa kembali form.')
+    else:
+        form = BlogPostForm(instance=post)
+
+    context = {
+        'form': form,
+        'post': post,
+        'max_photos': BLOG_MAX_PHOTOS,
+        'breadcrumbs': _breadcrumbs(
+            ('CMS', '/cms/'), ('Blogs', '/cms/blogs/'),
+            ('Edit Blog' if post else 'Tulis Blog', None),
+        ),
+    }
+    return render(request, 'cms/blog_post_form.html', context)
+
+
 def notifications_dashboard(request):
     blocked = _ensure_cms_access(request)
     if blocked:
@@ -2054,11 +2174,11 @@ def notification_detail(request, kind, pk):
         context['review_sahabat'] = review
 
     elif kind == 'review_buku':
-        review = get_object_or_404(BookReview, pk=pk)
+        review = get_object_or_404(BookComment, pk=pk)
         if request.method == 'POST':
-            review.is_published = not review.is_published
+            review.is_publish = not review.is_publish
             review.save()
-            status_text = 'dipublikasikan' if review.is_published else 'disembunyikan'
+            status_text = 'ditampilkan' if review.is_publish else 'disembunyikan'
             messages.add_message(request, messages.SUCCESS, f'Review buku berhasil {status_text}.')
             _log_activity(request, 'content_moderation', f'Review buku #{review.pk} {status_text}.')
             return HttpResponseRedirect('/cms/notifications/')

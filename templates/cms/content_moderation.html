@@ -36,7 +36,7 @@
             <div class="border rounded p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
                     <div class="fw-bold">{{ blog.header }}</div>
-                    <div class="text-secondary small">Oleh {{ blog.author.username }} &bull; {{ blog.created_at|date:"d M Y H:i" }}</div>
+                    <div class="text-secondary small">Oleh {{ blog.author.username }} &bull; {{ blog.created_at|date:"d M Y H:i" }} &bull; <i class="bi bi-eye"></i> {{ blog.view }}x dilihat</div>
                     <div class="text-secondary small">{{ blog.body|truncatewords:24 }}</div>
                 </div>
                 <div class="text-end">
@@ -62,7 +62,7 @@
                     <div class="text-secondary small">{{ review.review }}</div>
                 </div>
                 <div class="text-end">
-                    <span class="badge {% if review.is_active %}text-bg-success{% else %}text-bg-danger{% endif %}">{% if review.is_active %}Tampil{% else %}Disembunyikan{% endif %}</span>
+                    <span class="badge {% if review.is_active %}text-bg-success{% else %}text-bg-danger{% endif %}">{% if review.is_active %}Tampil{% else %}Tidak Tampil{% endif %}</span>
                     <form method="post" class="mt-2">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="toggle_sahabat">
@@ -79,17 +79,17 @@
             {% for review in page_obj %}
             <div class="border rounded p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
-                    <div class="fw-bold">{{ review.id_buku.judul }}</div>
-                    <div class="text-secondary small">Oleh {{ review.id_customer.nama_lengkap }} &bull; {{ review.updated_review|date:"d M Y" }}</div>
-                    <div class="text-secondary small">{{ review.review }}</div>
+                    <div class="fw-bold">{{ review.book.judul }}</div>
+                    <div class="text-secondary small">Oleh {{ review.user.userdetail.nama_lengkap|default:review.user.username }} &bull; {{ review.created_at|date:"d M Y H:i" }}</div>
+                    <div class="text-secondary small">{{ review.comment }}</div>
                 </div>
                 <div class="text-end">
-                    <span class="badge {% if review.is_published %}text-bg-success{% else %}text-bg-danger{% endif %}">{% if review.is_published %}Terbit{% else %}Menunggu Moderasi{% endif %}</span>
+                    <span class="badge {% if review.is_publish %}text-bg-success{% else %}text-bg-danger{% endif %}">{% if review.is_publish %}Tampil{% else %}Tidak Tampil{% endif %}</span>
                     <form method="post" class="mt-2">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="toggle_buku">
                         <input type="hidden" name="review_id" value="{{ review.id }}">
-                        <button class="btn btn-sm {% if review.is_published %}btn-outline-secondary{% else %}btn-success{% endif %}" type="submit">{% if review.is_published %}Sembunyikan{% else %}Terbitkan{% endif %}</button>
+                        <button class="btn btn-sm {% if review.is_publish %}btn-outline-secondary{% else %}btn-success{% endif %}" type="submit">{% if review.is_publish %}Sembunyikan{% else %}Tampilkan{% endif %}</button>
                     </form>
                 </div>
             </div>

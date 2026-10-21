@@ -3,7 +3,7 @@ from .views import mainPage, bacaBuku,logoutUser,resetPassword, verifyLinkLupaPa
 from .views import addWishList, delWishList, test123,allBookView, addCartList, cartView, delCartList, changeCartStatus
 from .views import listInboxMessage, deleteInboxMessage, sinopsisBuku,allBlogsView,detailBlog,paymentProcess
 from .views import bacaBukuKoleksi, allKoleksiView,profileView,profileUpdate,listPayment,gantiPasswordPage
-from .views import pencarianInfo, tentangKami, melakukanDonasi, deleteBlogComment, deleteBookComment, downloadInvoice
+from .views import blogListView, blogDetailView, pencarianInfo, tentangKami, melakukanDonasi, deleteBlogComment, deleteBookComment, downloadInvoice
 
 urlpatterns = [
     path('', mainPage,name="main_page"),
@@ -25,9 +25,11 @@ urlpatterns = [
     path('cart/change/<str:id>/',changeCartStatus,name="change_cart_status"),
     path('inbox/',listInboxMessage,name='list_inbox_message'),
     path('inbox/delete/<int:id>/',deleteInboxMessage,name='delete_inbox_message'),
-    path('blogs/',allBlogsView,name="all_blogs_view"),
-    path('blogs/<str:id>/',detailBlog,name="detail_blog"),
-    path('blogs/comment/delete/<str:id>/', deleteBlogComment, name="delete_blog_comment"),
+    path('pena/',allBlogsView,name="all_blogs_view"),
+    path('pena/comment/delete/<str:id>/', deleteBlogComment, name="delete_blog_comment"),
+    path('pena/<str:id>/',detailBlog,name="detail_blog"),
+    path('blogs/',blogListView,name="blog_list"),
+    path('blogs/<str:id>/',blogDetailView,name="blog_detail"),
     path('book/comment/delete/<str:id>/', deleteBookComment, name="delete_book_comment"),
     path('buy/', paymentProcess,name="payment_process"),
     path('profile/',profileView,name="profile_view"),
