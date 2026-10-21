@@ -39,13 +39,13 @@
 <div class="row">
     {% for tile in summary_tiles %}
     <div class="col-lg-4 col-6">
-        <div class="small-box text-bg-{{ tile.tone }}">
+        <a href="{{ tile.href }}" class="small-box text-bg-{{ tile.tone }} text-decoration-none">
             <div class="inner">
                 <h3>{{ tile.value }}</h3>
                 <p>{{ tile.label }}</p>
             </div>
             <i class="small-box-icon bi {{ tile.icon }}"></i>
-        </div>
+        </a>
     </div>
     {% endfor %}
 </div>

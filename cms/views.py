@@ -460,13 +460,13 @@ def dashboard(request):
 
     summary_tiles = []
     if has_access('payments'):
-        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'label': 'Payment Pending', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=False).count()})
-        summary_tiles.append({'tone': 'success', 'icon': 'bi-check-circle', 'label': 'Payment Disetujui', 'value': MyPayment.objects.filter(is_verified=True).count()})
-        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'label': 'Payment Ditolak', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=True).count()})
+        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'href': '/cms/payments/', 'label': 'Payment Pending', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=False).count()})
+        summary_tiles.append({'tone': 'success', 'icon': 'bi-check-circle', 'href': '/cms/payments/', 'label': 'Payment Disetujui', 'value': MyPayment.objects.filter(is_verified=True).count()})
+        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'href': '/cms/payments/', 'label': 'Payment Ditolak', 'value': MyPayment.objects.filter(is_verified=False, is_canceled=True).count()})
     if has_access('donations'):
-        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
-        summary_tiles.append({'tone': 'success', 'icon': 'bi-heart-fill', 'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
-        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
+        summary_tiles.append({'tone': 'warning', 'icon': 'bi-hourglass-split', 'href': '/cms/donations/', 'label': 'Donasi Pending', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=False).count()})
+        summary_tiles.append({'tone': 'success', 'icon': 'bi-heart-fill', 'href': '/cms/donations/', 'label': 'Donasi Disetujui', 'value': MyDonation.objects.filter(is_verified=True).count()})
+        summary_tiles.append({'tone': 'danger', 'icon': 'bi-x-circle', 'href': '/cms/donations/', 'label': 'Donasi Ditolak', 'value': MyDonation.objects.filter(is_verified=False, is_canceled=True).count()})
 
     card_icons = {
         'analytics': 'bi-bar-chart-line', 'payments': 'bi-credit-card', 'donations': 'bi-heart',
@@ -479,6 +479,8 @@ def dashboard(request):
         'earth': 'secondary', 'amber': 'warning', 'clay': 'danger', 'forest': 'success',
         'plum': 'primary', 'navy': 'primary', 'charcoal': 'dark', 'gold': 'warning', 'teal': 'info',
     }
+    # Payment & Donasi sudah tampil sebagai ringkasan di atas, jangan ditampilkan dobel sebagai kartu modul.
+    cards = [c for c in cards if c['module'] not in ('payments', 'donations')]
     for entry in cards:
         entry['icon'] = card_icons.get(entry['module'], 'bi-app')
         entry['bg'] = tone_bg.get(entry['tone'], 'secondary')
