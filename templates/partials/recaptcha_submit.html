@@ -5,25 +5,44 @@
   document.addEventListener('submit', function (event) {
     var form = event.target;
     var action = form.getAttribute && form.getAttribute('data-recaptcha-action');
-    if (!action || form.dataset.recaptchaDone === '1' || typeof grecaptcha === 'undefined') {
+    if (!action || form.dataset.recaptchaDone === '1') {
       return;
     }
     event.preventDefault();
     var submitter = event.submitter;
-    grecaptcha.ready(function () {
-      grecaptcha.execute('{{ recaptcha_site_key }}', {action: action}).then(function (token) {
-        var input = form.querySelector('input[name="g-recaptcha-response"]');
-        if (!input) {
-          input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'g-recaptcha-response';
-          form.appendChild(input);
-        }
-        input.value = token;
-        form.dataset.recaptchaDone = '1';
-        form.requestSubmit(submitter || undefined);
+
+    function send(token) {
+      var input = form.querySelector('input[name="g-recaptcha-response"]');
+      if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'g-recaptcha-response';
+        form.appendChild(input);
+      }
+      input.value = token;
+      form.dataset.recaptchaDone = '1';
+      form.requestSubmit(submitter || undefined);
+    }
+
+    function run() {
+      grecaptcha.ready(function () {
+        grecaptcha.execute('{{ recaptcha_site_key }}', {action: action}).then(send, function () {
+          alert('Verifikasi keamanan (reCAPTCHA) tidak dapat dimuat. Muat ulang halaman lalu coba lagi.');
+        });
       });
-    });
+    }
+
+    // api.js dimuat async: tunggu sampai siap (maks. 10 detik).
+    var tries = 0;
+    (function wait() {
+      if (typeof grecaptcha !== 'undefined' && grecaptcha.ready) {
+        run();
+      } else if (++tries > 100) {
+        alert('Verifikasi keamanan (reCAPTCHA) tidak dapat dimuat. Periksa koneksi lalu coba lagi.');
+      } else {
+        setTimeout(wait, 100);
+      }
+    })();
   });
 </script>
 {% endif %}

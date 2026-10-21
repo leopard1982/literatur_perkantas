@@ -27,8 +27,13 @@ logger = logging.getLogger(__name__)
 
 def recaptcha_failed(request, form_class):
     """True (dan menambah pesan error) jika token reCAPTCHA v3 pada POST tidak valid."""
-    if form_class(request.POST).is_valid():
+    form = form_class(request.POST)
+    if form.is_valid():
         return False
+    logger.warning(
+        "reCAPTCHA %s gagal: path=%s token_ada=%s errors=%s",
+        form_class.__name__, request.path, bool(request.POST.get('g-recaptcha-response')), form.errors.as_json(),
+    )
     messages.add_message(request,messages.ERROR,"Verifikasi keamanan (reCAPTCHA) gagal, silakan coba lagi.")
     return True
 from django.template import loader
