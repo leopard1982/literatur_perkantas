@@ -354,6 +354,10 @@ class ReaderFeatureTests(TestCase):
         self.assertEqual(self.client.get(u + 'bookmarks/', **self.h).json()['results'][0]['color'], 'green')
         self.assertEqual(post(self.client, u + 'bookmarks/', {'page': 99, 'color': 'red'}, **self.h).status_code, 400)
         self.assertEqual(post(self.client, u + 'bookmarks/', {'page': 2, 'color': 'nope'}, **self.h).status_code, 400)
+        g = self.client.get('/api/v1/me/bookmarks/', **self.h).json()['results']
+        self.assertEqual(g[0]['book']['id'], str(self.free.id))
+        self.assertEqual(g[0]['bookmarks'][0]['note'], 'ubah')
+        self.assertEqual(self.client.get('/api/v1/me/bookmarks/').status_code, 401)
         self.assertEqual(self.client.delete(f"/api/v1/bookmarks/{r.json()['id']}/", **self.h).status_code, 200)
         self.assertEqual(self.client.put(u + 'progress/', json.dumps({'page': 7}), content_type='application/json', **self.h).status_code, 200)
         self.assertEqual(self.client.get(u + 'progress/', **self.h).json()['page'], 7)
@@ -361,6 +365,10 @@ class ReaderFeatureTests(TestCase):
         import datetime
         t = (datetime.date.today() + datetime.timedelta(days=10)).isoformat()
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t}), content_type='application/json', **self.h).json()['plan']['target_date'], t)
+        self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t, 'remind_time': '07:30'}), content_type='application/json', **self.h).json()['plan']['remind_time'], '07:30')
+        self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': t, 'remind_time': 'abc'}), content_type='application/json', **self.h).status_code, 400)
+        pl = self.client.get('/api/v1/me/plans/', **self.h).json()['results']
+        self.assertEqual((pl[0]['book']['id'], pl[0]['page'], pl[0]['remind_time']), (str(self.free.id), 7, '07:30'))
         self.assertEqual(self.client.put(u + 'plan/', json.dumps({'target_date': '2001-01-01'}), content_type='application/json', **self.h).status_code, 400)
         self.assertEqual(post(self.client, u + 'comments/', {'comment': 'Bagus'}, **self.h).status_code, 201)
         self.assertEqual(self.client.get(u, **self.h).json()['comments'][0]['comment'], 'Bagus')

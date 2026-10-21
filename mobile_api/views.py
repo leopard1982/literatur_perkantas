@@ -655,7 +655,33 @@ def bookmark_delete(request, bookmark_id):
 
 def _plan_dict(p):
     return {'start_date': p.start_date.isoformat(), 'target_date': p.target_date.isoformat(),
-            'start_page': p.start_page}
+            'start_page': p.start_page, 'remind_time': p.remind_time.strftime('%H:%M')}
+
+
+@gzip_page
+@api(['GET'], auth='required', rate=(60, 60))
+def my_bookmarks(request):
+    """Semua penanda milik user, dikelompokkan per buku (tab Penanda di aplikasi)."""
+    rows = (ReaderBookmark.objects.filter(user=request.api_user, book__is_active=True)
+            .select_related('book__kategori', 'book__onsalebook').order_by('book__judul', 'page')[:500])
+    groups = {}
+    for b in rows:
+        g = groups.setdefault(b.book_id, {'book': book_dict(b.book, 0), 'bookmarks': []})
+        g['bookmarks'].append(_bookmark_dict(b))
+    return JsonResponse({'results': list(groups.values())})
+
+
+@gzip_page
+@api(['GET'], auth='required', rate=(60, 60))
+def my_plans(request):
+    """Semua rencana baca aktif milik user (halaman Profil + penjadwalan pengingat di aplikasi)."""
+    today = datetime.date.today()
+    rows = (ReadingPlan.objects.filter(user=request.api_user, book__is_active=True, target_date__gte=today)
+            .select_related('book__kategori', 'book__onsalebook').order_by('target_date'))
+    prog = dict(ReadingProgress.objects.filter(user=request.api_user, book_id__in=[r.book_id for r in rows])
+                .values_list('book_id', 'page'))
+    return JsonResponse({'results': [dict(_plan_dict(r), book=book_dict(r.book, 0), page=prog.get(r.book_id, 0))
+                                      for r in rows]})
 
 
 @api(['GET', 'PUT', 'DELETE'], auth='required', rate=(60, 60))
@@ -676,9 +702,14 @@ def book_plan(request, book_id):
         if not today <= target <= today + datetime.timedelta(days=365 * 2):
             return error(400, 'invalid_input', 'Tanggal target harus antara hari ini dan 2 tahun ke depan.')
         start_page = _int_in(request.json.get('start_page', 1), 1, max(book.halaman, 1)) or 1
+        try:
+            remind = datetime.time.fromisoformat(str(request.json.get('remind_time', '19:00')))
+        except ValueError:
+            return error(400, 'invalid_input', 'Jam pengingat tidak valid.')
         ReadingPlan.objects.update_or_create(
             user=user, book=book,
-            defaults={'start_date': today, 'target_date': target, 'start_page': start_page})
+            defaults={'start_date': today, 'target_date': target, 'start_page': start_page,
+                      'remind_time': remind.replace(second=0, microsecond=0)})
     plan = ReadingPlan.objects.filter(user=user, book=book).first()
     return JsonResponse({'plan': _plan_dict(plan) if plan else None})
 

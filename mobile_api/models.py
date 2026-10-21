@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import secrets
 import uuid
@@ -95,6 +96,7 @@ class ReadingPlan(models.Model):
     start_date = models.DateField()
     target_date = models.DateField()
     start_page = models.PositiveSmallIntegerField(default=1)
+    remind_time = models.TimeField(default=datetime.time(19, 0))  # pengingat harian (jam lokal perangkat)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
