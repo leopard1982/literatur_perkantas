@@ -200,6 +200,8 @@ def book_list(request):
     data = {
         'title': title, 'page': page.number, 'num_pages': paginator.num_pages,
         'total': paginator.count, 'results': [book_dict(b) for b in page.object_list],
+        # k 1..9 = kategori (lihat cabang filter di atas); dipakai app untuk chip filter
+        'categories': [{'id': c.id, 'nama': c.nama} for c in Category.objects.filter(id__range=(1, 9)).order_by('id')],
     }
     if request.api_user is not None:
         ids = [b.id for b in page.object_list]
@@ -246,6 +248,15 @@ def blog_list(request):
     except ValueError:
         page_no = 1
     qs = Blogs.objects.filter(is_active=True).select_related('author__userdetail').order_by('-created_at')
+    q = (request.GET.get('q') or '').strip()[:60]
+    if q:
+        qs = qs.filter(Q(header__icontains=q) | Q(body__icontains=q))
+    # rentang tanggal (YYYY-MM-DD), keduanya inklusif
+    for param, lookup in (('date_from', 'created_at__date__gte'), ('date_to', 'created_at__date__lte')):
+        try:
+            qs = qs.filter(**{lookup: datetime.date.fromisoformat(request.GET.get(param, ''))})
+        except ValueError:
+            pass
     paginator = Paginator(qs, 8)
     try:
         page = paginator.page(page_no)
