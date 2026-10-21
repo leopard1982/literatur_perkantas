@@ -32,7 +32,7 @@ def recaptcha_failed(request, form_class):
         return False
     logger.warning(
         "reCAPTCHA %s gagal: path=%s token_ada=%s errors=%s",
-        form_class.__name__, request.path, bool(request.POST.get('g-recaptcha-response')), form.errors.as_json(),
+        form_class.__name__, request.path, bool(request.POST.get('recaptcha')), form.errors.as_json(),
     )
     messages.add_message(request,messages.ERROR,"Verifikasi keamanan (reCAPTCHA) gagal, silakan coba lagi.")
     return True

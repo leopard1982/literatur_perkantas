@@ -12,11 +12,11 @@
     var submitter = event.submitter;
 
     function send(token) {
-      var input = form.querySelector('input[name="g-recaptcha-response"]');
+      var input = form.querySelector('input[name="recaptcha"]');
       if (!input) {
         input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'g-recaptcha-response';
+        input.name = 'recaptcha';
         form.appendChild(input);
       }
       input.value = token;
