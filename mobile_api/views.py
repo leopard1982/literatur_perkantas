@@ -14,6 +14,7 @@ from django.db import transaction
 from django.db.models import Count, F, Q
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
+from django.utils import timezone
 from django.views.decorators.gzip import gzip_page
 
 from literatur.models import (
@@ -40,7 +41,9 @@ log = logging.getLogger('mobile_api')
 DEFAULT_PENGUMUMAN = "Selamat Datang Di Website Literatur Perkantas Nasional!"
 HOME_CACHE_KEY = 'api:home:v1'
 HOME_CACHE_TTL = 60
-MAX_SESSIONS_PER_USER = 10
+# Satu akun boleh login bersamaan di sampai 5 perangkat (settings.MOBILE_MAX_SESSIONS). Lebih dari itu ditolak
+# sampai salah satu perangkat logout.
+MAX_SESSIONS_PER_USER = getattr(settings, 'MOBILE_MAX_SESSIONS', 5)
 RECAPTCHA_ACTION = 'login'
 RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
@@ -345,9 +348,18 @@ def login(request):
 
     throttle.clear('login-user', ident)
     with transaction.atomic():
-        live = ApiSession.objects.filter(user=user, revoked_at__isnull=True).order_by('-created_at')
-        for old in list(live)[MAX_SESSIONS_PER_USER - 1:]:
-            old.revoke()
+        # kuota perangkat per akun: penuh -> login baru ditolak sampai ada yang logout
+        # (sesi kedaluwarsa / sudah di-revoke tidak dihitung)
+        live = list(ApiSession.objects.select_for_update().filter(
+            user=user, revoked_at__isnull=True, refresh_expires_at__gt=timezone.now()).order_by('created_at'))
+        if len(live) >= MAX_SESSIONS_PER_USER:
+            resp = error(409, 'device_limit',
+                         'Akun ini sudah login di %d perangkat. Logout dari salah satu perangkat terlebih dahulu, lalu coba lagi.'
+                         % MAX_SESSIONS_PER_USER)
+            body = json.loads(resp.content)
+            body['error']['devices'] = [{'device': x.device_name or 'Perangkat', 'last_used': (x.last_used_at or x.created_at).isoformat()}
+                                        for x in live]
+            return JsonResponse(body, status=409)
         session, access, refresh = ApiSession.start(user, device)
     payload = _token_payload(session, access, refresh)
     payload['user'] = _me(user)

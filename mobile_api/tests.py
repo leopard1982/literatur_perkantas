@@ -5,6 +5,7 @@ import tempfile
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from literatur.models import Books, Category, MyPayment, UserBook, UserDetail
 
@@ -394,3 +395,43 @@ class ReaderFeatureTests(TestCase):
     def test_review_requires_captcha(self):
         r = self.client.put('/api/v1/me/review/', json.dumps({'review': 'x'}), content_type='application/json', **self.h)
         self.assertEqual(r.json()['error']['code'], 'captcha_failed')
+
+
+@override_settings(MEDIA_ROOT=MEDIA, ALLOWED_HOSTS=['testserver'], MOBILE_LOGIN_RECAPTCHA=False)
+class SharedLoginTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        u = User.objects.create_user('keluarga', 'k@example.com', 'rahasia-123')
+        UserDetail.objects.create(user=u, nama_lengkap='Keluarga')
+
+    def login_resp(self, device):
+        return post(self.client, '/api/v1/auth/login/', {'username': 'keluarga', 'password': 'rahasia-123', 'device_name': device})
+
+    def login(self, device):
+        return self.login_resp(device).json()['access_token']
+
+    def me(self, tok):
+        return self.client.get('/api/v1/me/', HTTP_AUTHORIZATION='Bearer ' + tok).status_code
+
+    def test_five_logins_then_sixth_rejected_until_someone_logs_out(self):
+        toks = [self.login(f'hp{i}') for i in range(5)]
+        self.assertEqual([self.me(t) for t in toks], [200] * 5)  # all five logged in together
+        r = self.login_resp('hp5')
+        self.assertEqual((r.status_code, r.json()['error']['code']), (409, 'device_limit'))
+        self.assertEqual(len(r.json()['error']['devices']), 5)
+        self.assertEqual([self.me(t) for t in toks], [200] * 5)  # nobody was kicked out
+        # wrong password still gives the generic 401, never reveals the device limit
+        bad = post(self.client, '/api/v1/auth/login/', {'username': 'keluarga', 'password': 'salah'})
+        self.assertEqual(bad.status_code, 401)
+        # one logs out -> a slot is free
+        self.assertEqual(post(self.client, '/api/v1/auth/logout/', {}, HTTP_AUTHORIZATION='Bearer ' + toks[2]).status_code, 200)
+        six = self.login('hp5')
+        self.assertEqual(self.me(six), 200)
+        self.assertEqual(self.login_resp('hp6').status_code, 409)
+
+    def test_expired_sessions_do_not_hold_a_slot(self):
+        for i in range(5):
+            self.login(f'hp{i}')
+        from mobile_api.models import ApiSession
+        ApiSession.objects.filter(device_name='hp0').update(refresh_expires_at=timezone.now() - timezone.timedelta(seconds=1))
+        self.assertEqual(self.login_resp('hp5').status_code, 200)
