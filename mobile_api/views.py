@@ -397,17 +397,17 @@ def register(request):
         return error(400, 'captcha_failed', 'Verifikasi reCAPTCHA gagal, silakan coba lagi.')
 
     done = JsonResponse({'sent': True, 'message': 'Jika email valid, tautan konfirmasi pendaftaran telah dikirim. '
-                                                  'Silakan cek email Anda (berlaku %d menit).' % settings.EXPIRED_MINUTES})
+                                                  'Silakan cek email Anda (berlaku %d menit).' % getattr(settings, 'EXPIRED_MINUTES', 60)})
     allowed, _ = throttle.hit('register-email', email, REGISTER_EMAIL_LIMIT, REGISTER_EMAIL_WINDOW)
     if not allowed or User.objects.filter(Q(email__iexact=email) | Q(username__iexact=email)).exists():
         return done  # diam-diam: tidak ada email dikirim, respons identik
 
     pendaftaran = PendaftaranBaru.objects.create(email=email)
-    base = settings.SITE_URL.rstrip('/')  # bukan Host header (cegah host-header injection)
+    base = (getattr(settings, 'SITE_URL', '') or 'https://literatur.leopardos.tech').rstrip('/')  # bukan Host header (cegah host-header injection)
     link = '%s/daftar/verify/%s/' % (base, pendaftaran.id)
     message = (f"\nHallo Ka, terima kasih sudah mendaftar di Literatur Perkantas Nasional dengan email {email}. "
                f"\n\nSilakan klik link berikut untuk melanjutkan pendaftaran dan membuat password: \n\n{link} "
-               f"\n\nLink ini hanya berlaku selama {settings.EXPIRED_MINUTES} menit. "
+               f"\n\nLink ini hanya berlaku selama {getattr(settings, 'EXPIRED_MINUTES', 60)} menit. "
                f"\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional "
                f"\n\n\nTautan Literatur Nasional Perkantas: {base}/")
     def _kirim():
