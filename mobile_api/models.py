@@ -112,3 +112,13 @@ class ReadingProgress(models.Model):
 
     class Meta:
         unique_together = ['user', 'book']
+
+
+class InboxRead(models.Model):
+    """Pesan inbox yang sudah dibuka di aplikasi (terpisah dari website, tanpa mengubah tabel inbox)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    message_id = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'message_id')

@@ -7,6 +7,7 @@ import urllib.request
 import uuid
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.core import signing
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, Paginator
@@ -30,7 +31,7 @@ from . import throttle
 from .core import api, error
 from .models import (
     ACCESS_TTL, BOOKMARK_COLORS, ApiSession, ReaderBookmark, ReadingPlan, ReadingProgress,
-    hash_token, password_stamp,
+    hash_token, password_stamp, InboxRead,
 )
 from .serializers import (
     active_sale, blog_dict, book_dict, cover, media, person_name, plain_text,
@@ -48,7 +49,7 @@ RECAPTCHA_ACTION = 'login'
 RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
 
-RECAPTCHA_ACTIONS = ('login', 'comment', 'bookmark', 'review')
+RECAPTCHA_ACTIONS = ('login', 'comment', 'bookmark', 'review', 'register')
 
 
 def _recaptcha_ok(token, ip, action=RECAPTCHA_ACTION):
@@ -366,6 +367,57 @@ def login(request):
     return JsonResponse(payload)
 
 
+REGISTER_EMAIL_LIMIT = 3          # permintaan per email
+REGISTER_EMAIL_WINDOW = 60 * 60    # per jam
+
+
+@api(['POST'], rate=(10, 15 * 60))
+def register(request):
+    """Langkah 1 pendaftaran (sama dengan website): kirim tautan konfirmasi ke email. Password dibuat
+    di halaman web lewat tautan itu. Respons selalu sama, baik email sudah terdaftar atau belum
+    (tidak membocorkan daftar akun)."""
+    from django.core.exceptions import ValidationError
+    from django.core.mail import send_mail
+    from django.core.validators import validate_email
+    from literatur.models import PendaftaranBaru
+
+    email = request.json.get('email')
+    if not isinstance(email, str):
+        return error(400, 'invalid_input', 'Email wajib diisi.')
+    email = email.strip().lower()
+    try:
+        if len(email) > 150 or any(c in email for c in '\r\n,;<> '):
+            raise ValidationError('x')
+        validate_email(email)
+    except ValidationError:
+        return error(400, 'invalid_input', 'Format email tidak valid.')
+
+    if not _recaptcha_ok(request.json.get('recaptcha_token'), throttle.client_ip(request), 'register'):
+        return error(400, 'captcha_failed', 'Verifikasi reCAPTCHA gagal, silakan coba lagi.')
+
+    done = JsonResponse({'sent': True, 'message': 'Jika email valid, tautan konfirmasi pendaftaran telah dikirim. '
+                                                  'Silakan cek email Anda (berlaku %d menit).' % settings.EXPIRED_MINUTES})
+    allowed, _ = throttle.hit('register-email', email, REGISTER_EMAIL_LIMIT, REGISTER_EMAIL_WINDOW)
+    if not allowed or User.objects.filter(Q(email__iexact=email) | Q(username__iexact=email)).exists():
+        return done  # diam-diam: tidak ada email dikirim, respons identik
+
+    pendaftaran = PendaftaranBaru.objects.create(email=email)
+    base = settings.SITE_URL.rstrip('/')  # bukan Host header (cegah host-header injection)
+    link = '%s/daftar/verify/%s/' % (base, pendaftaran.id)
+    message = (f"\nHallo Ka, terima kasih sudah mendaftar di Literatur Perkantas Nasional dengan email {email}. "
+               f"\n\nSilakan klik link berikut untuk melanjutkan pendaftaran dan membuat password: \n\n{link} "
+               f"\n\nLink ini hanya berlaku selama {settings.EXPIRED_MINUTES} menit. "
+               f"\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional "
+               f"\n\n\nTautan Literatur Nasional Perkantas: {base}/")
+    try:
+        send_mail("Konfirmasi Pendaftaran", message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+    except Exception:
+        log.exception('register: gagal kirim email')
+        pendaftaran.delete()
+        return error(503, 'mail_failed', 'Maaf, email belum bisa dikirim. Silakan coba lagi nanti.')
+    return done
+
+
 @api(['POST'], rate=(60, 60))
 def refresh(request):
     raw = request.json.get('refresh_token')
@@ -414,7 +466,8 @@ def _me(user):
         'total_book': d.total_book, 'total_poin': d.total_poin,
         'jml_cart': MyCart.objects.filter(user=user).count(),
         'jml_wishlist': MyWishlist.objects.filter(user=user).count(),
-        'jml_inbox': inboxMessage.objects.filter(user=user).count(),
+        'jml_inbox': inboxMessage.objects.filter(user=user).exclude(
+            id__in=InboxRead.objects.filter(user=user).values('message_id')).count(),
     }
 
 
@@ -507,9 +560,11 @@ def my_cart(request):
 @api(['GET'], auth='required', rate=(120, 60))
 def inbox(request):
     rows = list(inboxMessage.objects.filter(user=request.api_user).order_by('-id')[:50])
+    read_ids = set(InboxRead.objects.filter(user=request.api_user, message_id__in=[m.id for m in rows])
+                   .values_list('message_id', flat=True))
     results = []
     for m in rows:
-        item = {'id': m.id, 'header': m.header, 'body': m.body,
+        item = {'id': m.id, 'header': m.header, 'body': m.body, 'read': m.id in read_ids,
                 'created_at': m.created_at.isoformat(), 'invoice_id': None}
         if m.header == 'Pembayaran Selesai Dikonfirmasi':
             payment = get_downloadable_payment(request.api_user, invoice_id_from_text(m.body))
@@ -551,6 +606,14 @@ def invoice_pdf(request, payment_id):
     if payment is None:
         return error(404, 'not_found', 'Invoice tidak ditemukan atau pembayaran belum disetujui.')
     return invoice_response(payment)
+
+
+@api(['POST'], auth='required', rate=(120, 60))
+def inbox_read(request, msg_id):
+    # hanya pesan milik user sendiri yang bisa ditandai dibaca
+    if inboxMessage.objects.filter(id=msg_id, user=request.api_user).exists():
+        InboxRead.objects.get_or_create(user=request.api_user, message_id=msg_id)
+    return JsonResponse({'ok': True})
 
 
 @api(['DELETE'], auth='required', rate=(60, 60))
