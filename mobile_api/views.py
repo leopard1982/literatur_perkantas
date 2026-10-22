@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import threading
 import urllib.parse
 import urllib.request
 import uuid
@@ -409,12 +410,15 @@ def register(request):
                f"\n\nLink ini hanya berlaku selama {settings.EXPIRED_MINUTES} menit. "
                f"\n\n\nTerima kasih dan Tuhan memberkati! \n\n\nSalam, \n\n\nLiteratur Perkantas Nasional "
                f"\n\n\nTautan Literatur Nasional Perkantas: {base}/")
-    try:
-        send_mail("Konfirmasi Pendaftaran", message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
-    except Exception:
-        log.exception('register: gagal kirim email')
-        pendaftaran.delete()
-        return error(503, 'mail_failed', 'Maaf, email belum bisa dikirim. Silakan coba lagi nanti.')
+    def _kirim():
+        try:
+            send_mail("Konfirmasi Pendaftaran", message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+        except Exception:
+            log.exception('register: gagal kirim email')
+            PendaftaranBaru.objects.filter(id=pendaftaran.id).delete()
+
+    # SMTP bisa lambat (Gmail): kirim di latar belakang agar aplikasi tidak kena timeout
+    threading.Thread(target=_kirim, daemon=True).start()
     return done
 
 
